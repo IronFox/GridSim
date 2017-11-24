@@ -141,79 +141,11 @@ void	gotoxy(int x, int y);	//!< Locates the console out cursor at the specified 
 #include <limits.h>
 
 #include "../container/array.h"
-
+#include "charFunctions.h"
 
 
 namespace DeltaWorks
 {
-
-	template <typename T>
-		inline bool IsWhitespace(T c)
-		{
-			return c == (T)' ' || c == (T)'\t' || c == (T)'\r' || c == (T)'\n';
-		}
-
-	template <typename T>
-		inline bool IsNewline(T c)
-		{
-			return c == (T)'\r' || c == (T)'\n';
-		}
-
-
-
-	namespace CharFunctions
-	{
-
-		template <typename T>
-			inline size_t	__fastcall strlen(const T*string) throw();
-		template <typename T0, typename T1>
-			inline const T0*	__fastcall strstr(const T0*haystack, const T1*needle) throw();
-		template <typename T0, typename T1>
-			inline const T0*	__fastcall strstr(const T0*haystack, const T0*const haystackEnd, const T1*needle, const T1*const needleEnd) throw();
-		template <typename T0, typename T1>
-			inline const T0*	__fastcall stristr(const T0*haystack, const T0*const haystackEnd, const T1*needle, const T1*const needleEnd) throw();
-		template <typename T0, typename T1>
-			inline const T0*	__fastcall stristr(const T0*haystack, const T1*needle) throw();
-		template <typename T>
-			inline const T*	__fastcall strchr(const T*haystack, T needle) throw();
-		template <typename T>
-			inline const T*	__fastcall strchr(const T*haystack, const T*const haystackEnd, T needle) throw();
-		template <typename T>
-			inline const T*	__fastcall strchr(const T*haystack, bool isNeedle(T)) throw();
-		template <typename T>
-			inline const T*	__fastcall strchr(const T*haystack, const T*const haystackEnd, bool isNeedle(T)) throw();
-		template <typename T>
-			inline const T*	__fastcall strichr(const T*haystack, T needle) throw();
-		template <typename T0, typename T1>
-			inline void __fastcall strncpy(T0*target,const T1*source,size_t length) throw();
-		template <typename T0, typename T1>
-			inline int __fastcall strncmp(const T0*string0,const T1*string1, size_t length) throw();
-		template <typename T0, typename T1>
-			inline int __fastcall strncmpi(const T0*string0,const T1*string1, size_t length) throw();
-		template <typename T0, typename T1>
-			inline int __fastcall strcmp(const T0*string0,const T1*string1) throw();
-		template <typename T0, typename T1>
-			inline int __fastcall strcmpi(const T0*string0,const T1*string1) throw();
-		template <typename T>
-			inline void __fastcall strupr(T*string) throw();
-		template <typename T>
-			inline void __fastcall strlwr(T*string) throw();
-		template <typename T>
-			inline T	__fastcall toupper(T chr) throw();
-		template <typename T>
-			inline T	__fastcall tolower(T chr) throw();
-		template <typename T>
-			inline bool	__fastcall isalnum(T chr) throw();
-		template <typename T>
-			inline bool	__fastcall isdigit(T chr) throw();
-		template <typename T>
-			inline bool	__fastcall isalpha(T chr) throw();
-		template <typename T>
-			inline bool __fastcall isEscapable(T chr) throw();	//!< Returns true for characters that can be escaped
-		template <typename T0, typename T1>
-			inline void	__fastcall Cast(const T0*from, T1*to, count_t numChars);
-	}
-
 
 
 	namespace StringType
@@ -282,6 +214,7 @@ namespace DeltaWorks
 				size_t			len;
 			public:
 				typedef const T*iterator,const_iterator;
+				typedef ReferenceExpression<T> Self;
 
 				/**/			ReferenceExpression():reference(NULL),len(0) {}
 				/**/			ReferenceExpression(const T*str):reference(str),len(CharFunctions::strlen(str)) {}
@@ -292,7 +225,7 @@ namespace DeltaWorks
 				}
 
 
-				friend hash_t	Hash(const ReferenceExpression<T>&ref)
+				friend hash_t	Hash(const Self&ref)
 				{
 					return StdCharHash(ref.pointer(),ref.size());
 				}
@@ -373,6 +306,107 @@ namespace DeltaWorks
 				inline ReferenceExpression<T>	TrimLeft() const;
 				inline ReferenceExpression<T>	TrimRight() const;
 				inline Template<char>		ToString()			const;	//!< Converts the expression architecture including data to a string for debug output
+
+				/**
+				Attempts to locate the last occurance of the specified string.
+				Search is case sensitive.
+				@param needle String segment to look for
+				@param offset Index to start from (first character). Reduced if necessary
+				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
+				*/
+				index_t			FindLast(const Self&needle, index_t offset = InvalidIndex)	const;
+				/**
+				Attempts to locate the last occurance of the specified character.
+				Search is case sensitive.
+				@param needle Character to look for
+				@param offset Index to start from. Reduced if necessary
+				@return Index of the found character (0=first char) or InvalidIndex if no occurance was found
+				*/
+				index_t			FindLast(T needle, index_t offset = InvalidIndex)					const;
+								/**
+				Attempts to locate the first occurance of the specified string.
+				Search is case sensitive.
+				@param needle String segment to look for
+				@param offset Index to start from 
+				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
+				*/
+				index_t			Find(const Self&needle, index_t offset = 0)	const;
+				/**
+				Attempts to locate the first occurance of the specified (zero-terminated) string.
+				Search is case sensitive.
+				@param needle Pointer to the first character of the string segment to look for
+				@param offset Index to start from 
+				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
+				*/
+				index_t			Find(const T*needle, index_t offset = 0)		const	{return Find(Self(needle),offset);}
+				/**
+				Attempts to locate the first occurance of the specified character.
+				Search is case sensitive.
+				@param needle Character to look for
+				@param offset Index to start from 
+				@return Index of the found character (0=first char) or InvalidIndex if no occurance was found
+				*/
+				index_t			Find(T needle, index_t offset = 0)					const;
+				/**
+				Attempts to locate the first occurance of a character for which the specified callback function returns true.
+				Search is case sensitive.
+				@param callback Pointer to a function to determine whether a character is a valid match. The function should return true if the character is a valid match, false otherwise
+				@param offset Index to start from 
+				@return Index of the found character (0=first char) or InvalidIndex if no occurance was found
+				*/
+				index_t			Find(bool callback(T), index_t offset = 0) const;
+				/**
+				Searches the local string for the first occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric.
+				Search is case sensitive.
+				@param needle String to search for
+				@param offset Index to start from 
+				@return Starting index of the found word (0=first char) or InvalidIndex if no occurance was found
+				*/
+				index_t			FindWord(const T*needle, index_t offset = 0) const	{return FindWord(ReferenceExpression<T>(needle),offset);}
+				/**
+				@copydoc FindWord()
+				*/
+				index_t			FindWord(const Self&needle, index_t offset = 0) const;
+
+				/**
+				Attempts to locate the first occurance of the specified string.
+				Search ignores case.
+				@param needle String segment to look for
+				@param offset Index to start from 
+				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
+				*/
+				index_t			FindIgnoreCase(const Self&needle, index_t offset = 0)	const;
+				/**
+				Attempts to locate the first occurance of the specified (zero-terminated) string.
+				Search ignores case.
+				@param needle Pointer to the first character of the string segment to look for
+				@param offset Index to start from 
+				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
+				*/
+				index_t			FindIgnoreCase(const T*needle, index_t offset = 0)		const	{return FindIgnoreCase(Self(needle),offset);}
+				/**
+				Attempts to locate the first occurance of the specified character.
+				Search ignores case.
+				@param needle Character to look for
+				@param offset Index to start from 
+				@return Index of the found character (0=first char) or InvalidIndex if no occurance was found
+				*/
+				index_t			FindIgnoreCase(T needle, index_t offset = 0)					const;
+
+				/**
+				Searches the local string for the first occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric.
+				Search ignores case.
+				@param needle String to search for
+				@param offset Index to start from 
+				@return Starting index of the found word (0=first char) or InvalidIndex if no occurance was found
+				*/
+				index_t			FindWordIgnoreCase(const T*needle, index_t offset = 0) const	{return FindWordIgnoreCase(ReferenceExpression<T>(needle),offset);}
+				/**
+				@copydoc FindWordIgnoreCase()
+				*/
+				index_t			FindWordIgnoreCase(const Self&needle, index_t offset = 0) const;
+
+
 				inline void		print(std::ostream&stream)			const;	//!< Prints the local expression content to the specified stream @param stream Stream to print to
 				#ifdef WCOUT
 					inline void	print(std::wostream&stream)			const;	//!< Prints the local expression content to the specified wide character stream @param stream Stream to print to
