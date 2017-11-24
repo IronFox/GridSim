@@ -896,7 +896,7 @@ namespace DeltaWorks
 			#elif SYSTEM==UNIX
 				struct stat s;
 				if (stat(out.location.c_str(),&s))
-					return req == Requirement::None;
+					return (findFlags & FindFlags::MustExists) == 0;
 				bool isDir = outIsDirectory = s.st_mode&S_IFDIR;
 				outExists = true;
 			#else
