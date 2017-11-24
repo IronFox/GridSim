@@ -818,14 +818,14 @@ namespace DeltaWorks
 		writeToStream(outfile,encoding,hostEncoding, &root_node, style);
 	}
 
-	static XML::Node*	findIn(Container::BasicBuffer<XML::Node,SwapStrategy>&children, const String&path)
+	static XML::Node*	findIn(Container::BasicBuffer<XML::Node,SwapStrategy>&children, const StringRef&path)
 	{
-		String local,sub;
+		StringRef local,sub;
 		index_t p = path.Find('/');
 		if (p != InvalidIndex)
 		{
-			local = path.subString(0,p);
-			sub = path.subString(p+1);
+			local = path.SubStringRef(0,p);
+			sub = path.SubStringRef(p+1);
 		}
 		else
 			local = path;
@@ -842,14 +842,14 @@ namespace DeltaWorks
 		return NULL;
 	}
 
-	static const XML::Node*	findInConst(const Container::BasicBuffer<XML::Node,SwapStrategy>&children, const String&path)
+	static const XML::Node*	findInConst(const Container::BasicBuffer<XML::Node,SwapStrategy>&children, const StringRef&path)
 	{
-		String local,sub;
+		StringRef local,sub;
 		index_t p = path.Find('/');
 		if (p != InvalidIndex)
 		{
-			local = path.subString(0,p);
-			sub = path.subString(p+1);
+			local = path.SubStringRef(0,p);
+			sub = path.SubStringRef(p+1);
 		}
 		else
 			local = path;
@@ -866,14 +866,14 @@ namespace DeltaWorks
 		return NULL;
 	}
 
-	static XML::Node*	findFrom(XML::Node*context, const String&path)
+	static XML::Node*	findFrom(XML::Node*context, const StringRef&path)
 	{
-		String local,sub;
+		StringRef local,sub;
 		index_t p = path.Find('/');
 		if (p != InvalidIndex)
 		{
-			local = path.subString(0,p);
-			sub = path.subString(p+1);
+			local = path.SubStringRef(0,p);
+			sub = path.SubStringRef(p+1);
 		}
 		else
 			local = path;
@@ -889,14 +889,14 @@ namespace DeltaWorks
 		return findIn(context->children,sub);
 	}
 
-	static const XML::Node*	findFromConst(const XML::Node*context, const String&path)
+	static const XML::Node*	findFromConst(const XML::Node*context, const StringRef&path)
 	{
-		String local,sub;
+		StringRef local,sub;
 		index_t p = path.Find('/');
 		if (p != InvalidIndex)
 		{
-			local = path.subString(0,p);
-			sub = path.subString(p+1);
+			local = path.SubStringRef(0,p);
+			sub = path.SubStringRef(p+1);
 		}
 		else
 			local = path;
@@ -943,10 +943,20 @@ namespace DeltaWorks
 
 	XML::Node* XML::Node::Find(const String&path)
 	{
-		return findIn(children,path);
+		return findIn(children,path.ref());
 	}
 
 	const XML::Node* XML::Node::Find(const String&path) const
+	{
+		return findInConst(children,path.ref());
+	}
+
+	XML::Node* XML::Node::Find(const StringRef&path)
+	{
+		return findIn(children,path);
+	}
+
+	const XML::Node* XML::Node::Find(const StringRef&path) const
 	{
 		return findInConst(children,path);
 	}
@@ -954,12 +964,12 @@ namespace DeltaWorks
 
 	XML::Node*	XML::Container::Find(const String&path)
 	{
-		return findFrom(&root_node,path);
+		return findFrom(&root_node,path.ref());
 	}
 
 	const XML::Node*	XML::Container::Find(const String&path) const
 	{
-		return findFromConst(&root_node,path);
+		return findFromConst(&root_node,path.ref());
 	}
 
 

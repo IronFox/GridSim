@@ -104,6 +104,8 @@ namespace DeltaWorks
 			void				Unset(const String&attrib_name)	{attributes.Unset(attrib_name);}
 			Node*          		Find(const String&path);				//!< Returns the first matching node (if any) @param path Path string in the form 'node/subnode/.../subnodeN' @return Pointer to the matching node or NULL if no such could be found
 			const Node*			Find(const String&path)		const;	//!< @copydoc find()
+			Node*          		Find(const StringRef&path);				//!< Returns the first matching node (if any) @param path Path string in the form 'node/subnode/.../subnodeN' @return Pointer to the matching node or NULL if no such could be found
+			const Node*			Find(const StringRef&path)		const;	//!< @copydoc find()
 			Node&				Create(const String&path, const String&inner_content="");
 			/**
 			Queries the string content of the specified attribute of the local node.
