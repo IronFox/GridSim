@@ -2117,7 +2117,7 @@ namespace StringType
 		}
 
 	template <typename T>
-		ReferenceExpression<T>				ReferenceExpression<T>::SubStringRef(int index, count_t count /*= (count_t)-1*/)	 const
+		ReferenceExpression<T>				ReferenceExpression<T>::SubStringRefS(sindex_t index, count_t count /*= (count_t)-1*/)	 const
 		{
 			if (index<0)
 			{

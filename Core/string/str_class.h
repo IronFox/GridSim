@@ -301,7 +301,8 @@ namespace DeltaWorks
 								{
 									return reference;
 								}
-				inline ReferenceExpression<T>	SubStringRef(int index, count_t count = (count_t)-1)	 const;
+				inline ReferenceExpression<T>	SubStringRefS(sindex_t index, count_t count = (count_t)-1)	 const;
+				inline ReferenceExpression<T>	SubStringRef(index_t index, count_t count = (count_t)-1) const	{return SubStringRefS((sindex_t)index,count);}
 				inline ReferenceExpression<T>	Trim() const;
 				inline ReferenceExpression<T>	TrimLeft() const;
 				inline ReferenceExpression<T>	TrimRight() const;
