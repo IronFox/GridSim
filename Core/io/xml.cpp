@@ -107,8 +107,41 @@ namespace DeltaWorks
 	}
 
 
+
 	template <typename Stream>
-	static void EncodeValueToStream(Stream&stream, XML::Encoding enc, XML::Encoding hostEnc, const String&content)
+		static void EncodeCharacterToStream(Stream&stream, XML::Encoding enc, XML::Encoding hostEnc, const char*c,const char*const end)
+		{
+			if (hostEnc == enc)
+				stream << *c;
+			else
+			{
+				if (enc == XML::Encoding::Windows1252)
+				{
+					ASSERT__(hostEnc == XML::Encoding::UTF8);
+
+					StringEncoding::UTF8::TChar ch;
+					ch.numCharsUsed = StringEncoding::UTF8::GetLength(*c);
+					if (c + ch.numCharsUsed > end)
+						throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Remaining string does not contain all characters of a decoded UTF8 multi-byte string");
+
+					memcpy(ch.encoded,c,ch.numCharsUsed);
+					c += ch.numCharsUsed;
+					stream << StringEncoding::UTF8::ToCP1252(ch);
+				}
+				elif (enc == XML::Encoding::UTF8)
+				{
+					ASSERT__(hostEnc == XML::Encoding::Windows1252);
+					StringEncoding::UTF8::TChar ch;
+					StringEncoding::CP1252::ToUTF8(*c,ch);
+					stream << ch.ToRef();
+				}
+				else
+					throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
+			}
+		}
+
+	template <typename Stream>
+	static void EncodeValueToStreamP(Stream&stream, XML::Encoding enc, XML::Encoding hostEnc, const String&content)
 	{
 		DBG_ASSERT_EQUAL1__(content.length(),strlen(content.c_str()),content.c_str());
 	
@@ -137,35 +170,32 @@ namespace DeltaWorks
 					stream << "&quot;";
 				break;
 				default:
-				{
-					if (hostEnc == enc)
-						stream << *c;
-					else
-					{
-						if (enc == XML::Encoding::Windows1252)
-						{
-							ASSERT__(hostEnc == XML::Encoding::UTF8);
+					EncodeCharacterToStream(stream,enc,hostEnc,c,end);
+				break;
+			}
+		}
+	}
 
-							StringEncoding::UTF8::TChar ch;
-							ch.numCharsUsed = StringEncoding::UTF8::GetLength(*c);
-							if (c + ch.numCharsUsed > end)
-								throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Remaining string does not contain all characters of a decoded UTF8 multi-byte string");
-
-							memcpy(ch.encoded,c,ch.numCharsUsed);
-							c += ch.numCharsUsed;
-							stream << StringEncoding::UTF8::ToCP1252(ch);
-						}
-						elif (enc == XML::Encoding::UTF8)
-						{
-							ASSERT__(hostEnc == XML::Encoding::Windows1252);
-							StringEncoding::UTF8::TChar ch;
-							StringEncoding::CP1252::ToUTF8(*c,ch);
-							stream << ch.ToRef();
-						}
-						else
-							throw Except::IO::StructureCompositionFault(CLOCATION,"XML: Unsupported encoding encountered");
-					}
-				}
+	template <typename Stream>
+	static void EncodeValueToStreamB(Stream&stream, XML::Encoding enc, XML::Encoding hostEnc, const String&content)
+	{
+		DBG_ASSERT_EQUAL1__(content.length(),strlen(content.c_str()),content.c_str());
+	
+		//String rs = content;
+		const char*c = content.c_str(),
+				*const end = content.end();
+		for (;c != end; ++c)
+		{
+			switch (*c)
+			{
+				case '&':
+					stream << "&amp;";
+				break;
+				case '<':
+					stream << "&lt;";
+				break;
+				default:
+					EncodeCharacterToStream(stream,enc,hostEnc,c,end);
 				break;
 			}
 		}
@@ -665,22 +695,22 @@ namespace DeltaWorks
 	template <class OutStream>
 	static void writeToStream(OutStream&outfile, XML::Encoding enc, XML::Encoding hostEnc, const XML::Node*entry, XML::export_style_t style, unsigned indent=0)
 	{
-		StringRef trimmed = entry->name.TrimRef();
+		StringRef trimmedName = entry->name.TrimRef();
 		//entry->name.TrimThis();
-		if (trimmed.length() == 0)
+		if (trimmedName.IsEmpty())
 			throw Except::IO::StructureCompositionFault("XML: Local entry is empty");
 
 		if (style==XML::Nice)
 			outfile << tabSpace(indent);
 		outfile << "<";
-		EncodeToStream(outfile, enc,trimmed);
+		EncodeToStream(outfile, enc,trimmedName);
 		foreach (entry->attributes,p)
 		{
 			if (style != XML::Tidy || p == entry->attributes.begin())
 				outfile << " ";
 			EncodeToStream(outfile, enc,p->name);
 			outfile << "=\"";
-			EncodeValueToStream(outfile,enc,hostEnc, p->value);
+			EncodeValueToStreamP(outfile,enc,hostEnc, p->value);
 			outfile<<"\"";
 		}
 		if (entry->children.IsEmpty() && entry->inner_content.IsEmpty())
@@ -696,7 +726,7 @@ namespace DeltaWorks
 			switch (style)
 			{
 				case XML::Raw:
-					EncodeValueToStream(outfile,enc,hostEnc, entry->inner_content);
+					EncodeValueToStreamB(outfile,enc,hostEnc, entry->inner_content);
 				break;
 				case XML::Nice:
 				{
@@ -709,7 +739,7 @@ namespace DeltaWorks
 						for (index_t i = 0; i < lines.Count(); i++)
 						{
 							outfile << tabSpace(indent+1);
-							EncodeValueToStream(outfile,enc,hostEnc,lines[i]);
+							EncodeValueToStreamB(outfile,enc,hostEnc,lines[i]);
 							outfile << nl;
 						}
 						if (entry->children.IsEmpty())
@@ -719,7 +749,7 @@ namespace DeltaWorks
 					{
 						if (lines.IsNotEmpty())
 						{
-							EncodeValueToStream(outfile,enc,hostEnc,lines.first());
+							EncodeValueToStreamB(outfile,enc,hostEnc,lines.first());
 						}
 						if (entry->children.IsNotEmpty())
 							outfile << nl;
@@ -735,7 +765,7 @@ namespace DeltaWorks
 					{
 						if (i)
 							outfile << nl;
-						EncodeValueToStream(outfile,enc,hostEnc,lines[i]);
+						EncodeValueToStreamB(outfile,enc,hostEnc,lines[i]);
 					}
 				}
 				break;
@@ -750,7 +780,7 @@ namespace DeltaWorks
 			if (style==XML::Nice && entry->children.IsNotEmpty())
 				outfile << tabSpace(indent);
 			outfile << "</";
-			EncodeToStream(outfile,enc,trimmed);
+			EncodeToStream(outfile,enc,trimmedName);
 			outfile << ">";
 		}
 
@@ -758,7 +788,7 @@ namespace DeltaWorks
 			switch (style)
 			{
 				case XML::Raw:
-					EncodeValueToStream(outfile,enc,hostEnc,entry->following_content);
+					EncodeValueToStreamB(outfile,enc,hostEnc,entry->following_content);
 					//outfile << encode(entry->following_content);
 				break;
 				case XML::Nice:
@@ -770,7 +800,7 @@ namespace DeltaWorks
 					for (index_t i = 0; i < lines.Count(); i++)
 					{
 						outfile << tabSpace(indent);
-						EncodeValueToStream(outfile,enc,hostEnc,lines[i]);
+						EncodeValueToStreamB(outfile,enc,hostEnc,lines[i]);
 						outfile<<nl;
 					}
 				}
@@ -778,13 +808,13 @@ namespace DeltaWorks
 				case XML::Tidy:
 				{
 					Ctr::Array<String,Adopt>	lines;
-					explodeCallback(isNewLine,entry->inner_content,lines);
+					explodeCallback(isNewLine,entry->following_content,lines);
 					trim(lines);
 					for (index_t i = 0; i < lines.Count(); i++)
 					{
 						if (i)
 							outfile << nl;
-						EncodeValueToStream(outfile,enc,hostEnc,lines[i]);
+						EncodeValueToStreamB(outfile,enc,hostEnc,lines[i]);
 					}
 				}
 				break;
