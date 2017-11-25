@@ -93,6 +93,8 @@ namespace DeltaWorks
 			protected:
 				/**/			Sequence() {}
 				/**/			Sequence(T*str, size_t length):Super(str,length) {}
+				template <class Marker>
+					count_t		GenericCountCharacters(const Marker&marked, bool countMatches) const;
 			public:
 				typedef const T*const_iterator;
 				typedef Sequence<T>		Self;
@@ -494,10 +496,6 @@ namespace DeltaWorks
 				{
 					return Super::elements == 1 && CharFunctions::tolower(chr) == CharFunctions::tolower(Super::data[0]);
 				}
-
-			private:
-				template <class Marker>
-					count_t		GenericCountCharacters(const Marker&marked, bool countMatches) const;
 
 			};
 	

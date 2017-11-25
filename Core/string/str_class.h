@@ -912,8 +912,6 @@ namespace DeltaWorks
 				template <class Marker>
 					count_t					genericEraseCharacters(Marker marked, bool erase_matches);
 				template <class Marker>
-					count_t					genericCountCharacters(const Marker&marked, bool count_matches)const;
-				template <class Marker>
 					void					genericAddSlashes(const Marker&marked);
 
 				void						SetupFromCharArray(const T*);

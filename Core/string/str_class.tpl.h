@@ -1351,7 +1351,7 @@ namespace StringType
 		template <class Marker>
 			void					Template<T>::genericAddSlashes(const Marker&marked)
 			{
-				count_t matches = genericCountCharacters(marked,true);
+				count_t matches = Super::GenericCountCharacters(marked,true);
 				if (!matches)
 					return;
 
