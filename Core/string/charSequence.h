@@ -336,7 +336,7 @@ namespace DeltaWorks
 				*/
 				index_t			FindLastIgnoreCase(T needle, index_t offset = InvalidIndex)					const;
 
-								/**
+				/**
 				Checks if the specified token is part of the local string
 				*/
 				template <typename T2>
@@ -364,6 +364,7 @@ namespace DeltaWorks
 				If @b index is not in the range [0,Length()-1] (0=first character), then the result will be 0.
 				*/
 				T				GetChar(index_t index) const;
+				T				at(index_t index) const	{return GetChar(index);}
 				T				operator[](index_t index) const {return GetChar(index);}
 
 
