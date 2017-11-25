@@ -305,7 +305,7 @@ namespace DeltaWorks
 									}
 
 				template <typename T1>
-					inline int		CompareTo(const ArrayRef<T1>&other, int comparer(const T&, const T1&) ) const	//! Compares the local array with the remote array. The objects of the local array must implement a compareTo method that accepts objects of the remote array
+					inline int		CompareTo(const ConstArrayRef<T1>&other, int comparer(const T&, const T1&) ) const	//! Compares the local array with the remote array. The objects of the local array must implement a compareTo method that accepts objects of the remote array
 									{
 										count_t len = elements < other.GetLength()?elements:other.GetLength();
 										for (count_t i = 0; i < len; i++)
@@ -323,9 +323,8 @@ namespace DeltaWorks
 									}
 
 				template <typename T1>
-					inline int		CompareTo(const ArrayRef<T1>&other) const	//! Compares the local array with the remote array. The objects of the local array must implement a compareTo method that accepts objects of the remote array
+					inline int		CompareTo(const ConstArrayRef<T1>&other) const	//! Compares the local array with the remote array. The objects of the local array must implement a compareTo method that accepts objects of the remote array
 									{
-										return CompareTo(other);
 										count_t len = elements < other.GetLength()?elements:other.GetLength();
 										for (count_t i = 0; i < len; i++)
 										{
@@ -342,7 +341,7 @@ namespace DeltaWorks
 									}
 
 				template <typename T1>
-					inline bool		operator==(const ArrayRef<T1>&other) const //! Equality query \return true if all elements of the local array are identical to their respective counter parts in \b other. Equality is queried via the = operator.
+					inline bool		operator==(const ConstArrayRef<T1>&other) const //! Equality query \return true if all elements of the local array are identical to their respective counter parts in \b other. Equality is queried via the = operator.
 									{
 										if (elements != other.GetLength())
 											return false;
@@ -353,7 +352,7 @@ namespace DeltaWorks
 									}
 				
 				template <typename T1>
-					inline bool		operator!=(const ArrayRef<T1>&other) const //! Equality query
+					inline bool		operator!=(const ConstArrayRef<T1>&other) const //! Equality query
 									{
 										if (elements != other.GetLength())
 											return true;
@@ -364,7 +363,7 @@ namespace DeltaWorks
 									}
 
 				template <typename T1>
-					inline bool		operator>(const ArrayRef<T1>&other) const //! Dictionary comparison
+					inline bool		operator>(const ConstArrayRef<T1>&other) const //! Dictionary comparison
 									{
 										count_t len = elements < other.GetLength()?elements:other.GetLength();
 										for (count_t i = 0; i < len; i++)
@@ -377,7 +376,7 @@ namespace DeltaWorks
 									}
 
 				template <typename T1>
-					inline bool		operator<(const ArrayRef<T1>&other) const //! Dictionary comparison
+					inline bool		operator<(const ConstArrayRef<T1>&other) const //! Dictionary comparison
 									{
 										count_t len = elements < other.GetLength()?elements:other.GetLength();
 										for (count_t i = 0; i < len; i++)
@@ -390,7 +389,7 @@ namespace DeltaWorks
 									}
 
 				template <typename T1>
-					inline bool		operator>=(const ArrayRef<T1>&other) const //! Dictionary comparison
+					inline bool		operator>=(const ConstArrayRef<T1>&other) const //! Dictionary comparison
 									{
 										count_t len = elements < other.GetLength()?elements:other.GetLength();
 										for (count_t i = 0; i < len; i++)
@@ -403,7 +402,7 @@ namespace DeltaWorks
 									}
 
 				template <typename T1>
-					inline bool		operator<=(const ArrayRef<T1>&other) const //! Dictionary comparison
+					inline bool		operator<=(const ConstArrayRef<T1>&other) const //! Dictionary comparison
 									{
 										count_t len = elements < other.GetLength()?elements:other.GetLength();
 										for (count_t i = 0; i < len; i++)
