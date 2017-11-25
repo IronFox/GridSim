@@ -176,16 +176,17 @@ namespace DeltaWorks
 				Attempts to locate the last occurance of the specified string.
 				Search is case sensitive.
 				@param needle String segment to look for
-				@param offset Index to Super::data from (first character). Reduced if necessary
+				@param offset Index to reference from (first character). Reduced if necessary
 				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
 				*/
 				template <typename T2>
-					index_t			FindLast(const ConstArrayRef<T2>&needle, index_t offset = InvalidIndex)	const;
+					index_t		FindLast(const ConstArrayRef<T2>&needle, index_t offset = InvalidIndex)	const;
+				index_t			FindLast(const T*needle, index_t offset = InvalidIndex)		const	/**@copydoc FindLast()*/	{return FindLast(ConstSelf(needle),offset);}
 				/**
 				Attempts to locate the last occurance of the specified character.
 				Search is case sensitive.
 				@param needle Character to look for
-				@param offset Index to Super::data from. Reduced if necessary
+				@param offset Index to reference from. Reduced if necessary
 				@return Index of the found character (0=first char) or InvalidIndex if no occurance was found
 				*/
 				index_t			FindLast(T needle, index_t offset = InvalidIndex)					const;
@@ -193,7 +194,7 @@ namespace DeltaWorks
 				Attempts to locate the last occurance of a character for which the specified callback function returns true.
 				Search is case sensitive.
 				@param callback Pointer to a function to determine whether a character is a valid match. The function should return true if the character is a valid match, false otherwise
-				@param offset Index to Super::data from. Reduced if necessary
+				@param offset Index to reference from. Reduced if necessary
 				@return Index of the found character (0=first char) or InvalidIndex if no occurance was found
 				*/
 				index_t			FindLast(bool callback(T), index_t offset = InvalidIndex) const;
@@ -201,7 +202,7 @@ namespace DeltaWorks
 				Attempts to locate the first occurance of the specified string.
 				Search is case sensitive.
 				@param needle String segment to look for
-				@param offset Index to Super::data from 
+				@param offset Index to reference from 
 				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
 				*/
 				template <typename T2>
@@ -210,7 +211,7 @@ namespace DeltaWorks
 				Attempts to locate the first occurance of the specified (zero-terminated) string.
 				Search is case sensitive.
 				@param needle Pointer to the first character of the string segment to look for
-				@param offset Index to Super::data from 
+				@param offset Index to reference from 
 				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
 				*/
 				index_t			Find(const T*needle, index_t offset = 0)		const	{return Find(ConstSelf(needle),offset);}
@@ -218,7 +219,7 @@ namespace DeltaWorks
 				Attempts to locate the first occurance of the specified character.
 				Search is case sensitive.
 				@param needle Character to look for
-				@param offset Index to Super::data from 
+				@param offset Index to reference from 
 				@return Index of the found character (0=first char) or InvalidIndex if no occurance was found
 				*/
 				index_t			Find(T needle, index_t offset = 0)					const;
@@ -226,7 +227,7 @@ namespace DeltaWorks
 				Attempts to locate the first occurance of a character for which the specified callback function returns true.
 				Search is case sensitive.
 				@param callback Pointer to a function to determine whether a character is a valid match. The function should return true if the character is a valid match, false otherwise
-				@param offset Index to Super::data from 
+				@param offset Index to reference from 
 				@return Index of the found character (0=first char) or InvalidIndex if no occurance was found
 				*/
 				index_t			Find(bool callback(T), index_t offset = 0) const;
@@ -234,7 +235,7 @@ namespace DeltaWorks
 				Searches the local string for the first occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric.
 				Search is case sensitive.
 				@param needle String to search for
-				@param offset Index to Super::data from 
+				@param offset Index to reference from 
 				@return Starting index of the found word (0=first char) or InvalidIndex if no occurance was found
 				*/
 				index_t			FindWord(const T*needle, index_t offset = 0) const	{return FindWord(ConstSelf(needle),offset);}
@@ -248,7 +249,7 @@ namespace DeltaWorks
 				Attempts to locate the first occurance of the specified string.
 				Search ignores case.
 				@param needle String segment to look for
-				@param offset Index to Super::data from 
+				@param offset Index to reference from 
 				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
 				*/
 				template <typename T2>
@@ -257,7 +258,7 @@ namespace DeltaWorks
 				Attempts to locate the first occurance of the specified (zero-terminated) string.
 				Search ignores case.
 				@param needle Pointer to the first character of the string segment to look for
-				@param offset Index to Super::data from 
+				@param offset Index to reference from 
 				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
 				*/
 				index_t			FindIgnoreCase(const T*needle, index_t offset = 0)		const	{return FindIgnoreCase(ConstSelf(needle),offset);}
@@ -265,7 +266,7 @@ namespace DeltaWorks
 				Attempts to locate the first occurance of the specified character.
 				Search ignores case.
 				@param needle Character to look for
-				@param offset Index to Super::data from 
+				@param offset Index to reference from 
 				@return Index of the found character (0=first char) or InvalidIndex if no occurance was found
 				*/
 				index_t			FindIgnoreCase(T needle, index_t offset = 0)					const;
@@ -274,7 +275,7 @@ namespace DeltaWorks
 				Searches the local string for the first occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric.
 				Search ignores case.
 				@param needle String to search for
-				@param offset Index to Super::data from 
+				@param offset Index to reference from 
 				@return Starting index of the found word (0=first char) or InvalidIndex if no occurance was found
 				*/
 				index_t			FindWordIgnoreCase(const T*needle, index_t offset = 0) const	{return FindWordIgnoreCase(ConstSelf(needle),offset);}
@@ -287,7 +288,7 @@ namespace DeltaWorks
 				Searches the local string for the last occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric.
 				Search is case sensitive.
 				@param needle String to search for
-				@param offset Index to Super::data from (first character). Reduced if necessary
+				@param offset Index to reference from (first character). Reduced if necessary
 				@return Starting index of the found word (0=first char) or InvalidIndex if no occurance was found
 				*/
 				index_t			FindLastWord(const T*needle, index_t offset = InvalidIndex) const	{return FindLastWord(ConstSelf(needle),offset);}
@@ -300,7 +301,7 @@ namespace DeltaWorks
 				Searches the local string for the last occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric.
 				Search is case sensitive.
 				@param needle String to search for
-				@param offset Index to Super::data from (first character). Reduced if necessary
+				@param offset Index to reference from (first character). Reduced if necessary
 				@return Starting index of the found word (0=first char) or InvalidIndex if no occurance was found
 				*/
 				index_t			FindLastWordIgnoreCase(const T*needle, index_t offset = InvalidIndex) const	{return FindLastWordIgnoreCase(ConstSelf(needle),offset);}
@@ -313,7 +314,7 @@ namespace DeltaWorks
 				Attempts to locate the last occurance of the specified string.
 				Search is case sensitive.
 				@param needle String segment to look for
-				@param offset Index to Super::data from (first character). Reduced if necessary
+				@param offset Index to reference from (first character). Reduced if necessary
 				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
 				*/
 				template <typename T2>
@@ -322,7 +323,7 @@ namespace DeltaWorks
 				Attempts to locate the last occurance of the specified (zero-terminated) string.
 				Search is case sensitive.
 				@param needle Pointer to the first character of the string segment to look for
-				@param offset Index to Super::data from (first character). Reduced if necessary
+				@param offset Index to reference from (first character). Reduced if necessary
 				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
 				*/
 				index_t			FindLastIgnoreCase(const T*needle, index_t offset = InvalidIndex)		const	{return FindLastIgnoreCase(ConstSelf(needle),offset);}
@@ -330,7 +331,7 @@ namespace DeltaWorks
 				Attempts to locate the last occurance of the specified character.
 				Search is case sensitive.
 				@param needle Character to look for
-				@param offset Index to Super::data from. Reduced if necessary
+				@param offset Index to reference from. Reduced if necessary
 				@return Index of the found character (0=first char) or InvalidIndex if no occurance was found
 				*/
 				index_t			FindLastIgnoreCase(T needle, index_t offset = InvalidIndex)					const;
