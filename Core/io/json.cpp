@@ -37,7 +37,7 @@ namespace DeltaWorks
 				case StringValue:
 				{
 					INT64 rs=0;
-					convert(stringValue.c_str(),stringValue.length(),rs);
+					convert(stringValue.c_str(),stringValue.GetLength(),rs);
 					return rs;
 				}
 				default:
@@ -57,7 +57,7 @@ namespace DeltaWorks
 				case StringValue:
 				{
 					double rs=0;
-					convert(stringValue.c_str(),stringValue.length(),rs);
+					convert(stringValue.c_str(),stringValue.GetLength(),rs);
 					return rs;
 				}
 				default:

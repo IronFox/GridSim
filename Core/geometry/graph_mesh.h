@@ -214,8 +214,8 @@ namespace DeltaWorks
 												segments[0].SetSize(1);
 												segments[1].SetSize(1);
 
-												segments[0].first() = InvalidIndex;
-												segments[1].first() = InvalidIndex;
+												segments[0].First() = InvalidIndex;
+												segments[1].First() = InvalidIndex;
 
 												angle0 = -0.25f;
 												angle1 = 0.25f;

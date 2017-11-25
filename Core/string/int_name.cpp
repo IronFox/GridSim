@@ -25,7 +25,7 @@ namespace DeltaWorks
 	{
 		char    result[8];
 		for (BYTE k = 0; k < 8; k++)
-			if (k < (BYTE)str.length())
+			if (k < (BYTE)str.GetLength())
 				result[k] = str.GetChar(k);
 			else
 				result[k] = ' ';

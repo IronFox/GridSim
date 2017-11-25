@@ -56,7 +56,7 @@ namespace DeltaWorks
 		static void	printHelp(const String&p)
 		{
 			String parameter = p;
-			if (!parameter.length())
+			if (!parameter.GetLength())
 				parameter = "help";
 		
 			{
@@ -87,7 +87,7 @@ namespace DeltaWorks
 						message = "No additional information available for folder '"+folder->name+"' :/";
 				}
 			
-				if (!message.length())
+				if (!message.GetLength())
 				{
 					message ="Unable to find requested entry '"+parameter+"' :/";
 				}
@@ -113,7 +113,7 @@ namespace DeltaWorks
 					String line = " *";
 					for (index_t j = 0; j < temp.Count()-1; j++)
 						line+=temp[j]->name+"/";
-					line+=temp.last()->fullSpecification+appendix;
+					line+=temp.Last()->fullSpecification+appendix;
 					println(line);
 					listed_commands.Set(cmd.get(),true);
 				}

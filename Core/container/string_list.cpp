@@ -24,8 +24,8 @@ namespace DeltaWorks
 				else
 				{
 					String str = at;
-					if (str.length() > max_len)
-						max_len = str.length();
+					if (str.GetLength() > max_len)
+						max_len = str.GetLength();
 					Set(str);
 					return;
 				}
@@ -174,14 +174,14 @@ namespace DeltaWorks
 		{
 			if (clear_list)
 				target.clear();
-			return tokenize(composition.c_str(),composition.length(),config,target);
+			return tokenize(composition.c_str(),composition.GetLength(),config,target);
 		}
 
 		bool			Tokenize(const StringRef&composition, const Configuration&config, Container::BasicBuffer<StringRef>&target, bool clear_list)
 		{
 			if (clear_list)
 				target.clear();
-			return tokenize(composition.pointer(),composition.length(),config,target);
+			return tokenize(composition.pointer(),composition.GetLength(),config,target);
 		}
 	
 	
@@ -339,7 +339,7 @@ namespace DeltaWorks
 
 		void			tokenizeSegment(const String&composition_segment, const Configuration&config, Status&status, Container::StringList&target)
 		{
-			tokenizeSegment(composition_segment.c_str(),composition_segment.length(),config,status,target);
+			tokenizeSegment(composition_segment.c_str(),composition_segment.GetLength(),config,status,target);
 		}
 
 	
@@ -358,7 +358,7 @@ namespace DeltaWorks
 		String			trim(const String&string, const Configuration&config)
 		{
 			const char	*begin = string.c_str(),*start = begin,
-						*end = begin+string.length()-1;
+						*end = begin+string.GetLength()-1;
 			while (begin < end && config.trim_characters.isset(*begin))
 				begin++;
 			while (begin < end && config.trim_characters.isset(*end))
@@ -390,7 +390,7 @@ namespace DeltaWorks
 
 		size_t		checkQuotation(const String&line, const Configuration&config)
 		{
-			if (line.length()<2)
+			if (line.GetLength()<2)
 				return 0;
 			size_t result = 1;
 			bool escaped=false;
@@ -398,7 +398,7 @@ namespace DeltaWorks
 			size_t quote_index = config.quotations.Query(line.FirstChar());
 			if (!quote_index)
 				return 0;
-			for (size_t i = 1; i+1 < line.length(); i++)
+			for (size_t i = 1; i+1 < line.GetLength(); i++)
 			{
 				char c = line.GetChar(i);
 				if (config.quotation_escape_character == c)
@@ -457,7 +457,7 @@ namespace DeltaWorks
 				}
 				len--;
 				result.Resize(len);
-				innerDequote(line.c_str(),line.length(),result.mutablePointer(),len,config);
+				innerDequote(line.c_str(),line.GetLength(),result.mutablePointer(),len,config);
 			}
 			else
 			{
@@ -466,7 +466,7 @@ namespace DeltaWorks
 				len--;
 				String rs;
 				rs.Resize(len);//= TStringLength(len);
-				innerDequote(line.c_str(),line.length(),rs.mutablePointer(),len,config);
+				innerDequote(line.c_str(),line.GetLength(),rs.mutablePointer(),len,config);
 				result = rs;
 			}
 			return true;
@@ -505,7 +505,7 @@ namespace DeltaWorks
 		void StringList::add(const StringRef&segment)
 		{
 			Super::operator<<(segment);
-			//	String(segment.pointer(),segment.length()));
+			//	String(segment.pointer(),segment.GetLength()));
 		}
 
 
@@ -609,20 +609,20 @@ namespace DeltaWorks
 				return "";
 			len = ((size_t)length-1)*glue_len;
 			for (size_t i = 0; i < length; i++)
-				len+=Super::at(i+index).length();
+				len+=Super::at(i+index).GetLength();
 
 			String result = String(StringType::TStringLength(len));
 			char	*at = result.mutablePointer();
 			const String&first = Super::at(index);
-			memcpy(at,first.c_str(),first.length());
-			at+=first.length();
+			memcpy(at,first.c_str(),first.GetLength());
+			at+=first.GetLength();
 			for (size_t i = 1; i < length; i++)
 			{
 				memcpy(at,glue,glue_len);
 				at+=glue_len;
 				const String&str = Super::at(i+index);
-				memcpy(at,str.c_str(),str.length());
-				at+=str.length();
+				memcpy(at,str.c_str(),str.GetLength());
+				at+=str.GetLength();
 			}
 			//(*at++) = 0;
 			ASSERT_EQUAL__((void*)at,(void*)(result.c_str()+len));
@@ -789,7 +789,7 @@ namespace DeltaWorks
 		{
 			if (!Count())
 				return 0;
-			size_t	max_len = sample.length();
+			size_t	max_len = sample.GetLength();
 
 			for (size_t len = 0; len < max_len; len++)
 			{
@@ -805,8 +805,8 @@ namespace DeltaWorks
 		{
 			if (Super::IsEmpty())
 				return 0;
-			const String&sample = Super::first();
-			size_t	max_len = sample.length();
+			const String&sample = Super::First();
+			size_t	max_len = sample.GetLength();
 
 			for (size_t len = 0; len < max_len; len++)
 			{
@@ -824,15 +824,15 @@ namespace DeltaWorks
 			size_t cnt = Super::Count();
 			if (!cnt)
 				return empty_string;
-			const String*result = &Super::first();
-			size_t len = result->length();
+			const String*result = &Super::First();
+			size_t len = result->GetLength();
 			for (size_t i = 1; i < cnt; i++)
 			{
 				const String&str = Super::at(i);
-				if (str.length() > len)
+				if (str.GetLength() > len)
 				{
 					result = &str;
-					len = str.length();
+					len = str.GetLength();
 				}
 			}
 			return *result;
@@ -844,15 +844,15 @@ namespace DeltaWorks
 			size_t cnt = Super::Count();
 			if (!cnt)
 				return empty_string;
-			String*result = &Super::first();
-			size_t len = result->length();
+			String*result = &Super::First();
+			size_t len = result->GetLength();
 			for (size_t i = 1; i < cnt; i++)
 			{
 				String&str = Super::at(i);
-				if (str.length() > len)
+				if (str.GetLength() > len)
 				{
 					result = &str;
-					len = str.length();
+					len = str.GetLength();
 				}
 			}
 			return *result;
@@ -864,15 +864,15 @@ namespace DeltaWorks
 			size_t cnt = Super::Count();
 			if (!cnt)
 				return empty_string;
-			String*result = &Super::first();
-			size_t len = result->length();
+			String*result = &Super::First();
+			size_t len = result->GetLength();
 			for (size_t i = 1; i < cnt; i++)
 			{
 				String&str = Super::at(i);
-				if (str.length() < len)
+				if (str.GetLength() < len)
 				{
 					result = &str;
-					len = str.length();
+					len = str.GetLength();
 				}
 			}
 			return *result;
@@ -884,15 +884,15 @@ namespace DeltaWorks
 			size_t cnt = Super::Count();
 			if (!cnt)
 				return empty_string;
-			const String*result = &Super::first();
-			size_t len = result->length();
+			const String*result = &Super::First();
+			size_t len = result->GetLength();
 			for (size_t i = 1; i < cnt; i++)
 			{
 				const String&str = Super::at(i);
-				if (str.length() < len)
+				if (str.GetLength() < len)
 				{
 					result = &str;
-					len = str.length();
+					len = str.GetLength();
 				}
 			}
 			return *result;
@@ -904,7 +904,7 @@ namespace DeltaWorks
 			size_t cnt = Super::Count();
 			if (!cnt)
 				return empty_string;
-			String*result = &Super::first();
+			String*result = &Super::First();
 			for (size_t i = 1; i < cnt; i++)
 			{
 				String&str = Super::at(i);
@@ -920,7 +920,7 @@ namespace DeltaWorks
 			size_t cnt = Super::Count();
 			if (!cnt)
 				return empty_string;
-			const String*result = &Super::first();
+			const String*result = &Super::First();
 			for (size_t i = 1; i < cnt; i++)
 			{
 				const String&str = Super::at(i);
@@ -936,7 +936,7 @@ namespace DeltaWorks
 			size_t cnt = Super::Count();
 			if (!cnt)
 				return empty_string;
-			String*result = &Super::first();
+			String*result = &Super::First();
 			for (size_t i = 1; i < cnt; i++)
 			{
 				String&str = Super::at(i);
@@ -952,7 +952,7 @@ namespace DeltaWorks
 			size_t cnt = Super::Count();
 			if (!cnt)
 				return empty_string;
-			const String*result = &Super::first();
+			const String*result = &Super::First();
 			for (size_t i = 1; i < cnt; i++)
 			{
 				const String&str = Super::at(i);
@@ -962,34 +962,34 @@ namespace DeltaWorks
 			return *result;
 		}
 
-		String& StringList::first()
+		String& StringList::First()
 		{
 			if (IsNotEmpty())
-				return Super::first();
+				return Super::First();
 			empty_string = "";
 			return empty_string;
 		}
 
-		const String& StringList::first()													 const
+		const String& StringList::First()													 const
 		{
 			if (IsNotEmpty())
-				return Super::first();
+				return Super::First();
 			empty_string = "";
 			return empty_string;
 		}
 
-		String& StringList::last()
+		String& StringList::Last()
 		{
 			if (IsNotEmpty())
-				return Super::last();
+				return Super::Last();
 			empty_string = "";
 			return empty_string;
 		}
 
-		const String& StringList::last()													  const
+		const String& StringList::Last()													  const
 		{
 			if (IsNotEmpty())
-				return Super::last();
+				return Super::Last();
 			empty_string = "";
 			return empty_string;
 		}
@@ -1002,7 +1002,7 @@ namespace DeltaWorks
 
 		void StringList::RadixSort()
 		{
-			size_t iterations = longest().length();
+			size_t iterations = longest().GetLength();
 
 			SBucket *first[0x100],*last[0x100],*buckets = alloc<SBucket>(Count());
 			memset(last,0,sizeof(last));
@@ -1012,7 +1012,7 @@ namespace DeltaWorks
 				for (index_t i = 0; i < Super::Count(); i++)
 				{
 					String&str = Super::operator[](i);
-					BYTE c = (BYTE)(i <= str.length()?str.GetChar(i-1):0);
+					BYTE c = (BYTE)(i <= str.GetLength()?str.GetChar(i-1):0);
 					SBucket*&l = last[c];
 					if (!l)
 					{

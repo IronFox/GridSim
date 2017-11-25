@@ -151,7 +151,7 @@ namespace DeltaWorks
 
 	Image*    TextureCompression::decompress(const Ctr::ArrayData<BYTE>&data)
 	{
-		return decompress(data.pointer(),data.length());
+		return decompress(data.pointer(),data.GetLength());
 	}
 
 	bool TextureCompression::decompress(const BYTE*data, size_t size, Image&to)
@@ -226,7 +226,7 @@ namespace DeltaWorks
 
 	bool TextureCompression::decompress(const Ctr::ArrayData<BYTE>&data, Image&to)
 	{
-		return decompress(data.pointer(),data.length(),to);
+		return decompress(data.pointer(),data.GetLength(),to);
 	}
 
 	static size_t autoCompressImage(const Image&source, Ctr::Array<BYTE>&buffer)	//this is extremely inefficient but i can't be bothered right now.

@@ -338,13 +338,13 @@ namespace DeltaWorks
 					auto ctarget = connection->target.lock();
 					if (record)
 					{
-						if (stream.IsEmpty() || stream.last().state != ctarget->name)
+						if (stream.IsEmpty() || stream.Last().state != ctarget->name)
 						{
-							stream.sequence_map.Set(ctarget->name).append(stream.length());
+							stream.sequence_map.Set(ctarget->name).append(stream.GetLength());
 							stream.append().setState(ctarget->name).setRange(token - tokens.pointer(),token - tokens.pointer() + 1);
 						}
 						else
-							stream.last().setEnd(token - tokens.pointer() + 1 );
+							stream.Last().setEnd(token - tokens.pointer() + 1 );
 							//tokens.append(token);
 					}
 					record = true;

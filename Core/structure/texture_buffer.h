@@ -21,16 +21,16 @@ namespace DeltaWorks
 
 	/*inline	int	CompareTextures(const CGS::TextureA*t0, const CGS::TextureA*t1)
 	{
-		if (t0->face_field.length() < t1->face_field.length())
+		if (t0->face_field.GetLength() < t1->face_field.GetLength())
 			return -1;
-		if (t0->face_field.length() > t1->face_field.length())
+		if (t0->face_field.GetLength() > t1->face_field.GetLength())
 			return 1;
 		if (t0->data_hash < t1->data_hash)
 			return -1;
 		if (t0->data_hash > t1->data_hash)
 			return 1;
 
-		for (BYTE k = 0; k < t0->face_field.length(); k++)
+		for (BYTE k = 0; k < t0->face_field.GetLength(); k++)
 		{
 			if (t0->face_field[k].size() < t1->face_field[k].size())
 				return -1;

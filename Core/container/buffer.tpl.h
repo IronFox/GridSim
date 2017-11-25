@@ -728,28 +728,28 @@ template <typename T>
 	*/
 
 template <typename T, typename MyStrategy>
-	inline	T&				BasicBuffer<T, MyStrategy>::last()
+	inline	T&				BasicBuffer<T, MyStrategy>::Last()
 	{
 		BUFFER_ASSERT_NOT_EMPTY();
 		return *(usage_end-1);
 	}
 	
 template <typename T, typename MyStrategy>
-	inline	const T&		BasicBuffer<T, MyStrategy>::last()	const
+	inline	const T&		BasicBuffer<T, MyStrategy>::Last()	const
 	{
 		BUFFER_ASSERT_NOT_EMPTY();
 		return *(usage_end-1);
 	}
 
 template <typename T, typename MyStrategy>
-	inline	T&				BasicBuffer<T, MyStrategy>::first()
+	inline	T&				BasicBuffer<T, MyStrategy>::First()
 	{
 		BUFFER_ASSERT_NOT_EMPTY();
 		return *storage_begin;
 	}
 	
 template <typename T, typename MyStrategy>
-	inline	const T&		BasicBuffer<T, MyStrategy>::first()	const
+	inline	const T&		BasicBuffer<T, MyStrategy>::First()	const
 	{
 		BUFFER_ASSERT_NOT_EMPTY();
 		return *storage_begin;
@@ -854,7 +854,7 @@ template <typename T, typename MyStrategy>
 			CHK_FILL_LEVEL
 		#endif
 
-		return length()-1;
+		return GetLength()-1;
 	}
 
 template <typename T, typename MyStrategy> template <typename T2>
@@ -880,7 +880,7 @@ template <typename T, typename MyStrategy> template <typename Strategy2>
 			return *this;
 		}
 
-		moveAppend(buffer.pointer(),buffer.length());
+		moveAppend(buffer.pointer(),buffer.GetLength());
 		if (clearSourceOnCompletion)
 			buffer.reset();
 		return *this;
@@ -889,7 +889,7 @@ template <typename T, typename MyStrategy> template <typename Strategy2>
 template <typename T, typename MyStrategy>
 	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::moveAppend(Ctr::ArrayData<T>&array, bool clearSourceOnCompletion/*=true*/)
 	{
-		moveAppend(array.pointer(),array.length());
+		moveAppend(array.pointer(),array.GetLength());
 		if (clearSourceOnCompletion)
 			array.free();
 		return *this;
@@ -1034,7 +1034,7 @@ template <typename T, typename MyStrategy>
 	}
 
 template <typename T, typename MyStrategy>
-	inline count_t	BasicBuffer<T, MyStrategy>::length()					const
+	inline count_t	BasicBuffer<T, MyStrategy>::GetLength()					const
 	{
 		return usage_end-storage_begin;
 	}

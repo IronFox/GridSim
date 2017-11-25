@@ -51,7 +51,7 @@ namespace DeltaWorks
 		index_t							map(const float position[3]);		//!< Maps a vertex into the structure and returns its map index
 		index_t							map(const TPosition&position);		//!< Maps a vertex into the structure and returns its map index
 		const TPosition&				vertex(index_t index)	const;		//!< Queries an index from the local position table
-		count_t							vertices()	const {return position_map.length();}	//!< Queries the total number of diversive locations mapped to the vertex table
+		count_t							vertices()	const {return position_map.GetLength();}	//!< Queries the total number of diversive locations mapped to the vertex table
 	};
 
 

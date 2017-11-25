@@ -49,7 +49,7 @@ namespace DeltaWorks
 								swp(pre_open,other.pre_open);
 								swp(post_open,other.post_open);
 							}
-			int				compareTo(const Pattern&other)
+			int				CompareTo(const Pattern&other)
 							{
 								if (length > other.length)
 									return -1;

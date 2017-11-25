@@ -110,15 +110,15 @@ Since RIFF-files are tree-like data structures, reading the file is
 context-orientated.
 When you opened or reset the file you will be in the main context at
 the first element.
-Otherwise use "first()" to return the cursor to the first element of the
-current context. "first()" will return false if the present context is
+Otherwise use "First()" to return the cursor to the first element of the
+current context. "First()" will return false if the present context is
 empty (no list elements).
 Use "next()" to advance the cursor to the next element.
 "next()" will return false if there is no next element in the selected
 context.
 Example to seek through all elements of one context:
 
-	if (first())
+	if (First())
 		do
 		{
 			(...) whatever
@@ -128,7 +128,7 @@ Example to seek through all elements of one context:
 you can also directly select an element using "select(unsigned)".
 "select(...)" will return false if the given unsigned is out of range.
 if you use "findFirst(id)" ... "findNext(id)" instead of
-"first()" ... "next()" you can find all chunks in the present context
+"First()" ... "next()" you can find all chunks in the present context
 matching the given id (UINT32 or const char*).
 For example to find all lists in the present context use:
 

@@ -15,12 +15,12 @@ INLINE String StringList::fuse(size_t index, size_t count, char glue) const
 
 INLINE String StringList::fuse(size_t index, size_t count, const String&glue) const
 {
-	return fuse(index,count,glue.c_str(),glue.length());
+	return fuse(index,count,glue.c_str(),glue.GetLength());
 }
 
 INLINE String StringList::fuse(size_t index, const String&glue) const
 {
-	return fuse(index, Count(), glue.c_str(), glue.length());
+	return fuse(index, Count(), glue.c_str(), glue.GetLength());
 }
 
 INLINE String StringList::fuse(size_t index, const char*glue) const
@@ -35,7 +35,7 @@ INLINE String StringList::fuse(size_t index, char glue) const
 
 INLINE String StringList::implode(const String&glue)									const
 {
-	return fuse(0,Count(),glue.c_str(),glue.length());
+	return fuse(0,Count(),glue.c_str(),glue.GetLength());
 }
 
 INLINE String StringList::implode(const char*glue)									const

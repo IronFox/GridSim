@@ -207,7 +207,7 @@ namespace DeltaWorks
 			
 				Mesh<TDef<Def::FloatType> >	triangulated;
 				if (_oTriangulate(tfield,triangulated))
-					for (index_t i = 0; i < triangulated.triangle_field.length(); i++)
+					for (index_t i = 0; i < triangulated.triangle_field.GetLength(); i++)
 					{
 						TObjFace&face = current_group->face_buffer.append();
 						face.smooth_group = current_smooth_group;
@@ -232,7 +232,7 @@ namespace DeltaWorks
 					}
 				else
 				{
-					logMessage("Warning: Triangulation failed for: (n"+M::Vec::toString(normal)+") "+String(tfield.length()));
+					logMessage("Warning: Triangulation failed for: (n"+M::Vec::toString(normal)+") "+String(tfield.GetLength()));
 					for (index_t i = 1; i < vertices-1; i++)
 					{
 						TObjFace&face = current_group->face_buffer.append();
@@ -287,7 +287,7 @@ namespace DeltaWorks
 
 		ObjTexture*		ObjConverter::LoadObjTexture(const PathString&color_map, const PathString&alpha_map) throw()
 		{
-			if (!color_map.length() && !alpha_map.length())
+			if (!color_map.GetLength() && !alpha_map.GetLength())
 				return NULL;
 			PathString key = color_map+"|"+alpha_map;
 			ObjTexture*result;
@@ -300,7 +300,7 @@ namespace DeltaWorks
 			Image	color_image,alpha_image;
 			String error;
 
-			bool	color = color_map.length()!=0;
+			bool	color = color_map.GetLength()!=0;
 			if (color)
 				try
 				{
@@ -323,13 +323,13 @@ namespace DeltaWorks
 					color = false;
 				}
 		
-			if (color_map.length() && !color)
+			if (color_map.GetLength() && !color)
 			{
 				logMessage("Loading of '"+String(color_map)+"' failed ("+error+")");
 				sendMessage("Warning: Unable to load '"+String(color_map)+"' ("+error+")!");
 			}
 		
-			bool alpha = alpha_map.length()!=0;
+			bool alpha = alpha_map.GetLength()!=0;
 			if (alpha)
 				try
 				{
@@ -351,7 +351,7 @@ namespace DeltaWorks
 					alpha = false;
 				}
 		
-			if (alpha_map.length() && !alpha)
+			if (alpha_map.GetLength() && !alpha)
 			{
 				logMessage("Loading of '"+String(alpha_map)+"' failed ("+error+")");
 				sendMessage("Warning: Unable to load '"+String(alpha_map)+"' ("+error+")!");
@@ -399,7 +399,7 @@ namespace DeltaWorks
 
 		ObjTexture*		ObjConverter::LoadObjNormalMap(const PathString&normal_map) throw()
 		{
-			if (!normal_map.length())
+			if (!normal_map.GetLength())
 				return NULL;
 			PathString key = normal_map;
 			ObjTexture*result;
@@ -538,13 +538,13 @@ namespace DeltaWorks
 					case 'n':
 						if (line.BeginsWith("newmtl"))
 						{
-							if (color_map.length() || transparency_map.length() || bump_map.length())
+							if (color_map.GetLength() || transparency_map.GetLength() || bump_map.GetLength())
 							{
 								if (material)
 								{
 									material->texture = LoadObjTexture(color_map,transparency_map);
 									material->normal_map = LoadObjNormalMap(bump_map);
-									if (bump_map.length() && material->normal_map)
+									if (bump_map.GetLength() && material->normal_map)
 									{
 										sendMessage("bump map loaded '"+String(bump_map)+"'");
 									}
@@ -620,13 +620,13 @@ namespace DeltaWorks
 				}
 			}
 		
-			if (color_map.length() || transparency_map.length() || bump_map.length())
+			if (color_map.GetLength() || transparency_map.GetLength() || bump_map.GetLength())
 			{
 				if (material)
 				{
 					material->texture = LoadObjTexture(color_map,transparency_map);
 					material->normal_map = LoadObjNormalMap(bump_map);
-					if (bump_map.length() && material->normal_map)
+					if (bump_map.GetLength() && material->normal_map)
 					{
 						sendMessage("bump map loaded '"+String(bump_map)+"'");
 					}
@@ -683,7 +683,7 @@ namespace DeltaWorks
 						current_group = Append(group_buffer);
 						object_name_table.Set(name,current_group);
 						name.TrimThis().FindAndReplace(' ','_');
-						if (!name.length())
+						if (!name.GetLength())
 							name = "unnamend";
 					
 						current_group->name = name;
@@ -1040,7 +1040,7 @@ namespace DeltaWorks
 						m->selected_section->target = group;
 					}
 					PObjMaterialSection s = m->selected_section;
-					if (m->info.layer_field.length())
+					if (m->info.layer_field.GetLength())
 					{
 						ObjVertexNT	v(0.0);
 						if (face.v[3]!=0)
@@ -1106,14 +1106,14 @@ namespace DeltaWorks
 			Ctr::Array<ObjTexture*>	exp;
 			texture_field.ExportTo(exp);
 		
-			target.local_textures.entry_field.SetSize(exp.length());
+			target.local_textures.entry_field.SetSize(exp.GetLength());
 			target.texture_resource = &target.local_textures;
-			for (index_t i = 0; i < exp.length(); i++)
+			for (index_t i = 0; i < exp.GetLength(); i++)
 			{
 				CGS_POINT
 				target.local_textures.entry_field[i].adoptData(exp[i]->data);
 				exp[i]->target = target.local_textures.entry_field+i;
-				if (target.local_textures.entry_field[i].face_field.length())
+				if (target.local_textures.entry_field[i].face_field.GetLength())
 					logMessage(target.local_textures.entry_field[i].face_field[0].size());
 				CGS_POINT
 			}
@@ -1140,17 +1140,17 @@ namespace DeltaWorks
 				PObjMaterial material = material_list[i];
 				logMessage("Writing material '"+material->name+"'");
 				CGS::MaterialA<>&mt = target.material_field[i];
-				mt.data.coord_layers = UINT16(material->info.layer_field.length());
+				mt.data.coord_layers = UINT16(material->info.layer_field.GetLength());
 				mt.name = material->name;
 				mt.info.adoptData(material->info);
-				if (mt.info.layer_field.length())
+				if (mt.info.layer_field.GetLength())
 				{
 					mt.info.layer_field[0].source = material->texture?material->texture->target:material->normal_map->target;
-					if (mt.info.layer_field.length()>1)
+					if (mt.info.layer_field.GetLength()>1)
 						mt.info.layer_field[1].source = material->normal_map->target;
 				}
 				mt.data.object_field.SetSize(material->sections.Count());
-				for (index_t j = 0; j < mt.data.object_field.length(); j++)
+				for (index_t j = 0; j < mt.data.object_field.GetLength(); j++)
 				{
 					PObjMaterialSection s = material->sections[j];
 					logMessage(" Writing section '"+s->target->name+"'");
@@ -1194,7 +1194,7 @@ namespace DeltaWorks
 							(*pi++) = t.v[2];
 							(*pi++) = t.v[3];
 						}
-						if (pi != chunk.idata+chunk.idata.length())
+						if (pi != chunk.idata+chunk.idata.GetLength())
 							FATAL__("triangle Fill exception");
 						index += static_cast<UINT32>(s->triangles.Count()+s->quads.Count());
 					}
@@ -1235,7 +1235,7 @@ namespace DeltaWorks
 							(*pi++) = t.v[2];
 							(*pi++) = t.v[3];
 						}
-						if (pi != chunk.idata+chunk.idata.length())
+						if (pi != chunk.idata+chunk.idata.GetLength())
 							FATAL__("triangle Fill exception");
 					
 						index += UINT32(s->tex_triangles.Count()+s->tex_quads.Count());
@@ -1329,9 +1329,9 @@ namespace DeltaWorks
 				Ctr::Array<PoolVertex>	vertex_field;
 				pool.exportToField(vertex_field);
 			
-				if (vertex_field.length())
+				if (vertex_field.GetLength())
 				{
-					M::Box<Def::FloatType> dim(vertex_field.first().p,vertex_field.first().p);
+					M::Box<Def::FloatType> dim(vertex_field.First().p,vertex_field.First().p);
 					//pool[0]->index = 0;
 
 					vs_hull.vertex_field[0].position = dim.min();
@@ -1348,7 +1348,7 @@ namespace DeltaWorks
 					if (positionObjects)
 					{
 						dim.GetCenter(child.meta.system.w.xyz);
-						for (index_t j = 0; j < vs_hull.vertex_field.length(); j++)
+						for (index_t j = 0; j < vs_hull.vertex_field.GetLength(); j++)
 							M::Vec::sub(vs_hull.vertex_field[j].position, child.meta.system.w.xyz);
 					}
 					else
@@ -1371,10 +1371,10 @@ namespace DeltaWorks
 				for (index_t j = 0; j < quad_buffer.Count(); j++)
 				{
 					const TPoolQuad&q = quad_buffer[j];
-					ASSERT3__(q.v[0]<vs_hull.vertex_field.length(),j,q.v[0],vs_hull.vertex_field.length());
-					ASSERT3__(q.v[1]<vs_hull.vertex_field.length(),j,q.v[1],vs_hull.vertex_field.length());
-					ASSERT3__(q.v[2]<vs_hull.vertex_field.length(),j,q.v[2],vs_hull.vertex_field.length());
-					ASSERT3__(q.v[3]<vs_hull.vertex_field.length(),j,q.v[3],vs_hull.vertex_field.length());
+					ASSERT3__(q.v[0]<vs_hull.vertex_field.GetLength(),j,q.v[0],vs_hull.vertex_field.GetLength());
+					ASSERT3__(q.v[1]<vs_hull.vertex_field.GetLength(),j,q.v[1],vs_hull.vertex_field.GetLength());
+					ASSERT3__(q.v[2]<vs_hull.vertex_field.GetLength(),j,q.v[2],vs_hull.vertex_field.GetLength());
+					ASSERT3__(q.v[3]<vs_hull.vertex_field.GetLength(),j,q.v[3],vs_hull.vertex_field.GetLength());
 					vs_hull.quad_field[j].v0 = vs_hull.vertex_field+q.v[0];
 					vs_hull.quad_field[j].v1 = vs_hull.vertex_field+q.v[1];
 					vs_hull.quad_field[j].v2 = vs_hull.vertex_field+q.v[2];
@@ -1410,9 +1410,9 @@ namespace DeltaWorks
 			index = 0;
 		
 			if (positionObjects)
-				for (index_t i = 0; i < target.material_field.length(); i++)
+				for (index_t i = 0; i < target.material_field.GetLength(); i++)
 				{
-					for (index_t j = 0; j < target.material_field[i].data.object_field.length(); j++)
+					for (index_t j = 0; j < target.material_field[i].data.object_field.GetLength(); j++)
 					{
 						CGS::RenderObjectA<>&robj = target.material_field[i].data.object_field[j];
 						unsigned vsize = robj.vpool.vsize();
@@ -1482,18 +1482,18 @@ namespace DeltaWorks
 		}
 	
 	
-		if (!texture->face_field.length())
+		if (!texture->face_field.GetLength())
 			return;
 
 		String tex_name = name2str(texture->name).TrimThis();
-		if (!tex_name.length())
+		if (!tex_name.GetLength())
 		{
 			sendMessage("Failed to export texture. Target texture has no name");
 			return;
 		}
 	
 		PathString base_name = FileSystem::ExtractFileDir(outname);
-		if (base_name.length())
+		if (base_name.GetLength())
 			base_name+=FOLDER_SLASH;
 		base_name+=PathString(tex_name);
 	
@@ -1559,7 +1559,7 @@ namespace DeltaWorks
 		else
 			sendMessage("  Failed to extract texture '"+tex_name+"'");
 	
-		for (index_t j = 1; j < texture->face_field.length(); j++)
+		for (index_t j = 1; j < texture->face_field.GetLength(); j++)
 			if (TextureCompression::decompress(texture->face_field[j].pointer(),texture->face_field[j].size(),out))
 			{
 				if (out.GetContentType() == PixelType::Color && out.GetChannels() > 3)
@@ -1609,17 +1609,17 @@ namespace DeltaWorks
 	
 		void	ObjConverter::writeObject(const CGS::Geometry<>&geometry, const Ctr::Array<Container::PointerContainer<Ctr::Array<TFace> > >&conversion_table,const CGS::SubGeometryA<>&object,StringFile&out) throw()
 		{
-			/*console->print("  "+name2str(object.name).Trim()+"...");
+			/*console->Print("  "+name2str(object.name).Trim()+"...");
 			console->update();*/
 			out << "g "<<object.name.Trim()<<nl;
 		
 			Ctr::Array<TFace>*face_field;
-			for (UINT32 i = 0; i < conversion_table.length(); i++)
+			for (UINT32 i = 0; i < conversion_table.GetLength(); i++)
 				if (conversion_table[i].Query(&object,face_field))
 				{
 					out << "usemtl "<<geometry.material_field[i].name<<nl;
 					TFace*field = face_field->pointer();
-					for (UINT32 j = 0; j < face_field->length(); j++)
+					for (UINT32 j = 0; j < face_field->GetLength(); j++)
 					{
 						out << "f";
 						for (BYTE k = 0; k < 4; k++)
@@ -1632,7 +1632,7 @@ namespace DeltaWorks
 						out << nl;
 					}
 				}
-			for (UINT32 i = 0; i < object.child_field.length(); i++)
+			for (UINT32 i = 0; i < object.child_field.GetLength(); i++)
 				writeObject(geometry,conversion_table,object.child_field[i],out);
 		}
 	
@@ -1670,7 +1670,7 @@ namespace DeltaWorks
 		
 			sendMessage(" Exporting materials...");
 		
-			for (unsigned i = 0; i < geometry.material_field.length(); i++)
+			for (unsigned i = 0; i < geometry.material_field.GetLength(); i++)
 			{
 				const CGS::MaterialA<>&m = geometry.material_field[i];
 
@@ -1682,7 +1682,7 @@ namespace DeltaWorks
 				out << "Ns "<<m.info.shininess*10.0<<nl;	//x10?
 			
 				String texture_name, alpha_name;
-				if (m.info.layer_field.length())
+				if (m.info.layer_field.GetLength())
 					ExportTexture(m.info.layer_field[0].source,filename, out);
 			
 				out << nl;
@@ -1694,24 +1694,24 @@ namespace DeltaWorks
 		
 			sendMessage(" Mapping vertices");
 		
-			Ctr::Array<Container::PointerContainer<Ctr::Array<TFace> > >	conversion_table(geometry.material_field.length());
+			Ctr::Array<Container::PointerContainer<Ctr::Array<TFace> > >	conversion_table(geometry.material_field.GetLength());
 		
 			PoolSet		vertex_field, normal_field, texcoord_field;
 			index_t		vcounter = 1, ncounter = 1, tcounter = 1;
 
-			for (unsigned i = 0; i < geometry.material_field.length(); i++)
+			for (unsigned i = 0; i < geometry.material_field.GetLength(); i++)
 			{
-				float step_size = 1.0f/(float)geometry.material_field.length();
+				float step_size = 1.0f/(float)geometry.material_field.GetLength();
 				setProgress((float)i*step_size);
 
 				const CGS::MaterialA<>&m = geometry.material_field[i];
-				//console->print("  "+m.name);
+				//console->Print("  "+m.name);
 				//console->update();
 
 			
-				for (index_t j = 0; j < m.data.object_field.length(); j++)
+				for (index_t j = 0; j < m.data.object_field.GetLength(); j++)
 				{
-					setProgress(((float)i + (float)j/(float)m.data.object_field.length())*step_size);
+					setProgress(((float)i + (float)j/(float)m.data.object_field.GetLength())*step_size);
 					const CGS::RenderObjectA<>&robj = m.data.object_field[j];
 					if (!robj.target)
 					{
@@ -1719,11 +1719,11 @@ namespace DeltaWorks
 						sendMessage(" Mapping vertices");
 						continue;
 					}
-					//console->print("   <"+name2str(robj.target->name).Trim()+">");
+					//console->Print("   <"+name2str(robj.target->name).Trim()+">");
 					//console->update();
 					// log << j << nl;
 			
-					if (!robj.ipool.idata.length())
+					if (!robj.ipool.idata.GetLength())
 						continue;
 
 					Ctr::Array<PoolSet::iterator>vlink_map(robj.vpool.vcnt),
@@ -1782,11 +1782,11 @@ namespace DeltaWorks
 					
 				
 				
-					if (entry_index != field.length())
+					if (entry_index != field.GetLength())
 					{
 						// log << "exception encountered"<<nl;
 						last_error = " Critical exception encountered";
-						last_error += "\n  Outfield should be at offset "+String(field.length())+" but is at "+String(entry_index);
+						last_error += "\n  Outfield should be at offset "+String(field.GetLength())+" but is at "+String(entry_index);
 						last_error += "\n  If the latter is greater then you're lucky to even see this";
 						return false;
 					}
@@ -1844,9 +1844,9 @@ namespace DeltaWorks
 			out << "#"<<nl;
 		
 			sendMessage(" Exporting faces");
-			for (index_t i = 0; i < geometry.object_field.length(); i++)
+			for (index_t i = 0; i < geometry.object_field.GetLength(); i++)
 			{
-				setProgress((float)i/(float)geometry.object_field.length());
+				setProgress((float)i/(float)geometry.object_field.GetLength());
 				writeObject(geometry,conversion_table,geometry.object_field[i],out);
 			}
 			setProgress(1.0f);

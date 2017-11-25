@@ -185,14 +185,14 @@ namespace DeltaWorks
 				return false;
 			}
 			indent_ = true;
-			if (at == line.length())
+			if (at == line.GetLength())
 			{
 				end();
 				return true;
 			}
 			return Log(line.c_str()+at,false);
 		}
-		if (fwrite(line.c_str(),1,line.length(),f)!=line.length())
+		if (fwrite(line.c_str(),1,line.GetLength(),f)!=line.GetLength())
 		{
 			end();
 			return false;

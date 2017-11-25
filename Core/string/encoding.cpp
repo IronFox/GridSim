@@ -626,7 +626,7 @@ namespace DeltaWorks
 		{
 			count_t len = 0;
 			const char*utf8 = utf8Source.pointer();
-			char const*const end = utf8 + utf8Source.length();
+			char const*const end = utf8 + utf8Source.GetLength();
 
 			StringType::Template<char32_t> utf32;
 			UTF8::ToUTF32(utf8Source,utf32);

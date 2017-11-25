@@ -13,7 +13,7 @@
         return VecUnroll<Len>::toString(*this);
     }
 
-    template <class C, count_t Len>MF_DECLARE (C) VecN<C,Len>::length()                const
+    template <class C, count_t Len>MF_DECLARE (C) VecN<C,Len>::GetLength()                const
     {
         return VecUnroll<Len>::length(*this);
     }
@@ -189,7 +189,7 @@
     }
 
 	template <class C, count_t Len>
-	MFUNC1 (char) VecN<C,Len>::compareTo (const TVec<C0,Len>&other) const
+	MFUNC1 (char) VecN<C,Len>::CompareTo (const TVec<C0,Len>&other) const
 	{
 		return VecUnroll<Len>::compare(v,other.v,GetError<C>());
 	}

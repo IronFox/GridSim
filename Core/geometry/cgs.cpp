@@ -53,7 +53,7 @@ namespace DeltaWorks
 	bool		layerRequiresTexCoords(const TLayer&layer)
 	{
 		if (layer.source)
-			return layer.source->face_field.length() == 1;
+			return layer.source->face_field.GetLength() == 1;
 		return EMPTY_TEXTURES_ARE_PLANAR;
 	}
 
@@ -61,7 +61,7 @@ namespace DeltaWorks
 	count_t MaterialInfo::countCoordLayers()	const
 	{
 		count_t cnt = 0;
-		for (count_t i = 0; i < layer_field.length(); i++)
+		for (count_t i = 0; i < layer_field.GetLength(); i++)
 			cnt += layerRequiresTexCoords(layer_field[i]);
 		return cnt;
 	}
@@ -70,7 +70,7 @@ namespace DeltaWorks
 	{
 		if (!textures)
 			return;
-		for (index_t i = 0; i < layer_field.length(); i++)
+		for (index_t i = 0; i < layer_field.GetLength(); i++)
 			layer_field[i].source = textures->retrieve(layer_field[i].source_name);
 
 	}
@@ -78,11 +78,11 @@ namespace DeltaWorks
 
 	bool MaterialInfo::Similar(const MaterialInfo&other) const
 	{
-		if (layer_field.length() != other.layer_field.length())
+		if (layer_field.GetLength() != other.layer_field.GetLength())
 			return false;
 		if (!MaterialColors::Similar(other))
 			return false;
-		for (index_t i = 0; i < layer_field.length(); i++)
+		for (index_t i = 0; i < layer_field.GetLength(); i++)
 		{
 			const TLayer&a = layer_field[i],
 						&b = other.layer_field[i];
@@ -140,11 +140,11 @@ namespace DeltaWorks
 	{
 		if (!Similar(other))
 			return false;
-		for (unsigned i = 0; i < layer_field.length(); i++)
+		for (unsigned i = 0; i < layer_field.GetLength(); i++)
 		{
-			bool	cube0 = layer_field[i].source&&layer_field[i].source->face_field.length() == 6,
-					cube1 = other.layer_field[i].source&&other.layer_field[i].source->face_field.length() == 6;
-			if (cube0 != cube1 || !layer_field[i].source || !other.layer_field[i].source || !layer_field[i].source->face_field.length() || !other.layer_field[i].source->face_field.length())
+			bool	cube0 = layer_field[i].source&&layer_field[i].source->face_field.GetLength() == 6,
+					cube1 = other.layer_field[i].source&&other.layer_field[i].source->face_field.GetLength() == 6;
+			if (cube0 != cube1 || !layer_field[i].source || !other.layer_field[i].source || !layer_field[i].source->face_field.GetLength() || !other.layer_field[i].source->face_field.GetLength())
 				return false;
 			if (!layer_field[i].source->isSimilar(*other.layer_field[i].source))
 				return false;
@@ -194,10 +194,10 @@ namespace DeltaWorks
 	{
 		if (this == &other)
 			return true;
-		if (face_field.length() != other.face_field.length())
+		if (face_field.GetLength() != other.face_field.GetLength())
 			return false;
-		for (index_t i = 0; i < face_field.length(); i++)
-			if (face_field[i].length() != other.face_field[i].length())
+		for (index_t i = 0; i < face_field.GetLength(); i++)
+			if (face_field[i].GetLength() != other.face_field[i].GetLength())
 				return false;
 		return data_hash == other.data_hash;
 	}
@@ -211,7 +211,7 @@ namespace DeltaWorks
 			return NoTexture;
 		if (face_field.Count() >= 6)
 			return TextureCube;
-		Image::THeader header = *(Image::THeader*)face_field.first().pointer();
+		Image::THeader header = *(Image::THeader*)face_field.First().pointer();
 		if (!header.y_exp || !header.x_exp)
 			return Texture1D;
 		return Texture2D;
@@ -221,9 +221,9 @@ namespace DeltaWorks
 
 	bool		TextureA::IsEmpty()	const
 	{
-		if (!this || !face_field.length())
+		if (!this || !face_field.GetLength())
 			return true;
-		for (index_t i = 0; i < face_field.length(); i++)
+		for (index_t i = 0; i < face_field.GetLength(); i++)
 			if (face_field[i].GetContentSize() > sizeof(Image::THeader))
 				return false;
 		return true;
@@ -239,7 +239,7 @@ namespace DeltaWorks
 	void		TextureA::downSample(BYTE modifier, String*error_out)
 	{
 		Image extracted;
-		for (index_t i = 0; i < face_field.length(); i++)
+		for (index_t i = 0; i < face_field.GetLength(); i++)
 		{
 			if (face_field[i].GetContentSize() < sizeof(Image::THeader))
 			{
@@ -281,7 +281,7 @@ namespace DeltaWorks
 		if (!max_exponent)
 			return;
 		Image extracted;
-		for (unsigned i = 0; i < face_field.length(); i++)
+		for (unsigned i = 0; i < face_field.GetLength(); i++)
 		{
 			if (face_field[i].GetContentSize() < sizeof(Image::THeader))
 			{
@@ -339,7 +339,7 @@ namespace DeltaWorks
 
 	TextureA*LocalTexResource::retrieve(const __int64&name)
 	{
-		for (unsigned i = 0; i < entry_field.length(); i++)
+		for (unsigned i = 0; i < entry_field.GetLength(); i++)
 			if (entry_field[i].name == name)
 				return &entry_field[i];
 		return NULL;
@@ -352,7 +352,7 @@ namespace DeltaWorks
 
 	count_t LocalTexResource::countEntries()
 	{
-		return entry_field.length();
+		return entry_field.GetLength();
 	}
 
 

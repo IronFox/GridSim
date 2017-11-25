@@ -54,7 +54,7 @@ namespace DeltaWorks
 
 	void Progress::NameLine(tLogLine&line, const String&str)
 	{
-		line.line_len = Math::clamped(str.length(),0,sizeof(line.line)-1);
+		line.line_len = Math::clamped(str.GetLength(),0,sizeof(line.line)-1);
 		memcpy(line.line,str.c_str(),line.line_len);
 		line.line[line.line_len] = 0;
 	}

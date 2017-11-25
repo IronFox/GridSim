@@ -25,7 +25,7 @@ namespace DeltaWorks
 		static	PathString Escape(const PathString&in)
 		{
 			PathString rs = in;
-			for (index_t i = 0; i < rs.length(); i++)
+			for (index_t i = 0; i < rs.GetLength(); i++)
 				if (rs.GetChar(i) == '\\' || rs.GetChar(i) == '\'' || rs.GetChar(i) == '\"')
 				{
 					rs.Insert(i,'\\');
@@ -74,12 +74,12 @@ namespace DeltaWorks
 
 		const PathString::char_t* File::GetExtensionPointer()	const
 		{
-			index_t at = name.length();
+			index_t at = name.GetLength();
 			const PathString::char_t*field = name.c_str();
 			while (at!=InvalidIndex && field[at] != '.')
 				at--;
 			if (at == InvalidIndex)
-				return field+name.length();
+				return field+name.GetLength();
 			return field+at+1;
 		}
 	
@@ -413,7 +413,7 @@ namespace DeltaWorks
 
 		bool Folder::ResolvePath(const PathString&path_string, PathString*finalParent, PathString&final) const
 		{
-			if (!path_string.length())
+			if (!path_string.GetLength())
 				return false;
 			PathString local = path_string;
 			bool valid_location = false;
@@ -494,7 +494,7 @@ namespace DeltaWorks
 					step = local;
 					local = "";
 				}
-				if (step == '.' || !step.length())
+				if (step == '.' || !step.GetLength())
 					continue;
 				if (step == "..")
 				{
@@ -538,8 +538,8 @@ namespace DeltaWorks
 		bool Folder::locate(const PathString&folder_string)
 		{
 			absolute_folder = folder_string;
-			if (absolute_folder.length() > 1 && (absolute_folder.LastChar() == '/' || absolute_folder.LastChar() == '\\'))
-				absolute_folder.Erase(absolute_folder.length()-1);
+			if (absolute_folder.GetLength() > 1 && (absolute_folder.LastChar() == '/' || absolute_folder.LastChar() == '\\'))
+				absolute_folder.Erase(absolute_folder.GetLength()-1);
 			#if SYSTEM==WINDOWS
 				if (!absolute_folder.BeginsWith(ABS_MARKER))
 				{
@@ -582,10 +582,10 @@ namespace DeltaWorks
 			//		dir = ExtractFileNameExt(absolute_folder),
 			//		super = ExtractFileDir(absolute_folder);
 			//#if SYSTEM!=UNIX
-			//	if (!super.length())
+			//	if (!super.GetLength())
 			//		return false;
 			//#else
-			//	if (!super.length())
+			//	if (!super.GetLength())
 			//	{
 			//		absolute_folder = FOLDER_SLASH;
 			//		return true;
@@ -768,7 +768,7 @@ namespace DeltaWorks
 			#else
 				#error not supported
 			#endif
-			if (retry || !file.name.length() || file.name.FirstChar() == '.')
+			if (retry || !file.name.GetLength() || file.name.FirstChar() == '.')
 				return NextEntry(file,outIsDirectory);
 			return true;
 		}
@@ -1011,10 +1011,10 @@ namespace DeltaWorks
 
 			PathString	 super = ExtractFileDir(absolute_folder);
 			#if SYSTEM==WINDOWS
-				if (!super.length())
+				if (!super.GetLength())
 					return NULL;
 			#elif SYSTEM==UNIX
-				if (!super.length())
+				if (!super.GetLength())
 				{
 					file.location = FOLDER_SLASH;
 					file.name = FOLDER_SLASH;
@@ -1110,7 +1110,7 @@ namespace DeltaWorks
 		{
     		count_t cnt = GetDriveList(NULL,0);
 			out.SetSize(cnt);
-			GetDriveList(out.pointer(),out.length());
+			GetDriveList(out.pointer(),out.GetLength());
 		}
 		count_t GetDriveList(Drive*target, count_t max)
 		{
@@ -1152,8 +1152,8 @@ namespace DeltaWorks
 		template<typename T>
 			static StringType::Template<T>	_extractFileName(const StringType::Template<T>&filename)
 			{
-				index_t last_dot(filename.length()),last_slash(0);
-				for (index_t i = 0; i < filename.length(); i++)
+				index_t last_dot(filename.GetLength()),last_slash(0);
+				for (index_t i = 0; i < filename.GetLength(); i++)
 				{
 					if (filename.GetChar(i) == (T)'/' || filename.GetChar(i) == (T)'\\')
 						last_slash = i+1;
@@ -1161,7 +1161,7 @@ namespace DeltaWorks
 						last_dot = i;
 				}
 				if (last_dot < last_slash)
-					last_dot = filename.length();
+					last_dot = filename.GetLength();
 				return filename.subString(last_slash,last_dot-last_slash);
 			}
 
@@ -1173,9 +1173,9 @@ namespace DeltaWorks
 		template <typename T>
 			static StringType::Template<T>	_extractFileExt(const StringType::Template<T>&filename)
 			{
-				index_t at(filename.length()-1);
-				while (filename.GetChar(at) != (T)'/' && filename.GetChar(at) != (T)'\\' && filename.GetChar(at) != (T)'.' && --at < filename.length());
-				if (at >= filename.length() || filename.GetChar(at) != (T)'.')
+				index_t at(filename.GetLength()-1);
+				while (filename.GetChar(at) != (T)'/' && filename.GetChar(at) != (T)'\\' && filename.GetChar(at) != (T)'.' && --at < filename.GetLength());
+				if (at >= filename.GetLength() || filename.GetChar(at) != (T)'.')
 					return StringType::Template<T>();
 				return filename.subString(at+1);
 			}
@@ -1188,11 +1188,11 @@ namespace DeltaWorks
 		template <typename T>
 			static StringType::Template<T>	_extractFileDir(const StringType::Template<T>&filename)
 			{
-				if (!filename.length())
+				if (!filename.GetLength())
 					return StringType::Template<T>();
-				index_t at = filename.length()-1;
-				while (filename.GetChar(at) != (T)'\\' && filename.GetChar(at) != (T)'/' && --at < filename.length());
-				if (at >= filename.length())
+				index_t at = filename.GetLength()-1;
+				while (filename.GetChar(at) != (T)'\\' && filename.GetChar(at) != (T)'/' && --at < filename.GetLength());
+				if (at >= filename.GetLength())
 					return (T)'.';
 				/*if (at)
 					at--;*/
@@ -1204,11 +1204,11 @@ namespace DeltaWorks
 		template <typename T>
 			static StringType::Template<T>	 _extractFileDirName(const StringType::Template<T>&filename)
 			{
-				index_t at(filename.length()-1);
-				if (at >= filename.length())
+				index_t at(filename.GetLength()-1);
+				if (at >= filename.GetLength())
 					return StringType::Template<T>();
-				while (filename.GetChar(at) != (T)'/' && filename.GetChar(at) != (T)'\\' && filename.GetChar(at) != (T)'.' && --at < filename.length());
-				if (at >= filename.length() || filename.GetChar(at) != (T)'.')
+				while (filename.GetChar(at) != (T)'/' && filename.GetChar(at) != (T)'\\' && filename.GetChar(at) != (T)'.' && --at < filename.GetLength());
+				if (at >= filename.GetLength() || filename.GetChar(at) != (T)'.')
 					return filename;
 				return filename.subString(0,at);
 			}
@@ -1218,10 +1218,10 @@ namespace DeltaWorks
 		template <typename T>
 			static StringType::Template<T>	 _extractFileNameExt(const StringType::Template<T>&filename)
 			{
-				index_t at = filename.length()-1;
-				if (at>= filename.length())
+				index_t at = filename.GetLength()-1;
+				if (at>= filename.GetLength())
 					return StringType::Template<T>();
-				while (filename.GetChar(at) != (T)'/' && filename.GetChar(at) != (T)'\\' && --at < filename.length());
+				while (filename.GetChar(at) != (T)'/' && filename.GetChar(at) != (T)'\\' && --at < filename.GetLength());
 				return filename.subString(at+1);
 			}
 
@@ -1240,7 +1240,7 @@ namespace DeltaWorks
 						break;
 				}
 				StringType::Template<T> final;
-				for (index_t i = 0; i < path.length(); i++)
+				for (index_t i = 0; i < path.GetLength(); i++)
 				{
 					if (path.GetChar(i) == (T)' ')
 						final += (T)'\\';
@@ -1594,11 +1594,11 @@ namespace DeltaWorks
 
 		void  _CreateDirectory(const PathString&path, File&out, bool unlinkFoundFiles, const TCodeLocation&loc)
 		{
-			if (!path.length())
+			if (!path.GetLength())
 				throw Except::IO::DriveAccess::GeneralFault(loc,"Path is empty");
 			out.location = path;
 			if (out.location.LastChar() == '/' || out.location.LastChar() == '\\')
-				out.location.Erase(out.location.length()-1);
+				out.location.Erase(out.location.GetLength()-1);
 			if (out.IsDirectory())
 				return;
 
@@ -1844,7 +1844,7 @@ namespace DeltaWorks
 			{
 				Ctr::Array<char> field(getenv("PATH"));
 				char*segment_begin = field.pointer();
-				for (index_t i = 1; i < field.length()-1; i++)
+				for (index_t i = 1; i < field.GetLength()-1; i++)
 					if (field[i] == ENV_PATH_SEPARATOR)
 					{
 						field[i] = 0;

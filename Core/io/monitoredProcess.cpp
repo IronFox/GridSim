@@ -419,9 +419,9 @@ namespace DeltaWorks
 				*/
 				const PathString uncMarker = "\\\\?\\";
 				if (local.executablePath.BeginsWith(uncMarker))
-					local.executablePath.EraseLeft(uncMarker.length());
+					local.executablePath.EraseLeft(uncMarker.GetLength());
 				if (local.workingDirectory.BeginsWith(uncMarker))
-					local.workingDirectory.EraseLeft(uncMarker.length());
+					local.workingDirectory.EraseLeft(uncMarker.GetLength());
 			}
 
 

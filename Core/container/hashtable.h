@@ -169,13 +169,13 @@ namespace DeltaWorks
 				template <class Key>
 					Carrier*	find(hash_t Hash, const Key&key, bool occupy,bool*did_occupy=NULL)	//!< Carrier lookup via a key and its Hash-value. \param Hash Hashvalue of the provided string (usually the result of hashString(key)) \param key Key to look for \param occupy Forces the hashtable to occupy a new carrier for the specified key if it could not be found. \param did_occupy If non NULL then \b did_occupy will be set true if a carrier was occupied, false otherwise. \return Pointer to the occupied carrier if the key could be found or \b occupy was set true. Otherwise to a non-occupied carrier.
 					{
-						if (occupy && entries+1 >= array.length()*0.8)
-							Resize(array.length()*2);
-						size_t offset = Hash%array.length();
+						if (occupy && entries+1 >= array.GetLength()*0.8)
+							Resize(array.GetLength()*2);
+						size_t offset = Hash%array.GetLength();
 
 						Carrier*const raw = array.pointer();	//avoid redundant check
 						while (raw[offset].occupied && (raw[offset].hashed != Hash || raw[offset].key != key))
-							offset = (offset+1)%array.length();
+							offset = (offset+1)%array.GetLength();
 						Carrier&entry = raw[offset];
 						if (occupy && !entry.occupied)
 						{
@@ -184,7 +184,7 @@ namespace DeltaWorks
 							entry.key = typename Carrier::Key(key);
 							entry.occupy();
 							entries++;
-							if (entries == array.length())
+							if (entries == array.GetLength())
 								FATAL__("hashtable overflow");
 							if (did_occupy)
 								(*did_occupy) = true;
@@ -199,10 +199,10 @@ namespace DeltaWorks
 				template <class Key>
 					const Carrier*find(hash_t Hash, const Key&key)			const	//!< Carrier lookup via a key and its Hash-value. \param Hash Hashvalue of the provided string (usually the result of hashString(key)) \param key Key to look for \return Pointer to the occupied carrier if the key could be found. Otherwise to a non-occupied carrier.
 					{
-						size_t offset = Hash%array.length();
+						size_t offset = Hash%array.GetLength();
 						const Carrier*const raw = array.pointer();	//avoid redundant check
 						while (raw[offset].occupied && (raw[offset].hashed != Hash || raw[offset].key != key))
-							offset = (offset+1)%array.length();
+							offset = (offset+1)%array.GetLength();
 
 						return raw+offset;
 					}

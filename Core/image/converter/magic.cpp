@@ -52,7 +52,7 @@ namespace DeltaWorks
 
 	static const PathString::char_t* extractExt(const PathString&name)
 	{
-		index_t offset = name.length();
+		index_t offset = name.GetLength();
 		const PathString::char_t*cstr = name.c_str();
 		while (--offset && cstr[offset] != '.');
 		if (offset)

@@ -18,7 +18,7 @@ template <typename F>
 		if (!parent)
 			return NULL;
 		Command::Name name;
-		if (!name.Parse(lookup.pathSegments.last()))
+		if (!name.Parse(lookup.pathSegments.Last()))
 			return false;
 
 		PCommand result = parent->commands.Query(name.coreName);
@@ -67,7 +67,7 @@ template <typename T, count_t Components>
 		if (begin ==InvalidIndex|| end==InvalidIndex)
 		{
 			begin = 0;
-			end = value.length()-1;
+			end = value.GetLength()-1;
 		}
 		else
 		{
@@ -102,15 +102,15 @@ template <typename T, count_t Components>
 		if (count == 0)
 			return false;
 
-		if (count == 1 && component.length()>1)
+		if (count == 1 && component.GetLength()>1)
 		{
-			count = M::vmin(component.length(),Components);
+			count = M::vmin(component.GetLength(),Components);
 
 			for (index_t i = 1; i < count; i++)
 				temp[i] = temp[0];
 		}
 		index_t at = 0;
-		for (index_t i = 0; i < component.length() && at < count; i++)
+		for (index_t i = 0; i < component.GetLength() && at < count; i++)
 		{
 			switch (component.GetChar(i))
 			{

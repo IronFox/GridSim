@@ -132,7 +132,7 @@ namespace DeltaWorks
 											remainder -= (sector-(sector_t)(new_sector/scalar))*sector_size*scalar;
 										sector = new_sector;
 									}
-					char			compareTo(const Scalar&other, float sector_size)	const	//! Compares the local composite to the specified one and returns the result. @param other Composite to compare to @param sector_size Sector size used for comparison @return -1 if the local object is less than the specified other composite, 0 if they are similar, 1 if the local composite is greater
+					char			CompareTo(const Scalar&other, float sector_size)	const	//! Compares the local composite to the specified one and returns the result. @param other Composite to compare to @param sector_size Sector size used for comparison @return -1 if the local object is less than the specified other composite, 0 if they are similar, 1 if the local composite is greater
 									{
 										return compareComposites(this->sector,this->remainder,other.sector,other.remainder,sector_size);
 									}

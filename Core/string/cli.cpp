@@ -25,7 +25,7 @@ namespace DeltaWorks
 		{
 			void	makeValidName(String&name)
 			{
-				for (index_t i = 0; i < name.length(); i++)
+				for (index_t i = 0; i < name.GetLength(); i++)
 					if (!isAllowedCharacter(name.GetChar(i)))
 						name.Set(i,'_');
 			}
@@ -193,12 +193,12 @@ namespace DeltaWorks
 			StringList	items(def);
 			if (!items)
 				return false;
-			detail::makeValidName(items.first());
-			fullSpecification = items.first();
+			detail::makeValidName(items.First());
+			fullSpecification = items.First();
 			if (items > 1)
 				fullSpecification += " <"+items.fuse(1,"> <")+">";
 		
-			coreName = items.first();
+			coreName = items.First();
 			return true;
 		}
 	
@@ -242,24 +242,24 @@ namespace DeltaWorks
 				error = "Path empty";
 				return false;
 			}
-			detail::makeValidName(lookup.pathSegments.last());
+			detail::makeValidName(lookup.pathSegments.Last());
 			lookup.folder = _Resolve(name.BeginsWith('/'));
 			if (!lookup.folder)
 			{
 				error = "Unable to _Resolve parent folder";
 				return false;
 			}
-			lookup.variable = lookup.folder->variables.Query(lookup.pathSegments.last());
-			lookup.command = lookup.folder->commands.Query(lookup.pathSegments.last());
+			lookup.variable = lookup.folder->variables.Query(lookup.pathSegments.Last());
+			lookup.command = lookup.folder->commands.Query(lookup.pathSegments.Last());
 			if (!may_exist)
 				if (lookup.variable)
 				{
-					error = "Variable '"+lookup.pathSegments.last()+"' already defined";
+					error = "Variable '"+lookup.pathSegments.Last()+"' already defined";
 					return false;
 				}
 				elif (lookup.command)
 				{
-					error = "Command '"+lookup.pathSegments.last()+"' already defined";
+					error = "Command '"+lookup.pathSegments.Last()+"' already defined";
 					return false;
 			
 				}
@@ -273,7 +273,7 @@ namespace DeltaWorks
 				return PVariable();
 			ASSERT_IS_NULL__(lookup.variable);
 			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(), new StringVariable(lookup.pathSegments.last(),"",protection));
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(), new StringVariable(lookup.pathSegments.Last(),"",protection));
 		
 		}
 
@@ -284,13 +284,13 @@ namespace DeltaWorks
 
 			if (lookup.command)
 			{
-				error = "A command of that name ('"+lookup.pathSegments.last()+"') already exists";
+				error = "A command of that name ('"+lookup.pathSegments.Last()+"') already exists";
 				return PVariable();
 			}
 		
 			if (!lookup.variable)
 			{
-				return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new StringVariable(lookup.pathSegments.last(),value,protection));
+				return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new StringVariable(lookup.pathSegments.Last(),value,protection));
 			}
 			else
 			{
@@ -306,7 +306,7 @@ namespace DeltaWorks
 			ASSERT__(lookup.variable);
 			ASSERT__(lookup.command);
 		
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new FloatVariable(lookup.pathSegments.last(),0,protection));
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new FloatVariable(lookup.pathSegments.Last(),0,protection));
 		}
 
 		PVariable	Interpreter::SetFloat(const String& name, float value, unsigned protection)
@@ -315,7 +315,7 @@ namespace DeltaWorks
 				return PVariable();
 			ASSERT_IS_NULL__(lookup.variable);
 			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new FloatVariable(lookup.pathSegments.last(),value,protection));
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new FloatVariable(lookup.pathSegments.Last(),value,protection));
 		}
 
 	
@@ -326,7 +326,7 @@ namespace DeltaWorks
 				return PVariable();
 			ASSERT_IS_NULL__(lookup.variable);
 			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new IntVariable(lookup.pathSegments.last(),0,protection));
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new IntVariable(lookup.pathSegments.Last(),0,protection));
 		}
 
 		PVariable	Interpreter::SetInt(const String& name, int value, unsigned protection)
@@ -335,7 +335,7 @@ namespace DeltaWorks
 				return PVariable();
 			ASSERT_IS_NULL__(lookup.variable);
 			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new IntVariable(lookup.pathSegments.last(),value,protection));
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new IntVariable(lookup.pathSegments.Last(),value,protection));
 		}
 
 		PVariable	Interpreter::SetBool(const String& name,	unsigned protection)
@@ -344,7 +344,7 @@ namespace DeltaWorks
 				return PVariable();
 			ASSERT_IS_NULL__(lookup.variable);
 			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new BoolVariable(lookup.pathSegments.last(),false,protection));
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new BoolVariable(lookup.pathSegments.Last(),false,protection));
 		}
 
 		PVariable	Interpreter::SetBool(const String& name, bool value, unsigned protection)
@@ -353,7 +353,7 @@ namespace DeltaWorks
 				return PVariable();
 			ASSERT_IS_NULL__(lookup.variable);
 			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new BoolVariable(lookup.pathSegments.last(),value,protection));
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new BoolVariable(lookup.pathSegments.Last(),value,protection));
 		}
 
 	
@@ -364,7 +364,7 @@ namespace DeltaWorks
 				return PVariable();
 			ASSERT_IS_NULL__(lookup.variable);
 			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new VectorVariable<3>(lookup.pathSegments.last(),NULL,protection));
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new VectorVariable<3>(lookup.pathSegments.Last(),NULL,protection));
 		}
 	
 		PVariable	Interpreter::SetVector4f(const String& name, unsigned protection)
@@ -373,7 +373,7 @@ namespace DeltaWorks
 				return PVariable();
 			ASSERT_IS_NULL__(lookup.variable);
 			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new VectorVariable<4>(lookup.pathSegments.last(),NULL,protection));
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new VectorVariable<4>(lookup.pathSegments.Last(),NULL,protection));
 		}
 	
 		PVariable	Interpreter::SetVector3d(const String& name, unsigned protection)
@@ -382,7 +382,7 @@ namespace DeltaWorks
 				return PVariable();
 			ASSERT_IS_NULL__(lookup.variable);
 			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new DoubleVectorVariable<3>(lookup.pathSegments.last(),NULL,protection));
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new DoubleVectorVariable<3>(lookup.pathSegments.Last(),NULL,protection));
 		}
 	
 		PVariable	Interpreter::SetVector4d(const String& name, unsigned protection)
@@ -391,7 +391,7 @@ namespace DeltaWorks
 				return PVariable();
 			ASSERT_IS_NULL__(lookup.variable);
 			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new DoubleVectorVariable<4>(lookup.pathSegments.last(),NULL,protection));
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new DoubleVectorVariable<4>(lookup.pathSegments.Last(),NULL,protection));
 		}
 	
 	
@@ -401,7 +401,7 @@ namespace DeltaWorks
 				return PVariable();
 			ASSERT_IS_NULL__(lookup.variable);
 			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new VectorVariable<3>(lookup.pathSegments.last(),value,protection));
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new VectorVariable<3>(lookup.pathSegments.Last(),value,protection));
 		}
 	
 		PVariable	Interpreter::SetVector4f(const String& name, float value[4], unsigned protection)
@@ -410,7 +410,7 @@ namespace DeltaWorks
 				return PVariable();
 			ASSERT_IS_NULL__(lookup.variable);
 			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new VectorVariable<4>(lookup.pathSegments.last(),value,protection));
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new VectorVariable<4>(lookup.pathSegments.Last(),value,protection));
 		}
 	
 		PVariable	Interpreter::SetVector3d(const String& name, double value[3], unsigned protection)
@@ -419,7 +419,7 @@ namespace DeltaWorks
 				return PVariable();
 			ASSERT_IS_NULL__(lookup.variable);
 			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new DoubleVectorVariable<3>(lookup.pathSegments.last(),value,protection));
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new DoubleVectorVariable<3>(lookup.pathSegments.Last(),value,protection));
 		}
 	
 		PVariable	Interpreter::SetVector4d(const String& name, double value[3], unsigned protection)
@@ -428,7 +428,7 @@ namespace DeltaWorks
 				return PVariable();
 			ASSERT_IS_NULL__(lookup.variable);
 			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),new DoubleVectorVariable<4>(lookup.pathSegments.last(),value,protection));
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new DoubleVectorVariable<4>(lookup.pathSegments.Last(),value,protection));
 		}
 	
 
@@ -441,7 +441,7 @@ namespace DeltaWorks
 
 		PFolder		Folder::CreateOrGetChild(const String&folderName)
 		{
-			for (index_t i = 0; i < folderName.length(); i++)
+			for (index_t i = 0; i < folderName.GetLength(); i++)
 				if (!isAllowedCharacter(folderName.GetChar(i)))
 					throw Except::Program::ParameterFault("Character 0x"+IntToHex((int)folderName.GetChar(i),2)+" ('"+folderName.GetChar(i)+"') of variable '"+folderName+"' not allowed");
 			PFolder f = folders.Query(folderName);
@@ -454,7 +454,7 @@ namespace DeltaWorks
 
 		PVariable	Folder::SetVariable(const PVariable&v)
 		{
-			for (index_t i = 0; i < v->name.length(); i++)
+			for (index_t i = 0; i < v->name.GetLength(); i++)
 				if (!isAllowedCharacter(v->name.GetChar(i)))
 					throw Except::Program::ParameterFault(CLOCATION,"Character 0x"+IntToHex((int)v->name.GetChar(i),2)+" ('"+v->name.GetChar(i)+"') of variable '"+v->name+"' not allowed");
 
@@ -477,9 +477,9 @@ namespace DeltaWorks
 			if (!_EntryLookup(name,true))
 				return PVariable();
 			
-			if (lookup.command || globalCommands.IsSet(lookup.pathSegments.last()))
+			if (lookup.command || globalCommands.IsSet(lookup.pathSegments.Last()))
 			{
-				error = "The requested variable name ('"+lookup.pathSegments.last()+"') is already assigned to a command";
+				error = "The requested variable name ('"+lookup.pathSegments.Last()+"') is already assigned to a command";
 				return PVariable();
 			}
 		
@@ -503,20 +503,20 @@ namespace DeltaWorks
 		
 		
 			if (convertToInt(value.c_str(),ival))
-				return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),(new IntVariable(lookup.pathSegments.last(),ival)));
+				return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),(new IntVariable(lookup.pathSegments.Last(),ival)));
 		
 			if (convertToFloat(value.c_str(),vval))
-				return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),(new FloatVariable(lookup.pathSegments.last(),vval)));
+				return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),(new FloatVariable(lookup.pathSegments.Last(),vval)));
 		
-			VectorVariable<3>	f3(lookup.pathSegments.last());
-			VectorVariable<4>	f4(lookup.pathSegments.last());
+			VectorVariable<3>	f3(lookup.pathSegments.Last());
+			VectorVariable<4>	f4(lookup.pathSegments.Last());
 		
 			if (f3.Set(value))
-				return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),(new VectorVariable<3>(f3)));
+				return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),(new VectorVariable<3>(f3)));
 			if (f4.Set(value))
-				return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),(new VectorVariable<4>(f4)));
+				return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),(new VectorVariable<4>(f4)));
 			
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.last(),(new StringVariable(lookup.pathSegments.last(),value)));
+			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),(new StringVariable(lookup.pathSegments.Last(),value)));
 		}
 
 	
@@ -624,7 +624,7 @@ namespace DeltaWorks
 				return false;
 			if (!lookup.variable)
 			{
-				error = "Variable not defined: '"+lookup.pathSegments.last()+"'";
+				error = "Variable not defined: '"+lookup.pathSegments.Last()+"'";
 				return false;
 			}
 	
@@ -771,7 +771,7 @@ namespace DeltaWorks
 			PFolder folder = _Resolve(name.BeginsWith('/'));
 			if (!folder)
 				return PCommand();
-			PCommand rs= folder->commands.Query(lookup.pathSegments.last());
+			PCommand rs= folder->commands.Query(lookup.pathSegments.Last());
 			if (rs)
 			{
 				if (folder_out)
@@ -782,7 +782,7 @@ namespace DeltaWorks
 			{
 				if (folder_out)
 					(*folder_out) = root;
-				return globalCommands.Query(lookup.pathSegments.first());
+				return globalCommands.Query(lookup.pathSegments.First());
 			}
 			return PCommand();
 		}
@@ -802,7 +802,7 @@ namespace DeltaWorks
 				return PVariable();
 			if (folder_out)
 				(*folder_out) = folder;
-			return folder->variables.Query(lookup.pathSegments.last());
+			return folder->variables.Query(lookup.pathSegments.Last());
 		}
 
 		PVariable Interpreter::FindVar(const char*name,PFolder *folder_out/*=NULL*/)
@@ -815,7 +815,7 @@ namespace DeltaWorks
 				return PVariable();
 			if (folder_out)
 				(*folder_out) = folder;
-			return folder->variables.Query(lookup.pathSegments.last());
+			return folder->variables.Query(lookup.pathSegments.Last());
 		}
 
 		PFolder 		Interpreter::FindFolder(const String&path)
@@ -884,7 +884,7 @@ namespace DeltaWorks
 			{
 				case CLI::FolderCompletion:
 				{
-					String line = CompleteFolders(segments.last(),out);
+					String line = CompleteFolders(segments.Last(),out);
 					if (line.IsEmpty())
 						return line;
 					//for (index_t i = 0; i < out; i++)
@@ -893,7 +893,7 @@ namespace DeltaWorks
 				}
 				case CLI::VariableCompletion:
 				{
-					String line = CompleteVariables(segments.last(),out);
+					String line = CompleteVariables(segments.Last(),out);
 					if (line.IsEmpty())
 						return line;
 					//for (index_t i = 0; i < out; i++)
@@ -902,7 +902,7 @@ namespace DeltaWorks
 				}
 				case CLI::CommandCompletion:
 				{
-					String line = StandardComplete(segments.last(),out);
+					String line = StandardComplete(segments.Last(),out);
 					if (line.IsEmpty())
 						return line;
 					//for (index_t i = 0; i < out; i++)
@@ -946,8 +946,8 @@ namespace DeltaWorks
 				return "";
 		
 			String prefix = lookup.pathSegments.fuse(0,lookup.pathSegments-1,'/'),
-					inner = lookup.pathSegments.last();
-			if (prefix.length())
+					inner = lookup.pathSegments.Last();
+			if (prefix.GetLength())
 				prefix+= "/";
 				
 			if (line.BeginsWith('/'))
@@ -973,14 +973,14 @@ namespace DeltaWorks
 		
 			if (out.Count() == 1)
 			{
-				return out.first();
+				return out.First();
 			}
-			count_t longest = prefix.length()+1;
+			count_t longest = prefix.GetLength()+1;
 			bool same(true);
 			while (same)
 			{
-				longest_common = out.first().subString(0,longest);
-				if (longest>longest_common.length())
+				longest_common = out.First().subString(0,longest);
+				if (longest>longest_common.GetLength())
 					same = false;
 				for (index_t i = 1; i < out.Count() && same; i++)
 					same = out[i].BeginsWith(longest_common);
@@ -1007,8 +1007,8 @@ namespace DeltaWorks
 				return "";
 		
 			String prefix = lookup.pathSegments.fuse(0,lookup.pathSegments-1,'/'),
-					inner = lookup.pathSegments.last();
-			if (prefix.length())
+					inner = lookup.pathSegments.Last();
+			if (prefix.GetLength())
 				prefix+= "/";
 			if (line.BeginsWith('/'))
 				prefix = "/"+prefix;
@@ -1026,14 +1026,14 @@ namespace DeltaWorks
 		
 			if (out.Count() == 1)
 			{
-				return out.first();
+				return out.First();
 			}
-			count_t longest = prefix.length()+1;
+			count_t longest = prefix.GetLength()+1;
 			bool same(true);
 			while (same)
 			{
-				longest_common = out.first().subString(0,longest);
-				if (longest>longest_common.length())
+				longest_common = out.First().subString(0,longest);
+				if (longest>longest_common.GetLength())
 					same = false;
 				for (index_t i = 1; i < out.Count() && same; i++)
 					same = out[i].BeginsWith(longest_common);
@@ -1061,8 +1061,8 @@ namespace DeltaWorks
 				return "";
 		
 			String prefix = lookup.pathSegments.fuse(0,lookup.pathSegments-1,'/'),
-					inner = lookup.pathSegments.last();
-			if (prefix.length())
+					inner = lookup.pathSegments.Last();
+			if (prefix.GetLength())
 				prefix+= "/";
 
 			if (line.BeginsWith('/'))
@@ -1078,14 +1078,14 @@ namespace DeltaWorks
 		
 			if (out.Count() == 1)
 			{
-				return out.first();
+				return out.First();
 			}
-			count_t longest = prefix.length()+1;
+			count_t longest = prefix.GetLength()+1;
 			bool same(true);
 			while (same)
 			{
-				longest_common = out.first().subString(0,longest);
-				if (longest>longest_common.length())
+				longest_common = out.First().subString(0,longest);
+				if (longest>longest_common.GetLength())
 					same = false;
 				for (index_t i = 1; i < out.Count() && same; i++)
 					same = out[i].BeginsWith(longest_common);
@@ -1123,16 +1123,16 @@ namespace DeltaWorks
 			//lookup.pathSegments.printLines(cout," ");
 
 			if	(lookup.cmdSegments == 1)
-				if (PVariable v = executingFolder->variables.Query(lookup.pathSegments.last()))
+				if (PVariable v = executingFolder->variables.Query(lookup.pathSegments.Last()))
 				{
 					if (onVariableCall)
 						onVariableCall(v);
 					return true;
 				}
 		
-			executing = executingFolder->commands.Query(lookup.pathSegments.last());
+			executing = executingFolder->commands.Query(lookup.pathSegments.Last());
 			if (!executing && allow_global_commands)
-				executing = globalCommands.Query(lookup.pathSegments.last());
+				executing = globalCommands.Query(lookup.pathSegments.Last());
 		
 			if (executing)
 			{
@@ -1143,7 +1143,7 @@ namespace DeltaWorks
 			}
 		
 			executingFolder.reset();
-			error = "Command or Variable unknown: '"+lookup.pathSegments.last()+"'";
+			error = "Command or Variable unknown: '"+lookup.pathSegments.Last()+"'";
 			return false;
 		}
 
@@ -1185,7 +1185,7 @@ namespace DeltaWorks
 			PFolder folder = parent.lock();
 			while (folder)
 			{
-				if (folder->parent.lock() || folder->name.length())
+				if (folder->parent.lock() || folder->name.GetLength())
 					rs = folder->name+'/'+rs;
 				folder = folder->parent.lock();
 			}
@@ -1199,7 +1199,7 @@ namespace DeltaWorks
 			unsigned depth(0);
 			while (folder && ++depth<max_depth)
 			{
-				if (folder->parent.lock() || folder->name.length())
+				if (folder->parent.lock() || folder->name.GetLength())
 				{
 					//cout << "////concatenating '"<<folder->name<<"' and '"<<rs<<"'"<<endl;
 					rs = folder->name+'/'+rs;
@@ -1207,7 +1207,7 @@ namespace DeltaWorks
 				}
 				folder = folder->parent.lock();
 			}
-			if (folder && (folder->parent.lock() || folder->name.length()))
+			if (folder && (folder->parent.lock() || folder->name.GetLength()))
 				rs = "(...)/"+rs;
 			return rs;
 		}
@@ -1242,7 +1242,7 @@ namespace DeltaWorks
 			if (!parent)
 				return PFolder();
 			
-			PFolder result = parent->folders.Query(lookup.pathSegments.last());
+			PFolder result = parent->folders.Query(lookup.pathSegments.Last());
 			if (result)
 			{
 				if (enter_existing)
@@ -1250,7 +1250,7 @@ namespace DeltaWorks
 				return PFolder();
 			}
 			
-			result.reset(new Folder(parent,lookup.pathSegments.last()));
+			result.reset(new Folder(parent,lookup.pathSegments.Last()));
 			parent->folders.Insert(result->name,result);
 			focused = result;
 			return result;
@@ -1280,7 +1280,7 @@ namespace DeltaWorks
 			{
 				if (focused->IsChildOf(parent))
 					focused = parent;
-				parent->folders.Unset(lookup.pathSegments.last());
+				parent->folders.Unset(lookup.pathSegments.Last());
 			}
 		}
 

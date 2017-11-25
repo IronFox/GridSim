@@ -63,11 +63,11 @@ void gotoxy(int x, int y)
 	/*String	ToUTF8(const StringW&str)
 	{
 		iconv_t	iv = iconv_open("WCHAR_T", "UTF-8");
-		size_t maxLen = str.length() * 4;
+		size_t maxLen = str.GetLength() * 4;
 		Ctr::Array<char>	field(maxLen);
 		char*source = const_cast<char*>((const char*)str.c_str());
 		char*dest = field.pointer();
-		size_t sourceBytes = (str.length()) * sizeof(wchar_t);
+		size_t sourceBytes = (str.GetLength()) * sizeof(wchar_t);
 		size_t destBytes = maxLen;
 		size_t resultLength = iconv(iv, &source, &sourceBytes, &dest, &destBytes);
 		if (resultLength == InvalidIndex)

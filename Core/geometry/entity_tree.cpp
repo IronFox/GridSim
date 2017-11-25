@@ -55,7 +55,7 @@ namespace DeltaWorks
 	void		CompositeEntityTree::recursiveRemap(const C::Buffer<Entity*>&source, float sector_size)
 	{
 		if (verbose)
-			std::cout << "now processing node on level "<<level<<" with "<<source.length()<<" input entities"<<std::endl;
+			std::cout << "now processing node on level "<<level<<" with "<<source.GetLength()<<" input entities"<<std::endl;
 	
 		bool self = &source == &entities;
 
@@ -75,7 +75,7 @@ namespace DeltaWorks
 
 		if (verbose)
 			std::cout << " determining center"<<std::endl;
-		for (unsigned i = 0; i < source.length(); i++)
+		for (unsigned i = 0; i < source.GetLength(); i++)
 		{
 			Entity*entity = source[i];
 		
@@ -127,10 +127,10 @@ namespace DeltaWorks
 			lower.wrap(sector_size);
 			upper.wrap(sector_size);
 		
-			if (lower.compareTo(split.axis(k),sector_size)>0)
+			if (lower.CompareTo(split.axis(k),sector_size)>0)
 				split.setAxis(k,lower);
 			
-			if (upper.compareTo(split.axis(k),sector_size)<0)
+			if (upper.CompareTo(split.axis(k),sector_size)<0)
 				split.setAxis(k,upper);
 		
 			split.getAxis(k,val);
@@ -152,7 +152,7 @@ namespace DeltaWorks
 					Composite::sub(upper,lower,separation);
 					separation.divInt(20,sector_size);
 				
-					if (lower.compareTo(val,sector_size)<0 && upper.compareTo(val,sector_size)>0)
+					if (lower.CompareTo(val,sector_size)<0 && upper.CompareTo(val,sector_size)>0)
 					{
 						if (verbose)
 						{
@@ -160,13 +160,13 @@ namespace DeltaWorks
 							std::cout << "   entity range is "<<lower.ConvertToString(sector_size)<<" - "<<upper.ConvertToString(sector_size)<<std::endl;
 						}
 				
-						if (val.compareTo(original_split,sector_size)>0)
+						if (val.CompareTo(original_split,sector_size)>0)
 						{
 							if (verbose)
 								std::cout << "   moving new split to upper entity boundary"<<std::endl;
 							Composite::add(upper,separation,val);
 						}
-						elif (val.compareTo(original_split,sector_size)<0)
+						elif (val.CompareTo(original_split,sector_size)<0)
 						{
 							if (verbose)
 								std::cout << "   moving new split to lower entity boundary"<<std::endl;
@@ -178,7 +178,7 @@ namespace DeltaWorks
 								std::cout << "   rare case"<<std::endl;
 							Composite::Scalar center;
 							Composite::center(object->volume.upper.axis(k),object->volume.lower.axis(k),center,sector_size);
-							if (center.compareTo(val,sector_size)>0)
+							if (center.CompareTo(val,sector_size)>0)
 							{
 								if (verbose)
 									std::cout << "   moving new split to lower entity boundary"<<std::endl;
@@ -199,10 +199,10 @@ namespace DeltaWorks
 			if (verbose)
 				std::cout << " split vector component determined at "<<val.ConvertToString(sector_size)<<std::endl;
 	
-			if (val.compareTo(volume.lower.axis(k),sector_size)<0)
+			if (val.CompareTo(volume.lower.axis(k),sector_size)<0)
 				val = volume.lower.axis(k);
 			
-			if (val.compareTo(volume.upper.axis(k),sector_size)>0)
+			if (val.CompareTo(volume.upper.axis(k),sector_size)>0)
 				val = volume.upper.axis(k);
 
 			if (verbose)
@@ -213,12 +213,12 @@ namespace DeltaWorks
 			Composite::add(volume.lower.axis(k),delta,lower);
 			Composite::sub(volume.upper.axis(k),delta,upper);
 		
-			if (val.compareTo(lower,sector_size)<0)
+			if (val.CompareTo(lower,sector_size)<0)
 			{
 				collapsed ++;
 				val = lower;
 			}
-			elif (val.compareTo(upper,sector_size)>0)
+			elif (val.CompareTo(upper,sector_size)>0)
 			{
 				collapsed ++;
 				val = upper;
@@ -229,7 +229,7 @@ namespace DeltaWorks
 			if (verbose)
 				std::cout << " final split vector component determined at "<<val.ConvertToString(sector_size)<<std::endl;
 		
-			if (delta.compareTo(greatest_range,sector_size)>0)
+			if (delta.CompareTo(greatest_range,sector_size)>0)
 			{
 				greatest_range = delta;
 				greatest = k;
@@ -340,7 +340,7 @@ namespace DeltaWorks
 					!Composite::oneGreater(edge[j],volume.upper,sector_size))
 				{
 					for (BYTE k = 0; k < 3; k++)
-						define[k] = edge[j].axis(k).compareTo(split.axis(k),sector_size) > 0;
+						define[k] = edge[j].axis(k).CompareTo(split.axis(k),sector_size) > 0;
 					BYTE k = define[0] *4+ define[1] *2 + define[2];
 					set[k] = true;
 				}
@@ -495,11 +495,11 @@ namespace DeltaWorks
 		if (!source.Count())
 			return;
 
-		level = depth?depth:(unsigned)log((float)source.length());	//may need to adjust this later
+		level = depth?depth:(unsigned)log((float)source.GetLength());	//may need to adjust this later
 		//ShowMessage(IntToStr(source->Count())+" => "+IntToStr(level));
 
 		{
-			Entity*object = source.first();
+			Entity*object = source.First();
 			volume = object->volume;
 		}
 		for (unsigned i = 1; i < source.Count(); i++)
@@ -627,7 +627,7 @@ namespace DeltaWorks
 	void		EntityTree::_RecursiveRemap(const C::Buffer<Entity*>&source)
 	{
 		if (verbose)
-			std::cout << "now processing node on level "<<level<<" with "<<source.length()<<" input entities"<<std::endl;
+			std::cout << "now processing node on level "<<level<<" with "<<source.GetLength()<<" input entities"<<std::endl;
 	
 		bool self = &source == &entities;
 		if (!self)
@@ -646,7 +646,7 @@ namespace DeltaWorks
 
 		if (verbose)
 			std::cout << " determining center"<<std::endl;
-		for (unsigned i = 0; i < source.length(); i++)
+		for (unsigned i = 0; i < source.GetLength(); i++)
 		{
 			Entity*entity = source[i];
 		
@@ -1057,11 +1057,11 @@ namespace DeltaWorks
 		if (!source.Count())
 			return;
 
-		level = depth?depth:(unsigned)log((float)source.length());	//may need to adjust this later
+		level = depth?depth:(unsigned)log((float)source.GetLength());	//may need to adjust this later
 		//ShowMessage(IntToStr(source->Count())+" => "+IntToStr(level));
 
 		{
-			Entity*object = source.first();
+			Entity*object = source.First();
 			volume = object->volume;
 		}
 		for (index_t i = 1; i < source.Count(); i++)

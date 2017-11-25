@@ -20,9 +20,9 @@ namespace DeltaWorks
 		memcpy(Super::AppendRow(strLen),string,strLen);
 	}
 
-	StringBuffer::StringBuffer(const String&string, size_t extra):Super(string.length()+extra)
+	StringBuffer::StringBuffer(const String&string, size_t extra):Super(string.GetLength()+extra)
 	{
-		memcpy(Super::AppendRow(string.length()),string.c_str(),string.length());
+		memcpy(Super::AppendRow(string.GetLength()),string.c_str(),string.GetLength());
 	}
 
 
@@ -176,8 +176,8 @@ namespace DeltaWorks
 	{
 		if (data.IsEmpty())
 			return *this;
-		if (!data.last())	//terminating zero
-			Write(data.pointer(),data.length()-1);
+		if (!data.Last())	//terminating zero
+			Write(data.pointer(),data.GetLength()-1);
 		else
 			Super::append(data);
 		return *this;
@@ -185,7 +185,7 @@ namespace DeltaWorks
 
 	StringBuffer&		StringBuffer::operator<<(const StringRef&ref)
 	{
-		Write(ref.pointer(),ref.length());
+		Write(ref.pointer(),ref.GetLength());
 		return *this;
 	}
 
@@ -200,7 +200,7 @@ namespace DeltaWorks
 
 	StringBuffer&  StringBuffer::operator<<(const String&str)
 	{
-		Write(str.c_str(),str.length());
+		Write(str.c_str(),str.GetLength());
 		return *this;
 	}
 
@@ -252,6 +252,6 @@ namespace DeltaWorks
 
 	void			StringBuffer::Insert(size_t index, const String&string)
 	{
-		Insert(index,string.c_str(),string.length());
+		Insert(index,string.c_str(),string.GetLength());
 	}
 }

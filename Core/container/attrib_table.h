@@ -176,7 +176,7 @@ namespace DeltaWorks
 			
 					TAttribute						attribute(unsigned index)	const
 													{
-														if (index < index_map.length())
+														if (index < index_map.GetLength())
 															return index_map[index];
 														TAttribute empty;
 														empty.exists = false;

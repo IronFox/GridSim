@@ -12,12 +12,12 @@ namespace DeltaWorks
 		template <typename T>
 			static bool Convert(const String&str, T&rs)
 			{
-				return convert(str.c_str(),str.length(),rs);
+				return convert(str.c_str(),str.GetLength(),rs);
 			}
 		template <typename T>
 			static bool Convert(const StringRef&str, T&rs)
 			{
-				return convert(str.pointer(),str.length(),rs);
+				return convert(str.pointer(),str.GetLength(),rs);
 			}
 
 		void BaseElement::SetRGB(const String&name, const M::TVec3<>&rgb)
@@ -298,7 +298,7 @@ namespace DeltaWorks
 				ASSERT1__(Convert(attrib,fontSize),attrib);
 			String localAnchor;
 			const String*outAnchor = &textAnchor;
-			if (node.Query("text-anchor",attrib) && attrib.compareSegment("inherit",7)!=0)
+			if (node.Query("text-anchor",attrib) && attrib.CompareSegment("inherit",7)!=0)
 			{
 				localAnchor = attrib;
 				outAnchor = &localAnchor;
@@ -450,7 +450,7 @@ namespace DeltaWorks
 			
 				M::Rect<> primitive = M::Rect<>::Invalid;
 				M::Rect<> rect;
-				const float w = fontSize*0.75f *node.inner_content.length();
+				const float w = fontSize*0.75f *node.inner_content.GetLength();
 				if (*outAnchor == "start")
 					rect = M::Rect<>(x,y-fontSize,x+w,y);
 				elif (*outAnchor == "middle")

@@ -85,7 +85,7 @@ template <class Entry,class MyStrategy>
 	Queue<Entry,MyStrategy>::Queue(size_t size):Super(size)
 	{
 		section_begin = section_end = Super::pointer();
-		//field_end = section_begin + Super::length();
+		//field_end = section_begin + Super::GetLength();
 	}
 
 
@@ -95,7 +95,7 @@ template <class Entry,class MyStrategy>
 	{
 		Super::SetSize(other.Super::Count());
 		section_begin = section_end = Super::pointer();
-		//field_end = section_begin + Super::length();
+		//field_end = section_begin + Super::GetLength();
 		for (index_t i = 0; i < other.Count(); i++)
 			(*section_end++).Copy(other[i]);
 		//DBG_ASSERT__(Super::Owns(section_end));
@@ -113,7 +113,7 @@ template <class Entry,class MyStrategy>
 	{
 		Super::SetSize(other.Super::Count());
 		section_begin = section_end = Super::pointer();
-		//field_end = section_begin + Super::length();
+		//field_end = section_begin + Super::GetLength();
 		for (index_t i = 0; i < other.Count(); i++)
 			(*section_end++).Copy(other[i]);
 		//DBG_ASSERT__(Super::Owns(section_end));
@@ -302,7 +302,7 @@ template <class Entry, class MyStrategy>
 	{
 		//DBG_ASSERT__(Super::Owns(section_end));
 		//DBG_ASSERT__(Super::Owns(section_begin));
-		size_t old_usage = length();
+		size_t old_usage = GetLength();
 		Array	new_field(new_size);
 		Element*out = new_field.pointer();
 		while (section_begin != section_end)
@@ -316,7 +316,7 @@ template <class Entry, class MyStrategy>
 		Super::adoptData(new_field);
 		section_begin = Super::pointer();
 		section_end = section_begin+old_usage;
-		//field_end = section_begin+Super::length();
+		//field_end = section_begin+Super::GetLength();
 		//DBG_ASSERT__(Super::Owns(section_end));
 		//DBG_ASSERT__(Super::Owns(section_begin));
 	}
@@ -335,12 +335,12 @@ template <class Entry, class MyStrategy>
 		//DBG_ASSERT__(Super::Owns(section_end));
 		//DBG_ASSERT__(Super::Owns(section_begin));
 
-		count_t target = Super::length(),
-				need = length()+count;
+		count_t target = Super::GetLength(),
+				need = GetLength()+count;
 				
 		while (target < need)
 			target <<= 1;
-		if (target != Super::length())
+		if (target != Super::GetLength())
 		{
 			increaseSize(target);
 			for (index_t i = 0; i < count; i++)
@@ -379,8 +379,8 @@ template <class Entry, class MyStrategy>
 		WrapInc(newEnd);
 		if (newEnd == section_begin)
 		{
-			size_t old_len = Super::length();
-			Super	new_field(Super::length() > 0 ? Super::length()*2 : 2);
+			size_t old_len = Super::GetLength();
+			Super	new_field(Super::GetLength() > 0 ? Super::GetLength()*2 : 2);
 			Element*out = new_field.pointer();
 			for (iterator it = begin(); it != end(); ++it)
 			{
@@ -391,7 +391,7 @@ template <class Entry, class MyStrategy>
 			section_begin = Super::pointer();
 			section_end = old_len > 0 ? section_begin+old_len-1 : section_begin;
 			newEnd = section_end+1;
-			//field_end = section_begin+Super::length();
+			//field_end = section_begin+Super::GetLength();
 			#ifdef _DEBUG
 				for (iterator it = begin(); it != end(); ++it)
 				{
@@ -427,12 +427,12 @@ template <class Entry, class MyStrategy>
 //	{
 //		if (!count)
 //			return;
-//		count_t target = Super::length(),
-//				need = length()+count;
+//		count_t target = Super::GetLength(),
+//				need = GetLength()+count;
 //				
 //		while (target < need)
 //			target <<= 1;
-//		if (target != Super::length())
+//		if (target != Super::GetLength())
 //		{
 //			increaseSize(target);
 //			Strategy::copyRange(data,data+count,section_end);	//easy case
@@ -470,8 +470,8 @@ template <class Entry, class MyStrategy>
 			newStart--;
 		if (section_end == newStart)
 		{
-			size_t old_len = Super::length();
-			Super	new_field(Super::length() > 0 ? Super::length()*2 : 2);
+			size_t old_len = Super::GetLength();
+			Super	new_field(Super::GetLength() > 0 ? Super::GetLength()*2 : 2);
 			Element*out = new_field.pointer()+1;
 			for (iterator it = begin(); it != end(); ++it)
 			{
@@ -481,8 +481,8 @@ template <class Entry, class MyStrategy>
 			Super::adoptData(new_field);
 			section_begin = Super::pointer();
 			section_end = out;
-//			field_end = section_begin+Super::length();
-			//DBG_ASSERT__(old_len==length()+1);
+//			field_end = section_begin+Super::GetLength();
+			//DBG_ASSERT__(old_len==GetLength()+1);
 
 			//for (iterator it = begin(); it != end(); ++it)
 			//{
@@ -531,9 +531,9 @@ template <class Entry,class MyStrategy>
 	}
 
 template <class Entry,class MyStrategy>	
-	size_t	Queue<Entry,MyStrategy>::length()					const
+	size_t	Queue<Entry,MyStrategy>::GetLength()					const
 	{
-		return section_end >= section_begin?section_end-section_begin:section_end+Super::length()-section_begin;
+		return section_end >= section_begin?section_end-section_begin:section_end+Super::GetLength()-section_begin;
 	}
 
 template <class Entry,class MyStrategy>	
@@ -678,7 +678,7 @@ template <class Entry, class Priority, class MyStrategy>
 		entry_field[section_begin].Destruct();
 		PriorityArray::AppliedStrategy::move(priority_field[section_begin],pout);
 		section_begin++;
-		if (section_begin >= entry_field.length())
+		if (section_begin >= entry_field.GetLength())
 			section_begin = 0;
 		return true;
 	}
@@ -691,7 +691,7 @@ template <class Entry, class Priority, class MyStrategy>
 		MyStrategy::move(entry_field[section_begin].Cast(),out);
 		entry_field[section_begin].Destruct();
 		section_begin++;
-		if (section_begin >= entry_field.length())
+		if (section_begin >= entry_field.GetLength())
 			section_begin = 0;
 		return true;
 	}
@@ -704,7 +704,7 @@ template <class Entry, class Priority, class MyStrategy>
 		Entry rs = entry_field[section_begin].Cast();
 		entry_field[section_begin].Destruct();
 		section_begin++;
-		if (section_begin >= entry_field.length())
+		if (section_begin >= entry_field.GetLength())
 			section_begin = 0;
 		return rs;
 	}
@@ -716,7 +716,7 @@ template <class Entry, class Priority, class MyStrategy>
 			return;
 		entry_field[section_begin].Destruct();
 		section_begin++;
-		if (section_begin >= entry_field.length())
+		if (section_begin >= entry_field.GetLength())
 			section_begin = 0;
 	}
 
@@ -775,13 +775,13 @@ template <class Entry, class Priority, class MyStrategy>
 		if (offset)
 			offset--;
 		else
-			offset = entry_field.length()-1;
+			offset = entry_field.GetLength()-1;
 	}
 
 template <class Entry, class Priority, class MyStrategy>
 	void			PriorityQueue<Entry, Priority, MyStrategy>::eraseAddr(index_t index)
 	{
-		if (index >= entry_field.length())
+		if (index >= entry_field.GetLength())
 			return;
 		if (section_begin < section_end)
 		{
@@ -810,11 +810,11 @@ template <class Entry, class Priority, class MyStrategy>
 		if (section_end)
 			section_end--;
 		else
-			section_end = entry_field.length()-1;
+			section_end = entry_field.GetLength()-1;
 		
 		for (index_t i = index; i != section_end;)
 		{
-			index_t next = (i+1)%entry_field.length();
+			index_t next = (i+1)%entry_field.GetLength();
 			MyStrategy::move(entry_field[next],entry_field[i]);
 			PriorityArray::AppliedStrategy::move(priority_field[next],priority_field[i]);
 			i = next;
@@ -832,10 +832,10 @@ template <class Entry, class Priority, class MyStrategy>
 template <class Entry, class Priority, class MyStrategy>
 	bool				PriorityQueue<Entry,Priority,MyStrategy>::find(const Priority&priority, iterator&it)
 	{
-		size_t len = entry_field.length();
+		size_t len = entry_field.GetLength();
 		size_t end = section_end;
 		if (end < section_begin)
-			end+=entry_field.length();
+			end+=entry_field.GetLength();
 		size_t half = (section_begin+end)/2;
 		
 		size_t	lower = section_begin;
@@ -905,10 +905,10 @@ template <class Entry, class Priority, class MyStrategy>
 	void				PriorityQueue<Entry, Priority, MyStrategy>::Push(const Entry&data, const Priority&priority)
 	{
 		
-		size_t len = entry_field.length();
+		size_t len = entry_field.GetLength();
 		size_t end = section_end;
 		if (end < section_begin)
-			end+=entry_field.length();
+			end+=entry_field.GetLength();
 		size_t half = (section_begin+end)/2;
 		
 		size_t	lower = section_begin;
@@ -934,7 +934,7 @@ template <class Entry, class Priority, class MyStrategy>
 			size_t l = lower%len;
 			EntryArray		new_entry_field(len<<1);
 			PriorityArray	new_priority_field(len<<1);
-			//cout << "new fields have length "<<new_entry_field.length()<<endl;
+			//cout << "new fields have length "<<new_entry_field.GetLength()<<endl;
 			//cout << "element is "<<l<<endl;
 			Element*out = new_entry_field.pointer();
 			Priority*pout = new_priority_field.pointer();
@@ -1005,9 +1005,9 @@ template <class Entry, class Priority, class MyStrategy>
 					}
 					else
 					{
-						entry_field.last().adoptData(entry_field.first());
-						//Strategy::move(entry_field.first(),entry_field.last());
-						PriorityArray::AppliedStrategy::move(priority_field.first(),priority_field.last());
+						entry_field.Last().adoptData(entry_field.First());
+						//Strategy::move(entry_field.First(),entry_field.Last());
+						PriorityArray::AppliedStrategy::move(priority_field.First(),priority_field.Last());
 					}
 				}
 				for (size_t i = section_begin; i+1 < lower; i++)
@@ -1043,7 +1043,7 @@ template <class Entry, class Priority, class MyStrategy>
 template <class Entry, class Priority, class MyStrategy>
 	void	PriorityQueue<Entry, Priority, MyStrategy>::clear()
 	{
-		const count_t len = entry_field.length();
+		const count_t len = entry_field.Length();
 		while (section_begin != section_end)
 		{
 			entry_field[section_begin].Destruct();
@@ -1067,11 +1067,11 @@ template <class Entry, class Priority, class MyStrategy>
 	
 	
 template <class Entry, class Priority, class MyStrategy>
-	size_t			PriorityQueue<Entry, Priority, MyStrategy>::length()					const
+	size_t			PriorityQueue<Entry, Priority, MyStrategy>::GetLength()					const
 	{
 		if (section_end >= section_begin)
 			return section_end-section_begin;
-		return section_end+entry_field.length()-section_begin;
+		return section_end+entry_field.GetLength()-section_begin;
 	}
 	
 template <class Entry, class Priority, class MyStrategy>
@@ -1103,20 +1103,20 @@ template <class Entry, class Priority, class MyStrategy>
 template <class Entry, class Priority, class MyStrategy>
 	Entry&				PriorityQueue<Entry, Priority, MyStrategy>::peekLeast()
 	{
-		return (section_end?entry_field[section_end-1]:entry_field.last()).Cast();
+		return (section_end?entry_field[section_end-1]:entry_field.Last()).Cast();
 	}
 	
 template <class Entry, class Priority, class MyStrategy>
 	const Entry&		PriorityQueue<Entry, Priority, MyStrategy>::peekLeast()						const
 	{
-		return (section_end?entry_field[section_end-1]:entry_field.last()).Cast();
+		return (section_end?entry_field[section_end-1]:entry_field.Last()).Cast();
 	}
 
 	
 template <class Entry, class Priority, class MyStrategy>
 	const Priority&		PriorityQueue<Entry, Priority, MyStrategy>::peekLeastPriority()						const
 	{
-		return section_end?priority_field[section_end-1]:priority_field.last();
+		return section_end?priority_field[section_end-1]:priority_field.Last();
 	}
 	
 template <class Entry, class Priority, class MyStrategy>

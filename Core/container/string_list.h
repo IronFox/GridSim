@@ -386,14 +386,10 @@ namespace DeltaWorks
 			const String&		max()														const;	//!< Const @overload
 			String&				min();																//!< Returns a reference to the orthographic minimum string found in the local list. Returns a reference to a global empty string if the local list is empty
 			const String&		min()														const;	//!< Const @overload
-			String&				first();															//!< Returns a reference to the first string of the local list. Returns a reference to a global empty string if the local list is empty
-			const String&		first()														const;	//!< Const @overload
-			String&				First()	/**@copydoc first()*/	{return first();}
-			const String&		First()	const /**@copydoc first()const*/ {return first();}
-			String&				last();																//!< Returns a reference to the last string of the local list. Returns a reference to a global empty string if the local list is empty
-			const String&		last()														const;	//!< Const @overload
-			String&				Last()	/**@copydoc last()*/	{return last();}
-			const String&		Last()	const /**@copydoc last()const*/ {return last();}
+			String&				First();															//!< Returns a reference to the first string of the local list. Returns a reference to a global empty string if the local list is empty
+			const String&		First()														const;	//!< Const @overload
+			String&				Last();																//!< Returns a reference to the last string of the local list. Returns a reference to a global empty string if the local list is empty
+			const String&		Last()														const;	//!< Const @overload
 			size_t				charactersInCommon()										const;	//!< Queries how many characters (starting from the beginning) all contained strings have in common with each other. Comparison is case sensitive
 			size_t				charactersInCommon(const String&sample)					const;	//!< Queries how many characters (starting from the beginning) all contained strings have in common with the specified sample. Comparison is case sensitive
 			

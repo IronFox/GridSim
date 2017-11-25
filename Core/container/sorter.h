@@ -76,7 +76,7 @@ namespace DeltaWorks
 				
 
 		/**
-			@brief Sorting methods that rely on a compareTo(...) method to be implemented by each element
+			@brief Sorting methods that rely on a CompareTo(...) method to be implemented by each element
 
 		*/
 		namespace ByMethod
@@ -85,7 +85,7 @@ namespace DeltaWorks
 				bool isSorted(accessor_t field, count_t elements)
 				{
 					for (index_t i = 1; i < elements; i++)
-						if (field[i-1].compareTo(field[i])>0)
+						if (field[i-1].CompareTo(field[i])>0)
 							return false;
 					return true;
 				}
@@ -111,7 +111,7 @@ namespace DeltaWorks
 					size_t write=lo;
 
 					for (size_t i = lo; i < hi; i++)
-						if (data[i].compareTo(*pivot) < 0)
+						if (data[i].CompareTo(*pivot) < 0)
 							MyStrategy::swap(data[write++],data[i]);
 
 					MyStrategy::swap(data[write],*pivot);
@@ -151,7 +151,7 @@ namespace DeltaWorks
 
 			Assuming the used data type implements the appropriate operators (&lt; and &gt; are sufficient), this is actually a more generally applicable version.
 			Most (currently all) functions in this namespace will only ever use one type of operator (either operator&lt; _or_ operator&gt; , not both),
-			so the efficiency difference between a&lt;b and a.compareTo(b)&lt;0 is rather neclectible.
+			so the efficiency difference between a&lt;b and a.CompareTo(b)&lt;0 is rather neclectible.
 
 		*/
 		namespace ByOperator

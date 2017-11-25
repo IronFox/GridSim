@@ -675,7 +675,7 @@ namespace DeltaWorks
 				void									saveToRiff(Riff::Chunk*riff)	const;					//!< Saves the local animator data to the specified riff chunk context
 			
 				void									storeTargetNames();								//!< Retrieves and stores the respective trace target names
-				double									length()	const;								//!< Retrieves the length (in seconds) of this animation
+				double									GetLength()	const;								//!< Retrieves the length (in seconds) of this animation
 			
 				void									revert();										//!< Reverts all animator traces. No data is actually allocated or freed.
 			template <class C>
@@ -1522,7 +1522,7 @@ namespace DeltaWorks
 					void				Clear()
 										{
 											lods.Truncate(1);
-											lods.last().Clear();
+											lods.Last().Clear();
 											currentLOD = lods.pointer();
 											_OnActiveLODChange();
 										}
@@ -1586,7 +1586,7 @@ namespace DeltaWorks
 					UINT				GetVertexFlags()		const	{return config.vertexFlags;}
 					count_t				GetVertexSize()			const	{return config.vsize;}
 					void				SetVertexOffset(Index offset)	{voffset = offset;}
-					void				SetVertexOffsetToCurrent()		{voffset = (Index)(currentLOD->vertexData.length() / config.vsize);}
+					void				SetVertexOffsetToCurrent()		{voffset = (Index)(currentLOD->vertexData.GetLength() / config.vsize);}
 					void				SetComputeNormalsBegin();
 					void				SetGenerateNormalsBegin()		{SetComputeNormalsBegin();}
 					void				ComputeNormals();
@@ -1632,11 +1632,11 @@ namespace DeltaWorks
 					const Index*		GetTriangleIndices(index_t lod)	const {return lods[lod].triangleIndices.pointer();}
 					const Index*		GetQuadIndices(index_t lod)		const {return lods[lod].quadIndices.pointer();}
 					const Float*		GetVertices(index_t lod)			const {return lods[lod].vertexData.pointer();}
-					count_t				CountTriangleIndices(index_t lod)	const {return lods[lod].triangleIndices.length();}
-					count_t				CountQuadIndices(index_t lod)		const {return lods[lod].quadIndices.length();}
+					count_t				CountTriangleIndices(index_t lod)	const {return lods[lod].triangleIndices.GetLength();}
+					count_t				CountQuadIndices(index_t lod)		const {return lods[lod].quadIndices.GetLength();}
 					count_t				CountTriangles(index_t lod)	const {return CountTriangleIndices(lod)/3;}
 					count_t				CountQuads(index_t lod)		const {return CountQuadIndices(lod)/4;}
-					count_t				CountFloats(index_t lod)	const {return lods[lod].vertexData.length();}
+					count_t				CountFloats(index_t lod)	const {return lods[lod].vertexData.GetLength();}
 					count_t				CountVertices(index_t lod)	const {return CountFloats(lod) / config.vsize;}
 					M::Box<Float>		GetBoundingBox(index_t lod=0)const;
 
@@ -1645,7 +1645,7 @@ namespace DeltaWorks
 					template <typename T>
 						Index			MakeVertex(const M::TVec3<T>&location)
 						{
-							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+							Index result = (Index)(currentLOD->vertexData.GetLength() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
 							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
@@ -1656,7 +1656,7 @@ namespace DeltaWorks
 					template <typename T>
 						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec2<T>&texcoords0)
 						{
-							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+							Index result = (Index)(currentLOD->vertexData.GetLength() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
 							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
@@ -1683,7 +1683,7 @@ namespace DeltaWorks
 					template <typename T>
 						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec2<T>&texcoords0, const M::TVec2<T>&texcoords1)
 						{
-							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+							Index result = (Index)(currentLOD->vertexData.GetLength() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
 							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
@@ -1714,7 +1714,7 @@ namespace DeltaWorks
 					template <typename T>
 						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec2<T>&texcoords0, const M::TVec2<T>&texcoords1, const M::TVec2<T>&texcoords2)
 						{
-							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+							Index result = (Index)(currentLOD->vertexData.GetLength() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
 							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
@@ -1751,7 +1751,7 @@ namespace DeltaWorks
 					template <typename T>
 						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal)
 						{
-							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+							Index result = (Index)(currentLOD->vertexData.GetLength() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
 							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
@@ -1766,7 +1766,7 @@ namespace DeltaWorks
 					template <typename T>
 						Index		MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec2<T>&texcoords0)
 						{
-							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+							Index result = (Index)(currentLOD->vertexData.GetLength() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
 							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
@@ -1793,7 +1793,7 @@ namespace DeltaWorks
 					template <typename T>
 						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec2<T>&texcoords0, const M::TVec2<T>&texcoords1)
 						{
-							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+							Index result = (Index)(currentLOD->vertexData.GetLength() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
 							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
@@ -1824,7 +1824,7 @@ namespace DeltaWorks
 					template <typename T>
 						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec2<T>&texcoords0, const M::TVec2<T>&texcoords1, const M::TVec2<T>&texcoords2)
 						{
-							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+							Index result = (Index)(currentLOD->vertexData.GetLength() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
 							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
@@ -1867,7 +1867,7 @@ namespace DeltaWorks
 					template <typename T>
 						Index		MakeVertex(const M::TVec3<T>&location, const M::TVec4<T>&color)
 						{
-							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+							Index result = (Index)(currentLOD->vertexData.GetLength() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
 							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
@@ -1890,7 +1890,7 @@ namespace DeltaWorks
 					template <typename T>
 						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec4<T>&color, const M::TVec2<T>&texcoords0)
 						{
-							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+							Index result = (Index)(currentLOD->vertexData.GetLength() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
 							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
@@ -1917,7 +1917,7 @@ namespace DeltaWorks
 					template <typename T>
 						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec4<T>&color, const M::TVec2<T>&texcoords0, const M::TVec2<T>&texcoords1)
 						{
-							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+							Index result = (Index)(currentLOD->vertexData.GetLength() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
 							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
@@ -1948,7 +1948,7 @@ namespace DeltaWorks
 					template <typename T>
 						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec4<T>&color, const M::TVec2<T>&texcoords0, const M::TVec2<T>&texcoords1, const M::TVec2<T>&texcoords2)
 						{
-							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+							Index result = (Index)(currentLOD->vertexData.GetLength() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
 							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
@@ -1985,7 +1985,7 @@ namespace DeltaWorks
 					template <typename T>
 						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec4<T>&color)
 						{
-							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+							Index result = (Index)(currentLOD->vertexData.GetLength() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
 							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
@@ -2008,7 +2008,7 @@ namespace DeltaWorks
 					template <typename T>
 						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec4<T>&color, const M::TVec2<T>&texcoords0)
 						{
-							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+							Index result = (Index)(currentLOD->vertexData.GetLength() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
 							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
@@ -2035,7 +2035,7 @@ namespace DeltaWorks
 					template <typename T>
 						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec4<T>&color, const M::TVec2<T>&texcoords0, const M::TVec2<T>&texcoords1)
 						{
-							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+							Index result = (Index)(currentLOD->vertexData.GetLength() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
 							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
@@ -2066,7 +2066,7 @@ namespace DeltaWorks
 					template <typename T>
 						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec4<T>&color, const M::TVec2<T>&texcoords0, const M::TVec2<T>&texcoords1, const M::TVec2<T>&texcoords2)
 						{
-							Index result = (Index)(currentLOD->vertex_data.length() / config.vsize);
+							Index result = (Index)(currentLOD->vertex_data.GetLength() / config.vsize);
 							Float*out = currentLOD->vertex_data.appendRow(config.vsize);
 							Float*end = out + config.vsize;
 							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
@@ -2104,7 +2104,7 @@ namespace DeltaWorks
 					template <typename T>
 						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec3<T>&tangent)
 						{
-							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+							Index result = (Index)(currentLOD->vertexData.GetLength() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
 							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
@@ -2123,7 +2123,7 @@ namespace DeltaWorks
 					template <typename T>
 						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec3<T>&tangent, const M::TVec2<T>&texcoords0)
 						{
-							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+							Index result = (Index)(currentLOD->vertexData.GetLength() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
 							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
@@ -2150,7 +2150,7 @@ namespace DeltaWorks
 					template <typename T>
 						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec3<T>&tangent, const M::TVec2<T>&texcoords0, const M::TVec2<T>&texcoords1)
 						{
-							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+							Index result = (Index)(currentLOD->vertexData.GetLength() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
 							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;
@@ -2181,7 +2181,7 @@ namespace DeltaWorks
 					template <typename T>
 						Index			MakeVertex(const M::TVec3<T>&location, const M::TVec3<T>&normal, const M::TVec3<T>&tangent, const M::TVec2<T>&texcoords0, const M::TVec2<T>&texcoords1, const M::TVec2<T>&texcoords2)
 						{
-							Index result = (Index)(currentLOD->vertexData.length() / config.vsize);
+							Index result = (Index)(currentLOD->vertexData.GetLength() / config.vsize);
 							Float*out = currentLOD->vertexData.appendRow(config.vsize);
 							Float*end = out + config.vsize;
 							M::Vec::copy(location,M::Vec::ref3(out)); out+=3;

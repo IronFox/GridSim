@@ -240,7 +240,7 @@ namespace DeltaWorks
 							swp(n[0],n[1]);
 							n[1] *= -1;
 						
-							M::Vec::mad2(p,n,zy_profile.nodes.first().position
+							M::Vec::mad2(p,n,zy_profile.nodes.First().position
 						
 							points.append(p,2);
 						}
@@ -572,7 +572,7 @@ namespace DeltaWorks
 
 
 
-		index_t voffset = vout.length();
+		index_t voffset = vout.GetLength();
 	
 		const Edge	&edge = edges[edge_index];
 		const Node	&n0 = nodes[edge.node[0]],
@@ -686,7 +686,7 @@ namespace DeltaWorks
 				}
 				if (z && x)
 				{
-					ASSERT_EQUAL__(voffset+z*res_x+x,vout.length()-1);
+					ASSERT_EQUAL__(voffset+z*res_x+x,vout.GetLength()-1);
 					iout << UINT32(voffset+z*res_x+x);
 					iout << UINT32(voffset+z*res_x+x-1);
 					iout << UINT32(voffset+(z-1)*res_x+x-1);
@@ -893,12 +893,12 @@ namespace DeltaWorks
 		new_texture->face_field.SetSize(1);
 
 		if (!bump_map)
-			TextureCompression::compress(image, new_texture->face_field.first(),TextureCompression::NoCompression);
+			TextureCompression::compress(image, new_texture->face_field.First(),TextureCompression::NoCompression);
 		else
 		{
 			Image	normal_map;
 			image.ToNormalMap(normal_map,1.0f,1.0f,bump_strength,true,0);
-			TextureCompression::compress(normal_map, new_texture->face_field.first(),TextureCompression::NoCompression);
+			TextureCompression::compress(normal_map, new_texture->face_field.First(),TextureCompression::NoCompression);
 			//png.saveToFileQ(normal_map,"test.png");
 		}
 		new_texture->updateHash();
@@ -1146,7 +1146,7 @@ namespace DeltaWorks
 			robj.vpool.SetSize(visual_hull.vertices.Count(),1,CGS::HasNormalFlag |CGS::HasTangentFlag);
 			//ASSERT_EQUAL__(robj.vpool.vsize(),11 + 2*...yadda, you get idea);
 			float*vtx = robj.vpool.vdata.pointer();
-			for (index_t i = 0; i < visual_hull.vertices.length(); i++)
+			for (index_t i = 0; i < visual_hull.vertices.GetLength(); i++)
 			{
 				M::Vec::ref3(vtx) = visual_hull.vertices[i].position;
 				M::Vec::ref3(vtx+3) = visual_hull.vertices[i].normal;
@@ -1166,7 +1166,7 @@ namespace DeltaWorks
 			memcpy(robj.ipool.idata.pointer(),visual_hull.triangleIndices.pointer(),visual_hull.triangleIndices.Count()*sizeof(UINT32));
 			memcpy(robj.ipool.idata.pointer()+visual_hull.triangleIndices.Count(),visual_hull.quadIndices.pointer(),visual_hull.quadIndices.Count()*sizeof(UINT32));
 			//robj.ipool.idata.copyFrom
-				//copyFrom(iout.pointer(),iout.length());
+				//copyFrom(iout.pointer(),iout.GetLength());
 			this_step*=2;
 		}
 
@@ -1201,10 +1201,10 @@ namespace DeltaWorks
 		target.material_field[0].data.coord_layers = 1;//+ (normal_texture != 0);
 		//target.material_field[0].data.dimensions = 3;
 	
-		//const CGS::RenderObjectA<>&robj = target.material_field[0].data.object_field.first();
-		CGS::SubGeometryA<>&obj = target.object_field.first();
+		//const CGS::RenderObjectA<>&robj = target.material_field[0].data.object_field.First();
+		CGS::SubGeometryA<>&obj = target.object_field.First();
 		obj.vs_hull_field.SetSize(visual_hulls.Count());
-		for (index_t i = 0; i < obj.vs_hull_field.length(); i++)
+		for (index_t i = 0; i < obj.vs_hull_field.GetLength(); i++)
 		{
 			Mesh<CGS::SubGeometryA<>::VsDef>&vs_hull = obj.vs_hull_field[i];
 			const SurfaceDescription&hull = visual_hulls[i];
@@ -1722,7 +1722,7 @@ namespace DeltaWorks
 		textureRepetitions = M::Round(length); 
 		float factor = float(textureRepetitions) / length;
 		length = 0;
-		steps.first().texcoordY = 0;
+		steps.First().texcoordY = 0;
 		for (index_t i = 1; i < steps.Count(); i++)
 		{
 			float delta = M::Vec::distance(steps[i-1].position,steps[i].position);
@@ -1749,7 +1749,7 @@ namespace DeltaWorks
 		}
 
 		{
-			const InterpolatedSlice	&next = steps.first();
+			const InterpolatedSlice	&next = steps.First();
 			const count_t	next_resolution = next.CalculateSteps(tolerance0,tolerance1)+1;
 			for (index_t i = 0; i < next_resolution; i++)
 			{
@@ -2229,7 +2229,7 @@ namespace DeltaWorks
 							Segment&seg = segments.require(n.segments[c.outbound][i]);
 							seg.connector[seg.GetEndIndex(c.node)].subdivisionStep--;
 						}
-					n.subdivision[c.outbound].SetSize(n.subdivision[c.outbound].length()-1);
+					n.subdivision[c.outbound].SetSize(n.subdivision[c.outbound].GetLength()-1);
 					MakeEven(n.subdivision[c.outbound]);
 				}
 				segments.Unset(*segID);
@@ -2257,7 +2257,7 @@ namespace DeltaWorks
 	{
 		ASSERT__(num_slots > 0);
 		ASSERT_EQUAL__(segments[outbound].Count(),1);
-		ASSERT_EQUAL__(segments[outbound].first(),InvalidIndex); 
+		ASSERT_EQUAL__(segments[outbound].First(),InvalidIndex); 
 	
 		segments[outbound].SetSize(num_slots);
 		segments[outbound].Fill(InvalidIndex); 
@@ -2268,9 +2268,9 @@ namespace DeltaWorks
 
 	/*static*/ void SurfaceNetwork::MakeEven(Ctr::Array<float>&subdivison_field)
 	{
-		for (index_t i = 0; i < subdivison_field.length(); i++)
+		for (index_t i = 0; i < subdivison_field.GetLength(); i++)
 		{
-			subdivison_field[i] = float(i+1)/float(subdivison_field.length()+1);
+			subdivison_field[i] = float(i+1)/float(subdivison_field.GetLength()+1);
 		}
 	}
 
@@ -2301,17 +2301,17 @@ namespace DeltaWorks
 		if (subdiv == 0)
 		{
 			out_state.angle0 = angle0;
-			out_state.angle1 = angle0 + (angle1-angle0)*subdivision[outbound].first();
+			out_state.angle1 = angle0 + (angle1-angle0)*subdivision[outbound].First();
 
 			out_state.texcoord0 = texcoord0;
-			out_state.texcoord1 = texcoord0 + (texcoord1-texcoord0)*subdivision[outbound].first();
+			out_state.texcoord1 = texcoord0 + (texcoord1-texcoord0)*subdivision[outbound].First();
 		}
 		elif (subdiv == subdivision[outbound].Count())
 		{
-			out_state.angle0 = angle0 + (angle1-angle0)*subdivision[outbound].last();
+			out_state.angle0 = angle0 + (angle1-angle0)*subdivision[outbound].Last();
 			out_state.angle1 = angle1;
 
-			out_state.texcoord0 = texcoord0 + (texcoord1-texcoord0)*subdivision[outbound].last();
+			out_state.texcoord0 = texcoord0 + (texcoord1-texcoord0)*subdivision[outbound].Last();
 			out_state.texcoord1 = texcoord1;
 		}
 		else
@@ -2718,8 +2718,8 @@ namespace DeltaWorks
 			if (edge->direction != Edge::Left && edge->direction != Edge::Right)
 				continue;
 			index_t vertex_offset = vertices.Count();
-			TVertex*const vfield = vertices.appendRow(2*edge->length());
-			Concurrency::parallel_for(index_t(0),edge->length(),[vfield,&source,edge,barrierPosition,barrierHeight0,barrierHeight1,relativeTo](index_t i)
+			TVertex*const vfield = vertices.appendRow(2*edge->GetLength());
+			Concurrency::parallel_for(index_t(0),edge->GetLength(),[vfield,&source,edge,barrierPosition,barrierHeight0,barrierHeight1,relativeTo](index_t i)
 			{
 				const TVertex&v = source.vertices[edge->at(i)];
 				TVertex*vout = vfield + i*2;
@@ -2737,7 +2737,7 @@ namespace DeltaWorks
 				vout[1].tcoord.x = 1.f;
 			});
 
-			for (index_t i = 0; i+1 < edge->length(); i++)
+			for (index_t i = 0; i+1 < edge->GetLength(); i++)
 			{
 				const UINT32	t = static_cast<UINT32>(vertex_offset+i*2),
 								n = static_cast<UINT32>(vertex_offset+(i+1)*2);
@@ -2813,17 +2813,17 @@ namespace DeltaWorks
 
 			bool isLeftEdge = edge->direction == SurfaceDescription::Edge::Left;
 			index_t vertex_offset = vertices.Count();
-			TVertex*const vfield = vertices.appendRow(numVerticesPerSlice*edge->length()+numVerticesPerSlice*2+2);	//top, top, left, left, bottom, bottom, right, right. two caps
+			TVertex*const vfield = vertices.appendRow(numVerticesPerSlice*edge->GetLength()+numVerticesPerSlice*2+2);	//top, top, left, left, bottom, bottom, right, right. two caps
 			//if (edge->leftEdge)
 			{
 				float xFactor = isLeftEdge ? -1.f : 1.f;
-				Concurrency::parallel_for(index_t(0),edge->length(),[xFactor,numVerticesPerSlice,vfield,&source,edge,&profile,&texcoord,&tangent,&normal,relativeTo](index_t i)
+				Concurrency::parallel_for(index_t(0),edge->GetLength(),[xFactor,numVerticesPerSlice,vfield,&source,edge,&profile,&texcoord,&tangent,&normal,relativeTo](index_t i)
 				{
 					TVertex v = source.vertices[edge->at(i)];
 					v.position -= relativeTo;
 					TVertex*vout = vfield + i*numVerticesPerSlice;
 
-					for (index_t i = 1; i < profile.length(); i++)
+					for (index_t i = 1; i < profile.GetLength(); i++)
 					{
 						const index_t v0 = (i-1)*2,
 										v1 = v0 +1;
@@ -2845,15 +2845,15 @@ namespace DeltaWorks
 
 				//front cap:
 				{
-					TVertex v = source.vertices[edge->first()];
+					TVertex v = source.vertices[edge->First()];
 					v.position -= relativeTo;
-					TVertex*vout = vfield + numVerticesPerSlice*edge->length();
+					TVertex*vout = vfield + numVerticesPerSlice*edge->GetLength();
 					vout[0].position = v.position + v.tangent * center.x * xFactor + v.normal * center.y;
 					vout[0].tangent = v.tangent* xFactor;
 					vout[0].normal = -(v.normal | v.tangent) * xFactor;
 					vout[0].tcoord = center * 2.f;
 					vout[0].tx = v.tx;
-					for (index_t i = 1; i < profile.length(); i++)
+					for (index_t i = 1; i < profile.GetLength(); i++)
 					{
 						const index_t	v0 = (i-1)*2+1,
 										v1 = v0 +1;
@@ -2872,15 +2872,15 @@ namespace DeltaWorks
 				}
 				//rear cap:
 				{
-					TVertex v = source.vertices[edge->last()];
+					TVertex v = source.vertices[edge->Last()];
 					v.position -= relativeTo;
-					TVertex*vout = vfield + numVerticesPerSlice*edge->length() + numVerticesPerSlice + 1;
+					TVertex*vout = vfield + numVerticesPerSlice*edge->GetLength() + numVerticesPerSlice + 1;
 					vout[0].position = v.position + v.tangent * center.x * xFactor + v.normal * center.y;
 					vout[0].tangent = -v.tangent* xFactor;
 					vout[0].normal = -(v.tangent | v.normal)* xFactor;
 					vout[0].tcoord = center * 2.f;
 					vout[0].tx = v.tx;
-					for (index_t i = 1; i < profile.length(); i++)
+					for (index_t i = 1; i < profile.GetLength(); i++)
 					{
 						const index_t	v0 = (i-1)*2+1,
 										v1 = v0 +1;
@@ -2897,12 +2897,12 @@ namespace DeltaWorks
 						vout[v1].tx = vout[0].tx;
 					}
 				}
-				for (index_t i = 0; i+1 < edge->length(); i++)
+				for (index_t i = 0; i+1 < edge->GetLength(); i++)
 				{
 					const UINT32	t = static_cast<UINT32>(vertex_offset+i*numVerticesPerSlice),
 									n = static_cast<UINT32>(vertex_offset+(i+1)*numVerticesPerSlice);
 
-					for (index_t j = 1; j < profile.length(); j++)
+					for (index_t j = 1; j < profile.GetLength(); j++)
 					{
 						quadIndices << static_cast<UINT32>(t + (j-1)*2) << static_cast<UINT32>(t + (j-1)*2 + 1)
 									<< static_cast<UINT32>(n + (j-1)*2 + 1) << static_cast<UINT32>(n + (j-1)*2);
@@ -2911,16 +2911,16 @@ namespace DeltaWorks
 
 				}
 				{
-					const UINT32	front = static_cast<UINT32>(vertex_offset+numVerticesPerSlice*edge->length()),
-									rear = static_cast<UINT32>(vertex_offset+numVerticesPerSlice*edge->length() + numVerticesPerSlice + 1);
-					for (index_t j = 1; j < profile.length(); j++)
+					const UINT32	front = static_cast<UINT32>(vertex_offset+numVerticesPerSlice*edge->GetLength()),
+									rear = static_cast<UINT32>(vertex_offset+numVerticesPerSlice*edge->GetLength() + numVerticesPerSlice + 1);
+					for (index_t j = 1; j < profile.GetLength(); j++)
 					{
 						triangleIndices << front << front + static_cast<UINT32>(((j-1)*2 + 1) % numVerticesPerSlice) + 1 << front + static_cast<UINT32>(j-1)*2+1;
 					}
-					triangleIndices << front << front + 1 << front + static_cast<UINT32>(profile.length()-1)*2;
-					for (index_t j = 1; j < profile.length(); j++)
+					triangleIndices << front << front + 1 << front + static_cast<UINT32>(profile.GetLength()-1)*2;
+					for (index_t j = 1; j < profile.GetLength(); j++)
 						triangleIndices << rear << rear + static_cast<UINT32>(j-1)*2+1 << rear + static_cast<UINT32>(((j-1)*2 + 1) % numVerticesPerSlice) + 1;
-					triangleIndices << rear << rear + static_cast<UINT32>(profile.length()-1)*2 << rear + 1;
+					triangleIndices << rear << rear + static_cast<UINT32>(profile.GetLength()-1)*2 << rear + 1;
 				}
 			}
 
@@ -2943,10 +2943,10 @@ namespace DeltaWorks
 
 			bool isLeftEdge = edge->direction == SurfaceDescription::Edge::Left;
 			index_t vertex_offset = vertices.Count();
-			TVertex*const vfield = vertices.appendRow(8*edge->length()+8);	//top, top, left, left, bottom, bottom, right, right. two caps
+			TVertex*const vfield = vertices.appendRow(8*edge->GetLength()+8);	//top, top, left, left, bottom, bottom, right, right. two caps
 			if (isLeftEdge)
 			{
-				Concurrency::parallel_for(index_t(0),edge->length(),[texExt,vfield,&source,edge,innerExtend,upperExtend,outerExtend,lowerExtend,relativeTo](index_t i)
+				Concurrency::parallel_for(index_t(0),edge->GetLength(),[texExt,vfield,&source,edge,innerExtend,upperExtend,outerExtend,lowerExtend,relativeTo](index_t i)
 				{
 					TVertex v = source.vertices[edge->at(i)];
 					v.position -= relativeTo;
@@ -2981,9 +2981,9 @@ namespace DeltaWorks
 				});
 
 				{
-					TVertex v = source.vertices[edge->first()];
+					TVertex v = source.vertices[edge->First()];
 					v.position -= relativeTo;
-					TVertex*vout = vfield + 8*edge->length();
+					TVertex*vout = vfield + 8*edge->GetLength();
 					vout[0] = v;
 					vout[0].normal = v.normal | v.tangent;
 					vout[0].tangent = -v.tangent;
@@ -3000,9 +3000,9 @@ namespace DeltaWorks
 					vout[3].tcoord = float2(texExt.y,0);
 				}
 				{
-					TVertex v = source.vertices[edge->last()];
+					TVertex v = source.vertices[edge->Last()];
 					v.position -= relativeTo;
-					TVertex*vout = vfield + 8*edge->length() +4;
+					TVertex*vout = vfield + 8*edge->GetLength() +4;
 					vout[0] = v;
 					vout[0].normal = v.tangent | v.normal;
 					vout[0].position += v.tangent * innerExtend + v.normal * upperExtend;
@@ -3017,7 +3017,7 @@ namespace DeltaWorks
 					vout[3].position += v.tangent * (innerExtend+outerExtend);
 					vout[3].tcoord = float2(texExt.y,0);
 				}
-				for (index_t i = 0; i+1 < edge->length(); i++)
+				for (index_t i = 0; i+1 < edge->GetLength(); i++)
 				{
 					const UINT32	t = static_cast<UINT32>(vertex_offset+i*8),
 									n = static_cast<UINT32>(vertex_offset+(i+1)*8);
@@ -3027,7 +3027,7 @@ namespace DeltaWorks
 									<< t+6 << t+7 << n+7 << n+6;
 				}
 				{
-					const UINT32	t = static_cast<UINT32>(vertex_offset+edge->length()*8);
+					const UINT32	t = static_cast<UINT32>(vertex_offset+edge->GetLength()*8);
 					quadIndices	<< t+3 << t+2 << t+1 << t+0
 									<< t+4 << t+5 << t+6 << t+7
 									;
@@ -3035,7 +3035,7 @@ namespace DeltaWorks
 			}
 			else
 			{
-				Concurrency::parallel_for(index_t(0),edge->length(),[texExt,vfield,&source,edge,innerExtend,upperExtend,outerExtend,lowerExtend,relativeTo](index_t i)
+				Concurrency::parallel_for(index_t(0),edge->GetLength(),[texExt,vfield,&source,edge,innerExtend,upperExtend,outerExtend,lowerExtend,relativeTo](index_t i)
 				{
 					TVertex v = source.vertices[edge->at(i)];
 					v.position -= relativeTo;
@@ -3069,9 +3069,9 @@ namespace DeltaWorks
 					vout[7].tcoord.x = texExt.x;
 				});
 				{
-					TVertex v = source.vertices[edge->first()];
+					TVertex v = source.vertices[edge->First()];
 					v.position -= relativeTo;
-					TVertex*vout = vfield + 8*edge->length();
+					TVertex*vout = vfield + 8*edge->GetLength();
 					vout[0] = v;
 					vout[0].normal = v.tangent | v.normal;
 					vout[0].tangent = -v.tangent;
@@ -3088,9 +3088,9 @@ namespace DeltaWorks
 					vout[3].tcoord = float2(texExt.y,0);
 				}
 				{
-					TVertex v = source.vertices[edge->last()];
+					TVertex v = source.vertices[edge->Last()];
 					v.position -= relativeTo;
-					TVertex*vout = vfield + 8*edge->length() +4;
+					TVertex*vout = vfield + 8*edge->GetLength() +4;
 					vout[0] = v;
 					vout[0].normal = v.normal | v.tangent;
 					vout[0].position += v.tangent * -innerExtend + v.normal * upperExtend;
@@ -3105,7 +3105,7 @@ namespace DeltaWorks
 					vout[3].position -= v.tangent * (innerExtend+outerExtend);
 					vout[3].tcoord = float2(texExt.y,0);
 				}
-				for (index_t i = 0; i+1 < edge->length(); i++)
+				for (index_t i = 0; i+1 < edge->GetLength(); i++)
 				{
 					const UINT32	t = static_cast<UINT32>(vertex_offset+i*8),
 									n = static_cast<UINT32>(vertex_offset+(i+1)*8);
@@ -3115,7 +3115,7 @@ namespace DeltaWorks
 									<< t+6 << t+7 << n+7 << n+6;
 				}
 				{
-					const UINT32	t = static_cast<UINT32>(vertex_offset+edge->length()*8);
+					const UINT32	t = static_cast<UINT32>(vertex_offset+edge->GetLength()*8);
 					quadIndices	<< t+3 << t+2 << t+1 << t+0
 									<< t+4 << t+5 << t+6 << t+7
 									;
@@ -3270,7 +3270,7 @@ namespace DeltaWorks
 		}
 		//left:
 		{
-			const TVertex&v = arc_vertices.first();
+			const TVertex&v = arc_vertices.First();
 			float3 binormal;
 			M::Vec::cross(v.normal,v.tangent,binormal);
 
@@ -3324,7 +3324,7 @@ namespace DeltaWorks
 		}
 		//right:
 		{
-			const TVertex&v = arc_vertices.last();
+			const TVertex&v = arc_vertices.Last();
 			float3 binormal;
 			M::Vec::cross(v.normal,v.tangent,binormal);
 
@@ -3432,10 +3432,10 @@ namespace DeltaWorks
 
 		M::TVec3<>	center = {0,0,0};
 		count_t counter = 0;
-		foreach (segment.compiledSurfaces.first().edges, edge)
+		foreach (segment.compiledSurfaces.First().edges, edge)
 			foreach (*edge,index)
 			{
-				M::Vec::add(center,segment.compiledSurfaces.first().vertices[*index].position);
+				M::Vec::add(center,segment.compiledSurfaces.First().vertices[*index].position);
 				counter++;
 			}
 		M::Vec::div(center,counter);
@@ -3450,9 +3450,9 @@ namespace DeltaWorks
 
 		CompileFromDescriptions(target,lods,shortest_edge,texture,0,resource);
 
-		target.material_field.first().info.ambient.rgb = float3(1.f);
-		target.material_field.first().info.diffuse.rgb = float3(0.f);
-		target.material_field.first().info.specular.rgb = float3(0.f);
+		target.material_field.First().info.ambient.rgb = float3(1.f);
+		target.material_field.First().info.diffuse.rgb = float3(0.f);
+		target.material_field.First().info.specular.rgb = float3(0.f);
 		target.root_system.moveTo(center);
 	}
 
@@ -3501,7 +3501,7 @@ namespace DeltaWorks
 			lods[i].BuildRails(segment.compiledSurfaces[3*i+2],profile, center );
 		}
 		float shortest_edge = std::numeric_limits<float>::max();
-		for (index_t i = 1; i < profile.length(); i++)
+		for (index_t i = 1; i < profile.GetLength(); i++)
 			shortest_edge = std::min(shortest_edge,M::Vec::quadraticDistance(profile[i-1],profile[i]));
 		shortest_edge = sqrt(shortest_edge);
 
@@ -3531,8 +3531,8 @@ namespace DeltaWorks
 		float shortest_edge = std::numeric_limits<float>::max();
 
 		using std::min;
-		for (index_t i = 1; i < arc_vertices.first().Count(); i++)
-			shortest_edge = min(shortest_edge,M::Vec::quadraticDistance(arc_vertices.first()[i-1].position,arc_vertices.first()[i].position));
+		for (index_t i = 1; i < arc_vertices.First().Count(); i++)
+			shortest_edge = min(shortest_edge,M::Vec::quadraticDistance(arc_vertices.First()[i-1].position,arc_vertices.First()[i].position));
 		shortest_edge = sqrt(shortest_edge);
 
 
@@ -3613,7 +3613,7 @@ namespace DeltaWorks
 			//ASSERT_EQUAL__(robj.vpool.vsize(),11 + 2*...yadda, you get idea);
 			float*vtx = robj.vpool.vdata.pointer();
 			const int vsize = 9 + 2*has_texcoords;
-			Concurrency::parallel_for(index_t(0), hull.vertices.length(),[vtx,&hull,vsize,has_texcoords](index_t i)
+			Concurrency::parallel_for(index_t(0), hull.vertices.GetLength(),[vtx,&hull,vsize,has_texcoords](index_t i)
 			{
 				float*v = vtx + vsize*i;
 				M::Vec::ref3(v) = hull.vertices[i].position;
@@ -3623,7 +3623,7 @@ namespace DeltaWorks
 					M::Vec::ref2(v+9) = hull.vertices[i].tcoord;
 			});
 			/*
-			for (index_t i = 0; i < hull.vertices.length(); i++)
+			for (index_t i = 0; i < hull.vertices.GetLength(); i++)
 			{
 				M::Vec::ref3(vtx) = hull.vertices[i].position;
 				M::Vec::ref3(vtx+3) = hull.vertices[i].normal;
@@ -3637,7 +3637,7 @@ namespace DeltaWorks
 			memcpy(robj.ipool.idata.pointer(),hull.triangleIndices.pointer(),hull.triangleIndices.Count()*sizeof(UINT32));
 			memcpy(robj.ipool.idata.pointer()+hull.triangleIndices.Count(),hull.quadIndices.pointer(),hull.quadIndices.Count()*sizeof(UINT32));
 			//robj.ipool.idata.copyFrom
-				//copyFrom(iout.pointer(),iout.length());
+				//copyFrom(iout.pointer(),iout.GetLength());
 		}
 
 
@@ -3648,10 +3648,10 @@ namespace DeltaWorks
 		target.material_field[0].data.coord_layers = 1;//+ (normal_texture != 0);
 		//target.material_field[0].data.dimensions = 3;
 	
-		//const CGS::RenderObjectA<>&robj = target.material_field[0].data.object_field.first();
-		CGS::SubGeometryA<>&obj = target.object_field.first();
+		//const CGS::RenderObjectA<>&robj = target.material_field[0].data.object_field.First();
+		CGS::SubGeometryA<>&obj = target.object_field.First();
 		obj.vs_hull_field.SetSize(lods.Count());
-		for (index_t i = 0; i < obj.vs_hull_field.length(); i++)
+		for (index_t i = 0; i < obj.vs_hull_field.GetLength(); i++)
 		{
 			Mesh<CGS::SubGeometryA<>::VsDef>&vs_hull = obj.vs_hull_field[i];
 			const SurfaceDescription&hull = lods[i];
@@ -3744,7 +3744,7 @@ namespace DeltaWorks
 			//ASSERT_EQUAL__(robj.vpool.vsize(),11 + 2*...yadda, you get idea);
 			float*vtx = robj.vpool.vdata.pointer();
 			const int vsize = 9 + 2*has_texcoords;
-			Concurrency::parallel_for(index_t(0), hull.vertices.length(),[vtx,&hull,vsize,has_texcoords](index_t i)
+			Concurrency::parallel_for(index_t(0), hull.vertices.GetLength(),[vtx,&hull,vsize,has_texcoords](index_t i)
 			{
 				float*v = vtx + vsize*i;
 				M::Vec::ref3(v) = hull.vertices[i].position;
@@ -3754,7 +3754,7 @@ namespace DeltaWorks
 					M::Vec::ref2(v+9) = hull.vertices[i].tcoord;
 			});
 			/*
-			for (index_t i = 0; i < hull.vertices.length(); i++)
+			for (index_t i = 0; i < hull.vertices.GetLength(); i++)
 			{
 				M::Vec::ref3(vtx) = hull.vertices[i].position;
 				M::Vec::ref3(vtx+3) = hull.vertices[i].normal;
@@ -3768,7 +3768,7 @@ namespace DeltaWorks
 			memcpy(robj.ipool.idata.pointer(),hull.triangleIndices.pointer(),hull.triangleIndices.Count()*sizeof(UINT32));
 			memcpy(robj.ipool.idata.pointer()+hull.triangleIndices.Count(),hull.quadIndices.pointer(),hull.quadIndices.Count()*sizeof(UINT32));
 			//robj.ipool.idata.copyFrom
-				//copyFrom(iout.pointer(),iout.length());
+				//copyFrom(iout.pointer(),iout.GetLength());
 		}
 
 
@@ -3779,10 +3779,10 @@ namespace DeltaWorks
 		target.material_field[0].data.coord_layers = 1;//+ (normal_texture != 0);
 		//target.material_field[0].data.dimensions = 3;
 	
-		//const CGS::RenderObjectA<>&robj = target.material_field[0].data.object_field.first();
-		CGS::SubGeometryA<>&obj = target.object_field.first();
+		//const CGS::RenderObjectA<>&robj = target.material_field[0].data.object_field.First();
+		CGS::SubGeometryA<>&obj = target.object_field.First();
 		obj.vs_hull_field.SetSize(lods.Count());
-		for (index_t i = 0; i < obj.vs_hull_field.length(); i++)
+		for (index_t i = 0; i < obj.vs_hull_field.GetLength(); i++)
 		{
 			Mesh<CGS::SubGeometryA<>::VsDef>&vs_hull = obj.vs_hull_field[i];
 			const SurfaceDescription&hull = lods[i];
@@ -3873,7 +3873,7 @@ namespace DeltaWorks
 					ASSERT_NOT_NULL__(seg);
 					seg->connector[seg->GetEndIndex(c.node)].subdivisionStep--;
 				}
-			n->subdivision[c.outbound].SetSize(n->subdivision[c.outbound].length()-1);
+			n->subdivision[c.outbound].SetSize(n->subdivision[c.outbound].GetLength()-1);
 			MakeEven(n->subdivision[c.outbound]);
 		}
 		segments.Unset(segment_index);

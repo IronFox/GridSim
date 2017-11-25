@@ -2,6 +2,12 @@
 
 #include "../global_root.h"
 
+#ifdef _MSC_VER
+	#define strcmpi _strcmpi
+	#define strnicmp _strnicmp
+	#define wcscmpi _wcsicmp
+#endif
+
 
 namespace DeltaWorks
 {

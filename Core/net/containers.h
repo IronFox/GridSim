@@ -266,8 +266,8 @@ namespace DeltaWorks
 				s.WritePrimitive(v.is_compressed);
 				if (v.is_compressed)
 				{
-					UINT32 decompressed_size = UINT32(v.uncompressed.length());
-					s.WriteSize(v.uncompressed.length());
+					UINT32 decompressed_size = UINT32(v.uncompressed.GetLength());
+					s.WriteSize(v.uncompressed.GetLength());
 					SerialSync(s,v.compressed);
 				}
 				else
@@ -304,10 +304,10 @@ namespace DeltaWorks
 			void			update()
 			{
 				static Ctr::Array<BYTE>	buffer;
-				if (buffer.length() < uncompressed.length())
-					buffer.SetSize(uncompressed.length());
-				size_t compressed_size = BZ2::compress(uncompressed.c_str(),uncompressed.length(),buffer.pointer(),buffer.length());
-				is_compressed = compressed_size>0 && compressed_size+SerialSizeScanner::GetSerialSizeOfSize((serial_size_t)uncompressed.length()) < uncompressed.length();
+				if (buffer.GetLength() < uncompressed.GetLength())
+					buffer.SetSize(uncompressed.GetLength());
+				size_t compressed_size = BZ2::compress(uncompressed.c_str(),uncompressed.GetLength(),buffer.pointer(),buffer.GetLength());
+				is_compressed = compressed_size>0 && compressed_size+SerialSizeScanner::GetSerialSizeOfSize((serial_size_t)uncompressed.GetLength()) < uncompressed.GetLength();
 				if (is_compressed)
 					compressed.copyFrom(buffer.pointer(),(count_t)compressed_size);
 				else
@@ -345,7 +345,7 @@ namespace DeltaWorks
 				virtual	serial_size_t	GetSerialSize() const	override
 								{
 									if (is_compressed)
-										return sizeof(is_compressed) + GetSerialSizeOfSize((serial_size_t)serialized.length())+compressed.GetSerialSize(export_size);
+										return sizeof(is_compressed) + GetSerialSizeOfSize((serial_size_t)serialized.GetLength())+compressed.GetSerialSize(export_size);
 									//cout << (sizeof(is_compressed) + serialized.GetSerialSize())<<" count="<<uncompressed.Count()<<endl;
 									return sizeof(is_compressed) + serialized.GetSerialSize(export_size);
 								}
@@ -356,7 +356,7 @@ namespace DeltaWorks
 										return false;
 									if (is_compressed)
 									{
-										size_t decompressed_size = serialized.length();
+										size_t decompressed_size = serialized.GetLength();
 										return outStream.WriteSize(decompressed_size) && compressed.Serialize(outStream,export_size);
 									}
 									//cout << "serialize count="<<uncompressed.Count()<<endl;
@@ -407,8 +407,8 @@ namespace DeltaWorks
 					WriteBuffer<>	buffer;
 					uncompressed.serialize(buffer,true);
 					buffer.moveToArray(serialized);
-					size_t compressed_size = serialized.length() > 256 ? BZ2::compress(serialized.pointer(),serialized.length(),buffer.pointer(),buffer.length()) : 0;
-					is_compressed = compressed_size>0 && compressed_size < serialized.length();	//the latter comparison should be redundant...
+					size_t compressed_size = serialized.GetLength() > 256 ? BZ2::compress(serialized.pointer(),serialized.GetLength(),buffer.pointer(),buffer.GetLength()) : 0;
+					is_compressed = compressed_size>0 && compressed_size < serialized.GetLength();	//the latter comparison should be redundant...
 					if (is_compressed)
 					{
 						compressed.SetSize(compressed_size);

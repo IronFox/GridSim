@@ -148,7 +148,7 @@ template <class Type>  void    Sort<Class>::mergeSortField(Type field[], size_t 
 template <class Class>
 template <class Type>  void    Sort<Class>::mergeSortField(Ctr::Array<Type>&field)
 {
-	mergeSortField(field.pointer(),field.length());
+	mergeSortField(field.pointer(),field.GetLength());
 }
 
 
@@ -189,7 +189,7 @@ template <class Type>  void    Sort<Class>::bubbleSortField(Type field[], size_t
 template <class Class>
 template <class Type>  void    Sort<Class>::bubbleSortField(Ctr::Array<Type>&field)
 {
-	bubbleSortField(field.pointer(),field.length());
+	bubbleSortField(field.pointer(),field.GetLength());
 }
 
 template <class Iterator, class Class>  static void    quickSortSTL(const Iterator&first, const Iterator&last, Class&sort)
@@ -302,7 +302,7 @@ template <class Type>  void    Sort<Class>::quickSortField(Type field[], size_t 
 template <class Class>
 template <class Type>  void    Sort<Class>::quickSortField(Ctr::Array<Type>&field)
 {
-	quickSortField(field.pointer(),field.length());
+	quickSortField(field.pointer(),field.GetLength());
 }
 
 template <class List, class Class> static void downheap(List&list, Class&sort, index_t v, size_t max)
@@ -389,7 +389,7 @@ template <class Type>  void    Sort<Class>::heapSortField(Type field[], size_t l
 template <class Class>
 template <class Type>  void    Sort<Class>::heapSortField(Ctr::Array<Type>&field)
 {
-	heapSortField(field.pointer(),field.length());
+	heapSortField(field.pointer(),field.GetLength());
 }
 
 
@@ -407,7 +407,7 @@ template <class Class>
 template <class Type>  bool    Sort<Class>::isSortedArray(const Ctr::Array<Type>&field)
 {
     Class sort;
-    for (size_t i = 1; i < field.length(); i++)
+    for (size_t i = 1; i < field.GetLength(); i++)
         if (sort.greaterObject(field+i-1,field+i))
             return false;
     return true;

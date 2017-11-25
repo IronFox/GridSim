@@ -37,7 +37,7 @@ namespace DeltaWorks
 						case CloseFile:
 						{
 							String toWrite = "File size threshold ("+String(maxFileSize)+") reached. Halting output\r\n";
-							WriteFile(fileHandle,toWrite.c_str(),(DWORD)toWrite.length(),&at,NULL);
+							WriteFile(fileHandle,toWrite.c_str(),(DWORD)toWrite.GetLength(),&at,NULL);
 							Close();
 							return false;
 						}
@@ -55,7 +55,7 @@ namespace DeltaWorks
 							}
 							timesTruncated++;
 							String toWrite = "File size threshold ("+String(maxFileSize)+") reached. Cleared file. This happend "+String(timesTruncated)+" time(s)\r\n";
-							WriteFile(fileHandle,toWrite.c_str(),(DWORD)toWrite.length(),&at,NULL);
+							WriteFile(fileHandle,toWrite.c_str(),(DWORD)toWrite.GetLength(),&at,NULL);
 						}
 						break;
 						default:

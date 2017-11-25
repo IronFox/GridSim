@@ -80,7 +80,7 @@ namespace DeltaWorks
 		{
 			Close();
 			string = data.mutablePointer();
-			end = string + data.length();
+			end = string + data.GetLength();
 			read_mode = true;
 			active = true;
 		}

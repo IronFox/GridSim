@@ -118,12 +118,11 @@ namespace DeltaWorks
 					Self&				appendVA(count_t elements, ...);		//!< Appends a number of elements to the buffer
 				inline void				reset();							//!< Resets the buffer cursor to the beginning. Does \b not resize the local buffer.
 				inline void				Reset()								/**@copydoc reset()*/	{reset();}
-				inline count_t			length()					const;	//!< Returns the number of elements currently constructed in the local container. Reserved (non-constructed) objects are not counted
-				inline count_t			GetCount()					const	/**@copydoc length()*/ {return length();}
-				inline count_t			GetLength()					const	/**@copydoc length()*/ {return length();}
-				inline count_t			size()						const	/**@copydoc length()*/ {return length();}
-				inline count_t			Count()						const	/**@copydoc length()*/ {return length();}
-				inline count_t			operator()()				const	/**@copydoc length()*/ {return length();}
+				inline count_t			GetLength()					const;	//!< Returns the number of elements currently constructed in the local container. Reserved (non-constructed) objects are not counted
+				inline count_t			GetCount()					const	/**@copydoc GetLength()*/ {return GetLength();}
+				inline count_t			size()						const	/**@copydoc GetLength()*/ {return GetLength();}
+				inline count_t			Count()						const	/**@copydoc GetLength()*/ {return GetLength();}
+				inline count_t			operator()()				const	/**@copydoc GetLength()*/ {return GetLength();}
 				inline count_t			storageSize()				const;	//!< Queries the number of elements held in total. This also includes unconstructed incremental storage
 				inline count_t			GetStorageSize()			const	/**@copydoc storageSize()*/ {return storageSize();}
 				inline size_t			GetContentSize()			const {return Count() * sizeof(T);}
@@ -159,14 +158,10 @@ namespace DeltaWorks
 				inline T				Pop()								/**@copydoc pop()*/ {return pop();}
 				inline void				eraseLast();						//!< Simplified void-version of pop(). Can be more efficient if the contained type is complex and the returned object not used anyway. The method behavior is undefined if the buffer is empty.
 				inline void				EraseLast()							/**@copydoc eraseLast()*/ {eraseLast();}
-				inline T&				first();							//!< Retrieves a reference to the first element in the buffer. The behavior of this method is undefined if the local buffer is empty
-				inline const T&			first()	const;						//!< @overload
-				inline T&				First()								/**@copydoc first()*/	{return first();}
-				inline const T&			First()	const						/**@copydoc first()*/	{return first();}
-				inline T&				last();								//!< Retrieves a reference to the last element in the buffer. The behavior of this method is undefined if the local buffer is empty
-				inline const T&			last()	const;						//!< @overload
-				inline T&				Last()								/**@copydoc last()*/	{return last();}
-				inline const T&			Last()	const						/**@copydoc last()*/	{return last();}
+				inline T&				First();							//!< Retrieves a reference to the first element in the buffer. The behavior of this method is undefined if the local buffer is empty
+				inline const T&			First()	const;						//!< @overload
+				inline T&				Last();								//!< Retrieves a reference to the last element in the buffer. The behavior of this method is undefined if the local buffer is empty
+				inline const T&			Last()	const;						//!< @overload
 				inline void				Erase(index_t index);				//!< Removes the specified element from the buffer. The buffer's contained element count decreases by one if the specified index is valid.
 				inline void				Erase(index_t index, index_t elements);		//!< Removes a range of elements from the buffer. The buffer's contained element count decreases by one if the specified index is valid. @a elements may be reduced if the range surpasses the end of the consumed buffer space
 
@@ -190,7 +185,7 @@ namespace DeltaWorks
 				inline bool				operator==(const BasicBuffer<T,MyStrategy>&other) const;
 				inline bool				operator!=(const BasicBuffer<T,MyStrategy>&other) const;
 
-				inline T&				GetFromEnd(index_t);					//!< Retrieves the nth element from the end of the consumed buffer space. GetFromEnd(0) is identical to last()
+				inline T&				GetFromEnd(index_t);					//!< Retrieves the nth element from the end of the consumed buffer space. GetFromEnd(0) is identical to Last()
 				inline const T&			GetFromEnd(index_t)			const;	//!< @copydoc GetFromEnd()
 				void					compact();							//!< Reduces the local buffer size to the exact fill level and copies all contained elements. Any succeeding push operation will automatically increase buffer size again. The method returns if the stack is already of compact size
 				inline void				Compact()							/**@copydoc compact()*/	{compact();}

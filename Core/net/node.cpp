@@ -1088,7 +1088,7 @@ namespace DeltaWorks
 
 		void DOMAIN_A Connection::sendString(UINT16 channel, const String&string)
 		{
-			write(channel,NET_SERIAL|NET_CONFIRM,string.c_str(),UINT32(string.length()));
+			write(channel,NET_SERIAL|NET_CONFIRM,string.c_str(),UINT32(string.GetLength()));
 		}
 
 		void DOMAIN_A Connection::write(UINT16 channel, const void*data, UINT32 len)
@@ -1474,7 +1474,7 @@ namespace DeltaWorks
 		}
 		void DOMAIN_A Server::sendString(UINT16 channel, const String&string)
 		{
-			write(channel,NET_SERIAL|NET_CONFIRM,string.c_str(),UINT32(string.length()));
+			write(channel,NET_SERIAL|NET_CONFIRM,string.c_str(),UINT32(string.GetLength()));
 		}
 
 		void DOMAIN_A Server::write(UINT16 channel, const void*data, UINT32 len)

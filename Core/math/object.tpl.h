@@ -590,37 +590,37 @@ template <class Def, class IndexType>
 		
 		IndexType min,max;
 			
-		if (triangle_index_field.length())
+		if (triangle_index_field.GetLength())
 			max = min = triangle_index_field[0];
 		else
-			if (quad_index_field.length())
+			if (quad_index_field.GetLength())
 				max = min = quad_index_field[0];
 			else
 				return;
 			
-		for (index_t i = 1; i < triangle_index_field.length(); i++)
+		for (index_t i = 1; i < triangle_index_field.GetLength(); i++)
 		{
 			min = vmin(min,triangle_index_field[i]);
 			max = vmax(max,triangle_index_field[i]);
 		}
-		for (index_t i = 0; i < quad_index_field.length(); i++)
+		for (index_t i = 0; i < quad_index_field.GetLength(); i++)
 		{
 			min = vmin(min,quad_index_field[i]);
 			max = vmax(max,quad_index_field[i]);
 		}
 		object.vertex_field.SetSize(max+1-min);
-		object.triangle_field.SetSize(triangle_index_field.length()/3);
-		object.quad_field.SetSize(quad_index_field.length()/4);
+		object.triangle_field.SetSize(triangle_index_field.GetLength()/3);
+		object.quad_field.SetSize(quad_index_field.GetLength()/4);
 		object.vregion.first = min;
 		object.vregion.last = max;
 			
-		for (index_t i = 0; i < object.vertex_field.length(); i++)
+		for (index_t i = 0; i < object.vertex_field.GetLength(); i++)
 		{
 			object.vertex_field[i].index = i+min;
 			object.vertex_field[i].marked = false;
 		}
 			
-		for (index_t i = 0; i < object.triangle_field.length(); i++)
+		for (index_t i = 0; i < object.triangle_field.GetLength(); i++)
 		{
 			Tri&t = object.triangle_field[i];
 			t.v0 = object.vertex_field+(triangle_index_field[i*3]-min);
@@ -639,7 +639,7 @@ template <class Def, class IndexType>
 			t.v1->Insert(&t);
 			t.v2->Insert(&t);
 		}
-		for (index_t i = 0; i < object.quad_field.length(); i++)
+		for (index_t i = 0; i < object.quad_field.GetLength(); i++)
 		{
 			Quad&q = object.quad_field[i];
 			q.v0 = object.vertex_field + (quad_index_field[i*4]-min);
@@ -675,20 +675,20 @@ template <class Def, class IndexType>
 		
 		IndexType min,max;
 			
-		if (triangle_index_field.length())
+		if (triangle_index_field.GetLength())
 			max = min = triangle_index_field[0];
 		else
-			if (quad_index_field.length())
+			if (quad_index_field.GetLength())
 				max = min = quad_index_field[0];
 			else
 				return;
 			
-		for (index_t i = 1; i < triangle_index_field.length(); i++)
+		for (index_t i = 1; i < triangle_index_field.GetLength(); i++)
 		{
 			min = vmin(min,triangle_index_field[i]);
 			max = vmax(max,triangle_index_field[i]);
 		}
-		for (index_t i = 0; i < quad_index_field.length(); i++)
+		for (index_t i = 0; i < quad_index_field.GetLength(); i++)
 		{
 			min = vmin(min,quad_index_field[i]);
 			max = vmax(max,quad_index_field[i]);
@@ -704,7 +704,7 @@ template <class Def, class IndexType>
 		}
 			
 		IndexType*p = triangle_index_field;
-		for (index_t i = 0; i < triangle_index_field.length()/3; i++)
+		for (index_t i = 0; i < triangle_index_field.GetLength()/3; i++)
 		{
 			Tri&t = *object.triangles.append();
 			t.v0 = object.vertices[(*p++)-min];
@@ -724,7 +724,7 @@ template <class Def, class IndexType>
 			t.v2->Insert(&t);
 		}
 		p = quad_index_field;
-		for (index_t i = 0; i < quad_index_field.length()/4; i++)
+		for (index_t i = 0; i < quad_index_field.GetLength()/4; i++)
 		{
 			Quad&q = *object.quads.append();
 			q.v0 = object.vertices[(*p++)-min];
@@ -759,24 +759,24 @@ template <class Def, class IndexType> MF_DECLARE (void) _oMakeTriangleGraph(Mesh
 	typedef MeshQuad<TGraphDef<Def> >	Quad;
 		
 	IndexType min((IndexType)-1),max(0);
-	for (index_t i = 0; i < field.length(); i++)
+	for (index_t i = 0; i < field.GetLength(); i++)
 	{
 		min = vmin(min,field[i]);
 		max = vmax(max,field[i]);
 	}
 	object.vertex_field.SetSize(max+1-min);
-	object.triangle_field.SetSize(field.length()/3);
+	object.triangle_field.SetSize(field.GetLength()/3);
 	object.vregion.first = min;
 	object.vregion.last = max;
 
 	M::Vector3<Edg>	edge_buffer;
 
-	for (index_t i = 0; i < object.vertex_field.length(); i++)
+	for (index_t i = 0; i < object.vertex_field.GetLength(); i++)
 	{
 		object.vertex_field[i].index = i+min;
 		object.vertex_field[i].marked = false;
 	}
-	for (index_t i = 0; i < object.triangle_field.length(); i++)
+	for (index_t i = 0; i < object.triangle_field.GetLength(); i++)
 	{
 		object.triangle_field[i].marked = false;
 		object.triangle_field[i].attrib = 0;
@@ -853,10 +853,10 @@ template <class Def, class IndexType> MF_DECLARE (void) _oMakeTriangleGraph(Mesh
 	}
 
 	object.edge_field.SetSize(edge_buffer.Count());
-	for (index_t i = 0; i < object.edge_field.length(); i++)
+	for (index_t i = 0; i < object.edge_field.GetLength(); i++)
 		edge_buffer[i]->index = i;
 
-	for (index_t i = 0; i < object.edge_field.length(); i++)
+	for (index_t i = 0; i < object.edge_field.GetLength(); i++)
 	{
 		object.edge_field[i] = *edge_buffer[i];
 		if (object.edge_field[i].next[0])
@@ -864,10 +864,10 @@ template <class Def, class IndexType> MF_DECLARE (void) _oMakeTriangleGraph(Mesh
 		if (object.edge_field[i].next[1])
 			object.edge_field[i].next[1] = &object.edge_field[object.edge_field[i].next[1]->index];
 	}
-	for (index_t i = 0; i < object.triangle_field.length(); i++)
+	for (index_t i = 0; i < object.triangle_field.GetLength(); i++)
 		for (BYTE k = 0; k < 3; k++)
 			object.triangle_field[i].edge[k] = &object.edge_field[object.triangle_field[i].edge[k]->index];
-	for (index_t i = 0; i < object.vertex_field.length(); i++)
+	for (index_t i = 0; i < object.vertex_field.GetLength(); i++)
 		if (object.vertex_field[i].first)
 		{
 			object.vertex_field[i].first = &object.edge_field[object.vertex_field[i].first->index];
@@ -879,10 +879,10 @@ template <class Def, class IndexType> MF_DECLARE (void) _oMakeTriangleGraph(Mesh
 
 
 
-	for (index_t i = 0; i < object.edge_field.length(); i++)
+	for (index_t i = 0; i < object.edge_field.GetLength(); i++)
 		for (BYTE k = 0; k < 2; k++)
 		{
-			if (object.edge_field[i].next[k] && (index_t)(object.edge_field[i].next[k]-object.edge) >= object.edge_field.length())
+			if (object.edge_field[i].next[k] && (index_t)(object.edge_field[i].next[k]-object.edge) >= object.edge_field.GetLength())
 				FATAL__("object shot");
 			if (object.edge_field[i].next[k] == &object.edge_field[i])
 				FATAL__("selfrefering");
@@ -894,9 +894,9 @@ template <class Def, class IndexType> MF_DECLARE (void) _oMakeTriangleGraph(Mesh
 		FATAL__("object invalid");
 
 //	cout << "len: "<<len<<endl;
-//	cout << "vertices: "<<object.vertex_field.length()<<endl;
-//	cout << "edges: "<<object.edge_field.length()<<endl;
-//	cout << "faces: "<<object.face_field.length()<<endl;
+//	cout << "vertices: "<<object.vertex_field.GetLength()<<endl;
+//	cout << "edges: "<<object.edge_field.GetLength()<<endl;
+//	cout << "faces: "<<object.face_field.GetLength()<<endl;
 
 }
 	
@@ -911,12 +911,12 @@ template <class Def, class IndexType>
 		
 		IndexType min,max;
 			
-		if (index_field.length())
+		if (index_field.GetLength())
 			max = min = index_field[0];
 		else
 			return true;
 			
-		for (index_t i = 1; i < index_field.length(); i++)
+		for (index_t i = 1; i < index_field.GetLength(); i++)
 		{
 			min = vmin(min,index_field[i]);
 			max = vmax(max,index_field[i]);
@@ -925,14 +925,14 @@ template <class Def, class IndexType>
 		{
 			count_t	triangles = 0,
 					indices = 0;
-			if (tsegment_field.length())
+			if (tsegment_field.GetLength())
 			{
 				triangles = tsegment_field[0]/3;
 				indices += tsegment_field[0];
 				if (qsegment_field[0]%3)
 					return false;					
 			}
-			for (index_t k = 1; k < tsegment_field.length(); k++)
+			for (index_t k = 1; k < tsegment_field.GetLength(); k++)
 			{
 				triangles += tsegment_field[k]-2;
 				indices += tsegment_field[k];
@@ -941,14 +941,14 @@ template <class Def, class IndexType>
 
 			count_t	quads= 0;
 
-			if (qsegment_field.length())
+			if (qsegment_field.GetLength())
 			{
 				quads += qsegment_field[0]/4;
 				indices += qsegment_field[0];
 				if (qsegment_field[0]%4)
 					return false;
 			}
-			for (index_t k = 1; k < qsegment_field.length(); k++)
+			for (index_t k = 1; k < qsegment_field.GetLength(); k++)
 			{
 				quads += (qsegment_field[k]-2)/2;
 				indices += qsegment_field[k];
@@ -956,20 +956,20 @@ template <class Def, class IndexType>
 					return false;
 			}
 			object.quad_field.SetSize(quads);
-			if (indices != index_field.length())
+			if (indices != index_field.GetLength())
 				return false;
 		}
 		object.vregion.first = min;
 		object.vregion.last = max;
 			
-		for (index_t i = 0; i < object.vertex_field.length(); i++)
+		for (index_t i = 0; i < object.vertex_field.GetLength(); i++)
 		{
 			object.vertex_field[i].index = i+min;
 			object.vertex_field[i].marked = false;
 		}
 			
 		IndexType*index = index_field;
-		if (tsegment_field.length())
+		if (tsegment_field.GetLength())
 		{
 			Tri*t = object.triangle_field;
 			for (index_t i = 0; i < tsegment_field[0]/3; i++)
@@ -991,7 +991,7 @@ template <class Def, class IndexType>
 				t->v2->Insert(t);
 				t++;
 			}
-			for (index_t j = 1; j < tsegment_field.length(); j++)
+			for (index_t j = 1; j < tsegment_field.GetLength(); j++)
 			{
 				IndexType	i0 = (*index++),
 							i1 = (*index++);
@@ -1032,7 +1032,7 @@ template <class Def, class IndexType>
 			}
 			ASSERT_CONCLUSION(object.triangle_field,t)
 		}
-		if (qsegment_field.length())
+		if (qsegment_field.GetLength())
 		{
 			Quad*q = object.quad_field;
 
@@ -1059,7 +1059,7 @@ template <class Def, class IndexType>
 				q->v3->Insert(q);
 				q++;
 			}
-			for (index_t j = 1; j < qsegment_field.length(); j++)
+			for (index_t j = 1; j < qsegment_field.GetLength(); j++)
 			{
 				IndexType	i0 = (*index++),
 							i1 = (*index++);
@@ -1109,12 +1109,12 @@ template <class Def, class IndexType>
 		
 		IndexType min,max;
 			
-		if (index_field.length())
+		if (index_field.GetLength())
 			max = min = index_field[0];
 		else
 			return true;
 			
-		for (index_t i = 1; i < index_field.length(); i++)
+		for (index_t i = 1; i < index_field.GetLength(); i++)
 		{
 			min = vmin(min,index_field[i]);
 			max = vmax(max,index_field[i]);
@@ -1122,30 +1122,30 @@ template <class Def, class IndexType>
 
 		{
 			index_t	indices = 0;
-			if (tsegment_field.length())
+			if (tsegment_field.GetLength())
 			{
 				indices = tsegment_field[0];
 				if (qsegment_field[0]%3)
 					return false;					
 			}
-			for (index_t k = 1; k < tsegment_field.length(); k++)
+			for (index_t k = 1; k < tsegment_field.GetLength(); k++)
 			{
 				indices += tsegment_field[k];
 			}
 
-			if (qsegment_field.length())
+			if (qsegment_field.GetLength())
 			{
 				indices += qsegment_field[0];
 				if (qsegment_field[0]%4)
 					return false;
 			}
-			for (index_t k = 1; k < qsegment_field.length(); k++)
+			for (index_t k = 1; k < qsegment_field.GetLength(); k++)
 			{
 				indices += qsegment_field[k];
 				if (qsegment_field[k]%2)
 					return false;
 			}
-			if (indices != index_field.length())
+			if (indices != index_field.GetLength())
 				return false;
 		}
 		object.vregion.first = min;
@@ -1159,7 +1159,7 @@ template <class Def, class IndexType>
 		}
 			
 		const IndexType*index = index_field;
-		if (tsegment_field.length())
+		if (tsegment_field.GetLength())
 		{
 			for (index_t i = 0; i < tsegment_field[0]/3; i++)
 			{
@@ -1180,7 +1180,7 @@ template <class Def, class IndexType>
 				t->v1->Insert(t);
 				t->v2->Insert(t);
 			}
-			for (index_t j = 1; j < tsegment_field.length(); j++)
+			for (index_t j = 1; j < tsegment_field.GetLength(); j++)
 			{
 				IndexType	i0 = (*index++),
 							i1 = (*index++);
@@ -1220,7 +1220,7 @@ template <class Def, class IndexType>
 				}
 			}
 		}
-		if (qsegment_field.length())
+		if (qsegment_field.GetLength())
 		{
 
 			for (index_t i = 0; i < qsegment_field[0]/4; i++)
@@ -1246,7 +1246,7 @@ template <class Def, class IndexType>
 				q->v2->Insert(q);
 				q->v3->Insert(q);
 			}
-			for (index_t j = 1; j < qsegment_field.length(); j++)
+			for (index_t j = 1; j < qsegment_field.GetLength(); j++)
 			{
 				IndexType	i0 = (*index++),
 							i1 = (*index++);
@@ -1414,7 +1414,7 @@ template <typename ContainerT, typename Index>
 		{
 			size += Obj::zeroTriangleSize(vertex_field[i].xy,vertex_field[i+1].xy);
 		}
-		size += Obj::zeroTriangleSize(vertex_field.last().xy,vertex_field.first().xy);
+		size += Obj::zeroTriangleSize(vertex_field.Last().xy,vertex_field.First().xy);
 		int orientation = M::Sign(size);
 		bool failed(false);
 		
@@ -1457,7 +1457,7 @@ template <typename ContainerT, typename Index>
 				for (index_t i = 0; i < indices.Count()-1 && !hit; i++)
 					if (i <current_index || i > current_index+1)
 						hit = Obj::detEdgeIntersection(vertex_field[(indices[i])].xy,vertex_field[(indices[i+1])].xy,vertex_field[index0].xy,vertex_field[index2].xy,dummy,dummy);
-				hit = hit || Obj::detEdgeIntersection(vertex_field[(indices.last())].xy,vertex_field[(indices.first())].xy,vertex_field[index0].xy,vertex_field[index2].xy,dummy,dummy);
+				hit = hit || Obj::detEdgeIntersection(vertex_field[(indices.Last())].xy,vertex_field[(indices.First())].xy,vertex_field[index0].xy,vertex_field[index2].xy,dummy,dummy);
 				
 				looping = hit;
 			}
@@ -1471,7 +1471,7 @@ template <typename ContainerT, typename Index>
 		}
 		if (indices.Count() == 3)
 		{
-			target << indices.first() << indices[1] << indices[2];
+			target << indices.First() << indices[1] << indices[2];
 		}
 		return !failed;
 	}
@@ -1502,7 +1502,7 @@ MFUNC2 (bool)		_oTriangulate(const M::TVec2<C0>*vertex, count_t vertices, Mesh<C
 						*next = target.vertex_field+indices[i+1];
 		size += Obj::zeroTriangleSize(current->position.xy,next->position.xy);
 	}
-	size += Obj::zeroTriangleSize(target.vertex_field[indices.last()].position.xy,target.vertex_field[indices.first()].position.xy);
+	size += Obj::zeroTriangleSize(target.vertex_field[indices.Last()].position.xy,target.vertex_field[indices.First()].position.xy);
 	char orientation = M::Sign(size);
 	bool failed(false);
 		
@@ -1544,7 +1544,7 @@ MFUNC2 (bool)		_oTriangulate(const M::TVec2<C0>*vertex, count_t vertices, Mesh<C
 			for (index_t i = 0; i < indices.Count()-1 && !hit; i++)
 				if (i <current_index || i > current_index+1)
 					hit = Obj::detEdgeIntersection(vertex[(indices[i])],vertex[(indices[i+1])],vertex[v0->index],vertex[v2->index],dummy,dummy);
-			hit = hit || Obj::detEdgeIntersection(vertex[(indices.last())],vertex[(indices.first())],vertex[v0->index],vertex[v2->index],dummy,dummy);
+			hit = hit || Obj::detEdgeIntersection(vertex[(indices.Last())],vertex[(indices.First())],vertex[v0->index],vertex[v2->index],dummy,dummy);
 				
 			looping = hit;
 		}
@@ -1561,12 +1561,12 @@ MFUNC2 (bool)		_oTriangulate(const M::TVec2<C0>*vertex, count_t vertices, Mesh<C
 	}
 	if (indices.Count() == 3)
 	{
-		triangles.append(target.vertex_field+indices.first());
+		triangles.append(target.vertex_field+indices.First());
 		triangles.append(target.vertex_field+indices[1]);
 		triangles.append(target.vertex_field+indices[2]);
 	}
 	target.triangle_field.SetSize(triangles.Count()/3);
-	for (index_t i = 0; i < target.triangle_field.length(); i++)
+	for (index_t i = 0; i < target.triangle_field.GetLength(); i++)
 	{
 		target.triangle_field[i].v0 = triangles[i*3];
 		target.triangle_field[i].v1 = triangles[i*3+1];
@@ -2490,7 +2490,7 @@ template <class Def>
 		count_t result = 0;
 		static Ctr::Array<Link>	fbuffer;
 			
-		if (fbuffer.length() < degree*2)
+		if (fbuffer.GetLength() < degree*2)
 			fbuffer.SetSize(degree*2);
 		const count_t offset = degree;
 		count_t fentries(0);	//number of faces that lack a right neighbor
@@ -4002,10 +4002,10 @@ template <class Def> template <typename T0, typename T1>
 	MF_DECLARE	(bool)			Mesh<Def>::detectOpticalIntersection(const T0 b[3], const T1 d[3], float&distance)	const
 	{
 		bool result = false;
-		for (index_t i = 0; i < triangle_field.length(); i++)
+		for (index_t i = 0; i < triangle_field.GetLength(); i++)
 			if (_oDetectOptiocalIntersection(triangle_field[i].v0->position,triangle_field[i].v1->position,triangle_field[i].v2->position,b,d,distance))
 				result = true;
-		for (index_t i = 0; i < quad_field.length(); i++)
+		for (index_t i = 0; i < quad_field.GetLength(); i++)
 			if (_oDetectOptiocalIntersection(quad_field[i].v0->position,quad_field[i].v1->position,quad_field[i].v2->position,b,d,distance)
 				||
 				_oDetectOptiocalIntersection(quad_field[i].v0->position,quad_field[i].v2->position,quad_field[i].v3->position,b,d,distance))
@@ -4023,10 +4023,10 @@ template <class Def>
 template <class Def>
 	MF_DECLARE	(bool) Mesh<Def>::valid(bool check_ranges)	const
 	{
-		for (index_t i = 0; i < triangle_field.length(); i++)
+		for (index_t i = 0; i < triangle_field.GetLength(); i++)
 			for (BYTE k = 0; k < 3; k++)
 			{
-				if (check_ranges && (index_t)(triangle_field[i].vertex[k]-vertex_field) >= vertex_field.length())
+				if (check_ranges && (index_t)(triangle_field[i].vertex[k]-vertex_field) >= vertex_field.GetLength())
 				{
 					_error = "Vertex link "+String(k)+" of triangle "+String(i)+" is broken";
 					return false;
@@ -4037,10 +4037,10 @@ template <class Def>
 					return false;
 				}
 			}
-		for (index_t i = 0; i < quad_field.length(); i++)
+		for (index_t i = 0; i < quad_field.GetLength(); i++)
 			for (BYTE k = 0; k < 4; k++)
 			{
-				if (check_ranges && (index_t)(quad_field[i].vertex[k]-vertex_field) >= vertex_field.length())
+				if (check_ranges && (index_t)(quad_field[i].vertex[k]-vertex_field) >= vertex_field.GetLength())
 				{
 					_error = "Vertex link "+String(k)+" of quad "+String(i)+" is broken";
 					return false;
@@ -4051,11 +4051,11 @@ template <class Def>
 					return false;
 				}
 			}
-		for (index_t i = 0; i < edge_field.length(); i++)
+		for (index_t i = 0; i < edge_field.GetLength(); i++)
 		{
 			for (BYTE k = 0; k < 2; k++)
 			{
-				if (check_ranges && (index_t)(edge_field[i].vertex[k]-vertex_field) >= vertex_field.length())
+				if (check_ranges && (index_t)(edge_field[i].vertex[k]-vertex_field) >= vertex_field.GetLength())
 				{
 					_error = "Vertex link "+String(k)+" of edge "+String(i)+" is broken";
 					return false;
@@ -4081,7 +4081,7 @@ template <class Def>
 	
 template <class Def> MF_DECLARE	(bool) Mesh<Def>::IsEmpty()																	const
 {
-	return !vertex_field.length();	//no vertices = no edges && no faces
+	return !vertex_field.GetLength();	//no vertices = no edges && no faces
 }
 	
 template <class Def> MF_DECLARE	(bool) Mesh<Def>::IsValid(const TMeshFaceLink<Def>&link, bool may_be_null, bool may_be_marked)	const
@@ -4107,7 +4107,7 @@ template <class Def> MF_DECLARE	(bool) Mesh<Def>::indexToLink(sindex_t index, TM
 {
 	if (index >= 0)
 	{
-		if ((index_t)index < triangle_field.length())
+		if ((index_t)index < triangle_field.GetLength())
 		{
 			link.triangle = triangle_field + index;
 			link.is_quad = false;
@@ -4119,7 +4119,7 @@ template <class Def> MF_DECLARE	(bool) Mesh<Def>::indexToLink(sindex_t index, TM
 		
 	index = -index-1;
 
-	if ((index_t)index < quad_field.length())
+	if ((index_t)index < quad_field.GetLength())
 	{
 		link.quad = quad_field + index;
 		link.is_quad = true;
@@ -4133,16 +4133,16 @@ template <class Def>
 	MF_DECLARE	(void)				Mesh<Def>::invert(unsigned selection)
 	{
 		if (selection&O_TRIANGLES)
-			for (index_t i = 0; i < triangle_field.length(); i++)
+			for (index_t i = 0; i < triangle_field.GetLength(); i++)
 				swp(triangle_field[i].v0,triangle_field[i].v1);
 		if (selection&O_QUADS)
-			for (index_t i = 0; i < quad_field.length(); i++)
+			for (index_t i = 0; i < quad_field.GetLength(); i++)
 			{
 				swp(quad_field[i].v0, quad_field[i].v3);
 				swp(quad_field[i].v1, quad_field[i].v2);
 			}
 		if (selection&O_EDGES)
-			for (index_t i = 0; i < edge_field.length(); i++)
+			for (index_t i = 0; i < edge_field.GetLength(); i++)
 				swp(edge_field[i].v0, edge_field[i].v1);
 	}
 
@@ -4164,15 +4164,15 @@ template <class Def>
 template <class Def>
 	MF_DECLARE	(void)			Mesh<Def>::generateEdges()
 	{
-		if (edge_field.length())
+		if (edge_field.GetLength())
 			return;
 		//typedef TGraphDef<TDef<typename Def::Type> >	GraphDef;
 
-		Ctr::Array<Buffer<index_t,2>	>		vertex_edge_list(vertex_field.length());
+		Ctr::Array<Buffer<index_t,2>	>		vertex_edge_list(vertex_field.GetLength());
 		Buffer<MeshEdge<Def> >			edge_buffer;
 
-		/*Ctr::Array<MeshVertex<GraphDef> >	vtx(vertex_field.length());
-		for (index_t i = 0; i < vertex_field.length(); i++)
+		/*Ctr::Array<MeshVertex<GraphDef> >	vtx(vertex_field.GetLength());
+		for (index_t i = 0; i < vertex_field.GetLength(); i++)
 		{
 			vtx[i].marked = false;
 			vtx[i].index = i;
@@ -4180,10 +4180,10 @@ template <class Def>
 
 			
 			
-		//Ctr::Array<MeshTriangle<GraphDef> >	tri(triangle_field.length());
-		//Ctr::Array<MeshQuad<GraphDef> >		quad(quad_field.length());
+		//Ctr::Array<MeshTriangle<GraphDef> >	tri(triangle_field.GetLength());
+		//Ctr::Array<MeshQuad<GraphDef> >		quad(quad_field.GetLength());
 
-		for (index_t i = 0; i < triangle_field.length(); i++)
+		for (index_t i = 0; i < triangle_field.GetLength(); i++)
 		{
 			MeshTriangle<Def>&t = triangle_field[i];
 			/*t.v0 = vtx + (triangle_field[i].v0-vertex_field);
@@ -4215,7 +4215,7 @@ template <class Def>
 
 				if (!found)
 				{
-					index_t new_edge_i = edge_buffer.length();
+					index_t new_edge_i = edge_buffer.GetLength();
 					MeshEdge<Def>&edge = edge_buffer.append();
 					edge.index = new_edge_i;
 					edge.v0 = vtx0;
@@ -4243,7 +4243,7 @@ template <class Def>
 			}
 		}
 			
-		for (index_t i = 0; i < quad_field.length(); i++)
+		for (index_t i = 0; i < quad_field.GetLength(); i++)
 		{
 			MeshQuad<Def>&q = quad_field[i];
 			/*q.v0 = vtx + (quad_field[i].v0-vertex_field);
@@ -4279,7 +4279,7 @@ template <class Def>
 //					MeshEdge<GraphDef>	*edge = vtx0->findEdgeTo(vtx1);
 				if (!found)
 				{
-					index_t new_edge_i = edge_buffer.length();
+					index_t new_edge_i = edge_buffer.GetLength();
 					MeshEdge<Def>&edge = edge_buffer.append();
 					edge.index = new_edge_i;
 					edge.v0 = vtx0;
@@ -4321,7 +4321,7 @@ template <class Def>
 			
 		edge_buffer.copyToArray(edge_field);
 		/*
-		for (index_t i = 0; i < edge_field.length(); i++)
+		for (index_t i = 0; i < edge_field.GetLength(); i++)
 		{
 			MeshEdge<Def>&target = edge_field[i];
 			MeshEdge<GraphDef>*source = edge_buffer[i];
@@ -4354,7 +4354,7 @@ template <class Def>
 	MF_DECLARE	(void)			Mesh<Def>::toGraph(Mesh<TFaceGraphDef<Def> >&object, bool include_edges)		const
 	{
 		object.clear();
-		if (!quad_field.length() && !triangle_field.length())
+		if (!quad_field.GetLength() && !triangle_field.GetLength())
 			return;
 
 		typedef MeshVertex<TFaceGraphDef<Def> > Vtx;
@@ -4363,18 +4363,18 @@ template <class Def>
 		typedef MeshQuad<TFaceGraphDef<Def> >	Quad;
 			
 			
-		object.vertex_field.SetSize(vertex_field.length());
-		object.triangle_field.SetSize(triangle_field.length());
-		object.quad_field.SetSize(quad_field.length());
+		object.vertex_field.SetSize(vertex_field.GetLength());
+		object.triangle_field.SetSize(triangle_field.GetLength());
+		object.quad_field.SetSize(quad_field.GetLength());
 		if (include_edges)
-			object.edge_field.SetSize(edge_field.length());
+			object.edge_field.SetSize(edge_field.GetLength());
 			
 		object.vregion.first = 0;
-		object.vregion.last = vertex_field.length()-1;
+		object.vregion.last = vertex_field.GetLength()-1;
 			
 		(*(typename Def::Mesh*)&object) = *this;
 			
-		for (index_t i = 0; i < vertex_field.length(); i++)
+		for (index_t i = 0; i < vertex_field.GetLength(); i++)
 		{
 			Vtx&v = object.vertex_field[i];
 			v.index = i;
@@ -4382,7 +4382,7 @@ template <class Def>
 			_c3(vertex_field[i].position,v.position);
 			(*(typename Def::Vertex*)&v) = vertex_field[i];
 		}
-		for (index_t i = 0; i < object.triangle_field.length(); i++)
+		for (index_t i = 0; i < object.triangle_field.GetLength(); i++)
 		{
 			Tri&t = object.triangle_field[i];
 			const MeshTriangle<Def>&source = triangle_field[i];
@@ -4403,7 +4403,7 @@ template <class Def>
 			t.v2->Insert(&t);
 			(*(typename Def::Triangle*)&t) = source;
 		}
-		for (index_t i = 0; i < object.quad_field.length(); i++)
+		for (index_t i = 0; i < object.quad_field.GetLength(); i++)
 		{
 			Quad&q = object.quad_field[i];
 			const MeshQuad<Def>&source = quad_field[i];
@@ -4429,7 +4429,7 @@ template <class Def>
 			(*(typename Def::Quad*)&q) = source;
 		}
 		if (include_edges)
-			for (index_t i = 0; i < object.edge_field.length(); i++)
+			for (index_t i = 0; i < object.edge_field.GetLength(); i++)
 			{
 				Edg&e = object.edge_field[i];
 				const MeshEdge<Def>&source = edge_field[i];
@@ -4463,7 +4463,7 @@ template <class Def>
 	MF_DECLARE	(void) Mesh<Def>::toGraph(DynamicMesh<TFaceGraphDef<Def> >&object, bool include_edges)const
 	{
 		object.clear();
-		if (!quad_field.length() && !triangle_field.length())
+		if (!quad_field.GetLength() && !triangle_field.GetLength())
 			return;
 
 		typedef MeshVertex<TFaceGraphDef<Def> > Vtx;
@@ -4474,11 +4474,11 @@ template <class Def>
 			
 			
 		object.vregion.first = 0;
-		object.vregion.last = vertex_field.length()-1;
+		object.vregion.last = vertex_field.GetLength()-1;
 			
 		(*(typename Def::Mesh*)&object) = *this;
 			
-		for (index_t i = 0; i < vertex_field.length(); i++)
+		for (index_t i = 0; i < vertex_field.GetLength(); i++)
 		{
 			Vtx*v = object.vertices.append();
 			v->index = i;
@@ -4486,7 +4486,7 @@ template <class Def>
 			_c3(vertex_field[i].position,v->position);
 			(*(typename Def::Vertex*)v) = vertex_field[i];
 		}
-		for (index_t i = 0; i < triangle_field.length(); i++)
+		for (index_t i = 0; i < triangle_field.GetLength(); i++)
 		{
 			Tri*t = object.triangles.append();
 			const MeshTriangle<Def>&source = triangle_field[i];
@@ -4507,7 +4507,7 @@ template <class Def>
 			t->v2->Insert(t);
 			(*(typename Def::Triangle*)t) = source;
 		}
-		for (index_t i = 0; i < quad_field.length(); i++)
+		for (index_t i = 0; i < quad_field.GetLength(); i++)
 		{
 			Quad&q = *object.quads.append();
 			const MeshQuad<Def>&source = quad_field[i];
@@ -4533,7 +4533,7 @@ template <class Def>
 			(*(typename Def::Quad*)&q) = source;
 		}
 		if (include_edges)
-			for (index_t i = 0; i < edge_field.length(); i++)
+			for (index_t i = 0; i < edge_field.GetLength(); i++)
 			{
 				Edg&e = *object.edges.append();
 				const MeshEdge<Def>&source = edge_field[i];
@@ -4565,7 +4565,7 @@ template <class Def>
 	MF_DECLARE	(void)			Mesh<Def>::toGraph(Mesh<TGraphDef<Def> >&object)		const
 	{
 		object.clear();
-		if (!quad_field.length() && !triangle_field.length())
+		if (!quad_field.GetLength() && !triangle_field.GetLength())
 			return;
 
 		typedef MeshVertex<TGraphDef<Def> > Vtx;
@@ -4574,17 +4574,17 @@ template <class Def>
 		typedef MeshQuad<TGraphDef<Def> >	Quad;
 			
 			
-		object.vertex_field.SetSize(vertex_field.length());
-		object.triangle_field.SetSize(triangle_field.length());
-		object.quad_field.SetSize(quad_field.length());
-		object.edge_field.SetSize(edge_field.length());
+		object.vertex_field.SetSize(vertex_field.GetLength());
+		object.triangle_field.SetSize(triangle_field.GetLength());
+		object.quad_field.SetSize(quad_field.GetLength());
+		object.edge_field.SetSize(edge_field.GetLength());
 			
 		object.vregion.first = 0;
-		object.vregion.last = vertex_field.length()-1;
+		object.vregion.last = vertex_field.GetLength()-1;
 			
 		(*(typename Def::Mesh*)&object) = *this;
 			
-		for (index_t i = 0; i < vertex_field.length(); i++)
+		for (index_t i = 0; i < vertex_field.GetLength(); i++)
 		{
 			Vtx&v = object.vertex_field[i];
 			v.index = i;
@@ -4592,7 +4592,7 @@ template <class Def>
 			_c3(vertex_field[i].position,v.position);
 			(*(typename Def::Vertex*)&v) = vertex_field[i];
 		}
-		for (index_t i = 0; i < object.triangle_field.length(); i++)
+		for (index_t i = 0; i < object.triangle_field.GetLength(); i++)
 		{
 			Tri&t = object.triangle_field[i];
 			const MeshTriangle<Def>&source = triangle_field[i];
@@ -4610,7 +4610,7 @@ template <class Def>
 			t.e2 = NULL;
 			(*(typename Def::Triangle*)&t) = source;
 		}
-		for (index_t i = 0; i < object.quad_field.length(); i++)
+		for (index_t i = 0; i < object.quad_field.GetLength(); i++)
 		{
 			Quad&q = object.quad_field[i];
 			const MeshQuad<Def>&source = quad_field[i];
@@ -4632,7 +4632,7 @@ template <class Def>
 			(*(typename Def::Quad*)&q) = source;
 		}
 			
-		for (index_t i = 0; i < object.edge_field.length(); i++)
+		for (index_t i = 0; i < object.edge_field.GetLength(); i++)
 		{
 			Edg&e = object.edge_field[i];
 			const MeshEdge<Def>&source = edge_field[i];
@@ -4770,7 +4770,7 @@ template <class Def>
 	MF_DECLARE	(void)			Mesh<Def>::toGraph(DynamicMesh<TGraphDef<Def> >&object)		const
 	{
 		object.clear();
-		if (!quad_field.length() && !triangle_field.length())
+		if (!quad_field.GetLength() && !triangle_field.GetLength())
 			return;
 
 		typedef MeshVertex<TGraphDef<Def> > Vtx;
@@ -4780,11 +4780,11 @@ template <class Def>
 			
 			
 		object.vregion.first = 0;
-		object.vregion.last = vertex_field.length()-1;
+		object.vregion.last = vertex_field.GetLength()-1;
 			
 		(*(typename Def::Mesh*)&object) = *this;
 			
-		for (index_t i = 0; i < vertex_field.length(); i++)
+		for (index_t i = 0; i < vertex_field.GetLength(); i++)
 		{
 			Vtx*v = object.vertices.append();
 			v->index = i;
@@ -4792,7 +4792,7 @@ template <class Def>
 			_c3(vertex_field[i].position,v->position);
 			(*(typename Def::Vertex*)v) = vertex_field[i];
 		}
-		for (index_t i = 0; i < triangle_field.length(); i++)
+		for (index_t i = 0; i < triangle_field.GetLength(); i++)
 		{
 			Tri*t = object.triangles.append();
 			const MeshTriangle<Def>&source = triangle_field[i];
@@ -4810,7 +4810,7 @@ template <class Def>
 			t->e2 = NULL;
 			(*(typename Def::Triangle*)t) = source;
 		}
-		for (index_t i = 0; i < quad_field.length(); i++)
+		for (index_t i = 0; i < quad_field.GetLength(); i++)
 		{
 			Quad*q = object.quads.append();
 			const MeshQuad<Def>&source = quad_field[i];
@@ -4832,7 +4832,7 @@ template <class Def>
 			(*(typename Def::Quad*)q) = source;
 		}
 			
-		for (index_t i = 0; i < edge_field.length(); i++)
+		for (index_t i = 0; i < edge_field.GetLength(); i++)
 		{
 			Edg*e = object.edges.append();
 			const MeshEdge<Def>&source = edge_field[i];
@@ -4968,9 +4968,9 @@ template <class Def>
 		if (!alternate)
 		{
 			typename Def::Type sum(0);
-			for (index_t i = 0; i < triangle_field.length(); i++)
+			for (index_t i = 0; i < triangle_field.GetLength(); i++)
 				sum += Obj::zeroTetrahedronVolume(triangle_field[i].v0->position,triangle_field[i].v1->position,triangle_field[i].v2->position);
-			for (index_t i = 0; i < quad_field.length(); i++)
+			for (index_t i = 0; i < quad_field.GetLength(); i++)
 			{
 				sum += Obj::zeroTetrahedronVolume(quad_field[i].v0->position,quad_field[i].v1->position,quad_field[i].v2->position);
 				sum += Obj::zeroTetrahedronVolume(quad_field[i].v0->position,quad_field[i].v2->position,quad_field[i].v3->position);
@@ -4978,21 +4978,21 @@ template <class Def>
 			return sum;
 		}
 		
-		Ctr::Array<typename Def::Type>	volume_field(triangle_field.length()+2*quad_field.length());
-		if (!volume_field.length())
+		Ctr::Array<typename Def::Type>	volume_field(triangle_field.GetLength()+2*quad_field.GetLength());
+		if (!volume_field.GetLength())
 			return 0;
 		typename Def::Type	*p = volume_field.pointer();
-		for (index_t i = 0; i < triangle_field.length(); i++)
+		for (index_t i = 0; i < triangle_field.GetLength(); i++)
 			(*p++) = Obj::zeroTetrahedronVolume(triangle_field[i].v0->position,triangle_field[i].v1->position,triangle_field[i].v2->position);
-		for (index_t i = 0; i < quad_field.length(); i++)
+		for (index_t i = 0; i < quad_field.GetLength(); i++)
 		{
 			(*p++) = Obj::zeroTetrahedronVolume(quad_field[i].v0->position,quad_field[i].v1->position,quad_field[i].v2->position);
 			(*p++) = Obj::zeroTetrahedronVolume(quad_field[i].v0->position,quad_field[i].v2->position,quad_field[i].v3->position);
 		}
-		if (p != volume_field+volume_field.length())
+		if (p != volume_field+volume_field.GetLength())
 			FATAL__("volume calculation error");
 		typename Def::Type	*begin = volume_field.pointer(),
-							*end = &volume_field.last();
+							*end = &volume_field.Last();
 		while (begin < end)	//sort field so that it begins with positive volumes and ends with negative volumes
 		{
 			while (*begin >= 0 && begin <=end)
@@ -5004,7 +5004,7 @@ template <class Def>
 		}	//begin now points to the first negative element, end to the last positive
 		typename Def::Type	sum(0);
 		begin = volume_field.pointer();
-		end = &volume_field.last();
+		end = &volume_field.Last();
 		while (begin < end)
 		{
 			sum += (*begin++);
@@ -5019,7 +5019,7 @@ template <class Def>
 		/*
 		typedef Def::Type	*positive = volume_field,
 							*negative = begin;
-		end = volume_field+volume_field.length();
+		end = volume_field+volume_field.GetLength();
 			
 		while (positive != begin && negative != end)
 		{
@@ -5037,16 +5037,16 @@ template <class Def>
 template <class Def> MF_DECLARE	(void)	Mesh<Def>::unmark(unsigned selection)
 {
 	if (selection&O_VERTICES)
-		for (index_t i = 0; i < vertex_field.length(); i++)
+		for (index_t i = 0; i < vertex_field.GetLength(); i++)
 			vertex_field[i].marked = false;
 	if (selection&O_TRIANGLES)
-		for (index_t i = 0; i < triangle_field.length(); i++)
+		for (index_t i = 0; i < triangle_field.GetLength(); i++)
 			triangle_field[i].marked = false;
 	if (selection&O_QUADS)
-		for (index_t i = 0; i < quad_field.length(); i++)
+		for (index_t i = 0; i < quad_field.GetLength(); i++)
 			quad_field[i].marked = false;
 	if (selection&O_EDGES)
-		for (index_t i = 0; i < edge_field.length(); i++)
+		for (index_t i = 0; i < edge_field.GetLength(); i++)
 			edge_field[i].marked = false;
 }
 	
@@ -5065,7 +5065,7 @@ template <class Def> MF_DECLARE	(void) Mesh<Def>::correct(unsigned selection)
 	{
 		count_t marked = 0;
 			
-		for (index_t i = 0; i < triangle_field.length(); i++)
+		for (index_t i = 0; i < triangle_field.GetLength(); i++)
 		{
 			MeshTriangle<Def>&triangle = triangle_field[i];
 			triangle.marked = false;
@@ -5079,10 +5079,10 @@ template <class Def> MF_DECLARE	(void) Mesh<Def>::correct(unsigned selection)
 		if (marked)
 		{
 			replace_triangles = true;
-			new_triangles.SetSize(triangle_field.length()-marked);
+			new_triangles.SetSize(triangle_field.GetLength()-marked);
 			MeshTriangle<Def>*at = new_triangles.pointer();
 				
-			for (index_t i = 0; i < triangle_field.length(); i++)
+			for (index_t i = 0; i < triangle_field.GetLength(); i++)
 				if (!triangle_field[i].marked)
 					(*at++) = triangle_field[i];
 		}
@@ -5092,7 +5092,7 @@ template <class Def> MF_DECLARE	(void) Mesh<Def>::correct(unsigned selection)
 	{
 		count_t marked = 0;
 				
-		for (index_t i = 0; i < quad_field.length(); i++)
+		for (index_t i = 0; i < quad_field.GetLength(); i++)
 		{
 			MeshQuad<Def>&quad = quad_field[i];
 			quad.marked = false;
@@ -5108,10 +5108,10 @@ template <class Def> MF_DECLARE	(void) Mesh<Def>::correct(unsigned selection)
 		if (marked)
 		{
 			replace_quads = true;
-			new_quads.SetSize(quad_field.length()-marked);
+			new_quads.SetSize(quad_field.GetLength()-marked);
 			MeshQuad<Def>*at = new_quads.pointer();
 				
-			for (index_t i = 0; i < quad_field.length(); i++)
+			for (index_t i = 0; i < quad_field.GetLength(); i++)
 				if (!quad_field[i].marked)
 					(*at++) = quad_field[i];
 		}
@@ -5120,7 +5120,7 @@ template <class Def> MF_DECLARE	(void) Mesh<Def>::correct(unsigned selection)
 	if ((selection&O_EDGES) || replace_quads || replace_triangles)
 	{
 		count_t marked = 0;
-		for (index_t i = 0; i < edge_field.length(); i++)
+		for (index_t i = 0; i < edge_field.GetLength(); i++)
 		{
 			MeshEdge<Def>&edge = edge_field[i];
 			edge.marked = (	!vertex_field.Owns(edge.v0)
@@ -5144,9 +5144,9 @@ template <class Def> MF_DECLARE	(void) Mesh<Def>::correct(unsigned selection)
 			
 		if (marked)
 		{
-			Ctr::Array<MeshEdge<Def> >	new_edges(edge_field.length()-marked);
+			Ctr::Array<MeshEdge<Def> >	new_edges(edge_field.GetLength()-marked);
 			MeshEdge<Def>*at = new_edges.pointer();
-			for (index_t i = 0; i < edge_field.length(); i++)
+			for (index_t i = 0; i < edge_field.GetLength(); i++)
 				if (!edge_field[i].marked)
 					(*at++) = edge_field[i];
 			edge_field.adoptData(new_edges);
@@ -5155,7 +5155,7 @@ template <class Def> MF_DECLARE	(void) Mesh<Def>::correct(unsigned selection)
 		
 	if (replace_quads)
 	{
-		for (index_t i = 0; i < edge_field.length(); i++)
+		for (index_t i = 0; i < edge_field.GetLength(); i++)
 		{
 			MeshEdge<Def>&edge=edge_field[i];
 			if (edge.n[0].is_quad)
@@ -5168,7 +5168,7 @@ template <class Def> MF_DECLARE	(void) Mesh<Def>::correct(unsigned selection)
 		
 	if (replace_triangles)
 	{
-		for (index_t i = 0; i < edge_field.length(); i++)
+		for (index_t i = 0; i < edge_field.GetLength(); i++)
 		{
 			MeshEdge<Def>&edge=edge_field[i];
 			if (!edge.n[0].is_quad)
@@ -5196,13 +5196,13 @@ template <class Def> MF_DECLARE	(String) Mesh<Def>::difference(Mesh<Def>&other, 
 			if ((token == other.token) && token)\
 				rs+="\n"+intend+#token+": pointers equal ("+IntToHex((int)token,8)+" == "+IntToHex((int)other.token,8)+")";}
 
-	COMPARE(vertex_field.length(),vertex);
-	COMPARE(edge_field.length(),edge);
-	COMPARE(face_field.length(),face);
+	COMPARE(vertex_field.GetLength(),vertex);
+	COMPARE(edge_field.GetLength(),edge);
+	COMPARE(face_field.GetLength(),face);
 	#undef COMPARE
 	#endif
 	count_t difference(0);
-	for (index_t i = 0; i < vertex_field.length()&&i < other.vertex_field.length(); i++)
+	for (index_t i = 0; i < vertex_field.GetLength()&&i < other.vertex_field.GetLength(); i++)
 		if (!_similar(vertex_field[i].position,other.vertex_field[i].position))
 		{
 			difference++;
@@ -5262,7 +5262,7 @@ template <class Def>MF_DECLARE	(Mesh<Def>&) Mesh<Def>::operator=(const Mesh<Def>
 	triangle_field = other.triangle_field;
 
 		
-	for (index_t i = 0; i < edge_field.length(); i++)
+	for (index_t i = 0; i < edge_field.GetLength(); i++)
 	{
 		edge_field[i].v0 = vertex_field + (other.edge_field[i].v0-other.vertex_field);
 		edge_field[i].v1 = vertex_field + (other.edge_field[i].v1-other.vertex_field);
@@ -5278,13 +5278,13 @@ template <class Def>MF_DECLARE	(Mesh<Def>&) Mesh<Def>::operator=(const Mesh<Def>
 				edge_field[i].n[1].Set(triangle_field + (other.edge_field[i].n[1].triangle-other.triangle_field));
 		}
 	}
-	for (index_t i = 0; i < triangle_field.length(); i++)
+	for (index_t i = 0; i < triangle_field.GetLength(); i++)
 	{
 		triangle_field[i].v0 = vertex_field + (other.triangle_field[i].v0-other.vertex_field);
 		triangle_field[i].v1 = vertex_field + (other.triangle_field[i].v1-other.vertex_field);
 		triangle_field[i].v2 = vertex_field + (other.triangle_field[i].v2-other.vertex_field);
 	}
-	for (index_t i = 0; i < quad_field.length(); i++)
+	for (index_t i = 0; i < quad_field.GetLength(); i++)
 	{
 		quad_field[i].v0 = vertex_field + (other.quad_field[i].v0-other.vertex_field);
 		quad_field[i].v1 = vertex_field + (other.quad_field[i].v1-other.vertex_field);
@@ -5312,7 +5312,7 @@ template <class T> MF_DECLARE	(Mesh<Def>&) Mesh<Def>::operator=(const Mesh<T>&ot
 	triangle_field = other.triangle_field;
 
 		
-	for (index_t i = 0; i < edge_field.length(); i++)
+	for (index_t i = 0; i < edge_field.GetLength(); i++)
 	{
 		edge_field[i].v0 = vertex_field + (other.edge_field[i].v0-other.vertex_field);
 		edge_field[i].v1 = vertex_field + (other.edge_field[i].v1-other.vertex_field);
@@ -5328,13 +5328,13 @@ template <class T> MF_DECLARE	(Mesh<Def>&) Mesh<Def>::operator=(const Mesh<T>&ot
 				edge_field[i].n[1].triangle = triangle_field + (other.edge_field[i].triangle[1]-other.triangle_field);
 		}
 	}
-	for (index_t i = 0; i < triangle_field.length(); i++)
+	for (index_t i = 0; i < triangle_field.GetLength(); i++)
 	{
 		triangle_field[i].v0 = vertex_field + (other.triangle_field[i].v0-other.vertex_field);
 		triangle_field[i].v1 = vertex_field + (other.triangle_field[i].v1-other.vertex_field);
 		triangle_field[i].v2 = vertex_field + (other.triangle_field[i].v2-other.vertex_field);
 	}
-	for (index_t i = 0; i < quad_field.length(); i++)
+	for (index_t i = 0; i < quad_field.GetLength(); i++)
 	{
 		quad_field[i].v0 = vertex_field + (other.quad_field[i].v0-other.vertex_field);
 		quad_field[i].v1 = vertex_field + (other.quad_field[i].v1-other.vertex_field);
@@ -5364,16 +5364,16 @@ template <class Def>
 template <class Def>
 	MF_DECLARE	(void)	Mesh<Def>::_mergeIn(MeshVertex<Def>*&voffset,MeshEdge<Def>*&eoffset,MeshTriangle<Def>*&toffset,MeshQuad<Def>*&qoffset,const Mesh<Def>&obj)
 	{
-		for (index_t i = 0; i < obj.vertex_field.length(); i++)
+		for (index_t i = 0; i < obj.vertex_field.GetLength(); i++)
 			voffset[i] = obj.vertex_field[i];
-		for (index_t i = 0; i < obj.edge_field.length(); i++)
+		for (index_t i = 0; i < obj.edge_field.GetLength(); i++)
 		{
 			eoffset[i] = obj.edge_field[i];
 			eoffset[i].v0 = voffset + (obj.edge_field[i].v0-obj.vertex_field);
 			eoffset[i].v1 = voffset + (obj.edge_field[i].v1-obj.vertex_field);
 		}
 			
-		for (index_t i = 0; i < obj.triangle_field.length(); i++)
+		for (index_t i = 0; i < obj.triangle_field.GetLength(); i++)
 		{
 			toffset[i] = obj.triangle_field[i];
 			toffset[i].v0 = voffset + (obj.triangle_field[i].v0-obj.vertex_field);
@@ -5381,7 +5381,7 @@ template <class Def>
 			toffset[i].v2 = voffset + (obj.triangle_field[i].v2-obj.vertex_field);
 		}
 			
-		for (index_t i = 0; i < obj.quad_field.length(); i++)
+		for (index_t i = 0; i < obj.quad_field.GetLength(); i++)
 		{
 			qoffset[i] = obj.quad_field[i];
 			qoffset[i].v0 = voffset + (obj.quad_field[i].v0-obj.vertex_field);
@@ -5390,7 +5390,7 @@ template <class Def>
 			qoffset[i].v3 = voffset + (obj.quad_field[i].v3-obj.vertex_field);
 		}
 			
-		for (index_t i = 0; i < obj.edge_field.length(); i++)
+		for (index_t i = 0; i < obj.edge_field.GetLength(); i++)
 		{
 			if (obj.edge_field[i].n[0].is_quad)
 				eoffset[i].n[0].Set(qoffset+(obj.edge_field[i].n[0].quad-obj.quad_field));
@@ -5404,10 +5404,10 @@ template <class Def>
 					eoffset[i].n[1].Set(toffset+(obj.edge_field[i].n[1].triangle-obj.triangle_field));
 		}
 			
-		voffset += obj.vertex_field.length();
-		eoffset += obj.edge_field.length();
-		toffset += obj.triangle_field.length();
-		qoffset += obj.quad_field.length();
+		voffset += obj.vertex_field.GetLength();
+		eoffset += obj.edge_field.GetLength();
+		toffset += obj.triangle_field.GetLength();
+		qoffset += obj.quad_field.GetLength();
 	}
 
 template <class Def>
@@ -5426,18 +5426,18 @@ template <class Def>
 				join_quads = 0;
 		for (index_t i = 0; i < count; i++)
 		{
-			join_vertices += other_objects[i].vertex_field.length();
-			join_edges += other_objects[i].edge_field.length();
-			join_triangles += other_objects[i].triangle_field.length();
-			join_quads += other_objects[i].quad_field.length();
+			join_vertices += other_objects[i].vertex_field.GetLength();
+			join_edges += other_objects[i].edge_field.GetLength();
+			join_triangles += other_objects[i].triangle_field.GetLength();
+			join_quads += other_objects[i].quad_field.GetLength();
 		}
 		if (!join_vertices)
 			return;
 			
-		Ctr::Array<MeshVertex<Def> >	vfield(vertex_field.length()+join_vertices);
-		Ctr::Array<MeshEdge<Def> >		efield(edge_field.length()+join_edges);
-		Ctr::Array<MeshTriangle<Def> >	tfield(triangle_field.length()+join_triangles);
-		Ctr::Array<MeshQuad<Def> >		qfield(quad_field.length()+join_quads);
+		Ctr::Array<MeshVertex<Def> >	vfield(vertex_field.GetLength()+join_vertices);
+		Ctr::Array<MeshEdge<Def> >		efield(edge_field.GetLength()+join_edges);
+		Ctr::Array<MeshTriangle<Def> >	tfield(triangle_field.GetLength()+join_triangles);
+		Ctr::Array<MeshQuad<Def> >		qfield(quad_field.GetLength()+join_quads);
 			
 		MeshVertex<Def>*voffset = vfield;
 		MeshEdge<Def>*eoffset = efield;
@@ -5461,11 +5461,11 @@ template <class Def>
 	
 template <class Def>MF_DECLARE	(void) Mesh<Def>::vertexDimensions(M::Box<typename Def::Type>&field)	const
 {
-	if (!vertex_field.length())
+	if (!vertex_field.GetLength())
 		return;
-	field.upper = field.lower = vertex_field.first().position;
+	field.upper = field.lower = vertex_field.First().position;
 	//cout << "Init: " << M::Vec::toString(field.min)<< " < "<<M::Vec::toString(field.max)<<endl;
-	for (index_t i = 1; i < vertex_field.length(); i++)
+	for (index_t i = 1; i < vertex_field.GetLength(); i++)
 	{
 		_oDetDimension(vertex_field[i].position,field);
 		//ASSERT__(!M::Vec::oneLess(vertex_field[i].position,field.min));
@@ -5478,7 +5478,7 @@ template <class Def>MF_DECLARE	(void) Mesh<Def>::vertexDimensions(M::Box<typenam
 template <class Def> template <typename T>
 	MF_DECLARE	(void)	Mesh<Def>::scale(const T&factor)
 	{
-		for (index_t i = 0; i < vertex_field.length(); i++)
+		for (index_t i = 0; i < vertex_field.GetLength(); i++)
 			M::Vec::mult(vertex_field[i].position,factor);
 	}
 	
@@ -5495,17 +5495,17 @@ template <class Def>MF_DECLARE	(void) Mesh<Def>::Resize(count_t vcnt, count_t ec
 	
 template <class Def>MF_DECLARE	 (String) Mesh<Def>::ToString() const
 {
-	return "Mesh (vertices: "+String(vertex_field.length())+"; edges: "+String(edge_field.length())+"; triangles: "+String(triangle_field.length())+"; quads: "+String(quad_field.length())+"; valid: "+String((int)valid())+")";
+	return "Mesh (vertices: "+String(vertex_field.GetLength())+"; edges: "+String(edge_field.GetLength())+"; triangles: "+String(triangle_field.GetLength())+"; quads: "+String(quad_field.GetLength())+"; valid: "+String((int)valid())+")";
 }
 
 template <class Def>
 	MF_DECLARE	(void)		Mesh<Def>::generateNormals()
 	{
-		Concurrency::parallel_for(index_t(0),vertex_field.length(),[this](index_t i)
+		Concurrency::parallel_for(index_t(0),vertex_field.GetLength(),[this](index_t i)
 		{
 			M::Vec::clear(vertex_field[i].normal);
 		});
-		for (index_t i = 0; i < triangle_field.length(); i++)
+		for (index_t i = 0; i < triangle_field.GetLength(); i++)
 		{
 			MeshTriangle<Def>&t = triangle_field[i];
 			Obj::triangleNormal(t.v0->position,t.v1->position,t.v2->position,t.normal);
@@ -5515,7 +5515,7 @@ template <class Def>
 			M::Vec::normalize0(t.normal);
 		}
 		
-		for (index_t i = 0; i < quad_field.length(); i++)
+		for (index_t i = 0; i < quad_field.GetLength(); i++)
 		{
 			MeshQuad<Def>&q = quad_field[i];
 			Obj::triangleNormal(q.v0->position,q.v1->position,q.v2->position,q.normal);
@@ -5526,16 +5526,16 @@ template <class Def>
 			_add(q.v3->normal,q.normal);
 			_normalize0(q.normal);
 		}
-		for (index_t i = 0; i < vertex_field.length(); i++)
+		for (index_t i = 0; i < vertex_field.GetLength(); i++)
 			_normalize0(vertex_field[i].normal);
 	}
 	
 template <class Def>
 	MF_DECLARE	(void)		Mesh<Def>::generateVertexNormals()
 	{
-		for (index_t i = 0; i < vertex_field.length(); i++)
+		for (index_t i = 0; i < vertex_field.GetLength(); i++)
 			M::Vec::clear(vertex_field[i].normal);
-		for (index_t i = 0; i < triangle_field.length(); i++)
+		for (index_t i = 0; i < triangle_field.GetLength(); i++)
 		{
 			MeshTriangle<Def>&t = triangle_field[i];
 			M::TVec3<typename Def::Type>	normal;
@@ -5545,7 +5545,7 @@ template <class Def>
 			M::Vec::add(t.v2->normal,normal);
 		}
 		
-		for (index_t i = 0; i < quad_field.length(); i++)
+		for (index_t i = 0; i < quad_field.GetLength(); i++)
 		{
 			MeshQuad<Def>&q = quad_field[i];
 			M::TVec3<typename Def::Type>	normal;
@@ -5556,21 +5556,21 @@ template <class Def>
 			M::Vec::add(q.v2->normal,normal);
 			M::Vec::add(q.v3->normal,normal);
 		}
-		for (index_t i = 0; i < vertex_field.length(); i++)
+		for (index_t i = 0; i < vertex_field.GetLength(); i++)
 			M::Vec::normalize0(vertex_field[i].normal);
 	}
 		
 template <class Def>
 	MF_DECLARE	(void)		Mesh<Def>::generateFaceNormals()
 	{
-		for (index_t i = 0; i < triangle_field.length(); i++)
+		for (index_t i = 0; i < triangle_field.GetLength(); i++)
 		{
 			MeshTriangle<Def>&t = triangle_field[i];
 			Obj::triangleNormal(t.v0->position,t.v1->position,t.v2->position,t.normal);
 			M::Vec::normalize0(t.normal);
 		}
 		
-		for (index_t i = 0; i < quad_field.length(); i++)
+		for (index_t i = 0; i < quad_field.GetLength(); i++)
 		{
 			MeshQuad<Def>&q = quad_field[i];
 			Obj::triangleNormal(q.v0->position,q.v1->position,q.v2->position,q.normal);
@@ -5740,7 +5740,7 @@ template <class Def>
 		M::Vec::def(vertex_field[6].position,+1,+1,-1);
 		M::Vec::def(vertex_field[7].position,-1,+1,-1);
 
-		for (index_t i = 0; i < vertex_field.length(); i++)
+		for (index_t i = 0; i < vertex_field.GetLength(); i++)
 		{
 			vertex_field[i].index = i;
 			vertex_field[i].marked = false;
@@ -5777,7 +5777,7 @@ template <class Def>
 		quad_field[5].v2 = vertex_field + 6;
 		quad_field[5].v3 = vertex_field + 7;
 
-		for (index_t i = 0; i < quad_field.length(); i++)
+		for (index_t i = 0; i < quad_field.GetLength(); i++)
 		{
 			quad_field[i].index = i;
 			quad_field[i].marked = false;
@@ -5845,7 +5845,7 @@ template <class Def>
 		edge_field[11].n[0].Set(quad_field+3);
 		edge_field[11].n[1].Set(quad_field+0);
 
-		for (index_t i = 0; i < edge_field.length(); i++)
+		for (index_t i = 0; i < edge_field.GetLength(); i++)
 		{
 			edge_field[i].index = i;
 			edge_field[i].marked = false;
@@ -5940,31 +5940,31 @@ template <class Def>MF_DECLARE	(void) ObjMap<Def>::map(Mesh<Def>&object, BYTE ta
 	if (empty() && !keep_dimensions)
 	{
 		M::Box<C>	new_dim;
-		if ((tag & O_VERTICES) && object.vertex_field.length())
+		if ((tag & O_VERTICES) && object.vertex_field.GetLength())
 		{
 			new_dim.SetMinAndMax(object.vertex_field[0].position);
-			for (index_t i = 1; i < object.vertex_field.length(); i++)
+			for (index_t i = 1; i < object.vertex_field.GetLength(); i++)
 				new_dim.Include(object.vertex_field[i].position);
 		}
-		elif ((tag & O_EDGES) && object.edge_field.length())
+		elif ((tag & O_EDGES) && object.edge_field.GetLength())
 		{
 			new_dim.SetMinAndMax(object.edge_field[0].v0->position);
 			for (BYTE k = 0; k < 2; k++)
-				for (index_t i = 0; i < object.edge_field.length(); i++)
+				for (index_t i = 0; i < object.edge_field.GetLength(); i++)
 					new_dim.Include(object.edge_field[i].vertex[k]->position);
 		}
-		elif ((tag & O_TRIANGLES) && object.triangle_field.length())
+		elif ((tag & O_TRIANGLES) && object.triangle_field.GetLength())
 		{
 			new_dim.SetMinAndMax(object.triangle_field[0].v0->position);
 			for (BYTE k = 0; k < 3; k++)
-				for (index_t i = 0; i < object.triangle_field.length(); i++)
+				for (index_t i = 0; i < object.triangle_field.GetLength(); i++)
 					new_dim.Include(object.triangle_field[i].vertex[k]->position);
 		}
-		elif ((tag & O_QUADS) && object.quad_field.length())
+		elif ((tag & O_QUADS) && object.quad_field.GetLength())
 		{
 			new_dim.SetMinAndMax(object.quad_field[0].v0->position);
 			for (BYTE k = 0; k < 4; k++)
-				for (index_t i = 0; i < object.quad_field.length(); i++)
+				for (index_t i = 0; i < object.quad_field.GetLength(); i++)
 					new_dim.Include(object.quad_field[i].vertex[k]->position);
 		}
 		else
@@ -6014,20 +6014,20 @@ template <class Def>MF_DECLARE	(void) ObjMap<Def>::map(Mesh<Def>&object, BYTE ta
 		_add(dim+3,new_dim);*/
 			
 	}
-	count_t	nvc = vertex_field.length() + object.vertex_field.length(),
-			nec = edge_field.length() + object.edge_field.length(),
-			ntc = triangle_field.length() + object.triangle_field.length(),
-			nqc = quad_field.length() + object.quad_field.length();
+	count_t	nvc = vertex_field.GetLength() + object.vertex_field.GetLength(),
+			nec = edge_field.GetLength() + object.edge_field.GetLength(),
+			ntc = triangle_field.GetLength() + object.triangle_field.GetLength(),
+			nqc = quad_field.GetLength() + object.quad_field.GetLength();
 
-	if (object.vertex_field.length())
+	if (object.vertex_field.GetLength())
 	{
 		Ctr::Array<MeshVertex<Def>*> list(nvc);
 		MeshVertex<Def>**c = list.pointer();
-		for (index_t i = 0; i < vertex_field.length(); i++)
+		for (index_t i = 0; i < vertex_field.GetLength(); i++)
 		{
 			(*c++) = vertex_field[i];
 		}
-		for (index_t i = 0; i < object.vertex_field.length(); i++)
+		for (index_t i = 0; i < object.vertex_field.GetLength(); i++)
 		{
 			(*c) = &object.vertex_field[i];
 			(*c)->marked = false;
@@ -6036,13 +6036,13 @@ template <class Def>MF_DECLARE	(void) ObjMap<Def>::map(Mesh<Def>&object, BYTE ta
 		ASSERT_CONCLUSION(list,c);
 		vertex_field.adoptData(list);
 	}
-	if (object.edge_field.length())
+	if (object.edge_field.GetLength())
 	{
 		Ctr::Array<MeshEdge<Def>*>list(nec);
 		MeshEdge<Def>**c = list.pointer();
-		for (index_t i = 0; i < edge_field.length(); i++)
+		for (index_t i = 0; i < edge_field.GetLength(); i++)
 			(*c++) = edge_field[i];
-		for (index_t i = 0; i < object.edge_field.length(); i++)
+		for (index_t i = 0; i < object.edge_field.GetLength(); i++)
 		{
 			(*c) = &object.edge_field[i];
 			(*c)->marked = false;
@@ -6051,13 +6051,13 @@ template <class Def>MF_DECLARE	(void) ObjMap<Def>::map(Mesh<Def>&object, BYTE ta
 		ASSERT_CONCLUSION(list,c);
 		edge_field.adoptData(list);
 	}
-	if (object.triangle_field.length())
+	if (object.triangle_field.GetLength())
 	{
 		Ctr::Array<MeshTriangle<Def>*>list(ntc);
 		MeshTriangle<Def>**c = list.pointer();
-		for (index_t i = 0; i < triangle_field.length(); i++)
+		for (index_t i = 0; i < triangle_field.GetLength(); i++)
 			(*c++) = triangle_field[i];
-		for (index_t i = 0; i < object.triangle_field.length(); i++)
+		for (index_t i = 0; i < object.triangle_field.GetLength(); i++)
 		{
 			(*c) = &object.triangle_field[i];
 			(*c)->marked = false;
@@ -6066,13 +6066,13 @@ template <class Def>MF_DECLARE	(void) ObjMap<Def>::map(Mesh<Def>&object, BYTE ta
 		ASSERT_CONCLUSION(list,c);
 		triangle_field.adoptData(list);
 	}
-	if (object.quad_field.length())
+	if (object.quad_field.GetLength())
 	{
 		Ctr::Array<MeshQuad<Def>*>list(nqc);
 		MeshQuad<Def>**c = list.pointer();
-		for (index_t i = 0; i < quad_field.length(); i++)
+		for (index_t i = 0; i < quad_field.GetLength(); i++)
 			(*c++) = quad_field[i];
-		for (index_t i = 0; i < object.quad_field.length(); i++)
+		for (index_t i = 0; i < object.quad_field.GetLength(); i++)
 		{
 			(*c) = &object.quad_field[i];
 			(*c)->marked = false;
@@ -6087,10 +6087,10 @@ template <class Def>MF_DECLARE	(void) ObjMap<Def>::map(Mesh<Def>&object, BYTE ta
 	Ctr::Array<MeshQuad<Def>*>			qbuffer[8];
 	for (BYTE k = 0; k < 8; k++)
 	{
-		vbuffer[k].SetSize(vertex_field.length());
-		ebuffer[k].SetSize(edge_field.length());
-		tbuffer[k].SetSize(triangle_field.length());
-		qbuffer[k].SetSize(quad_field.length());
+		vbuffer[k].SetSize(vertex_field.GetLength());
+		ebuffer[k].SetSize(edge_field.GetLength());
+		tbuffer[k].SetSize(triangle_field.GetLength());
+		qbuffer[k].SetSize(quad_field.GetLength());
 	}
 		
 	recursiveMap(vbuffer,ebuffer,tbuffer,qbuffer,tag);
@@ -6121,7 +6121,7 @@ template <class Def>MF_DECLARE	(void) ObjMap<Def>::recursiveMap(Ctr::ArrayData<M
 	if (!this)
 		ShowMessage("child does not exist");
 //	ShowMessage(level);
-	count_t items = quad_field.length()+triangle_field.length()+vertex_field.length()+edge_field.length();
+	count_t items = quad_field.GetLength()+triangle_field.GetLength()+vertex_field.GetLength()+edge_field.GetLength();
 	if (items < COMPLEXITY_CONST)
 		level = 0;
 	if (!level || !items)
@@ -6153,13 +6153,13 @@ template <class Def>MF_DECLARE	(void) ObjMap<Def>::recursiveMap(Ctr::ArrayData<M
 	M::TVec3<C>	half = dim.center();
 
 	if (tag & O_VERTICES)
-		for (index_t i = 0; i < vertex_field.length(); i++)
+		for (index_t i = 0; i < vertex_field.GetLength(); i++)
 			for (BYTE k = 0; k < 8; k++)
 				if (child[k]->dim.Contains(vertex_field[i]->position))
 					vbuffer[k][vbuffered[k]++] = vertex_field[i];
 
 	if (tag & O_EDGES)
-		for (index_t i = 0; i < edge_field.length(); i++)
+		for (index_t i = 0; i < edge_field.GetLength(); i++)
 		{
 			VecUnroll<8>::clear(Set);
 			BYTE define[3];
@@ -6216,7 +6216,7 @@ template <class Def>MF_DECLARE	(void) ObjMap<Def>::recursiveMap(Ctr::ArrayData<M
 		}
 
 	if (tag & O_TRIANGLES)
-		for (index_t i = 0; i < triangle_field.length(); i++)
+		for (index_t i = 0; i < triangle_field.GetLength(); i++)
 		{
 			memset(Set,0,sizeof(Set));
 			BYTE define[3];
@@ -6322,7 +6322,7 @@ template <class Def>MF_DECLARE	(void) ObjMap<Def>::recursiveMap(Ctr::ArrayData<M
 			
 			
 	if (tag & O_QUADS)
-		for (index_t i = 0; i < quad_field.length(); i++)
+		for (index_t i = 0; i < quad_field.GetLength(); i++)
 		{
 			memset(Set,0,sizeof(Set));
 			BYTE define[3];
@@ -6493,14 +6493,14 @@ template <class Def>MF_DECLARE	(void) ObjMap<Def>::recursiveMap(ObjMap<Def>*sour
 	static Ctr::Array<MeshQuad<Def>*>		temp_quad_field;
 	static Ctr::Array<MeshTriangle<Def>*>		temp_triangle_field;
 		
-	if (temp_vertex_field.length() < source->vertex_field.length())
-		temp_vertex_field.SetSize(source->vertex_field.length());
-	if (temp_edge_field.length() < source->edge_field.length())
-		temp_edge_field.SetSize(source->edge_field.length());
-	if (temp_triangle_field.length() < source->triangle_field.length())
-		temp_triangle_field.SetSize(source->triangle_field.length());
-	if (temp_quad_field.length() < source->quad_field.length())
-		temp_quad_field.SetSize(source->quad_field.length());
+	if (temp_vertex_field.GetLength() < source->vertex_field.GetLength())
+		temp_vertex_field.SetSize(source->vertex_field.GetLength());
+	if (temp_edge_field.GetLength() < source->edge_field.GetLength())
+		temp_edge_field.SetSize(source->edge_field.GetLength());
+	if (temp_triangle_field.GetLength() < source->triangle_field.GetLength())
+		temp_triangle_field.SetSize(source->triangle_field.GetLength());
+	if (temp_quad_field.GetLength() < source->quad_field.GetLength())
+		temp_quad_field.SetSize(source->quad_field.GetLength());
 		
 	count_t	temp_vertex_count = 0,
 			temp_edge_count = 0,
@@ -6508,11 +6508,11 @@ template <class Def>MF_DECLARE	(void) ObjMap<Def>::recursiveMap(ObjMap<Def>*sour
 			temp_triangle_count = 0;
 
 	if (tag & O_VERTICES)
-		for (index_t i = 0; i < source->vertex_field.length(); i++)
+		for (index_t i = 0; i < source->vertex_field.GetLength(); i++)
 			if (_allGreater(source->vertex_field[i]->position,dim) && _allLess(source->vertex_field[i]->position,dim+3))
 				temp_vertex_field[temp_vertex_count++] = source->vertex_field[i];
 	if (tag & O_EDGES)
-		for (index_t i = 0; i < source->edge_field.length(); i++)
+		for (index_t i = 0; i < source->edge_field.GetLength(); i++)
 		{
 			bool added = false;
 			for (BYTE j = 0; j < 2; j++)	//vertices
@@ -6542,7 +6542,7 @@ template <class Def>MF_DECLARE	(void) ObjMap<Def>::recursiveMap(ObjMap<Def>*sour
 					}
 		}
 	if (tag & O_TRIANGLES)
-		for (index_t i = 0; i < source->triangle_field.length(); i++)
+		for (index_t i = 0; i < source->triangle_field.GetLength(); i++)
 		{
 			bool added = false;
 			for (BYTE j = 0; j < 3; j++) //vertices
@@ -6613,7 +6613,7 @@ template <class Def>MF_DECLARE	(void) ObjMap<Def>::recursiveMap(ObjMap<Def>*sour
 		}
 			
 	if (tag & O_QUADS)
-		for (index_t i = 0; i < source->quad_field.length(); i++)
+		for (index_t i = 0; i < source->quad_field.GetLength(); i++)
 		{
 			bool added = false;
 			for (BYTE j = 0; j < 3; j++) //vertices
@@ -6745,7 +6745,7 @@ template <class Def>MF_DECLARE	(void) ObjMap<Def>::recursiveMap(ObjMap<Def>*sour
 
 template <class Def>MF_DECLARE	(bool) ObjMap<Def>::empty() const
 {
-	return !vertex_field.length() && !edge_field.length() && !triangle_field.length() && !quad_field.length();
+	return !vertex_field.GetLength() && !edge_field.GetLength() && !triangle_field.GetLength() && !quad_field.GetLength();
 }
 
 
@@ -6755,16 +6755,16 @@ template <class Def>MF_DECLARE	(void) ObjMap<Def>::drop(index_t index, BYTE tag)
 	bool changed = false;
 	if (tag & O_VERTICES)
 	{
-		remaining	= vertex_field.length();
-		for (index_t i = 0; i < vertex_field.length(); i++)
+		remaining	= vertex_field.GetLength();
+		for (index_t i = 0; i < vertex_field.GetLength(); i++)
 			if (vertex_field[i]->index == index)
 				remaining--;
-		if (remaining != vertex_field.length())
+		if (remaining != vertex_field.GetLength())
 		{
 			Ctr::Array<MeshVertex<Def>*>list(remaining);
 			index_t at = 0;
 			if (remaining)
-				for (index_t i = 0; i < vertex_field.length(); i++)
+				for (index_t i = 0; i < vertex_field.GetLength(); i++)
 					if (vertex_field[i]->index != index)
 						list[at++] = vertex_field[i];
 			vertex_field.adoptData(list);
@@ -6773,16 +6773,16 @@ template <class Def>MF_DECLARE	(void) ObjMap<Def>::drop(index_t index, BYTE tag)
 	}
 	if (tag & O_EDGES)
 	{
-		remaining = edge_field.length();
-		for (index_t i = 0; i < edge_field.length(); i++)
+		remaining = edge_field.GetLength();
+		for (index_t i = 0; i < edge_field.GetLength(); i++)
 			if (edge_field[i]->index == index)
 				remaining--;
-		if (remaining != edge_field.length())
+		if (remaining != edge_field.GetLength())
 		{
 			Ctr::Array<MeshEdge<Def>*>list(remaining);
 			index_t at = 0;
 			if (remaining)
-				for (index_t i = 0; i < edge_field.length(); i++)
+				for (index_t i = 0; i < edge_field.GetLength(); i++)
 					if (edge_field[i]->index != index)
 						list[at++] = edge_field[i];
 			edge_field.adoptData(list);
@@ -6791,16 +6791,16 @@ template <class Def>MF_DECLARE	(void) ObjMap<Def>::drop(index_t index, BYTE tag)
 	}
 	if (tag & O_TRIANGLES)
 	{
-		remaining = triangle_field.length();
-		for (index_t i = 0; i < triangle_field.length(); i++)
+		remaining = triangle_field.GetLength();
+		for (index_t i = 0; i < triangle_field.GetLength(); i++)
 			if (triangle_field[i]->index == index)
 				remaining--;
-		if (remaining != triangle_field.length())
+		if (remaining != triangle_field.GetLength())
 		{
 			Ctr::Array<MeshTriangle<Def>*>list(remaining);
 			index_t at = 0;
 			if (remaining)
-				for (index_t i = 0; i < triangle_field.length(); i++)
+				for (index_t i = 0; i < triangle_field.GetLength(); i++)
 					if (triangle_field[i]->index != index)
 						list[at++] = triangle_field[i];
 			triangle_field.adoptData(list);
@@ -6809,16 +6809,16 @@ template <class Def>MF_DECLARE	(void) ObjMap<Def>::drop(index_t index, BYTE tag)
 	}
 	if (tag & O_QUADS)
 	{
-		remaining = quad_field.length();
-		for (index_t i = 0; i < quad_field.length(); i++)
+		remaining = quad_field.GetLength();
+		for (index_t i = 0; i < quad_field.GetLength(); i++)
 			if (quad_field[i]->index == index)
 				remaining--;
-		if (remaining != quad_field.length())
+		if (remaining != quad_field.GetLength())
 		{
 			Ctr::Array<MeshQuad<Def>*>list(remaining);
 			index_t at = 0;
 			if (remaining)
-				for (index_t i = 0; i < quad_field.length(); i++)
+				for (index_t i = 0; i < quad_field.GetLength(); i++)
 					if (quad_field[i]->index != index)
 						list[at++] = quad_field[i];
 			quad_field.adoptData(list);
@@ -7178,7 +7178,7 @@ template <class Def>MF_DECLARE	(count_t) ObjMap<Def>::countSubMaps() const
 
 template <class Def>MF_DECLARE	(count_t) ObjMap<Def>::Count() const
 {
-	return vertex_field.length()+edge_field.length()+triangle_field.length()+quad_field.length();
+	return vertex_field.GetLength()+edge_field.GetLength()+triangle_field.GetLength()+quad_field.GetLength();
 }
 
 
@@ -7194,8 +7194,8 @@ MF_DECLARE	(count_t) ObjMap<Def>::resolveTriangles(Container::Buffer<MeshTriangl
 	for (index_t i = 0; i < sector_map.Count(); i++)
 	{
 		ObjMap<Def>*pntr = sector_map[i];
-		total += pntr->triangle_field.length();
-		for (index_t j = 0; j < pntr->triangle_field.length(); j++)
+		total += pntr->triangle_field.GetLength();
+		for (index_t j = 0; j < pntr->triangle_field.GetLength(); j++)
 			if (!pntr->triangle_field[j]->marked)
 			{
 				face_out << pntr->triangle_field[j];
@@ -7222,7 +7222,7 @@ MF_DECLARE	(count_t) ObjMap<Def>::resolveQuads(Container::Buffer<MeshQuad<Def>*>
 	for (index_t i = 0; i < sector_map.Count(); i++)
 	{
 		ObjMap<Def>*pntr = sector_map[i];
-		for (index_t j = 0; j < pntr->quad_field.length(); j++)
+		for (index_t j = 0; j < pntr->quad_field.GetLength(); j++)
 			if (!pntr->quad_field[j]->marked)
 			{
 				face_out << pntr->quad_field[j];
@@ -7231,7 +7231,7 @@ MF_DECLARE	(count_t) ObjMap<Def>::resolveQuads(Container::Buffer<MeshQuad<Def>*>
 			else
 				bad_hits++;
 	}
-	for (index_t i = begin; i < face_out.length(); i++)
+	for (index_t i = begin; i < face_out.GetLength(); i++)
 		face_out[i]->marked = false;
 	return face_out.Count()-begin;
 }
@@ -7248,7 +7248,7 @@ MF_DECLARE	(count_t) ObjMap<Def>::resolveEdges(Container::Buffer<MeshEdge<Def>*>
 	for (index_t i = 0; i < sector_map.Count(); i++)
 	{
 		ObjMap<Def>*pntr = sector_map[i];
-		for (index_t j = 0; j < pntr->edge_field.length(); j++)
+		for (index_t j = 0; j < pntr->edge_field.GetLength(); j++)
 			if (!pntr->edge_field[j]->marked)
 			{
 				edge_out << pntr->edge_field[j];
@@ -7274,7 +7274,7 @@ MF_DECLARE	(count_t) ObjMap<Def>::resolveVertices(Container::Buffer<MeshVertex<D
 	for (index_t i = 0; i < sector_map.Count(); i++)
 	{
 		ObjMap<Def>*pntr = sector_map[i];
-		for (index_t j = 0; j < pntr->vertex_field.length(); j++)
+		for (index_t j = 0; j < pntr->vertex_field.GetLength(); j++)
 			if (!pntr->vertex_field[j]->marked)
 			{
 				vertex_out << pntr->vertex_field[j];
@@ -7715,12 +7715,12 @@ template <typename Float>
 template <typename Float>
 	MF_DECLARE	(bool)			ConvexHullBuilder<Float>::DetectTedrahedron()
 	{
-		if (buffer.length()<4)
+		if (buffer.GetLength()<4)
 			return false;
 		
-		for (index_t i = 1; i < buffer.length()-2; i++)
-			for (index_t j = i+1; j < buffer.length()-1; j++)
-				for (index_t k = j+1; k < buffer.length(); k++)
+		for (index_t i = 1; i < buffer.GetLength()-2; i++)
+			for (index_t j = i+1; j < buffer.GetLength()-1; j++)
+				for (index_t k = j+1; k < buffer.GetLength(); k++)
 				{
 					Float vol = Obj::TetrahedronVolume(buffer[0].vector,buffer[i].vector,buffer[j].vector,buffer[k].vector);
 					/*if (vabs(vol) <= vmax(_distance(buffer[0].vector,buffer[i].vector),_distance(buffer[j].vector,buffer[k].vector))/2)
@@ -7761,7 +7761,7 @@ template <typename Float> template <typename T>
 			{
 				return;
 			}
-			for (index_t i = 0; i < buffer.length(); i++)
+			for (index_t i = 0; i < buffer.GetLength(); i++)
 				Include(buffer[i].vector);
 			buffer.reset();
 			ASSERT2__((triangles.Count()>0)==(vertices.Count()>0),triangles.Count(),vertices.Count());
@@ -7780,9 +7780,9 @@ template <typename Float> template <typename T>
 			logfile<< "attempting to include point ("<<_toString(point)<<")"<<nl;*/
 			ASSERT__(triangles.Count()>2);
 			M::TVec3<Float> axis,plane_normal,c;
-			M::Vec::center(vertices[triangles.first().v0].vector,vertices[triangles.first().v1].vector,vertices[triangles.first().v2].vector,c);
+			M::Vec::center(vertices[triangles.First().v0].vector,vertices[triangles.First().v1].vector,vertices[triangles.First().v2].vector,c);
 			M::Vec::sub(point,c,axis);
-			M::Vec::cross(triangles.first().normal,axis,plane_normal);
+			M::Vec::cross(triangles.First().normal,axis,plane_normal);
 			if (M::Vec::similar(plane_normal,M::Vector3<Float>::zero))
 			{
 				M::TVec3<Float> v2;
@@ -7967,8 +7967,8 @@ template <typename Float> template <typename T>
 					//logfile<< " copying preserved face "<<i<<"/"<<triangles.Count()<<nl;
 					M::Vec::set(triangles[i].link,new_triangles.Count());
 					new_triangles << triangles[i];
-					new_triangles.last().flagged = false;
-					new_triangles.last().link.x = i;
+					new_triangles.Last().flagged = false;
+					new_triangles.Last().link.x = i;
 				}
 			for (index_t i = 0; i < edges.Count(); i++)
 				if (new_triangles[i].n0 != UNSIGNED_UNDEF)

@@ -26,7 +26,7 @@ template <class Carrier>
 		old_array.adoptData(array);
 		array.SetSize(new_size);
 			
-		for (size_t i = 0; i < old_array.length(); i++)
+		for (size_t i = 0; i < old_array.GetLength(); i++)
 			if (old_array[i].occupied)
 			{
 				Carrier	*c = old_array+i,
@@ -41,7 +41,7 @@ template <class Carrier>
 		inline	void				GenericHashBase<Carrier>::IncludeCast(const GenericHashBase<Carrier2>&other)
 		{
 			const auto& oarray = other.GetStore();
-			for (index_t i = 0; i < oarray.length(); i++)
+			for (index_t i = 0; i < oarray.GetLength(); i++)
 			{
 				const Carrier2*c = oarray+i;
 				if (c->occupied)
@@ -68,7 +68,7 @@ template <class Carrier>
 	{
 		Ctr::Array<THashSetCarrier<typename Carrier::Key, typename Carrier::AppliedKeyStrategy> >	occupied_keys(entries);
 		index_t at = 0;
-		for (index_t i = 0; i < array.length(); i++)
+		for (index_t i = 0; i < array.GetLength(); i++)
 		{
 			Carrier*c = array+i;
 			if (c->occupied)
@@ -88,7 +88,7 @@ template <class Carrier>
 	{
 		Ctr::Array<THashSetCarrier<typename Carrier::Key, typename Carrier::AppliedKeyStrategy> >	occupied_keys(entries);
 		index_t at = 0;
-		for (index_t i = 0; i < array.length(); i++)
+		for (index_t i = 0; i < array.GetLength(); i++)
 		{
 			Carrier*c = array+i;
 			if (c->occupied)
@@ -138,10 +138,10 @@ template <class Carrier>
 		
 		while (true)
 		{
-			current = (current+1)%array.length();
+			current = (current+1)%array.GetLength();
 			if (!array[current].occupied)
 				break;
-			size_t should_be = array[current].hashed%array.length();
+			size_t should_be = array[current].hashed%array.GetLength();
 			if (
 				(current > index && (should_be <= index || should_be > current))
 				||
@@ -162,9 +162,9 @@ template <class Carrier>
 template <class Carrier>
 	inline bool					GenericHashBase<Carrier>::Tidy()
 	{
-		if (entries*5 >= array.length() || array.length() <= InitialSize)
+		if (entries*5 >= array.GetLength() || array.GetLength() <= InitialSize)
 			return false;
-		count_t newSize = array.length() >> 1;
+		count_t newSize = array.GetLength() >> 1;
 		while (entries*5 < newSize && newSize > InitialSize)
 			newSize >>= 1;
 		Resize(newSize);
@@ -220,7 +220,7 @@ template <class Carrier>
 template <class Carrier>
 	inline  void  GenericHashBase<Carrier>::Import(GenericHashBase<Carrier>&list)
 	{
-		for (size_t i = 0; i < list.array.length(); i++)
+		for (size_t i = 0; i < list.array.GetLength(); i++)
 			if (list.array[i].occupied)
 			{
 				Carrier*remote = list.array+i;
@@ -236,7 +236,7 @@ template <class Carrier>
 			if (!entries)
 				return;
 			size_t at = 0;
-			for (size_t i = 0; i < array.length(); i++)
+			for (size_t i = 0; i < array.GetLength(); i++)
 				if (array[i].occupied)
 				{
 					keys[at] = array[i].key;
@@ -275,7 +275,7 @@ template <class Carrier, class Hash>
 	inline	void				ExtendedHashBase<Carrier,Hash>::FilterKeys(const std::function<bool(const K&)>&f)
 	{
 		bool anyChanged = false;
-		for (index_t i = 0; i < Base::array.length(); i++)
+		for (index_t i = 0; i < Base::array.GetLength(); i++)
 			if (Base::array[i].occupied && !f((const K&)Base::array[i].key))
 			{
 				Base::array[i].free();
@@ -293,7 +293,7 @@ template <class Carrier, class Hash>
 		inline	void		ExtendedHashBase<Carrier,Hash>::visitAllKeys(const F&f) const
 		{
 			//index_t at = 0;
-			for (index_t i = 0; i < Base::array.length(); i++)
+			for (index_t i = 0; i < Base::array.GetLength(); i++)
 				if (Base::array[i].occupied)
 					f(Base::array[i].key);
 		}
@@ -338,7 +338,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 	template <typename F>
 		inline	void					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::visitAllEntries(const F&f)
 		{
-			for (index_t i = 0; i < Base::array.length(); i++)
+			for (index_t i = 0; i < Base::array.GetLength(); i++)
 				if (Base::array[i].occupied)
 					f((const K&)Base::array[i].key, Base::array[i].cast());
 		}
@@ -347,7 +347,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 	template <typename F>
 		inline	void					GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::visitAllEntries(const F&f)	const
 		{
-			for (index_t i = 0; i < Base::array.length(); i++)
+			for (index_t i = 0; i < Base::array.GetLength(); i++)
 				if (Base::array[i].occupied)
 					f((const K&)Base::array[i].key, Base::array[i].cast());
 		}
@@ -358,7 +358,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 		inline	void				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::visitAllValues(const F&f)
 		{
 			index_t at = 0;
-			for (index_t i = 0; i < Base::array.length(); i++)
+			for (index_t i = 0; i < Base::array.GetLength(); i++)
 				if (Base::array[i].occupied)
 					f(Base::array[i].cast());
 		}
@@ -367,7 +367,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 	template <typename F>
 		inline	void				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::visitAllValues(const F&f)	const
 		{
-			for (index_t i = 0; i < Base::array.length(); i++)
+			for (index_t i = 0; i < Base::array.GetLength(); i++)
 				if (Base::array[i].occupied)
 					f(Base::array[i].cast());
 		}
@@ -376,7 +376,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 		inline	void				GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::FilterEntries(const std::function<bool(const K&, DataType&)>&f)
 		{
 			bool anyChanged = false;
-			for (index_t i = 0; i < Base::array.length(); i++)
+			for (index_t i = 0; i < Base::array.GetLength(); i++)
 				if (Base::array[i].occupied && !f((const K&)Base::array[i].key,Base::array[i].cast()))
 				{
 					Base::array[i].free();
@@ -397,7 +397,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 				if (!Base::entries)
 					return;
 				index_t at = 0;
-				for (index_t i = 0; i < Base::array.length(); i++)
+				for (index_t i = 0; i < Base::array.GetLength(); i++)
 					if (Base::array[i].occupied)
 					{
 						keys[at] = &Base::array[i].key;
@@ -415,7 +415,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 				if (!Base::entries)
 					return;
 				size_t at = 0;
-				for (size_t i = 0; i < Base::array.length(); i++)
+				for (size_t i = 0; i < Base::array.GetLength(); i++)
 					if (Base::array[i].occupied)
 					{
 						values[at] = &Base::array[i].cast();
@@ -432,7 +432,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 				if (!Base::entries)
 					return;
 				index_t at = 0;
-				for (index_t i = 0; i < Base::array.length(); i++)
+				for (index_t i = 0; i < Base::array.GetLength(); i++)
 					if (Base::array[i].occupied)
 					{
 						keys[at] = &Base::array[i].key;
@@ -450,7 +450,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 				if (!Base::entries)
 					return;
 				size_t at = 0;
-				for (size_t i = 0; i < Base::array.length(); i++)
+				for (size_t i = 0; i < Base::array.GetLength(); i++)
 					if (Base::array[i].occupied)
 					{
 						values[at] = &Base::array[i].cast();
@@ -469,7 +469,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>
 		if (!Base::entries)
 			return;
 		index_t at = 0;
-		for (index_t i = 0; i < Base::array.length(); i++)
+		for (index_t i = 0; i < Base::array.GetLength(); i++)
 			if (Base::array[i].occupied)
 			{
 				keys[at] = Base::array[i].key;
@@ -486,7 +486,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>	t
 		if (!Base::entries)
 			return;
 		size_t at = 0;
-		for (size_t i = 0; i < Base::array.length(); i++)
+		for (size_t i = 0; i < Base::array.GetLength(); i++)
 			if (Base::array[i].occupied)
 			{
 				values[at] = Base::array[i].cast();
@@ -500,7 +500,7 @@ template <class K, class C, class Hash, class KeyStrategy, class DataStrategy>	t
 template <class K, class C, class Hash, class KeyStrategy, class DataStrategy> template <class Entry>
 	inline	bool		GenericHashTable<K,C,Hash,KeyStrategy,DataStrategy>::FindKeyOf(const Entry&entry, K&key)const
 	{
-		for (size_t i = 0; i < Base::array.length(); i++)
+		for (size_t i = 0; i < Base::array.GetLength(); i++)
 			if (Base::array[i].occupied && Base::array[i].cast() == entry)
 			{
 				key = Base::array[i].key;
@@ -665,7 +665,7 @@ template <class K, class C, class Hash, class KeyStrategy>
 	GenericHashContainer<K,C,Hash,KeyStrategy>::~GenericHashContainer()
 	{
 
-		for (size_t i = 0; i < Root::array.length(); i++)
+		for (size_t i = 0; i < Root::array.GetLength(); i++)
 			if (Root::array[i].occupied && Root::array[i].cast() != NULL)
 				Discard(Root::array[i].cast());
 
@@ -685,7 +685,7 @@ template <class K, class C, class Hash, class KeyStrategy>
 	inline	void	GenericHashContainer<K,C,Hash,KeyStrategy>::clear()
 	{
 
-		for (size_t i = 0; i < Root::array.length(); i++)
+		for (size_t i = 0; i < Root::array.GetLength(); i++)
 			if (Root::array[i].occupied && Root::array[i].cast() != NULL)
 				Discard(Root::array[i].cast());
 		Root::clear();

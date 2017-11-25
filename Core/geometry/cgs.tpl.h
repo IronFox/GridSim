@@ -48,7 +48,7 @@ template <class Def0> MaterialData<Def>& MaterialData<Def>::operator=(const Mate
 
 template <class Def> void MaterialData<Def>::postCopyLink(Geometry<Def>*domain)
 {
-	for (index_t i = 0; i < object_field.length(); i++)
+	for (index_t i = 0; i < object_field.GetLength(); i++)
 	{
 		object_field[i].target = domain->lookupObject(object_field[i].tname);
 		ASSERT_NOT_NULL__(object_field[i].target);
@@ -57,10 +57,10 @@ template <class Def> void MaterialData<Def>::postCopyLink(Geometry<Def>*domain)
 
 template <class Def> void MaterialA<Def>::storeTargetNames()
 {
-	for (index_t i = 0; i < data.object_field.length(); i++)
+	for (index_t i = 0; i < data.object_field.GetLength(); i++)
 		data.object_field[i].tname = data.object_field[i].target->name;
 		
-	for (index_t i = 0; i < info.layer_field.length(); i++)
+	for (index_t i = 0; i < info.layer_field.GetLength(); i++)
 		if (info.layer_field[i].source)
 			info.layer_field[i].source_name = info.layer_field[i].source->name;
 }
@@ -68,7 +68,7 @@ template <class Def> void MaterialA<Def>::storeTargetNames()
 template <class Def>	template <class C>
 	void	MaterialA<Def>::scale(const C&factor)
 	{
-		for (index_t i = 0; i < data.object_field.length(); i++)
+		for (index_t i = 0; i < data.object_field.GetLength(); i++)
 			data.object_field[i].vpool.scale(factor);
 	}
 
@@ -87,7 +87,7 @@ template <class Def>
 count_t	MaterialA<Def>::countTriangles()	const
 {
 	count_t rs = 0;
-	for (index_t i = 0; i < data.object_field.length(); i++)
+	for (index_t i = 0; i < data.object_field.GetLength(); i++)
 		rs += data.object_field[i].countTriangles();
 	return rs;
 }
@@ -96,7 +96,7 @@ template <class Def>
 count_t	MaterialA<Def>::countQuads()	const
 {
 	count_t rs = 0;
-	for (index_t i = 0; i < data.object_field.length(); i++)
+	for (index_t i = 0; i < data.object_field.GetLength(); i++)
 		rs += data.object_field[i].countQuads();
 	return rs;
 }
@@ -106,7 +106,7 @@ template <class Def>
 count_t	MaterialA<Def>::countFaces()	const
 {
 	count_t rs = 0;
-	for (index_t i = 0; i < data.object_field.length(); i++)
+	for (index_t i = 0; i < data.object_field.GetLength(); i++)
 		rs += data.object_field[i].countFaces();
 	return rs;
 }
@@ -115,7 +115,7 @@ template <class Def>
 count_t	MaterialA<Def>::countTriangles(unsigned detail_layer)	const
 {
 	count_t rs = 0;
-	for (index_t i = 0; i < data.object_field.length(); i++)
+	for (index_t i = 0; i < data.object_field.GetLength(); i++)
 		rs += data.object_field[i].countTriangles(detail_layer);
 	return rs;
 }
@@ -124,7 +124,7 @@ template <class Def>
 count_t	MaterialA<Def>::countQuads(unsigned detail_layer)	const
 {
 	count_t rs = 0;
-	for (index_t i = 0; i < data.object_field.length(); i++)
+	for (index_t i = 0; i < data.object_field.GetLength(); i++)
 		rs += data.object_field[i].countQuads(detail_layer);
 	return rs;
 }
@@ -134,7 +134,7 @@ template <class Def>
 count_t	MaterialA<Def>::countFaces(unsigned detail_layer)	const
 {
 	count_t rs = 0;
-	for (index_t i = 0; i < data.object_field.length(); i++)
+	for (index_t i = 0; i < data.object_field.GetLength(); i++)
 		rs += data.object_field[i].countFaces(detail_layer);
 	return rs;
 }
@@ -144,7 +144,7 @@ template <class Def>
 count_t	MaterialA<Def>::countVertices()	const
 {
 	count_t rs = 0;
-	for (index_t i = 0; i < data.object_field.length(); i++)
+	for (index_t i = 0; i < data.object_field.GetLength(); i++)
 		rs += data.object_field[i].vpool.vcnt;
 	return rs;
 }
@@ -168,9 +168,9 @@ template <class Def> void	MaterialA<Def>::postCopyLink(Geometry<Def>*domain, Tex
 template <class Def> String MaterialA<Def>::ToString(const String&intend)	const
 {
 	String rs = "Material\n"+intend;
-	rs+="Layers: "+String(info.layer_field.length())+"\n"+intend;
-	rs+="Objects: "+String(data.object_field.length())+"\n";
-	for (index_t i = 0; i < data.object_field.length(); i++)
+	rs+="Layers: "+String(info.layer_field.GetLength())+"\n"+intend;
+	rs+="Objects: "+String(data.object_field.GetLength())+"\n";
+	for (index_t i = 0; i < data.object_field.GetLength(); i++)
 		rs+=intend+" ("+String(i)+") "+data.object_field[i].ToString(intend+"	")+"\n";
 	return rs;
 }
@@ -197,11 +197,11 @@ template <class Def> void MaterialA<Def>::linkTextures(TextureResource*resource)
 		FATAL__("passing NULL is invalid here");
 	if (!this)
 		FATAL__("THIS MISSING");
-	for (index_t i = 0; i < info.layer_field.length(); i++)
+	for (index_t i = 0; i < info.layer_field.GetLength(); i++)
 	{
 		TextureA*tex = resource->retrieve(info.layer_field[i].source_name);
 		info.layer_field[i].source = tex;
-		info.layer_field[i].cube_map = info.layer_field[i].source && info.layer_field[i].source->face_field.length() == 6;
+		info.layer_field[i].cube_map = info.layer_field[i].source && info.layer_field[i].source->face_field.GetLength() == 6;
 	}
 }
 
@@ -360,7 +360,7 @@ template <class Def> unsigned VertexContainerA<Def>::vsize() const
 
 template <class Def> count_t VertexContainerA<Def>::vlen() const
 {
-	return vdata.length();
+	return vdata.GetLength();
 }
 
 
@@ -376,10 +376,10 @@ template <class Def > bool IndexContainerA<Def>::operator>(const IndexContainerA
 	else
 		if (index_crc < other.index_crc)
 			return false;
-	if (idata.length() > other.idata.length())
+	if (idata.GetLength() > other.idata.GetLength())
 		return true;
 	else
-		if (idata.length() < other.idata.length())
+		if (idata.GetLength() < other.idata.GetLength())
 			return false;
 	if (triangles > other.triangles)
 		return true;
@@ -474,7 +474,7 @@ template <class Def> String IndexContainer<Def>::difference(SubGeometryChunk&oth
 			rs+="\n"+intend+#token+": pointers equal";\
 		else\
 		{\
-			for (index_t i = 0; i < element_field.length(); i++)\
+			for (index_t i = 0; i < element_field.GetLength(); i++)\
 				if (token[i] != other.token[i])\
 				{\
 					if (!difference)\
@@ -512,7 +512,7 @@ template <class Def> template <class C>
 template <class Def> String RenderObjectA<Def>::ToString(const String&intend)	const
 {
 	String result = "Object (Vertices: "+String(vpool.vcnt)+"; Detail: "+String(detail)+"; ";
-	result += "Indices("+String(detail)+"): "+String(ipool.idata.length())+"; ";
+	result += "Indices("+String(detail)+"): "+String(ipool.idata.GetLength())+"; ";
 
 	return result+")";
 }
@@ -520,7 +520,7 @@ template <class Def> String RenderObjectA<Def>::ToString(const String&intend)	co
 template <class Def>
 	void		RenderObjectA<Def>::invert()
 	{
-		//for (index_t i = 0; i < detail_layer_field.length(); i++)
+		//for (index_t i = 0; i < detail_layer_field.GetLength(); i++)
 		{
 			IndexContainerA<Def>&chunk = ipool;
 			typename Def::IndexType*p = chunk.idata.pointer();
@@ -543,7 +543,7 @@ template <class Def>
 template <class Def> count_t RenderObjectA<Def>::countFaces()	const
 {
 	count_t rs = 0;
-	//for (index_t j = 0; j < detail_layer_field.length(); j++)
+	//for (index_t j = 0; j < detail_layer_field.GetLength(); j++)
 		rs+=ipool.countFaces();
 	return rs;
 }
@@ -551,7 +551,7 @@ template <class Def> count_t RenderObjectA<Def>::countFaces()	const
 template <class Def> count_t RenderObjectA<Def>::countTriangles()	const
 {
 	count_t rs = 0;
-	//for (index_t j = 0; j < detail_layer_field.length(); j++)
+	//for (index_t j = 0; j < detail_layer_field.GetLength(); j++)
 		rs += ipool.countTriangles();
 	return rs;
 }
@@ -559,7 +559,7 @@ template <class Def> count_t RenderObjectA<Def>::countTriangles()	const
 template <class Def> count_t RenderObjectA<Def>::countQuads()	const
 {
 	count_t rs = 0;
-	//for (index_t j = 0; j < detail_layer_field.length(); j++)
+	//for (index_t j = 0; j < detail_layer_field.GetLength(); j++)
 		rs += ipool.countQuads();
 	return rs;
 }
@@ -638,7 +638,7 @@ template <class Def> void RenderObjectA<Def>::adoptData(RenderObjectA<Def>&other
 template <class Def> count_t RenderObjectA<Def>::countIndices()	const
 {
 	count_t result(0);
-		result+=ipool.idata.length();
+		result+=ipool.idata.GetLength();
 	return result;
 }
 
@@ -656,24 +656,24 @@ template <class Def0> RenderObjectA<Def>& RenderObjectA<Def>::operator=(const Re
 
 template <class Def> bool RenderObjectA<Def>::validIndices()
 {
-	for (index_t i = 0; i < ipool.idata.length(); i++)
+	for (index_t i = 0; i < ipool.idata.GetLength(); i++)
 		if (ipool.idata[i] >= vpool.vcnt)
 			return false;
-	return ipool.triangles*3+ipool.quads*4 == ipool.idata.length();
+	return ipool.triangles*3+ipool.quads*4 == ipool.idata.GetLength();
 }
 
 
 template <class Def> bool MaterialData<Def>::operator>(const MaterialData<Def>&other) const
 {
 	equal = false;
-	if (object_field.length() > other.object_field.length())
+	if (object_field.GetLength() > other.object_field.GetLength())
 		return true;
-	if (object_field.length() < other.object_field.length())
+	if (object_field.GetLength() < other.object_field.GetLength())
 	{
 		equal = false;
 		return false;
 	}
-	for (index_t i = 0; i < object_field.length(); i++)
+	for (index_t i = 0; i < object_field.GetLength(); i++)
 	{
 		if (object_field[i].vpool > other.object_field[i].vpool)
 			return true;
@@ -689,7 +689,7 @@ template <class Def> bool MaterialData<Def>::operator>(const MaterialData<Def>&o
 			equal = false;
 			return false;
 		}
-		//for (index_t j = 0; j < object_field[i].detail_layer_field.length(); j++)
+		//for (index_t j = 0; j < object_field[i].detail_layer_field.GetLength(); j++)
 		{
 			if (object_field[i].ipool > other.object_field[i].ipool)
 				return true;
@@ -961,7 +961,7 @@ template <class Def>
 		if (!current)
 			return false;
 		//check inner content (walk up by one)
-		if (current->child_field.length())
+		if (current->child_field.GetLength())
 		{
 			context_stack.append(context);
 			entry_stack.append(current);
@@ -994,7 +994,7 @@ template <class Def>
 			return false;
 		
 		//check inner content (walk up all the way):
-		while (current->child_field.length())
+		while (current->child_field.GetLength())
 		{
 			context_stack.append(context);
 			entry_stack.append(current);
@@ -1055,57 +1055,57 @@ template <class Def>
 		if (geometries)
 			meta.flags &= mod;
 		if (wheels)
-			for (index_t i = 0; i < wheel_field.length(); i++)
+			for (index_t i = 0; i < wheel_field.GetLength(); i++)
 				wheel_field[i].flags &= mod;
 		if (accelerators)
-			for (index_t i = 0; i < accelerator_field.length(); i++)
+			for (index_t i = 0; i < accelerator_field.GetLength(); i++)
 				accelerator_field[i].flags &= mod;
 		if (constructs)
-			for (index_t i = 0; i < tracks_field.length(); i++)
+			for (index_t i = 0; i < tracks_field.GetLength(); i++)
 				tracks_field[i].flags &= mod;
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			child_field[i].clearFlags(clear_mask,geometries,wheels,accelerators,constructs);
 	}
 
 template <class Def>
 	void	SubGeometryA<Def>::flagAnimationTargets(UINT32 flag)
 	{
-		for (index_t i = 0; i < wheel_field.length(); i++)
+		for (index_t i = 0; i < wheel_field.GetLength(); i++)
 		{
 			{
 				AnimatorA<Def>&a = wheel_field[i].rotation;
-				for (index_t j = 0; j < a.obj_trace_field.length(); j++)
+				for (index_t j = 0; j < a.obj_trace_field.GetLength(); j++)
 					a.obj_trace_field[j].target->meta.flags |= flag;
-				for (index_t j = 0; j < a.whl_trace_field.length(); j++)
+				for (index_t j = 0; j < a.whl_trace_field.GetLength(); j++)
 					a.whl_trace_field[j].target->flags |= flag;
-				for (index_t j = 0; j < a.acc_trace_field.length(); j++)
+				for (index_t j = 0; j < a.acc_trace_field.GetLength(); j++)
 					a.acc_trace_field[j].target->flags |= flag;
 			}
 			{
 				AnimatorA<Def>&a = wheel_field[i].suspension;
-				for (index_t j = 0; j < a.obj_trace_field.length(); j++)
+				for (index_t j = 0; j < a.obj_trace_field.GetLength(); j++)
 					a.obj_trace_field[j].target->meta.flags |= flag;
-				for (index_t j = 0; j < a.whl_trace_field.length(); j++)
+				for (index_t j = 0; j < a.whl_trace_field.GetLength(); j++)
 					a.whl_trace_field[j].target->flags |= flag;
-				for (index_t j = 0; j < a.acc_trace_field.length(); j++)
+				for (index_t j = 0; j < a.acc_trace_field.GetLength(); j++)
 					a.acc_trace_field[j].target->flags |= flag;
 			}
 		}
 		/*
-		for (index_t i = 0; i < tracks_field.length(); i++)
+		for (index_t i = 0; i < tracks_field.GetLength(); i++)
 		{
 			{
 
 				AnimatorA<Def>&a = tracks_field[i].rotation;
-				for (index_t j = 0; j < a.obj_trace_field.length(); j++)
+				for (index_t j = 0; j < a.obj_trace_field.GetLength(); j++)
 					a.obj_trace_field[j].target->meta.flags |= flag;
-				for (index_t j = 0; j < a.whl_trace_field.length(); j++)
+				for (index_t j = 0; j < a.whl_trace_field.GetLength(); j++)
 					a.whl_trace_field[j].target->flags |= flag;
-				for (index_t j = 0; j < a.acc_trace_field.length(); j++)
+				for (index_t j = 0; j < a.acc_trace_field.GetLength(); j++)
 					a.acc_trace_field[j].target->flags |= flag;
 			}
 		}*/
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			child_field[i].flagAnimationTargets(flag);
 	}
 
@@ -1113,7 +1113,7 @@ template <class Def>
 	void	SubGeometryA<Def>::walkChildrenRec(void (*childCallback)(SubGeometryA<Def>*))
 	{
 		childCallback(this);
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			child_field[i].walkChildrenRec(childCallback);
 	}
 
@@ -1121,7 +1121,7 @@ template <class Def>
 	void	SubGeometryA<Def>::walkChildrenRec(SubGeometryCallback<Def>*callback)
 	{
 		callback->geometryCallback(this);
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			child_field[i].walkChildrenRec(callback);
 	}
 	
@@ -1135,9 +1135,9 @@ template <class Def>
 			VsMesh&obj = vs_hull_field[detail];
 			obj.buildMap(O_ALL,max_depth);
 		
-			for (index_t i = 0; i < obj.vertex_field.length(); i++)
+			for (index_t i = 0; i < obj.vertex_field.GetLength(); i++)
 				M::Vec::clear(obj.vertex_field[i].normal);
-			for (index_t i = 0; i < obj.triangle_field.length(); i++)
+			for (index_t i = 0; i < obj.triangle_field.GetLength(); i++)
 			{
 				typename VsMesh::Triangle & t = obj.triangle_field[i];
 				_oTriangleNormal(t.v0->position,t.v1->position,t.v2->position,t.normal);
@@ -1146,7 +1146,7 @@ template <class Def>
 				M::Vec::add(t.v2->normal,t.normal);
 				M::Vec::normalize0(t.normal);
 			}
-			for (index_t i = 0; i < obj.quad_field.length(); i++)
+			for (index_t i = 0; i < obj.quad_field.GetLength(); i++)
 			{
 				typename VsMesh::Quad&q = obj.quad_field[i];
 				_oTriangleNormal(q.v0->position,q.v1->position,q.v2->position,q.normal);
@@ -1157,9 +1157,9 @@ template <class Def>
 				M::Vec::add(q.v3->normal,q.normal);
 				M::Vec::normalize0(q.normal);
 			}
-			for (index_t i = 0; i < obj.vertex_field.length(); i++)
+			for (index_t i = 0; i < obj.vertex_field.GetLength(); i++)
 				M::Vec::normalize0(obj.vertex_field[i].normal);
-			for (index_t i = 0; i < obj.edge_field.length(); i++)
+			for (index_t i = 0; i < obj.edge_field.GetLength(); i++)
 			{
 				typename VsMesh::Edge&e = obj.edge_field[i];
 				M::Vec::clear(e.normal);
@@ -1185,21 +1185,21 @@ template <class Def>
 			}
 		}
 		
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			child_field[i].createVisualMapsRec(detail,max_depth);
 	}
 	
 template <class Def>	template <class C>
 	void	SubGeometryA<Def>::scale(const C&factor)
 	{
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			child_field[i].scale(factor);
 		
 		phHull.scale(factor);
-		for (index_t i = 0; i < vs_hull_field.length(); i++)
+		for (index_t i = 0; i < vs_hull_field.GetLength(); i++)
 			vs_hull_field[i].scale(factor);
 		
-		for (index_t i = 0; i < wheel_field.length(); i++)
+		for (index_t i = 0; i < wheel_field.GetLength(); i++)
 		{
 			M::Vec::mult(wheel_field[i].position,factor);
 			M::Vec::mult(wheel_field[i].contraction,factor);
@@ -1209,10 +1209,10 @@ template <class Def>	template <class C>
 			wheel_field[i].rotation.scale(factor);
 		}
 			
-		for (index_t i = 0; i < accelerator_field.length(); i++)
+		for (index_t i = 0; i < accelerator_field.GetLength(); i++)
 			M::Vec::mult(accelerator_field[i].position,factor);
 		
-		for (index_t i = 0; i < mounting_field.length(); i++)
+		for (index_t i = 0; i < mounting_field.GetLength(); i++)
 			M::Vec::mult(mounting_field[i].position,factor);
 		
 		M::Vec::mult(meta.system.w.xyz,factor);
@@ -1227,14 +1227,14 @@ template <class Def> String SubGeometryA<Def>::ToString(const String&intend)	con
 {
 
 	String rs = "<"+name+">\n"+intend;
-	rs+="Wheels: "+String(wheel_field.length())+"\n"+intend;
-	rs+="Accelerators: "+String(accelerator_field.length())+"\n"+intend;
-	rs+="Mountings: "+String(mounting_field.length())+"\n"+intend;
+	rs+="Wheels: "+String(wheel_field.GetLength())+"\n"+intend;
+	rs+="Accelerators: "+String(accelerator_field.GetLength())+"\n"+intend;
+	rs+="Mountings: "+String(mounting_field.GetLength())+"\n"+intend;
 	rs+="Hull: "+phHull.ToString()+"\n"+intend;
-	for (index_t i = 0; i < vs_hull_field.length(); i++)
+	for (index_t i = 0; i < vs_hull_field.GetLength(); i++)
 		rs+="VHull("+String(i)+"): "+vs_hull_field[i].ToString()+"\n"+intend;
-	rs+="Children: "+String(child_field.length())+"\n";
-	for (index_t i = 0; i < child_field.length(); i++)
+	rs+="Children: "+String(child_field.GetLength())+"\n";
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		rs+=intend+" ("+String(i)+") "+child_field[i].ToString(intend+"	")+"\n";
 
 	return rs;
@@ -1244,12 +1244,12 @@ template <class Def> String SubGeometryA<Def>::ToString(const String&intend)	con
 template <class Def> String SubGeometryA<Def>::difference(SubGeometryA&other, const String&intend)
 {
 	String rs;
-	if (vs_hull_field.length() != other.vs_hull_field.length())
-		rs+="\n"+intend+"objects "+String(vs_hull_field.length())+" != "+String(other.vs_hull_field.length());
+	if (vs_hull_field.GetLength() != other.vs_hull_field.GetLength())
+		rs+="\n"+intend+"objects "+String(vs_hull_field.GetLength())+" != "+String(other.vs_hull_field.GetLength());
 	if ((vs_hull == other.vs_hull) && vs_hull)
 		rs+="\n"+intend+"vs_hull: pointers equal";
 	else
-		for (index_t i = 0; i < vs_hull_field.length() && i < other.vs_hull_field.length(); i++)
+		for (index_t i = 0; i < vs_hull_field.GetLength() && i < other.vs_hull_field.GetLength(); i++)
 			rs+="\n"+intend+"vs_hull("+String(i)+") "+vs_hull[i].difference(other.vs_hull[i],intend+" ");
 	rs+="\n"+intend+"phHull "+phHull.difference(other.phHull,intend+" ");
 
@@ -1265,13 +1265,13 @@ template <class Def> String SubGeometryA<Def>::difference(SubGeometryA&other, co
 		rs+="\n"+intend+"accelerators "+String(accelerators)+" != "+String(other.accelerators);
 	if ((accelerator == other.accelerator) && accelerator)
 		rs+="\n"+intend+"accelerators: pointers equal";
-	rs+=vstructArrayCompare("child_field.length()",child_field.length(),child,other.child_field.length(),other.child,intend+" ");
+	rs+=vstructArrayCompare("child_field.GetLength()",child_field.GetLength(),child,other.child_field.GetLength(),other.child,intend+" ");
 	return rs;
 }*/
 
 template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 {
-	riff->AppendBlock("OBJ ",name.c_str(),name.length());
+	riff->AppendBlock("OBJ ",name.c_str(),name.GetLength());
 
 	Riff::Chunk*inner = riff->AppendBlock(RIFF_LIST);
 		{
@@ -1289,19 +1289,19 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 			inner->AppendBlock("META",m);
 		}
 		
-		for (index_t i = 0; i < vs_hull_field.length(); i++)
+		for (index_t i = 0; i < vs_hull_field.GetLength(); i++)
 		{
 			typedef Mesh<VsDef>	VsMesh;
 			const VsMesh&hull = vs_hull_field[i];
 			{
-				Ctr::Array<typename Def::FloatType> out(hull.vertex_field.length()*3);
-				for (index_t j = 0; j < hull.vertex_field.length(); j++)
+				Ctr::Array<typename Def::FloatType> out(hull.vertex_field.GetLength()*3);
+				for (index_t j = 0; j < hull.vertex_field.GetLength(); j++)
 					M::Vec::copy(hull.vertex_field[j].position,M::Vec::ref3(out + j*3));
 				inner->AppendBlock("VVX3",out);
     		}
 			{
-				Ctr::Array<UINT32>	out(hull.triangle_field.length()*3);
-				for (index_t j = 0; j < hull.triangle_field.length(); j++)
+				Ctr::Array<UINT32>	out(hull.triangle_field.GetLength()*3);
+				for (index_t j = 0; j < hull.triangle_field.GetLength(); j++)
 				{
 					const typename VsMesh::Triangle	&tri = hull.triangle_field[j];
 					out[j*3 + 0] = static_cast<UINT32>(tri.vertex[0]-hull.vertex_field);
@@ -1311,8 +1311,8 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 				inner->AppendBlock("VFC3",out);
 			}
 			{
-				Ctr::Array<UINT32>	out(hull.quad_field.length()*4);
-				for (index_t j = 0; j < hull.quad_field.length(); j++)
+				Ctr::Array<UINT32>	out(hull.quad_field.GetLength()*4);
+				for (index_t j = 0; j < hull.quad_field.GetLength(); j++)
 				{
 					const typename VsMesh::Quad	&quad = hull.quad_field[j];
 					out[j*4 + 0] = static_cast<UINT32>(quad.vertex[0]-hull.vertex_field);
@@ -1323,8 +1323,8 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 				inner->AppendBlock("VFC4",out);
 			}			
 			{
-				Ctr::Array<INT32>out(hull.edge_field.length()*4);	//2*vertex. 2*face. positive: triangle, negative: quad+1
-				for (index_t j = 0; j < hull.edge_field.length(); j++)
+				Ctr::Array<INT32>out(hull.edge_field.GetLength()*4);	//2*vertex. 2*face. positive: triangle, negative: quad+1
+				for (index_t j = 0; j < hull.edge_field.GetLength(); j++)
 				{
 					const typename VsMesh::Edge	&edge = hull.edge_field[j];
 					
@@ -1340,8 +1340,8 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 		if (!phHull.IsEmpty())
 		{
 			{
-				Ctr::Array<typename Def::PhHullFloatType> out(phHull.vertex_field.length()*3);
-				for (index_t j = 0; j < phHull.vertex_field.length(); j++)
+				Ctr::Array<typename Def::PhHullFloatType> out(phHull.vertex_field.GetLength()*3);
+				for (index_t j = 0; j < phHull.vertex_field.GetLength(); j++)
 				{
 					M::Vec::copy(phHull.vertex_field[j].position,M::Vec::ref3(out + j*3));
 					//ASSERT_IS_CONSTRAINED3__(out + j*3,-30,30);
@@ -1351,7 +1351,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
     		}
 		
 			ByteStreamBuffer	out;	//3*vindex, group, name, grip, updrift
-			for (index_t i = 0; i < phHull.triangle_field.length(); i++)
+			for (index_t i = 0; i < phHull.triangle_field.GetLength(); i++)
 			{
 				const typename Mesh<PhDef>::Triangle	&triangle = phHull.triangle_field[i];
 				out << (UINT32)(triangle.vertex[0]-phHull.vertex_field)
@@ -1361,7 +1361,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 			inner->AppendBlock("HTRI",out);
 		
 			out.Clear();
-			for (index_t i = 0; i < phHull.quad_field.length(); i++)
+			for (index_t i = 0; i < phHull.quad_field.GetLength(); i++)
 			{
 				const typename Mesh<PhDef>::Quad	&quad = phHull.quad_field[i];
 				out << (UINT32)(quad.vertex[0]-phHull.vertex_field)
@@ -1372,8 +1372,8 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 			inner->AppendBlock("HQAD",out);
 
 			{
-				Ctr::Array<UINT32>out(phHull.edge_field.length()*4);	//2*vertex. 2*face
-				for (index_t j = 0; j < phHull.edge_field.length(); j++)
+				Ctr::Array<UINT32>out(phHull.edge_field.GetLength()*4);	//2*vertex. 2*face
+				for (index_t j = 0; j < phHull.edge_field.GetLength(); j++)
 				{
 					const typename Mesh<PhDef>::Edge	&edge = phHull.edge_field[j];
 						
@@ -1386,11 +1386,11 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 			}
 		}
 		
-		if (accelerator_field.length())
+		if (accelerator_field.GetLength())
 		{
 			Buffer<BYTE>	write_buffer;
 			ByteStreamBuffer	a;
-			for (index_t i = 0; i < accelerator_field.length(); i++)
+			for (index_t i = 0; i < accelerator_field.GetLength(); i++)
 			{
 				a.Clear();
 				a.Append(accelerator_field[i].position.v,3);
@@ -1398,17 +1398,17 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 				a << accelerator_field[i].power << accelerator_field[i].zero_efficiency;
 				a << accelerator_field[i].flame_length << accelerator_field[i].flame_width;
 				a.Append(accelerator_field[i].flame_color.v,3);
-				a.Append(accelerator_field[i].name.c_str(),accelerator_field[i].name.length());
+				a.Append(accelerator_field[i].name.c_str(),accelerator_field[i].name.GetLength());
 				inner->AppendBlock("ACC2", a);
 			}
 		}
 
-		if (mounting_field.length())
+		if (mounting_field.GetLength())
 		{
 			
 		
 			ByteStreamBuffer	a;//(sizeof(UINT32)+13*sizeof(typename Def::FloatType));
-			for (index_t i = 0; i < mounting_field.length(); i++)
+			for (index_t i = 0; i < mounting_field.GetLength(); i++)
 			{
 				a.Clear();
 				a.Append(mounting_field[i].flags);
@@ -1421,10 +1421,10 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 			}
 		}
 
-		if (wheel_field.length())
+		if (wheel_field.GetLength())
 		{
 			ByteStreamBuffer	w;
-			for (index_t i = 0; i < wheel_field.length(); i++)
+			for (index_t i = 0; i < wheel_field.GetLength(); i++)
 			{
 				w.Clear();
 				//w.push(wheel_field[i].name);
@@ -1436,7 +1436,7 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 				w.Append(wheel_field[i].radius);
 				w.Append(wheel_field[i].width);
 				w.Append(wheel_field[i].parameter,ARRAYSIZE(wheel_field[i].parameter));
-				w.Append(wheel_field[i].name.c_str(),wheel_field[i].name.length());
+				w.Append(wheel_field[i].name.c_str(),wheel_field[i].name.GetLength());
 				inner->AppendBlock("WHL2",w);
 				wheel_field[i].suspension.saveToRiff(inner);
 				wheel_field[i].rotation.saveToRiff(inner);
@@ -1445,25 +1445,25 @@ template <class Def> void SubGeometryA<Def>::saveToRiff(Riff::Chunk*riff)	const
 		if (tracks_field.IsNotEmpty())
 		{
 			ByteStreamBuffer	c;
-			for (index_t i = 0; i < tracks_field.length(); i++)
+			for (index_t i = 0; i < tracks_field.GetLength(); i++)
 			{
 				const Tracks<Def>&t = tracks_field[i];
 				c.Clear();
-				c << (UINT32)t.member_field.length();
+				c << (UINT32)t.member_field.GetLength();
 
-				for (index_t k = 0; k < t.member_field.length(); k++)
+				for (index_t k = 0; k < t.member_field.GetLength(); k++)
 				{
-					c << t.member_field[k].name.length();
-					c.Append(t.member_field[k].name.c_str(),t.member_field[k].name.length());
+					c << t.member_field[k].name.GetLength();
+					c.Append(t.member_field[k].name.c_str(),t.member_field[k].name.GetLength());
 				}
 
-				//for (index_t k = 0; k < tracks_field[i].entry_field.length(); k++)
+				//for (index_t k = 0; k < tracks_field[i].entry_field.GetLength(); k++)
 				//	c.push(tracks_field[i].entry_field[k]->name);
 				inner->AppendBlock("TRK2",c);
 				//tracks_field[i].rotation.saveToRiff(inner);
 			}
 		}
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			child_field[i].saveToRiff(inner);
 }
 
@@ -1510,8 +1510,8 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				{
 					Ctr::Array<typename Def::FloatType>	array;
 					riff.Get(array);
-					hull.vertex_field.SetSize(array.length()/4);
-					for (index_t i = 0; i < hull.vertex_field.length(); i++)
+					hull.vertex_field.SetSize(array.GetLength()/4);
+					for (index_t i = 0; i < hull.vertex_field.GetLength(); i++)
 					{
 						hull.vertex_field[i].position = M::Vec::ref3(array + i*4);
 						hull.vertex_field[i].index = i;
@@ -1522,8 +1522,8 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				{
 					Ctr::Array<UINT32>	array;
 					riff.Get(array);
-					hull.triangle_field.SetSize(array.length()/4);
-					for (index_t i = 0; i < hull.triangle_field.length(); i++)
+					hull.triangle_field.SetSize(array.GetLength()/4);
+					for (index_t i = 0; i < hull.triangle_field.GetLength(); i++)
 					{
 						typename VsMesh::Triangle	&face = hull.triangle_field[i];
 						face.vertex[0] = hull.vertex_field+array[i*4];
@@ -1537,8 +1537,8 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				{
 					Ctr::Array<UINT32>	array;
 					riff.Get(array);
-					hull.edge_field.SetSize(array.length()/4);
-					for (index_t i = 0; i < hull.edge_field.length(); i++)
+					hull.edge_field.SetSize(array.GetLength()/4);
+					for (index_t i = 0; i < hull.edge_field.GetLength(); i++)
 					{
 						typename VsMesh::Edge	&edge = hull.edge_field[i];
 						edge.vertex[0] = hull.vertex_field+array[i*4];
@@ -1564,8 +1564,8 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				{
 					Ctr::Array<typename Def::FloatType>	array;
 					riff.Get(array);
-					hull.vertex_field.SetSize(array.length()/3);
-					for (index_t i = 0; i < hull.vertex_field.length(); i++)
+					hull.vertex_field.SetSize(array.GetLength()/3);
+					for (index_t i = 0; i < hull.vertex_field.GetLength(); i++)
 					{
 						hull.vertex_field[i].position = M::Vec::ref3(array + i*3);
 						hull.vertex_field[i].index = i;
@@ -1576,8 +1576,8 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				{
 					Ctr::Array<UINT32>	array;
 					riff.Get(array);
-					hull.triangle_field.SetSize(array.length()/3);
-					for (index_t i = 0; i < hull.triangle_field.length(); i++)
+					hull.triangle_field.SetSize(array.GetLength()/3);
+					for (index_t i = 0; i < hull.triangle_field.GetLength(); i++)
 					{
 						typename VsMesh::Triangle	&face = hull.triangle_field[i];
 						face.vertex[0] = hull.vertex_field+array[i*3];
@@ -1591,8 +1591,8 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				{
 					Ctr::Array<UINT32>	array;
 					riff.Get(array);
-					hull.quad_field.SetSize(array.length()/4);
-					for (index_t i = 0; i < hull.quad_field.length(); i++)
+					hull.quad_field.SetSize(array.GetLength()/4);
+					for (index_t i = 0; i < hull.quad_field.GetLength(); i++)
 					{
 						typename VsMesh::Quad	&face = hull.quad_field[i];
 						face.vertex[0] = hull.vertex_field+array[i*4];
@@ -1607,8 +1607,8 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 				{
 					Ctr::Array<INT32>	array;
 					riff.Get(array);
-					hull.edge_field.SetSize(array.length()/4);
-					for (index_t i = 0; i < hull.edge_field.length(); i++)
+					hull.edge_field.SetSize(array.GetLength()/4);
+					for (index_t i = 0; i < hull.edge_field.GetLength(); i++)
 					{
 						typename VsMesh::Edge	&edge = hull.edge_field[i];
 						edge.vertex[0] = hull.vertex_field+array[i*4];
@@ -1631,8 +1631,8 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 		{
 			Ctr::Array<typename Def::PhHullFloatType>	array;
 			riff.Get(array);
-			phHull.vertex_field.SetSize(array.length()/4);
-			for (index_t i = 0; i < phHull.vertex_field.length(); i++)
+			phHull.vertex_field.SetSize(array.GetLength()/4);
+			for (index_t i = 0; i < phHull.vertex_field.GetLength(); i++)
 			{
 				typename Mesh<PhDef>::Vertex	&vertex = phHull.vertex_field[i];
 				/*vertex.p0 = vertex.p1 = */
@@ -1675,8 +1675,8 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 		{
 			Ctr::Array<UINT32>	array;
 			riff.Get(array);
-			phHull.edge_field.SetSize(array.length()/4);
-			for (index_t i = 0; i < phHull.edge_field.length(); i++)
+			phHull.edge_field.SetSize(array.GetLength()/4);
+			for (index_t i = 0; i < phHull.edge_field.GetLength(); i++)
 			{
 				typename Mesh<PhDef>::Edge	&edge = phHull.edge_field[i];
 				edge.vertex[0] = phHull.vertex_field+array[i*4];
@@ -1694,8 +1694,8 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 			{
 				Ctr::Array<typename Def::PhHullFloatType>	array;
 				riff.Get(array);
-				phHull.vertex_field.SetSize(array.length()/3);
-				for (index_t i = 0; i < phHull.vertex_field.length(); i++)
+				phHull.vertex_field.SetSize(array.GetLength()/3);
+				for (index_t i = 0; i < phHull.vertex_field.GetLength(); i++)
 				{
 					typename Mesh<PhDef>::Vertex	&vertex = phHull.vertex_field[i];
 					//vertex.p0 = vertex.p1 = 
@@ -1758,8 +1758,8 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 			{
 				Ctr::Array<UINT32>	array;
 				riff.Get(array);
-				phHull.edge_field.SetSize(array.length()/4);
-				for (index_t i = 0; i < phHull.edge_field.length(); i++)
+				phHull.edge_field.SetSize(array.GetLength()/4);
+				for (index_t i = 0; i < phHull.edge_field.GetLength(); i++)
 				{
 					typename Mesh<PhDef>::Edge	&edge = phHull.edge_field[i];
 					edge.vertex[0] = phHull.vertex_field+array[i*4];
@@ -1776,10 +1776,10 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 	phHull.correct();
 
 	/*
-	for (index_t i = 0; i < phHull.vertex_field.length(); i++)
+	for (index_t i = 0; i < phHull.vertex_field.GetLength(); i++)
 		phHull.vertex_field[i].index = 0;*/
 	
-	for (index_t i = 0; i < phHull.triangle_field.length(); i++)
+	for (index_t i = 0; i < phHull.triangle_field.GetLength(); i++)
 	{
 		typename Mesh<PhDef>::Triangle	&face = phHull.triangle_field[i];
 		Obj::triangleNormal(face.vertex[0]->position,face.vertex[1]->position,face.vertex[2]->position,face.normal);
@@ -1797,7 +1797,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 		//M::Vec::copy(face.center,face.gcenter);
 	}
 	
-	for (index_t i = 0; i < phHull.quad_field.length(); i++)
+	for (index_t i = 0; i < phHull.quad_field.GetLength(); i++)
 	{
 		typename Mesh<PhDef>::Quad	&face = phHull.quad_field[i];
 		_oTriangleNormal(face.vertex[0]->position,face.vertex[1]->position,face.vertex[2]->position,face.normal);
@@ -1824,7 +1824,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 	}
 	
 	
-	for (index_t i = 0; i < phHull.vertex_field.length(); i++)
+	for (index_t i = 0; i < phHull.vertex_field.GetLength(); i++)
 	{
 		if (phHull.vertex_field[i].index)
 		{
@@ -1834,7 +1834,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 		//phHull.vertex_field[i].index = i;
 	}
 	
-	for (index_t i = 0; i < phHull.edge_field.length(); i++)
+	for (index_t i = 0; i < phHull.edge_field.GetLength(); i++)
 	{
 		typename Mesh<PhDef>::Edge	&edge = phHull.edge_field[i];
 		M::Vec::clear(edge.normal);
@@ -1863,9 +1863,9 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 			}
 	}
 	
-	for (index_t i = 0; i < phHull.triangle_field.length(); i++)
+	for (index_t i = 0; i < phHull.triangle_field.GetLength(); i++)
 		M::Vec::normalize(phHull.triangle_field[i].normal);
-	for (index_t i = 0; i < phHull.quad_field.length(); i++)
+	for (index_t i = 0; i < phHull.quad_field.GetLength(); i++)
 		M::Vec::normalize(phHull.quad_field[i].normal);
 	
 	
@@ -1886,7 +1886,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 	mounting_field.SetSize(mountings);
 	mountings = 0;
 	
-	if (mounting_field.length() && riff.FindFirst("MNT "))
+	if (mounting_field.GetLength() && riff.FindFirst("MNT "))
 		do
 		{
 			if (riff.GetSize() == MountingSize)
@@ -2074,7 +2074,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 		}
 		while (riff.FindNext(whl_key));
 
-	/*for (index_t i = 0; i < wheel_field.length(); i++)
+	/*for (index_t i = 0; i < wheel_field.GetLength(); i++)
 	{
 		wheel_field[i].next = findWheel(wheel_field[i].nname);
 		wheel_field[i].prev = findWheel(wheel_field[i].pname);
@@ -2116,7 +2116,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 						tracks_field[tracks].member_field.SetSize(riff.GetSize()/8);
 						name64_t	name;
 						riff.OpenStream();
-							for (index_t k = 0; k < tracks_field[tracks].member_field.length(); k++)
+							for (index_t k = 0; k < tracks_field[tracks].member_field.GetLength(); k++)
 								if (riff.Stream(name))
 								{
 									tracks_field[tracks].member_field[k].wheel = NULL;
@@ -2167,7 +2167,7 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 		while (riff.FindNext("OBJ "));
 	child_field.SetSize(children);
 	children = 0;
-	if (child_field.length() && riff.FindFirst("OBJ "))
+	if (child_field.GetLength() && riff.FindFirst("OBJ "))
 		do
 		{
 			child_field[children].name.setLength(riff.GetSize());
@@ -2192,9 +2192,9 @@ template <class Def> void SubGeometryA<Def>::loadFromRiff(Riff::File&riff) //ass
 
 template <class Def> bool SubGeometryA<Def>::isMember(SubGeometryA<Def>*obj) const
 {
-	if ((unsigned)(obj-child_field) < child_field.length())
+	if ((unsigned)(obj-child_field) < child_field.GetLength())
 		return true;
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		if (child_field[i].isMember(obj))
 			return true;
 	return false;
@@ -2202,9 +2202,9 @@ template <class Def> bool SubGeometryA<Def>::isMember(SubGeometryA<Def>*obj) con
 
 template <class Def> bool SubGeometryA<Def>::isMember(TWheel<Def>*whl) const
 {
-	if ((unsigned)(whl-wheel_field) < wheel_field.length())
+	if ((unsigned)(whl-wheel_field) < wheel_field.GetLength())
 		return true;
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		if (child_field[i].isMember(whl))
 			return true;
 	return false;
@@ -2212,9 +2212,9 @@ template <class Def> bool SubGeometryA<Def>::isMember(TWheel<Def>*whl) const
 
 template <class Def> bool SubGeometryA<Def>::isMember(TAccelerator<Def>*acc) const
 {
-	if ((unsigned)(acc-accelerator_field) < accelerator_field.length())
+	if ((unsigned)(acc-accelerator_field) < accelerator_field.GetLength())
 		return true;
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		if (child_field[i].isMember(acc))
 			return true;
 	return false;
@@ -2224,22 +2224,22 @@ template <class Def> bool SubGeometryA<Def>::isMember(TAccelerator<Def>*acc) con
 
 template <class Def> void SubGeometryA<Def>::linkAnimators(Geometry<Def>*domain)
 {
-	for (index_t i = 0; i < accelerator_field.length(); i++)
+	for (index_t i = 0; i < accelerator_field.GetLength(); i++)
 	{
 		accelerator_field[i].domain = this;
 	}
-	for (index_t i = 0; i < wheel_field.length(); i++)
+	for (index_t i = 0; i < wheel_field.GetLength(); i++)
 	{
 		wheel_field[i].domain = this;
 		wheel_field[i].rotation.link(domain);
 		wheel_field[i].suspension.link(domain);
 	}
-	for (index_t i = 0; i < tracks_field.length(); i++)
+	for (index_t i = 0; i < tracks_field.GetLength(); i++)
 	{
 		//tracks_field[i].rotation.link(domain);
 		tracks_field[i].domain = this;
 	}
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 	{
 		child_field[i].linkAnimators(domain);
 		//child_field[i].domain = this;	//maybe later
@@ -2249,7 +2249,7 @@ template <class Def> void SubGeometryA<Def>::linkAnimators(Geometry<Def>*domain)
 template <class Def> void SubGeometryA<Def>::postCopyLink(Geometry<Def>*domain)
 {
 	system_link = &path;
-	for (index_t i = 0; i < wheel_field.length(); i++)
+	for (index_t i = 0; i < wheel_field.GetLength(); i++)
 	{
 		wheel_field[i].rotation.link(domain);
 		wheel_field[i].suspension.link(domain);
@@ -2260,47 +2260,47 @@ template <class Def> void SubGeometryA<Def>::postCopyLink(Geometry<Def>*domain)
 		if (!wheel_field[i].prev)
 			wheel_field[i].prev = wheel_field+i;*/
 	}
-	for (index_t i = 0; i < tracks_field.length(); i++)
+	for (index_t i = 0; i < tracks_field.GetLength(); i++)
 	{
-		for (index_t j = 0; j < tracks_field[i].member_field.length(); j++)
+		for (index_t j = 0; j < tracks_field[i].member_field.GetLength(); j++)
 			tracks_field[i].member_field[j].wheel = domain->lookupWheel(tracks_field[i].member_field[j].name);	//localize
 		//tracks_field[i].rotation.link(domain);
 	}
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		child_field[i].postCopyLink(domain);
 }
 
 
 template <class Def> void SubGeometryA<Def>::storeTargetNames()
 {
-	for (index_t i = 0; i < wheel_field.length(); i++)
+	for (index_t i = 0; i < wheel_field.GetLength(); i++)
 	{
 		wheel_field[i].rotation.storeTargetNames();
 		wheel_field[i].suspension.storeTargetNames();
 		//wheel_field[i].nname = wheel_field[i].next->name;
 		//wheel_field[i].pname = wheel_field[i].prev->name;
 	}
-	for (index_t i = 0; i < tracks_field.length(); i++)
+	for (index_t i = 0; i < tracks_field.GetLength(); i++)
 	{
-		for (index_t j = 0; j < tracks_field[i].member_field.length(); j++)
+		for (index_t j = 0; j < tracks_field[i].member_field.GetLength(); j++)
 			tracks_field[i].member_field[j].name = tracks_field[i].member_field[j].wheel->name;
 		//tracks_field[i].rotation.storeTargetNames();
 	}
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		child_field[i].storeTargetNames();
 }
 
 
 template <class Def> void SubGeometryA<Def>::checkLinkage()
 {
-	/*for (index_t i = 0; i < wheel_field.length(); i++)
+	/*for (index_t i = 0; i < wheel_field.GetLength(); i++)
 	{
 		if ((wheel_field[i].prev && !wheel_field.Owns(wheel_field[i].prev))
 			||
 			(wheel_field[i].next && !wheel_field.Owns(wheel_field[i].next)))
 			FATAL__("WheelLinkage of "+name2str(name)+" broken");
 	}
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		child_field[i].checkLinkage();
 	*/
 }
@@ -2312,7 +2312,7 @@ template <class C> bool SubGeometryA<Def>::extractDimensions(const M::TMatrix4<t
 	bool def;
 	M::TMatrix4<typename Def::SystemType> lsystem;
 	M::Mat::transformSystem(system,meta.system,lsystem);
-	if (vs_hull_field.length() && vs_hull_field[0].vertex_field.length())
+	if (vs_hull_field.GetLength() && vs_hull_field[0].vertex_field.GetLength())
 	{
 		def = true;
 		M::TVec3<C>	p;
@@ -2320,7 +2320,7 @@ template <class C> bool SubGeometryA<Def>::extractDimensions(const M::TMatrix4<t
 		M::Mat::Transform(lsystem,vs_hull_field[0].vertex_field[0].position,p);
 		M::Box<C>		local(p,p);
 
-		for (index_t i = 1; i < vs_hull_field[0].vertex_field.length(); i++)
+		for (index_t i = 1; i < vs_hull_field[0].vertex_field.GetLength(); i++)
 		{
 			M::Mat::Transform(lsystem,vs_hull_field[0].vertex_field[i].position,p);
 			_oDetDimension(p,local);
@@ -2330,7 +2330,7 @@ template <class C> bool SubGeometryA<Def>::extractDimensions(const M::TMatrix4<t
 	}
 	else
 		def = false;
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		def = child_field[i].extractDimensions(lsystem,parser)||def;
 	return def;
 }
@@ -2339,12 +2339,12 @@ template <class Def>
 template <class C> bool SubGeometryA<Def>::extractDimensions(M::Box<C>&dim) const
 {
 	bool def;
-	if (vs_hull_field.length()&&vs_hull_field[0].vertex_field.length())
+	if (vs_hull_field.GetLength()&&vs_hull_field[0].vertex_field.GetLength())
 	{
 		def = true;
 		dim.SetMinAndMax(vs_hull_field[0].vertex_field[0].position);
 
-		for (index_t i = 1; i < vs_hull_field[0].vertex_field.length(); i++)
+		for (index_t i = 1; i < vs_hull_field[0].vertex_field.GetLength(); i++)
 			dim.Include(vs_hull_field[0].vertex_field[i].position);
 	}
 	else
@@ -2359,8 +2359,8 @@ template <class Def>
 template <class C> void SubGeometryA<Def>::extractRadius(C&radius) const
 {
 	C vr = radius*radius;
-	if (vs_hull_field.length())
-		for (index_t i = 0; i < vs_hull_field[0].vertex_field.length(); i++)
+	if (vs_hull_field.GetLength())
+		for (index_t i = 0; i < vs_hull_field[0].vertex_field.GetLength(); i++)
 		{
 			C r = M::Vec::dot(vs_hull_field[0].vertex_field[i].position);
 			if (r > vr)
@@ -2373,13 +2373,13 @@ template <class Def>
 template <class C> void SubGeometryA<Def>::extractAverageVisualEdgeLength(index_t layer, C&length) const
 {
 	length = 0;
-	if (layer < vs_hull_field.length())
+	if (layer < vs_hull_field.GetLength())
 	{
-		for (index_t i = 0; i < vs_hull_field[layer].edge_field.length(); i++)
+		for (index_t i = 0; i < vs_hull_field[layer].edge_field.GetLength(); i++)
 		{
 			length += (C)M::Vec::quadraticDistance(vs_hull_field[layer].edge_field[i].vertex[0]->position,vs_hull_field[layer].edge_field[i].vertex[1]->position);
 		}
-		length = vsqrt(length)/(C)vs_hull_field[layer].edge_field.length();
+		length = vsqrt(length)/(C)vs_hull_field[layer].edge_field.GetLength();
 	}
 }
 
@@ -2390,12 +2390,12 @@ template <class Def>
 		void SubGeometryA<Def>::extractShortestVisualEdgeLength(index_t layer, T&length)	const
 		{
 			length = std::numeric_limits<T>::max();
-			if (layer < vs_hull_field.length())
+			if (layer < vs_hull_field.GetLength())
 			{
 				const Mesh<VsDef>&mesh = vs_hull_field[layer];
 				if (mesh.edge_field.IsNotEmpty())
 				{
-					for (index_t i = 0; i < mesh.edge_field.length(); i++)
+					for (index_t i = 0; i < mesh.edge_field.GetLength(); i++)
 					{
 						const typename Mesh<VsDef>::Edge&edge = mesh.edge_field[i];
 						_IncludeEdgeLength(length,M::Vec::quadraticDistance(edge.v0->position,edge.v1->position));
@@ -2403,7 +2403,7 @@ template <class Def>
 				}
 				else
 				{
-					for (index_t i = 0; i < mesh.triangle_field.length(); i++)
+					for (index_t i = 0; i < mesh.triangle_field.GetLength(); i++)
 					{
 						const typename Mesh<VsDef>::Triangle&t = mesh.triangle_field[i];
 						_IncludeEdgeLength(length,M::Vec::quadraticDistance(t.v0->position,t.v1->position));
@@ -2411,7 +2411,7 @@ template <class Def>
 						_IncludeEdgeLength(length,M::Vec::quadraticDistance(t.v2->position,t.v0->position));
 					}
 
-					for (index_t i = 0; i < mesh.quad_field.length(); i++)
+					for (index_t i = 0; i < mesh.quad_field.GetLength(); i++)
 					{
 						const typename Mesh<VsDef>::Quad&q = mesh.quad_field[i];
 						_IncludeEdgeLength(length,M::Vec::quadraticDistance(q.v0->position,q.v1->position));
@@ -2430,10 +2430,10 @@ template <class Def>
 template <class Def>
 template <class C> void SubGeometryA<Def>::extractAbsoluteRadius(C&radius) const
 {
-	if (vs_hull_field.length() && vs_hull_field[0].vertex_field.length())
+	if (vs_hull_field.GetLength() && vs_hull_field[0].vertex_field.GetLength())
 	{
 		C vr = radius*radius;
-		for (index_t i = 0; i < vs_hull_field[0].vertex_field.length(); i++)
+		for (index_t i = 0; i < vs_hull_field[0].vertex_field.GetLength(); i++)
 		{
 			C r;
 			M::TVec3<C>	p;
@@ -2450,8 +2450,8 @@ template <class Def>
 template <class C> void SubGeometryA<Def>::extractAbsoluteRadius(const M::TVec3<C>&center, C&radius) const
 {
 	C vr = radius*radius;
-	if (vs_hull_field.length())
-		for (index_t i = 0; i < vs_hull_field[0].vertex_field.length(); i++)
+	if (vs_hull_field.GetLength())
+		for (index_t i = 0; i < vs_hull_field[0].vertex_field.GetLength(); i++)
 		{
 			C r;
 			M::TVec3<C>	p;
@@ -2468,7 +2468,7 @@ template <class Def>
 template <class C> void SubGeometryA<Def>::addWeight(C&weight)		const
 {
 	weight += meta.volume*meta.density;
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		child_field[i].addWeight(weight);
 }
 
@@ -2477,7 +2477,7 @@ template <class C> void SubGeometryA<Def>::addWeight(C&weight)		const
 template <class Def> void SubGeometryA<Def>::defLinkageStr(String&rs, const String&intend)
 {
 	rs+=intend+"(0x"+IntToHex((int)(size_t)system_link,8)+")\n";
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		child_field[i].defLinkageStr(rs,intend+"	");
 }
 
@@ -2486,7 +2486,7 @@ template <class Def>
 template <class C> void SubGeometryA<Def>::extractRadiusRec(C&radius) const
 {
 	extractAbsoluteRadius(radius);
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		child_field[i].extractRadiusRec(radius);
 }
 
@@ -2495,7 +2495,7 @@ template <class C> void SubGeometryA<Def>::extractRadiusRec(const M::TVec3<C>&ce
 {
 	
 	extractAbsoluteRadius(center,radius);
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		child_field[i].extractRadiusRec(center,radius);
 }
 
@@ -2503,14 +2503,14 @@ template <class C> void SubGeometryA<Def>::extractRadiusRec(const M::TVec3<C>&ce
 template <class Def> void SubGeometryA<Def>::setSystemRec(const M::TMatrix4<typename Def::SystemType>&system)
 {
 	M::Mat::transformSystem(system,meta.system,path);
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		child_field[i].setSystemRec(path);
 }
 
 template <class Def> void SubGeometryA<Def>::resetLinkageRec()
 {
 	system_link = &path;
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		child_field[i].resetLinkageRec();
 }
 
@@ -2518,9 +2518,9 @@ template <class Def> void SubGeometryA<Def>::resetLinkageRec()
 template <class Def> void SubGeometryA<Def>::toInstance(StaticSubInstanceA<Def>&tree)
 {
 	tree.target = this;
-	tree.child_field.SetSize(child_field.length());
+	tree.child_field.SetSize(child_field.GetLength());
 	tree.system = meta.system;
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		child_field[i].toInstance(tree.child_field[i]);
 }
 
@@ -2531,32 +2531,32 @@ template <class Def> void SubGeometryA<Def>::toInstance(AnimatableSubInstanceA<D
 	M::Vec::clear(tree.animation_status.translation);
 	M::Vec::clear(tree.animation_status.rotation);
 
-	tree.wheel_rotation_animators.SetSize(wheel_field.length());
-	tree.wheel_suspension_animators.SetSize(wheel_field.length());
-	//tree.construct_rotation_animators.SetSize(tracks_field.length());
-	for (index_t i = 0; i < wheel_field.length(); i++)
+	tree.wheel_rotation_animators.SetSize(wheel_field.GetLength());
+	tree.wheel_suspension_animators.SetSize(wheel_field.GetLength());
+	//tree.construct_rotation_animators.SetSize(tracks_field.GetLength());
+	for (index_t i = 0; i < wheel_field.GetLength(); i++)
 	{
 		tree.wheel_rotation_animators[i].build(&wheel_field[i].rotation);
 		tree.wheel_suspension_animators[i].build(&wheel_field[i].suspension);
 	}
-	/*for (index_t i = 0; i < tracks_field.length(); i++)
+	/*for (index_t i = 0; i < tracks_field.GetLength(); i++)
 		tree.construct_rotation_animators[i].build(&tracks_field[i].rotation);*/
-	tree.wheel_status.SetSize(wheel_field.length()*2);
-	tree.accelerator_status.SetSize(accelerator_field.length());
+	tree.wheel_status.SetSize(wheel_field.GetLength()*2);
+	tree.accelerator_status.SetSize(accelerator_field.GetLength());
 	tree.wheel_status.Fill(0);
 	tree.accelerator_status.Fill(0);
 	
-	tree.child_field.SetSize(child_field.length());
+	tree.child_field.SetSize(child_field.GetLength());
 	tree.system = meta.system;
 	
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		child_field[i].toInstance(tree.child_field[i]);
 }
 
 template <class Def> count_t SubGeometryA<Def>::countVertices(unsigned detail)
 {
-	count_t rs = detail<vs_hull_field.length()?vs_hull_field[detail].vertex_field.length():0;
-	for (index_t i = 0; i < child_field.length(); i++)
+	count_t rs = detail<vs_hull_field.GetLength()?vs_hull_field[detail].vertex_field.GetLength():0;
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		rs+=child_field[i].countVertices(detail);
 	return rs;
 }
@@ -2572,13 +2572,13 @@ template <class Def> bool SubGeometryA<Def>::checkIntegrity(Geometry<Def>*super,
 		error += "\nhull-error in "+local+": "+phHull.errorStr();
 		rs = false;
 	}
-	for (index_t i = 0; i < vs_hull_field.length(); i++)
+	for (index_t i = 0; i < vs_hull_field.GetLength(); i++)
 		if (!vs_hull_field[i].valid())
 		{
 			error += "\nvs_hull("+String(i)+")-error in "+local+": "+vs_hull_field[i].errorStr();
 			rs = false;
 		}
-	for (index_t i = 0; i < accelerator_field.length(); i++)
+	for (index_t i = 0; i < accelerator_field.GetLength(); i++)
 	{
 		if (accelerator_field[i].domain != this)
 		{
@@ -2587,7 +2587,7 @@ template <class Def> bool SubGeometryA<Def>::checkIntegrity(Geometry<Def>*super,
 		}
 	}
 	
-	for (index_t i = 0; i < wheel_field.length(); i++)
+	for (index_t i = 0; i < wheel_field.GetLength(); i++)
 	{
 		if (wheel_field[i].domain != this)
 		{
@@ -2605,7 +2605,7 @@ template <class Def> bool SubGeometryA<Def>::checkIntegrity(Geometry<Def>*super,
 			rs = false;
 		}
 	}
-	for (index_t i = 0; i < tracks_field.length(); i++)
+	for (index_t i = 0; i < tracks_field.GetLength(); i++)
 	{
 		if (tracks_field[i].domain != this)
 		{
@@ -2619,14 +2619,14 @@ template <class Def> bool SubGeometryA<Def>::checkIntegrity(Geometry<Def>*super,
 			rs = false;
 		}
 		*/
-		for (index_t j = 0; j < tracks_field[i].member_field.length(); j++)
+		for (index_t j = 0; j < tracks_field[i].member_field.GetLength(); j++)
 			if (!isMember(tracks_field[i].member_field[j].wheel))
 			{
 				error += "\nentry "+String(j)+" ('"+tracks_field[i].member_field[j].name+"') of construct "+String(i)+" is no member of "+local;
 				rs = false;
 			}
 	}
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 	{
 		if (!child_field[i].checkIntegrity(super,local))
 		{
@@ -2676,11 +2676,11 @@ template <class Def>
 
 
 		
-		for (index_t i = 0; i < tracks_field.length(); i++)
+		for (index_t i = 0; i < tracks_field.GetLength(); i++)
 			tracks_field[i].domain = this;
-		for (index_t i = 0; i < accelerator_field.length(); i++)
+		for (index_t i = 0; i < accelerator_field.GetLength(); i++)
 			accelerator_field[i].domain = this;
-		for (index_t i = 0; i < wheel_field.length(); i++)
+		for (index_t i = 0; i < wheel_field.GetLength(); i++)
 			wheel_field[i].domain = this;
 			
 		
@@ -2768,7 +2768,7 @@ template <class C0> void DimensionParser<C>::parse(const M::Box<C0>&box)
 template <class Def>
 	void			Geometry<Def>::onSystemChange()
 	{
-		for (index_t i = 0; i < object_field.length(); i++)
+		for (index_t i = 0; i < object_field.GetLength(); i++)
 			object_field[i].setSystemRec(root_system.matrix);
 	}
 
@@ -2776,24 +2776,24 @@ template <class Def>
 template <class Def>
 	void	Geometry<Def>::clearFlags(UINT32 clear_mask, bool geometries, bool wheels, bool accelerators, bool constructs)
 	{
-		for (index_t i = 0; i < object_field.length(); i++)
+		for (index_t i = 0; i < object_field.GetLength(); i++)
 			object_field[i].clearFlags(clear_mask,geometries,wheels,accelerators,constructs);
 	}
 
 template <class Def>
 	void	Geometry<Def>::flagAnimationTargets(UINT32 flag)
 	{
-		for (index_t i = 0; i < animator_field.length(); i++)
+		for (index_t i = 0; i < animator_field.GetLength(); i++)
 		{
 			AnimatorA<Def>&a = animator_field[i];
-			for (index_t j = 0; j < a.obj_trace_field.length(); j++)
+			for (index_t j = 0; j < a.obj_trace_field.GetLength(); j++)
 				a.obj_trace_field[j].target->meta.flags |= flag;
-			for (index_t j = 0; j < a.whl_trace_field.length(); j++)
+			for (index_t j = 0; j < a.whl_trace_field.GetLength(); j++)
 				a.whl_trace_field[j].target->flags |= flag;
-			for (index_t j = 0; j < a.acc_trace_field.length(); j++)
+			for (index_t j = 0; j < a.acc_trace_field.GetLength(); j++)
 				a.acc_trace_field[j].target->flags |= flag;
 		}
-		for (index_t i = 0; i < object_field.length(); i++)
+		for (index_t i = 0; i < object_field.GetLength(); i++)
 			object_field[i].flagAnimationTargets(flag);
 	}
 
@@ -2822,21 +2822,21 @@ template <class Def0> Geometry<Def>::Geometry(const Geometry<Def0>&other):root_s
 template <class Def>
 	void	Geometry<Def>::walkChildren(void (*childCallback)(SubGeometryA<Def>*))
 	{
-		for (index_t i = 0; i < object_field.length(); i++)
+		for (index_t i = 0; i < object_field.GetLength(); i++)
 			object_field[i].walkChildrenRec(childCallback);
 	}
 
 template <class Def>
 	void	Geometry<Def>::walkChildren(SubGeometryCallback<Def>*callback)
 	{
-		for (index_t i = 0; i < object_field.length(); i++)
+		for (index_t i = 0; i < object_field.GetLength(); i++)
 			object_field[i].walkChildrenRec(callback);
 	}
 
 template <class Def>
 	void	Geometry<Def>::createVisualMaps(unsigned detail, unsigned max_depth)
 	{
-		for (index_t i = 0; i < object_field.length(); i++)
+		for (index_t i = 0; i < object_field.GetLength(); i++)
 			object_field[i].createVisualMapsRec(detail,max_depth);
 	}
 
@@ -2844,19 +2844,19 @@ template <class Def>template <class C>
 	void	Geometry<Def>::scale(const C&factor)
 	{
 		radius *= factor;
-		for (index_t i = 0; i < material_field.length(); i++)
+		for (index_t i = 0; i < material_field.GetLength(); i++)
 			material_field[i].scale(factor);
-		for (index_t i = 0; i < object_field.length(); i++)
+		for (index_t i = 0; i < object_field.GetLength(); i++)
 			object_field[i].scale(factor);
-		for (index_t i = 0; i < animator_field.length(); i++)
+		for (index_t i = 0; i < animator_field.GetLength(); i++)
 			animator_field[i].scale(factor);
-		for (index_t i = 0; i < connector_field.length(); i++)
+		for (index_t i = 0; i < connector_field.GetLength(); i++)
 		{
 			M::Vec::mult(connector_field[i].p0,factor);
 			M::Vec::mult(connector_field[i].p1,factor);
 		}
 		M::Vec::mult(root_system.matrix.w.xyz,factor);
-		for (index_t i = 0; i < object_field.length(); i++)
+		for (index_t i = 0; i < object_field.GetLength(); i++)
 			object_field[i].setSystemRec(root_system.matrix);		
 	}
 	
@@ -2864,7 +2864,7 @@ template <class Def>
 	template <class C>
 		void	Geometry<Def>::translate(const M::TVec3<C>&delta)
 		{
-			for (index_t i = 0; i < object_field.length(); i++)
+			for (index_t i = 0; i < object_field.GetLength(); i++)
 			{
 				M::Vec::add(object_field[i].meta.system.w.xyz,delta);
 				object_field[i].setSystemRec(root_system.matrix);		
@@ -2877,7 +2877,7 @@ template <class Def>
 	{
 		if (c0 > 2 || c1 > 2 || c0 == c1)
 			return;
-		for (index_t i = 0; i < object_field.length(); i++)
+		for (index_t i = 0; i < object_field.GetLength(); i++)
 		{
 			typename Def::SystemType*system = object_field[i].meta.system.v;
 			swp(system[0+c0],system[0+c1]);
@@ -2890,17 +2890,17 @@ template <class Def>
 			system[12+c0]*=-1;
 			//_mult(system+4*c0,-1);
 		}
-		for (index_t i = 0; i < animator_field.length(); i++)
+		for (index_t i = 0; i < animator_field.GetLength(); i++)
 		{
-			for (index_t j = 0; j < animator_field[i].obj_trace_field.length(); j++)
-				for (index_t k = 0; k < animator_field[i].obj_trace_field[j].step_field.length(); k++)
+			for (index_t j = 0; j < animator_field[i].obj_trace_field.GetLength(); j++)
+				for (index_t k = 0; k < animator_field[i].obj_trace_field[j].step_field.GetLength(); k++)
 				{
 					swp(animator_field[i].obj_trace_field[j].step_field[k].range[c0],animator_field[i].obj_trace_field[j].step_field[k].range[c1]);
 					swp(animator_field[i].obj_trace_field[j].step_field[k].range[3+c0],animator_field[i].obj_trace_field[j].step_field[k].range[3+c1]);
 					animator_field[i].obj_trace_field[j].step_field[k].range[c0]*=-1;
 				}
 		}
-		for (index_t i = 0; i < connector_field.length(); i++)
+		for (index_t i = 0; i < connector_field.GetLength(); i++)
 		{
 			swp(connector_field[i].p0.v[c0],connector_field[i].p0.v[c1]);
 			swp(connector_field[i].p1.v[c0],connector_field[i].p1.v[c1]);
@@ -2910,7 +2910,7 @@ template <class Def>
 			connector_field[i].direction.v[c0]*=-1;
 		}
 		
-		for (index_t i = 0; i < object_field.length(); i++)
+		for (index_t i = 0; i < object_field.GetLength(); i++)
 			object_field[i].setSystemRec(root_system.matrix);		
 	}
 	
@@ -2919,7 +2919,7 @@ template <class Def>
 template <class Def> count_t Geometry<Def>::countFaces()	const
 {
 	count_t total = 0;
-	for (index_t i = 0; i < material_field.length(); i++)
+	for (index_t i = 0; i < material_field.GetLength(); i++)
 		total += material_field[i].countFaces();
 	return total;
 }
@@ -2927,7 +2927,7 @@ template <class Def> count_t Geometry<Def>::countFaces()	const
 template <class Def> count_t Geometry<Def>::countTriangles()	const
 {
 	count_t total = 0;
-	for (index_t i = 0; i < material_field.length(); i++)
+	for (index_t i = 0; i < material_field.GetLength(); i++)
 		total += material_field[i].countTriangles();
 	return total;
 }
@@ -2935,7 +2935,7 @@ template <class Def> count_t Geometry<Def>::countTriangles()	const
 template <class Def> count_t Geometry<Def>::countQuads()	const
 {
 	count_t total = 0;
-	for (index_t i = 0; i < material_field.length(); i++)
+	for (index_t i = 0; i < material_field.GetLength(); i++)
 		total += material_field[i].countQuads();
 	return total;
 }
@@ -2944,7 +2944,7 @@ template <class Def> count_t Geometry<Def>::countQuads()	const
 template <class Def> count_t Geometry<Def>::countFaces(unsigned detail_layer)	const
 {
 	count_t total = 0;
-	for (index_t i = 0; i < material_field.length(); i++)
+	for (index_t i = 0; i < material_field.GetLength(); i++)
 		total += material_field[i].countFaces(detail_layer);
 	return total;
 }
@@ -2952,7 +2952,7 @@ template <class Def> count_t Geometry<Def>::countFaces(unsigned detail_layer)	co
 template <class Def> count_t Geometry<Def>::countTriangles(unsigned detail_layer)	const
 {
 	count_t total = 0;
-	for (index_t i = 0; i < material_field.length(); i++)
+	for (index_t i = 0; i < material_field.GetLength(); i++)
 		total += material_field[i].countTriangles(detail_layer);
 	return total;
 }
@@ -2960,7 +2960,7 @@ template <class Def> count_t Geometry<Def>::countTriangles(unsigned detail_layer
 template <class Def> count_t Geometry<Def>::countQuads(unsigned detail_layer)	const
 {
 	count_t total = 0;
-	for (index_t i = 0; i < material_field.length(); i++)
+	for (index_t i = 0; i < material_field.GetLength(); i++)
 		total += material_field[i].countQuads(detail_layer);
 	return total;
 }
@@ -2969,7 +2969,7 @@ template <class Def> count_t Geometry<Def>::countQuads(unsigned detail_layer)	co
 template <class Def> count_t Geometry<Def>::countVertices()	const
 {
 	count_t total = 0;
-	for (index_t i = 0; i < material_field.length(); i++)
+	for (index_t i = 0; i < material_field.GetLength(); i++)
 		total += material_field[i].countVertices();
 	return total;
 }
@@ -2979,8 +2979,8 @@ template <class Def>
 	{
 		unsigned result(0);
 		
-		for (index_t i = 0; i < material_field.length(); i++)
-			for (index_t j = 0; j < material_field[i].data.object_field.length(); j++)
+		for (index_t i = 0; i < material_field.GetLength(); i++)
+			for (index_t j = 0; j < material_field[i].data.object_field.GetLength(); j++)
 				if (material_field[i].data.object_field[j].detail > result)
 					result = material_field[i].data.object_field[j].detail;
 		return result;
@@ -2993,21 +2993,21 @@ template <class Def> String Geometry<Def>::ToString(bool details)	const
 	String rs = "Geometry\n";
 	rs+=" Vertices: "+String(countVertices())+"\n";
 	rs+=" Faces: "+String(countFaces())+" ("+String(countFaces(0))+")\n";
-	rs+=" Objects: "+String(object_field.length())+"\n";
+	rs+=" Objects: "+String(object_field.GetLength())+"\n";
 	if (details)
-		for (index_t i = 0; i < object_field.length(); i++)
+		for (index_t i = 0; i < object_field.GetLength(); i++)
 			rs+="	("+String(i)+") "+object_field[i].ToString("	");
-	rs+=" Materials: "+String(material_field.length())+"\n";
+	rs+=" Materials: "+String(material_field.GetLength())+"\n";
 	if (details)
-		for (index_t i = 0; i < material_field.length(); i++)
+		for (index_t i = 0; i < material_field.GetLength(); i++)
 			rs+="	("+String(i)+") "+material_field[i].ToString("	");
-	rs+=" Animators: "+String(animator_field.length())+"\n";
+	rs+=" Animators: "+String(animator_field.GetLength())+"\n";
 	if (details)
-		for (index_t i = 0; i < animator_field.length(); i++)
+		for (index_t i = 0; i < animator_field.GetLength(); i++)
 			rs+="	("+String(i)+") "+animator_field[i].ToString("	");
-	rs+=" Connectors: "+String(connector_field.length())+"\n";
+	rs+=" Connectors: "+String(connector_field.GetLength())+"\n";
 	if (details)
-		for (index_t i = 0; i < connector_field.length(); i++)
+		for (index_t i = 0; i < connector_field.GetLength(); i++)
 			rs+="	("+String(i)+") "+M::Vec::toString(connector_field[i].p0)+" - "+M::Vec::toString(connector_field[i].p1)+" -> "+M::Vec::toString(connector_field[i].direction)+"\n";
 	rs+=" "+info;
 	return rs;
@@ -3099,11 +3099,11 @@ template <class Def0>
 	system_link = &root_system.matrix;
 
 
-	for (index_t i = 0; i < animator_field.length(); i++)
+	for (index_t i = 0; i < animator_field.GetLength(); i++)
 		animator_field[i].link(this);
-	for (index_t i = 0; i < object_field.length(); i++)
+	for (index_t i = 0; i < object_field.GetLength(); i++)
 		object_field[i].postCopyLink(this);
-	for (index_t i = 0; i < material_field.length(); i++)
+	for (index_t i = 0; i < material_field.GetLength(); i++)
 		material_field[i].postCopyLink(this,texture_resource);
 }
 
@@ -3112,22 +3112,22 @@ template <class Def0>
 template <class Def>
 	void Geometry<Def>::storeTargetNames()
 	{
-		for (index_t i = 0; i < animator_field.length(); i++)
+		for (index_t i = 0; i < animator_field.GetLength(); i++)
 			animator_field[i].storeTargetNames();
-		for (index_t i = 0; i < object_field.length(); i++)
+		for (index_t i = 0; i < object_field.GetLength(); i++)
 			object_field[i].storeTargetNames();
-		for (index_t i = 0; i < material_field.length(); i++)
+		for (index_t i = 0; i < material_field.GetLength(); i++)
 			material_field[i].storeTargetNames();
 	}
 	
 template <class Def>
 	void	Geometry<Def>::relinkEverything()
 	{
-		for (index_t i = 0; i < animator_field.length(); i++)
+		for (index_t i = 0; i < animator_field.GetLength(); i++)
 			animator_field[i].link(this);
-		for (index_t i = 0; i < object_field.length(); i++)
+		for (index_t i = 0; i < object_field.GetLength(); i++)
 			object_field[i].postCopyLink(this);
-		for (index_t i = 0; i < material_field.length(); i++)
+		for (index_t i = 0; i < material_field.GetLength(); i++)
 			material_field[i].postCopyLink(this,texture_resource == &local_textures ? &local_textures : NULL);	//don't relink external textures
 	}
 
@@ -3206,30 +3206,30 @@ template <class Def> String Geometry<Def>::difference(Geometry*other)
 template <class Def> void Geometry<Def>::saveEmbedded(Riff::Chunk&riff, bool embed_textures)	const
 {
 
-	if (info.length())
-		riff.AppendBlock("INFO",info.c_str(),info.length());
-	if (xml.length())
+	if (info.GetLength())
+		riff.AppendBlock("INFO",info.c_str(),info.GetLength());
+	if (xml.GetLength())
 	{
-		Ctr::Array<BYTE> buffer(xml.length()+4);
-		(*(UINT32*)buffer.pointer()) = (UINT32)xml.length();
-		size_t compressed = BZ2::compress(xml.c_str(),xml.length(),buffer.pointer()+4,buffer.GetContentSize()-4);
+		Ctr::Array<BYTE> buffer(xml.GetLength()+4);
+		(*(UINT32*)buffer.pointer()) = (UINT32)xml.GetLength();
+		size_t compressed = BZ2::compress(xml.c_str(),xml.GetLength(),buffer.pointer()+4,buffer.GetContentSize()-4);
 		if (compressed)
 			riff.AppendBlock("CXML",buffer.pointer(),compressed+4);
 	}
 	if (embed_textures)
 	{
 		Riff::Chunk*tlist = openBlock(riff,DATA_TEXTURES);
-			for (index_t i = 0; i < local_textures.entry_field.length(); i++)
+			for (index_t i = 0; i < local_textures.entry_field.GetLength(); i++)
 			{
 				tlist->AppendBlock("ID  ",&local_textures.entry_field[i].name,sizeof(tName));
-				for (BYTE k = 0; k < local_textures.entry_field[i].face_field.length(); k++)
+				for (BYTE k = 0; k < local_textures.entry_field[i].face_field.GetLength(); k++)
 					tlist->AppendBlock("FACE",local_textures.entry_field[i].face_field[k]);
 			}
 	}
 	ByteStreamBuffer	buffer;
 	
 	Riff::Chunk*mlist = openBlock(riff,DATA_MATERIAL);
-		for (index_t i = 0; i < material_field.length(); i++)
+		for (index_t i = 0; i < material_field.GetLength(); i++)
 		{
 			Riff::Chunk*mout = mlist->AppendBlock(RIFF_LIST);
 			
@@ -3245,8 +3245,8 @@ template <class Def> void Geometry<Def>::saveEmbedded(Riff::Chunk&riff, bool emb
 			
 
 			mout->AppendBlock("MATR",buffer);
-			mout->AppendBlock("NAME",material_field[i].name.c_str(),material_field[i].name.length()+1);
-			for (index_t j = 0; j < material_field[i].info.layer_field.length(); j++)
+			mout->AppendBlock("NAME",material_field[i].name.c_str(),material_field[i].name.GetLength()+1);
+			for (index_t j = 0; j < material_field[i].info.layer_field.GetLength(); j++)
 			{
 				buffer.Clear();
 				buffer << (UINT32)material_field[i].info.layer_field[j].combiner;
@@ -3266,7 +3266,7 @@ template <class Def> void Geometry<Def>::saveEmbedded(Riff::Chunk&riff, bool emb
 			const MaterialData<Def>&d = material_field[i].data;
 			mout->AppendBlock("VCRD",&d.coord_layers,sizeof(UINT16));
 			
-			for (index_t j = 0; j < d.object_field.length(); j++)
+			for (index_t j = 0; j < d.object_field.GetLength(); j++)
 			{
 				Riff::Chunk*obj = mout->AppendBlock(RIFF_LIST);
 
@@ -3276,14 +3276,14 @@ template <class Def> void Geometry<Def>::saveEmbedded(Riff::Chunk&riff, bool emb
 				buffer << (UINT32)d.object_field[j].vpool.vcnt;
 				buffer << (UINT32)d.object_field[j].vpool.vflags;
 				buffer << (UINT32)d.object_field[j].detail;
-				buffer.Append(d.object_field[j].target->name.c_str(),d.object_field[j].target->name.length());
+				buffer.Append(d.object_field[j].target->name.c_str(),d.object_field[j].target->name.GetLength());
 				
 				obj->AppendBlock("ROB3",buffer);
 
 				obj->AppendBlock("RVTX",d.object_field[j].vpool.vdata);
 
 				
-				//for (index_t k = 0; k < d.object_field[j].detail_layer_field.length(); k++)
+				//for (index_t k = 0; k < d.object_field[j].detail_layer_field.GetLength(); k++)
 				{
 					const IndexContainerA<Def>&chunk = d.object_field[j].ipool;
 					obj->AppendBlock("IOBJ",chunk.idata);
@@ -3295,10 +3295,10 @@ template <class Def> void Geometry<Def>::saveEmbedded(Riff::Chunk&riff, bool emb
 			}
 		}
 	Riff::Chunk*olist = openBlock(riff,DATA_OBJECTS);
- 	for (index_t i = 0; i < object_field.length(); i++)
+ 	for (index_t i = 0; i < object_field.GetLength(); i++)
 			object_field[i].saveToRiff(olist);
 	Riff::Chunk*alist = openBlock(riff,DATA_ANIMATOR);
-		for (index_t i = 0; i < animator_field.length(); i++)
+		for (index_t i = 0; i < animator_field.GetLength(); i++)
 			animator_field[i].saveToRiff(alist);
 	Riff::Chunk*clist = openBlock(riff,DATA_CONNECTR);
 		clist->AppendBlock("CNCT",connector_field);
@@ -3508,7 +3508,7 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 											object->detail = rinf.detail;
 											object->vpool.SetSize(rinf.vcnt,material.data.coord_layers,rinf.vflags);
 											riff.Get(object->vpool.vdata);
-											CGS_MSG("loaded "+String(object->vpool.vdata.length())+" floats for "+rinf.tname+". loading indices...");
+											CGS_MSG("loaded "+String(object->vpool.vdata.GetLength())+" floats for "+rinf.tname+". loading indices...");
 											object->vpool.updateCRC();
 										}
 										else
@@ -3532,8 +3532,8 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 												IndexContainerA<Def>*chunk = &object->ipool;
 												chunk->idata.SetSize(riff.GetSize()/sizeof(typename Def::IndexType));
 												riff.Get(chunk->idata);
-												total_indices += chunk->idata.length();
-												CGS_MSG("loaded indices: "+String(chunk->idata.length())+" to a total of "+String(total_indices)+" indices");
+												total_indices += chunk->idata.GetLength();
+												CGS_MSG("loaded indices: "+String(chunk->idata.GetLength())+" to a total of "+String(total_indices)+" indices");
 												if (riff.Next())
 												{
 													if (riff.IsID("ICMP") && riff.GetSize()==8)
@@ -3555,16 +3555,16 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 																riff.Stream(indices);
 																chunk->quads = indices/4;
 															riff.CloseStream();
-															//CGS_MSG("got strip data: "+_toString(chunk->sdata.pointer(),chunk->sdata.length()));
+															//CGS_MSG("got strip data: "+_toString(chunk->sdata.pointer(),chunk->sdata.GetLength()));
 														}
 														else
 															chunk->quads = 0;
-														//CGS_MSG("got strip data: "+_toString(chunk->sdata.pointer(),chunk->sdata.length()));
+														//CGS_MSG("got strip data: "+_toString(chunk->sdata.pointer(),chunk->sdata.GetLength()));
 													}
 													else
 													{
 														//CGS_MSG("generated strip data");
-														chunk->triangles = UINT32(chunk->idata.length()/3);
+														chunk->triangles = UINT32(chunk->idata.GetLength()/3);
 														chunk->quads = 0;
 													}
 												}
@@ -3585,7 +3585,7 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 						obuffer.moveToArray(material.data.object_field);
 						//material.data.object_field.adoptData(obuffer);
 						/*material->data.object_field.SetSize(obuffer.Count());
-						for (index_t i = 0; i < material->data.object_field.length(); i++)
+						for (index_t i = 0; i < material->data.object_field.GetLength(); i++)
 						{
 							// CGS_MSG("casting object("+String(i)+"): "+String(obuffer[i]->vpool.vcnt)+"/"+String(obuffer[i]->countIndices()));
 							material->data.object_field[i].adoptData(*obuffer[i]);
@@ -3596,7 +3596,7 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 					lbuffer.moveToArray(material.info.layer_field);
 					//material.info.layer_field.adoptData(lbuffer);
 						/*.SetSize(lbuffer.Count());
-					for (index_t i = 0; i < material->info.layer_field.length(); i++)
+					for (index_t i = 0; i < material->info.layer_field.GetLength(); i++)
 						material->info.layer_field[i] = *lbuffer[i];
 					lbuffer.clear();*/
 				}
@@ -3606,7 +3606,7 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 	mbuffer.moveToArray(material_field);
 	//material_field.adoptData(mbuffer);
 	/*material_field.SetSize(mbuffer.Count());
-	for (index_t i = 0; i < material_field.length(); i++)
+	for (index_t i = 0; i < material_field.GetLength(); i++)
 	{
 		// CGS_MSG("casting material("+String(i)+"): "+String(mbuffer[i]->data.countChunks()));
 		material_field[i].adoptData(*mbuffer[i]);
@@ -3615,8 +3615,8 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 	mbuffer.clear();*/
 	
 	CGS_MSG("materials loaded: "+String(mbuffer.Count()));
-	for (index_t i = 0; i < material_field.length(); i++)
-		CGS_MSG("material "+String(i)+" '"+material_field[i].name+"' has "+String(material_field[i].countFaces())+"("+String(material_field[i].countFaces(0))+") face(s) and "+String(material_field[i].countVertices())+" vertices in "+String(material_field[i].data.object_field.length())+" object(s)");
+	for (index_t i = 0; i < material_field.GetLength(); i++)
+		CGS_MSG("material "+String(i)+" '"+material_field[i].name+"' has "+String(material_field[i].countFaces())+"("+String(material_field[i].countFaces(0))+") face(s) and "+String(material_field[i].countVertices())+" vertices in "+String(material_field[i].data.object_field.GetLength())+" object(s)");
 }
 
 template <class Def> void Geometry<Def>::loadObjects(Riff::File&riff)
@@ -3711,7 +3711,7 @@ template <class Def> void Geometry<Def>::loadTextures(Riff::File&riff)
 					if (texture)
 					{
 						CGS_POINT
-						index_t index = texture->face_field.length();
+						index_t index = texture->face_field.GetLength();
 						texture->face_field.ResizePreserveContent(index+1);	//this has got to be the second most inefficient way to do this :S
 						texture->face_field[index].SetSize(riff.GetSize());
 						riff.Get(texture->face_field[index].pointer());
@@ -3722,7 +3722,7 @@ template <class Def> void Geometry<Def>::loadTextures(Riff::File&riff)
 		}
 		while (riff.Next());
 
-	for (index_t i = 0; i < local_textures.entry_field.length(); i++)
+	for (index_t i = 0; i < local_textures.entry_field.GetLength(); i++)
 		local_textures.entry_field[i].updateHash();
 	CGS_POINT
 }
@@ -3846,11 +3846,11 @@ template <class Def> void Geometry<Def>::loadEmbedded(Riff::File&riff, TextureRe
 
 
 	
-	for (index_t i = 0; i < material_field.length(); i++)
+	for (index_t i = 0; i < material_field.GetLength(); i++)
 	{
 		material_field[i].linkTextures(texture_resource);
 		count_t vcnt(0);
-		for (index_t j = 0; j < material_field[i].data.object_field.length(); j++)
+		for (index_t j = 0; j < material_field[i].data.object_field.GetLength(); j++)
 		{
 			RenderObjectA<Def>&obj = material_field[i].data.object_field[j];
 
@@ -3862,11 +3862,11 @@ template <class Def> void Geometry<Def>::loadEmbedded(Riff::File&riff, TextureRe
 				FATAL__("unable to find object \""+obj.tname+"\" in object "+String(j)+" material "+String(i));
 				//#endif
 		}
-		if (vcnt < material_field[i].data.object_field.length())
+		if (vcnt < material_field[i].data.object_field.GetLength())
 		{
 			Ctr::Array<RenderObjectA<Def>,Adopt>	npntr(vcnt);
 			vcnt = 0;
-			for (index_t j = 0; j < material_field[i].data.object_field.length(); j++)
+			for (index_t j = 0; j < material_field[i].data.object_field.GetLength(); j++)
 				if (material_field[i].data.object_field[j].target)
 				{
 					npntr[vcnt++].adoptData(material_field[i].data.object_field[j]);
@@ -3878,11 +3878,11 @@ template <class Def> void Geometry<Def>::loadEmbedded(Riff::File&riff, TextureRe
 	CGS_POINT
 
 	
-	for (index_t i = 0; i < animator_field.length(); i++)
+	for (index_t i = 0; i < animator_field.GetLength(); i++)
 		animator_field[i].link(this);
 	root_system.loadIdentity(false);
 	CGS_POINT
-	for (index_t i = 0; i < object_field.length(); i++)
+	for (index_t i = 0; i < object_field.GetLength(); i++)
 	{
 		object_field[i].linkAnimators(this);
 		object_field[i].setSystemRec(root_system.matrix);
@@ -3903,7 +3903,7 @@ template <class Def>
 	{
 		ASSERT__(path_length > 0);
 
-		ASSERT_LESS__(*path_begin, object_field.length());
+		ASSERT_LESS__(*path_begin, object_field.GetLength());
 
 		const SubGeometryA<Def>*current_obj = object_field + *path_begin;
 
@@ -3912,7 +3912,7 @@ template <class Def>
 
 		while (current != end)
 		{
-			if (*current >= current_obj->child_field.length())
+			if (*current >= current_obj->child_field.GetLength())
 			{
 				FATAL__("Path entry "+String(current-path_begin)+" points to an invalid child of sub geometry '"+current_obj->name+"'");
 				return NULL;
@@ -3931,7 +3931,7 @@ template <class Def>
 		ASSERT__(path_length > 0);
 		ASSERT__(path_length < (count_t)-10);
 
-		ASSERT_LESS__(*path_begin, object_field.length());
+		ASSERT_LESS__(*path_begin, object_field.GetLength());
 
 		SubGeometryA<Def>*current_obj = object_field + *path_begin;
 
@@ -3940,7 +3940,7 @@ template <class Def>
 
 		while (current != end)
 		{
-			if (*current >= current_obj->child_field.length())
+			if (*current >= current_obj->child_field.GetLength())
 			{
 				FATAL__("Path entry "+String(current-path_begin)+" points to an invalid child of sub geometry '"+current_obj->name+"'");
 				return NULL;
@@ -3975,7 +3975,7 @@ template <class Def>
 			geometry.object_table.Set(name,path.copyToArray());
 
 		if (bits & (WheelBit | AnimatorBit))
-			for (index_t i = 0; i < wheel_field.length(); i++)
+			for (index_t i = 0; i < wheel_field.GetLength(); i++)
 			{
 				path << i;
 					if (bits & WheelBit)
@@ -3994,14 +3994,14 @@ template <class Def>
 				path.eraseLast();
 			}
 		if (bits & AcceleratorBit)
-			for (index_t i = 0; i < accelerator_field.length(); i++)
+			for (index_t i = 0; i < accelerator_field.GetLength(); i++)
 			{
 				path << i;
 					geometry.accelerator_table.Set(accelerator_field[i].name,path.copyToArray());
 				path.eraseLast();
 			}
 
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 		{
 			path << i;
 			child_field[i].remap(path,geometry,bits);
@@ -4025,7 +4025,7 @@ template <class Def>
 
 
 		Buffer<index_t,4>	path;
-		for (index_t i = 0; i < object_field.length(); i++)
+		for (index_t i = 0; i < object_field.GetLength(); i++)
 		{
 			path << i;
 
@@ -4035,7 +4035,7 @@ template <class Def>
 			ASSERT__(path.IsEmpty());
 		}
 		if (bits & AnimatorBit)
-			for (index_t i = 0; i < animator_field.length(); i++)
+			for (index_t i = 0; i < animator_field.GetLength(); i++)
 			{
 				path << i;
 				
@@ -4058,7 +4058,7 @@ template <class Def> TWheel<Def>* Geometry<Def>::lookupWheel(const String&name)
 	SubGeometryA<Def>*context = lookupChild(p->pointer(),p->Count()-1);
 
 	const index_t*current = p->pointer() + p->Count()-1;
-	if (*current >= context->wheel_field.length())
+	if (*current >= context->wheel_field.GetLength())
 	{
 		FATAL__("Path entry "+String(current-p->pointer())+" points to an invalid wheel of sub geometry '"+context->name+"'");
 		return NULL;
@@ -4075,7 +4075,7 @@ template <class Def> const TWheel<Def>* Geometry<Def>::lookupWheel(const String&
 	const SubGeometryA<Def>*context = lookupChild(p->pointer(),p->Count()-1);
 
 	const index_t*current = p->pointer() + p->Count()-1;
-	if (*current >= context->wheel_field.length())
+	if (*current >= context->wheel_field.GetLength())
 	{
 		FATAL__("Path entry "+String(current-p->pointer())+" points to an invalid wheel of sub geometry '"+context->name+"'");
 		return NULL;
@@ -4092,7 +4092,7 @@ template <class Def> TAccelerator<Def>*Geometry<Def>::lookupAccelerator(const St
 	SubGeometryA<Def>*context = lookupChild(p->pointer(),p->Count()-1);
 
 	const index_t*current = p->pointer() + p->Count()-1;
-	if (*current >= context->accelerator_field.length())
+	if (*current >= context->accelerator_field.GetLength())
 	{
 		FATAL__("Path entry "+String(current-p->pointer())+" points to an invalid accelerator of sub geometry '"+context->name+"'");
 		return NULL;
@@ -4109,7 +4109,7 @@ template <class Def> const TAccelerator<Def>*Geometry<Def>::lookupAccelerator(co
 	const SubGeometryA<Def>*context = lookupChild(p->pointer(),p->Count()-1);
 
 	const index_t*current = p->pointer() + p->Count()-1;
-	if (*current >= context->accelerator_field.length())
+	if (*current >= context->accelerator_field.GetLength())
 	{
 		FATAL__("Path entry "+String(current-p->pointer())+" points to an invalid accelerator of sub geometry '"+context->name+"'");
 		return NULL;
@@ -4124,16 +4124,16 @@ template <class Def> AnimatorA<Def>*Geometry<Def>::lookupAnimator(const String&n
 	if (!p)
 		return NULL;
 
-	if (p->length() == 1)
+	if (p->GetLength() == 1)
 	{
-		ASSERT_LESS__(p->first(),animator_field.length());
-		return animator_field + p->first();
+		ASSERT_LESS__(p->First(),animator_field.GetLength());
+		return animator_field + p->First();
 	}
 
 	SubGeometryA<Def>*context = lookupChild(p->pointer(),p->Count()-2);
 
 	const index_t*current = p->pointer() + p->Count()-2;
-	if (*current >= context->wheel_field.length())
+	if (*current >= context->wheel_field.GetLength())
 	{
 		FATAL__("Path entry "+String(current-p->pointer())+" points to an invalid wheel of sub geometry '"+context->name+"'");
 		return NULL;
@@ -4161,16 +4161,16 @@ template <class Def> const AnimatorA<Def>*Geometry<Def>::lookupAnimator(const St
 	if (!p)
 		return NULL;
 
-	if (p->length() == 1)
+	if (p->GetLength() == 1)
 	{
-		ASSERT_LESS__(p->first(),animator_field.length());
-		return animator_field + p->first();
+		ASSERT_LESS__(p->First(),animator_field.GetLength());
+		return animator_field + p->First();
 	}
 
 	const SubGeometryA<Def>*context = lookupChild(p->pointer(),p->Count()-2);
 
 	const index_t*current = p->pointer() + p->Count()-2;
-	if (*current >= context->wheel_field.length())
+	if (*current >= context->wheel_field.GetLength())
 	{
 		FATAL__("Path entry "+String(current-p->pointer())+" points to an invalid wheel of sub geometry '"+context->name+"'");
 		return NULL;
@@ -4196,12 +4196,12 @@ template <class Def> const AnimatorA<Def>*Geometry<Def>::lookupAnimator(const St
 template <class Def>
 template <class C> bool Geometry<Def>::extractDimensions(M::Box<C>&dim) const
 {
-	if (!object_field.length())
+	if (!object_field.GetLength())
 		return false;
 	DimensionParser<C> parser;
 	M::TMatrix4<typename Def::SystemType> matrix = M::Matrix<typename Def::SystemType>::eye4;
 	bool def = false;
-	for (index_t i = 0; i < object_field.length(); i++)
+	for (index_t i = 0; i < object_field.GetLength(); i++)
 		def = object_field[i].extractDimensions(matrix,parser)||def;
 	dim = parser.dimension;
 	return def;
@@ -4209,7 +4209,7 @@ template <class C> bool Geometry<Def>::extractDimensions(M::Box<C>&dim) const
 
 template <class Def> void Geometry<Def>::checkLinkage()
 {
-	for (index_t i = 0; i < object_field.length(); i++)
+	for (index_t i = 0; i < object_field.GetLength(); i++)
 		object_field[i].checkLinkage();
 }
 
@@ -4217,7 +4217,7 @@ template <class Def>
 template <class C> void Geometry<Def>::extractRadius(C&radius) const
 {
 	radius = 0;
-	for (index_t i = 0; i < object_field.length(); i++)
+	for (index_t i = 0; i < object_field.GetLength(); i++)
 		object_field[i].extractRadiusRec(radius);
 }
 
@@ -4227,7 +4227,7 @@ void	Geometry<Def>::extractAverageVisualEdgeLength(unsigned layer, C&length)	con
 {
 	length = 0;
 	count_t count = 0;
-	for (index_t i = 0; i < object_field.length(); i++)
+	for (index_t i = 0; i < object_field.GetLength(); i++)
 		object_field[i].addVisualEdgeLengthSqrRec(layer,length,count);
 	length = vsqrt(length);
 	if (count)
@@ -4239,7 +4239,7 @@ template <class Def>
 template <class C> C Geometry<Def>::extractRadiusAround(const M::TVec3<C>&center) const
 {
 	C radius = 0;
-	for (index_t i = 0; i < object_field.length(); i++)
+	for (index_t i = 0; i < object_field.GetLength(); i++)
 		object_field[i].extractRadiusRec(center,radius);
 	return radius;
 }
@@ -4248,7 +4248,7 @@ template <class Def>
 template <class C> void Geometry<Def>::resolveWeight(C&weight)					const
 {
 	weight = 0;
-	for (index_t i = 0; i < object_field.length(); i++)
+	for (index_t i = 0; i < object_field.GetLength(); i++)
 		object_field[i].addWeight(weight);
 }
 
@@ -4271,7 +4271,7 @@ template <class Def> bool Geometry<Def>::isMember(SubGeometryA<Def>*obj) const
 {
 	if (object_field.Owns(obj))
 		return true;
-	for (index_t i = 0; i < object_field.length(); i++)
+	for (index_t i = 0; i < object_field.GetLength(); i++)
 		if (object_field[i].isMember(obj))
 			return true;
 	return false;
@@ -4279,7 +4279,7 @@ template <class Def> bool Geometry<Def>::isMember(SubGeometryA<Def>*obj) const
 
 template <class Def> bool Geometry<Def>::isMember(TWheel<Def>*whl) const
 {
-	for (index_t i = 0; i < object_field.length(); i++)
+	for (index_t i = 0; i < object_field.GetLength(); i++)
 		if (object_field[i].isMember(whl))
 			return true;
 	return false;
@@ -4287,7 +4287,7 @@ template <class Def> bool Geometry<Def>::isMember(TWheel<Def>*whl) const
 
 template <class Def> bool Geometry<Def>::isMember(TAccelerator<Def>*acc) const
 {
-	for (index_t i = 0; i < object_field.length(); i++)
+	for (index_t i = 0; i < object_field.GetLength(); i++)
 		if (object_field[i].isMember(acc))
 			return true;
 	return false;
@@ -4297,8 +4297,8 @@ template <class Def> bool Geometry<Def>::checkIntegrity()
 {
 	error = "errors:";
 	bool rs = true;
-	for (index_t i = 0; i < material_field.length(); i++)
-		for (index_t j = 0; j < material_field[i].data.object_field.length(); j++)
+	for (index_t i = 0; i < material_field.GetLength(); i++)
+		for (index_t j = 0; j < material_field[i].data.object_field.GetLength(); j++)
 		{
 			if (!isMember(material_field[i].data.object_field[j].target))
 			{
@@ -4311,13 +4311,13 @@ template <class Def> bool Geometry<Def>::checkIntegrity()
 				rs = false;
 			}
 		}
-	for (index_t i = 0; i < animator_field.length(); i++)
+	for (index_t i = 0; i < animator_field.GetLength(); i++)
 		if (!animator_field[i].valid(this))
 		{
 			error += "\nanimator "+String(i)+" is broken";
 			rs = false;
 		}
-	for (index_t i = 0; i < object_field.length(); i++)
+	for (index_t i = 0; i < object_field.GetLength(); i++)
 	{
 		if (!object_field[i].checkIntegrity(this))
 		{
@@ -4343,7 +4343,7 @@ template <class Def> void Geometry<Def>::verifyIntegrity()
 template <class Def> String Geometry<Def>::getLinkageString()
 {
 	String rs = "(0x"+IntToHex((int)(size_t)system_link,8)+")\n ";
-	for (index_t i = 0; i < object_field.length(); i++)
+	for (index_t i = 0; i < object_field.GetLength(); i++)
 		object_field[i].defLinkageStr(rs," ");
 	return rs;
 }
@@ -4360,7 +4360,7 @@ template <class Def> void Geometry<Def>::makeSimpleObject(const Float*vertex,cou
 	material_field[0].data.object_field.SetSize(1);
 	material_field[0].data.coord_layers = (UINT16)(layers);
 	RenderObjectA<Def>&robj = material_field[0].data.object_field[0];
-	ASSERT__(object_field.length()==1);
+	ASSERT__(object_field.GetLength()==1);
 	robj.target = object_field.pointer();
 	ASSERT_LESS__(layers,0x10000);
 	robj.vpool.SetSize(vertices,(UINT16)layers);
@@ -4421,7 +4421,7 @@ template <class Def>
 	{
 		clear();
 		SetSize(ctr.CountObjects(),1,0,0);
-		ASSERT__(object_field.length()==ctr.CountObjects());
+		ASSERT__(object_field.GetLength()==ctr.CountObjects());
 		material_field[0].data.object_field.SetSize(ctr.CountLODs());
 		material_field[0].data.coord_layers = (UINT16)(ctr.CountTextureLayers());
 		material_field[0].name = "MainMaterial";
@@ -4596,7 +4596,7 @@ template <class Def>
 			}
 		ASSERT_CONCLUSION(index_path,at);
 		
-		makeSimpleObject(vertex_path.pointer(),vertex_path.length()/6,index_path.pointer(),index_path.length());
+		makeSimpleObject(vertex_path.pointer(),vertex_path.GetLength()/6,index_path.pointer(),index_path.GetLength());
 	}
 
 template <class Def>	
@@ -4642,7 +4642,7 @@ template <class Def>
 		for (index_t i = 0; i < tobj.vertices; i++)
 			ifield[i] = UINT32(map[i]->index);
 		
-		makeSimpleObject(vfield.pointer(),vfield.Count(),ifield.pointer(),ifield.length());
+		makeSimpleObject(vfield.pointer(),vfield.Count(),ifield.pointer(),ifield.GetLength());
 	}
 
 
@@ -4661,17 +4661,17 @@ template <class Def>
 			instance.loadIdentity(false);
 		PointerTable<double*>	map;
 		PointerTable<TAnimationStatus*>	map2;
-		instance.child_field.SetSize(object_field.length());
-		for (index_t i = 0; i < object_field.length(); i++)
+		instance.child_field.SetSize(object_field.GetLength());
+		for (index_t i = 0; i < object_field.GetLength(); i++)
 		{
 			object_field[i].toInstance(instance.child_field[i]);
 			instance.child_field[i].mapEntities(map,map2);
 		}
-		for (index_t i = 0; i < object_field.length(); i++)
+		for (index_t i = 0; i < object_field.GetLength(); i++)
 			instance.child_field[i].linkEntities(map,map2);
 		
-		instance.animator_field.SetSize(animator_field.length());
-		for (index_t i = 0; i < animator_field.length(); i++)
+		instance.animator_field.SetSize(animator_field.GetLength());
+		for (index_t i = 0; i < animator_field.GetLength(); i++)
 		{
 			instance.animator_field[i].build(animator_field+i);
 			instance.animator_field[i].link(map,map2);
@@ -4681,7 +4681,7 @@ template <class Def>
 		instance.updateAnimationMap();
 		
 		instance.update();
-		CGS_MSG(M::Mat::Raw::ToString4x4(instance.child_field.last().path.v));
+		CGS_MSG(M::Mat::Raw::ToString4x4(instance.child_field.Last().path.v));
 	}
 
 
@@ -4695,8 +4695,8 @@ template <class Def>
 			instance.matrix = root_system.matrix;
 		else
 			instance.loadIdentity(false);
-		instance.child_field.SetSize(object_field.length());
-		for (index_t i = 0; i < object_field.length(); i++)
+		instance.child_field.SetSize(object_field.GetLength());
+		for (index_t i = 0; i < object_field.GetLength(); i++)
 			object_field[i].toInstance(instance.child_field[i]);
 		instance.update();
 	}
@@ -4721,14 +4721,14 @@ template <class Def> std::shared_ptr<AnimatableInstance<Def> > Geometry<Def>::cr
 template <class Def> void		Geometry<Def>::resetLinkage()
 {
 	system_link = &root_system.matrix;
-	for (index_t i = 0; i < object_field.length(); i++)
+	for (index_t i = 0; i < object_field.GetLength(); i++)
 		object_field[i].resetLinkageRec();
 }
 
 template <class Def> void		Geometry<Def>::resetSystems()
 {
 	M::Mat::Eye(root_system.matrix);
-	for (index_t i = 0; i < object_field.length(); i++)
+	for (index_t i = 0; i < object_field.GetLength(); i++)
 	{
 		object_field[i].resetLinkageRec();
 		object_field[i].setSystemRec(root_system.matrix);
@@ -4739,7 +4739,7 @@ template <class Def> void		Geometry<Def>::resetSystems()
 template <class Def> count_t Geometry<Def>::countVertices(unsigned detail)
 {
 	count_t rs = 0;
-	for (index_t i = 0; i < object_field.length(); i++)
+	for (index_t i = 0; i < object_field.GetLength(); i++)
 		rs+=object_field[i].countVertices(detail);
 	return rs;
 }
@@ -4751,7 +4751,7 @@ template <class Def> GeometryInstance<Def>::GeometryInstance():System<typename D
 template <class Def>
 	void			StaticInstance<Def>::onSystemChange()
 	{
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			child_field[i].updatePath(Super::matrix);
 	}
 
@@ -4765,7 +4765,7 @@ template <class Def> StaticInstance<Def>::StaticInstance()
 template <class Def> template <typename T0, typename T1, typename T2>
 	bool	StaticInstance<Def>::detectOpticalIntersection(const M::TVec3<T0>&b, const M::TVec3<T1>&d, T2&distance)	const
 	{
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			if (child_field[i].detectOpticalIntersection(b,d,distance))
 				return true;
 		return false;
@@ -4777,7 +4777,7 @@ template <class Def> template <typename T0, typename T1, typename T2>
 	{
 		if (!SubGeometryInstance<Def>::target)
 			return false;
-		if (SubGeometryInstance<Def>::target->vs_hull_field.length())
+		if (SubGeometryInstance<Def>::target->vs_hull_field.GetLength())
 		{
 			M::TMatrix4<typename Def::FloatType>	inverse;
 			M::TVec3<typename Def::FloatType>		d,b;
@@ -4787,16 +4787,16 @@ template <class Def> template <typename T0, typename T1, typename T2>
 			
 			typedef Mesh<typename SubGeometryA<Def>::VsDef>	VsMesh;
 			const VsMesh	&hull = SubGeometryInstance<Def>::target->vs_hull_field.First();
-			for (index_t i = 0; i < hull.triangle_field.length(); i++)
+			for (index_t i = 0; i < hull.triangle_field.GetLength(); i++)
 				if (Obj::detectOpticalIntersection(hull.triangle_field[i].v0->position,hull.triangle_field[i].v1->position,hull.triangle_field[i].v2->position,b,d,distance))
 					return true;
-			for (index_t i = 0; i < hull.quad_field.length(); i++)
+			for (index_t i = 0; i < hull.quad_field.GetLength(); i++)
 				if (Obj::detectOpticalIntersection(hull.quad_field[i].v0->position,hull.quad_field[i].v1->position,hull.quad_field[i].v2->position,b,d,distance)
 					||
 					Obj::detectOpticalIntersection(hull.quad_field[i].v0->position,hull.quad_field[i].v2->position,hull.quad_field[i].v3->position,b,d,distance))
 					return true;
 		}
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			if (child_field[i].detectOpticalIntersection(b_,d_,distance))
 				return true;
 		return false;
@@ -4805,7 +4805,7 @@ template <class Def> template <typename T0, typename T1, typename T2>
 
 template <class Def> void StaticInstance<Def>::update()
 {
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		child_field[i].updatePath(Super::matrix);
 }
 
@@ -4814,7 +4814,7 @@ template <class Def> void StaticInstance<Def>::restoreFromGeometry()
 	if (GeometryInstance<Def>::target)
 	{
 		Super::matrix = GeometryInstance<Def>::target->root_system.matrix;
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			child_field[i].restoreFromGeometry();
 		update();
 	}
@@ -4826,7 +4826,7 @@ template <class Def> void StaticInstance<Def>::link()
 	ASSERT_NOT_NULL__(GeometryInstance<Def>::target);
 	M::TMatrix4<typename Def::SystemType>&m = Super::matrix;
 	GeometryInstance<Def>::target->system_link = &m;
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		child_field[i].linkObjects();
 }
 
@@ -4860,11 +4860,11 @@ template <class Def>
 			acc_animator_field.free();
 			return;
 		}
-		obj_animator_field.SetSize(target->obj_trace_field.length());
-		whl_animator_field.SetSize(target->whl_trace_field.length());
-		acc_animator_field.SetSize(target->acc_trace_field.length());
+		obj_animator_field.SetSize(target->obj_trace_field.GetLength());
+		whl_animator_field.SetSize(target->whl_trace_field.GetLength());
+		acc_animator_field.SetSize(target->acc_trace_field.GetLength());
 		
-		for (index_t i = 0; i < obj_animator_field.length(); i++)
+		for (index_t i = 0; i < obj_animator_field.GetLength(); i++)
 		{
 			obj_animator_field[i].target = target->obj_trace_field[i].target;
 			obj_animator_field[i].target_trace = target->obj_trace_field+i;
@@ -4872,7 +4872,7 @@ template <class Def>
 			M::Vec::clear(obj_animator_field[i].current.rotation);
 			obj_animator_field[i].out_target = NULL;
 		}
-		for (index_t i = 0; i < whl_animator_field.length(); i++)
+		for (index_t i = 0; i < whl_animator_field.GetLength(); i++)
 		{
 			whl_animator_field[i].target = target->whl_trace_field[i].target;
 			whl_animator_field[i].target_trace = target->whl_trace_field+i;
@@ -4881,7 +4881,7 @@ template <class Def>
 			whl_animator_field[i].out_target = NULL;
 		}
 	
-		for (index_t i = 0; i < acc_animator_field.length(); i++)
+		for (index_t i = 0; i < acc_animator_field.GetLength(); i++)
 		{
 			acc_animator_field[i].target_trace = target->acc_trace_field+i;
 			acc_animator_field[i].target = target->acc_trace_field[i].target;
@@ -4895,15 +4895,15 @@ template <class Def>
 template <class Def>
 	void	AnimatorInstanceA<Def>::link(const PointerTable<double*>&map,const PointerTable<TAnimationStatus*>&map2)
 	{
-		for (index_t i = 0; i < obj_animator_field.length(); i++)
+		for (index_t i = 0; i < obj_animator_field.GetLength(); i++)
 		{
 			ASSERT__(map2.Query(obj_animator_field[i].target,obj_animator_field[i].out_target));
 		}
-		for (index_t i = 0; i < whl_animator_field.length(); i++)
+		for (index_t i = 0; i < whl_animator_field.GetLength(); i++)
 		{
 			ASSERT__(map.Query(whl_animator_field[i].target,whl_animator_field[i].out_target));
 		}
-		for (index_t i = 0; i < acc_animator_field.length(); i++)
+		for (index_t i = 0; i < acc_animator_field.GetLength(); i++)
 		{
 			ASSERT__(map.Query(acc_animator_field[i].target,acc_animator_field[i].out_target));
 		}
@@ -4912,7 +4912,7 @@ template <class Def>
 template <class Def>
 	void	AnimatorInstanceA<Def>::update()
 	{
-		for (index_t i = 0; i < obj_animator_field.length(); i++)
+		for (index_t i = 0; i < obj_animator_field.GetLength(); i++)
 		{
 			double field[6];
 			obj_animator_field[i].target_trace->current(progress,field);
@@ -4923,12 +4923,12 @@ template <class Def>
 			M::Vec::add(obj_animator_field[i].out_target->translation,obj_animator_field[i].current.translation);
 			M::Vec::add(obj_animator_field[i].out_target->rotation,obj_animator_field[i].current.rotation);
 		}
-		for (index_t i = 0; i < whl_animator_field.length(); i++)
+		for (index_t i = 0; i < whl_animator_field.GetLength(); i++)
 		{
 			whl_animator_field[i].target_trace->current(progress,whl_animator_field[i].current);
 			M::Vec::add(M::Vec::ref2(whl_animator_field[i].out_target),M::Vec::ref2(whl_animator_field[i].current));
 		}
-		for (index_t i = 0; i < acc_animator_field.length(); i++)
+		for (index_t i = 0; i < acc_animator_field.GetLength(); i++)
 		{
 			acc_animator_field[i].target_trace->current(progress,&acc_animator_field[i].current_acceleration);
 			(*acc_animator_field[i].out_target) += acc_animator_field[i].current_acceleration;
@@ -4940,7 +4940,7 @@ template <class Def>
 template <class Def>
 	void			AnimatableInstance<Def>::onSystemChange()
 	{
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			child_field[i].updatePath(Super::matrix);
 	}
 	
@@ -4952,7 +4952,7 @@ template <class Def>
 		animation_map.animated_wheel_status_field.reset();
 		animation_map.animated_accel_status_field.reset();
 		
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			child_field[i].fillAnimationMap(animation_map);
 		
 		animation_map.sub_animator_field.compact();
@@ -4972,8 +4972,8 @@ template <class Def>
 		if (!p)
 			return NULL;
 		ASSERT_EQUAL__(p->size(),1);
-		ASSERT_LESS__(p->first(),animator_field.length());
-		return animator_field + p->first();
+		ASSERT_LESS__(p->First(),animator_field.GetLength());
+		return animator_field + p->First();
 	}
 
 template <class Def>
@@ -4983,7 +4983,7 @@ template <class Def>
 			return NULL;
 		if (GeometryInstance<Def>::target->animator_field.Owns(animator))
 			return animator_field+GeometryInstance<Def>::target->animator_field.GetIndexOf(animator);
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			if (AnimatorInstanceA<Def>*rs = child_field[i].findInstanceOf(animator))
 				return rs;
 		return NULL;
@@ -4998,22 +4998,22 @@ template <class Def>
 	{
 		if (!GeometryInstance<Def>::target)
 			return;
-		for (index_t i = 0; i < animation_map.animated_sub_field.length(); i++)
+		for (index_t i = 0; i < animation_map.animated_sub_field.GetLength(); i++)
 		{
 			M::Vec::clear(animation_map.animated_sub_field[i]->animation_status.translation);
 			M::Vec::clear(animation_map.animated_sub_field[i]->animation_status.rotation);
 		}
-		for (index_t i = 0; i < animation_map.animated_wheel_status_field.length(); i++)
+		for (index_t i = 0; i < animation_map.animated_wheel_status_field.GetLength(); i++)
 			M::Vec::clear(M::Vec::ref2(animation_map.animated_wheel_status_field[i]));
-		for (index_t i = 0; i < animation_map.animated_accel_status_field.length(); i++)
+		for (index_t i = 0; i < animation_map.animated_accel_status_field.GetLength(); i++)
 			(*animation_map.animated_accel_status_field[i])=0;
 		
-		for (index_t i = 0; i < animator_field.length(); i++)
+		for (index_t i = 0; i < animator_field.GetLength(); i++)
 			animator_field[i].update();
-		for (index_t i = 0; i < animation_map.sub_animator_field.length(); i++)
+		for (index_t i = 0; i < animation_map.sub_animator_field.GetLength(); i++)
 			animation_map.sub_animator_field[i]->update();
 
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			child_field[i].updatePath(Super::matrix);
 	}
 	
@@ -5022,72 +5022,72 @@ template <class Def>
 	{
 		ASSERT_NOT_NULL__(GeometryInstance<Def>::target);
 		GeometryInstance<Def>::target->system_link = Super::getMatrix();
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			child_field[i].linkObjects();
 	}
 	
 template <class Def>
 	double*		AnimatableInstance<Def>::findStatusOfWheel(const Ctr::ArrayData<index_t>&path)
 	{
-		if (!path.length() || path.First() >= child_field.length())
+		if (!path.GetLength() || path.First() >= child_field.GetLength())
 			return NULL;
 		AnimatableSubInstanceA<Def>*child = child_field+path.First();
-		for (index_t i = 1; i+1 < path.length(); i++)
-			if (path[i] >= child->child_field.length())
+		for (index_t i = 1; i+1 < path.GetLength(); i++)
+			if (path[i] >= child->child_field.GetLength())
 				return NULL;
 			else
 				child = child->child_field+path[i];
-		if (path.last()*2 >= child->wheel_status.length())
+		if (path.Last()*2 >= child->wheel_status.GetLength())
 			return NULL;
-		return child->wheel_status+path.last()*2;
+		return child->wheel_status+path.Last()*2;
 	}
 	
 template <class Def>
 	double*		AnimatableInstance<Def>::findStatusOfAccelerator(const Ctr::ArrayData<index_t>&path)
 	{
-		if (!path.length() || path.First() >= child_field.length())
+		if (!path.GetLength() || path.First() >= child_field.GetLength())
 			return NULL;
 		AnimatableSubInstanceA<Def>*child = child_field+path.First();
-		for (index_t i = 1; i+1 < path.length(); i++)
-			if (path[i] >= child->child_field.length())
+		for (index_t i = 1; i+1 < path.GetLength(); i++)
+			if (path[i] >= child->child_field.GetLength())
 				return NULL;
 			else
 				child = child->child_field+path[i];
-		if (path.last() >= child->accelerator_status.length())
+		if (path.Last() >= child->accelerator_status.GetLength())
 			return NULL;
-		return child->accelerator_status+path.last();
+		return child->accelerator_status+path.Last();
 	}
 
 template <class Def>
 	AnimatorInstanceA<Def>*		AnimatableInstance<Def>::findRotationAnimatorOfWheel(const Ctr::ArrayData<index_t>&path)
 	{
-		if (!path.length() || path.First() >= child_field.length())
+		if (!path.GetLength() || path.First() >= child_field.GetLength())
 			return NULL;
 		AnimatableSubInstanceA<Def>*child = child_field+path.First();
-		for (index_t i = 1; i+1 < path.length(); i++)
-			if (path[i] >= child->child_field.length())
+		for (index_t i = 1; i+1 < path.GetLength(); i++)
+			if (path[i] >= child->child_field.GetLength())
 				return NULL;
 			else
 				child = child->child_field+path[i];
-		if (path.last() >= child->wheel_rotation_animators.Count())
+		if (path.Last() >= child->wheel_rotation_animators.Count())
 			return NULL;
-		return child->wheel_rotation_animators+path.last();
+		return child->wheel_rotation_animators+path.Last();
 	}
 
 template <class Def>
 	AnimatorInstanceA<Def>*		AnimatableInstance<Def>::findSuspensionAnimatorOfWheel(const Ctr::ArrayData<index_t>&path)
 	{
-		if (!path.length() || path.First() >= child_field.length())
+		if (!path.GetLength() || path.First() >= child_field.GetLength())
 			return NULL;
 		AnimatableSubInstanceA<Def>*child = child_field+path.First();
-		for (index_t i = 1; i+1 < path.length(); i++)
-			if (path[i] >= child->child_field.length())
+		for (index_t i = 1; i+1 < path.GetLength(); i++)
+			if (path[i] >= child->child_field.GetLength())
 				return NULL;
 			else
 				child = child->child_field+path[i];
-		if (path.last() >= child->wheel_suspension_animators.Count())
+		if (path.Last() >= child->wheel_suspension_animators.Count())
 			return NULL;
-		return child->wheel_suspension_animators+path.last();
+		return child->wheel_suspension_animators+path.Last();
 	}
 
 template <class Def>
@@ -5095,7 +5095,7 @@ template <class Def>
 	{
 		if (!wheel)
 			return NULL;
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 		{
 			if (double*rs = child_field[i].findStatusOf(wheel))
 				return rs;
@@ -5110,11 +5110,11 @@ template <class Def>
 		{
 			if (reset_animations)
 			{
-				for (index_t i = 0; i < animator_field.length(); i++)
+				for (index_t i = 0; i < animator_field.GetLength(); i++)
 					animator_field[i].progress = 0;
 			}
 			M::Mat::copy(GeometryInstance<Def>::target->root_system.matrix,Super::matrix);
-			for (index_t i = 0; i < child_field.length(); i++)
+			for (index_t i = 0; i < child_field.GetLength(); i++)
 				child_field[i].restoreFromGeometry(reset_animations);
 			update();
 		}
@@ -5142,7 +5142,7 @@ template <class Def> void StaticSubInstanceA<Def>::linkObjects()
 	}
 	else
 		FATAL__("target not found");
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		child_field[i].linkObjects();
 }
 
@@ -5150,7 +5150,7 @@ template <class Def> void StaticSubInstanceA<Def>::updatePath(const M::TMatrix4<
 {
 	M::Mat::transformSystem(parent,SubGeometryInstance<Def>::system,SubGeometryInstance<Def>::path);
 	//DBG_ASSERT_LESS__(M::Vec::dot(SubGeometryInstance<Def>::path.x.xyz),10000);
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		child_field[i].updatePath(SubGeometryInstance<Def>::path);
 }
 
@@ -5160,7 +5160,7 @@ template <class Def> void StaticSubInstanceA<Def>::restoreFromGeometry()
 		Super::system = SubGeometryInstance<Def>::target->meta.system;
 	else
 		FATAL__("target expected");
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		child_field[i].restoreFromGeometry();
 }
 
@@ -5183,7 +5183,7 @@ template <class Def>
 				return wheel_suspension_animators+i;
 	
 	
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			if (AnimatorInstanceA<Def>*rs = child_field[i].findInstanceOf(animator))
 				return rs;
 		return NULL;
@@ -5196,7 +5196,7 @@ template <class Def>
 		{
 			return wheel_status+2*SubGeometryInstance<Def>::target->wheel_field.GetIndexOf(wheel);
 		}
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 		{
 			if (double*rs = child_field[i].findStatusOf(wheel))
 				return rs;
@@ -5211,7 +5211,7 @@ template <class Def> void AnimatableSubInstanceA<Def>::linkObjects()
 		SubGeometryInstance<Def>::target->system_link = Super::GetPath();
 	else
 		FATAL__("target not found");
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		child_field[i].linkObjects();
 }
 
@@ -5247,7 +5247,7 @@ template <class Def> void AnimatableSubInstanceA<Def>::updatePath(const M::TMatr
 	
 	M::Mat::transformSystem(parent,animated_system,path);
 
-	for (index_t i = 0; i < child_field.length(); i++)
+	for (index_t i = 0; i < child_field.GetLength(); i++)
 		child_field[i].updatePath(path);
 }
 
@@ -5256,18 +5256,18 @@ template <class Def>
 	{
 		if (reset_animations)
 		{
-			for (index_t i = 0; i < wheel_rotation_animators.length(); i++)
+			for (index_t i = 0; i < wheel_rotation_animators.GetLength(); i++)
 				wheel_rotation_animators[i].progress = 0;
-			for (index_t i = 0; i < wheel_suspension_animators.length(); i++)
+			for (index_t i = 0; i < wheel_suspension_animators.GetLength(); i++)
 				wheel_suspension_animators[i].progress = 0;
-			/*for (index_t i = 0; i < construct_rotation_animators.length(); i++)
+			/*for (index_t i = 0; i < construct_rotation_animators.GetLength(); i++)
 				construct_rotation_animators[i].progress = 0;*/
 		}
 		if (target)
 			system = target->meta.system;
 		else
 			FATAL__("target expected");
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			child_field[i].restoreFromGeometry(reset_animations);
 	}
 #endif
@@ -5276,26 +5276,26 @@ template <class Def>
 	void AnimatableSubInstanceA<Def>::mapEntities(PointerTable<double*>&map, PointerTable<TAnimationStatus*>&map2)
 	{
 		map2.Set(target,&animation_status);
-		for (index_t i = 0; i < target->wheel_field.length(); i++)
+		for (index_t i = 0; i < target->wheel_field.GetLength(); i++)
 			map.Set(target->wheel_field+i,wheel_status+2*i);
-		for (index_t i = 0; i < target->accelerator_field.length(); i++)
+		for (index_t i = 0; i < target->accelerator_field.GetLength(); i++)
 			map.Set(target->accelerator_field+i,accelerator_status+i);
 	
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			child_field[i].mapEntities(map,map2);
 	}
 	
 template <class Def>
 	void AnimatableSubInstanceA<Def>::linkEntities(const PointerTable<double*>&map, const PointerTable<TAnimationStatus*>&map2)
 	{
-		for (index_t i = 0; i < wheel_rotation_animators.length(); i++)
+		for (index_t i = 0; i < wheel_rotation_animators.GetLength(); i++)
 			wheel_rotation_animators[i].link(map,map2);
-		for (index_t i = 0; i < wheel_suspension_animators.length(); i++)
+		for (index_t i = 0; i < wheel_suspension_animators.GetLength(); i++)
 			wheel_suspension_animators[i].link(map,map2);
-		/*for (index_t i = 0; i < construct_rotation_animators.length(); i++)
+		/*for (index_t i = 0; i < construct_rotation_animators.GetLength(); i++)
 			construct_rotation_animators[i].link(map,map2);*/
 
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			child_field[i].linkEntities(map,map2);
 	}
 
@@ -5310,14 +5310,14 @@ template <class Def>
 		map.sub_animator_field.appendAddresses(wheel_suspension_animators);
 		//map.sub_animator_field.appendAddresses(construct_rotation_animators);
 		
-		for (index_t i = 0; i < target->wheel_field.length(); i++)
+		for (index_t i = 0; i < target->wheel_field.GetLength(); i++)
 			if (target->wheel_field[i].flags & AnimationTargetFlag)
 				map.animated_wheel_status_field << wheel_status+2*i;
-		for (index_t i = 0; i < target->accelerator_field.length(); i++)
+		for (index_t i = 0; i < target->accelerator_field.GetLength(); i++)
 			if (target->accelerator_field[i].flags & AnimationTargetFlag)
 				map.animated_accel_status_field << wheel_status+i;
 		
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			child_field[i].fillAnimationMap(map);
 	}
 #endif
@@ -5330,20 +5330,20 @@ template <class Def>
 		wheel_status.Fill(0);
 		accelerator_status.Fill(0);
 	
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			child_field[i].resetAnimationStatus();
 	}	
 template <class Def>
 	void AnimatableSubInstanceA<Def>::updateAnimations()
 	{
-		for (index_t i = 0; i < wheel_rotation_animators.length(); i++)
+		for (index_t i = 0; i < wheel_rotation_animators.GetLength(); i++)
 			wheel_rotation_animators[i].update();
-		for (index_t i = 0; i < wheel_suspension_animators.length(); i++)
+		for (index_t i = 0; i < wheel_suspension_animators.GetLength(); i++)
 			wheel_suspension_animators[i].update();
-		// for (index_t i = 0; i < construct_rotation_animators.length(); i++)
+		// for (index_t i = 0; i < construct_rotation_animators.GetLength(); i++)
 			// construct_rotation_animators[i].update();
 	
-		for (index_t i = 0; i < child_field.length(); i++)
+		for (index_t i = 0; i < child_field.GetLength(); i++)
 			child_field[i].updateAnimations();
 	}
 
@@ -5355,28 +5355,28 @@ template <class Def> AnimatorA<Def>::AnimatorA():name(0)
 template <class Def> 
 	void	AnimatorA<Def>::revert()
 	{
-		for (index_t i = 0; i < obj_trace_field.length(); i++)
+		for (index_t i = 0; i < obj_trace_field.GetLength(); i++)
 			obj_trace_field[i].revert();
-		for (index_t i = 0; i < acc_trace_field.length(); i++)
+		for (index_t i = 0; i < acc_trace_field.GetLength(); i++)
 			acc_trace_field[i].revert();
-		for (index_t i = 0; i < whl_trace_field.length(); i++)
+		for (index_t i = 0; i < whl_trace_field.GetLength(); i++)
 			whl_trace_field[i].revert();
 	}
 
 
 template <class Def> 
-	double	AnimatorA<Def>::length()	const
+	double	AnimatorA<Def>::GetLength()	const
 	{
 		double rs = 0;
 		for (index_t i = 0; i < obj_trace_field.Count(); i++)
-			if (obj_trace_field[i].step_field.length())
-				rs = vmax(rs,obj_trace_field[i].step_field.last().end);
+			if (obj_trace_field[i].step_field.GetLength())
+				rs = vmax(rs,obj_trace_field[i].step_field.Last().end);
 		for (index_t i = 0; i < acc_trace_field.Count(); i++)
-			if (acc_trace_field[i].step_field.length())
-				rs = vmax(rs,acc_trace_field[i].step_field.last().end);
+			if (acc_trace_field[i].step_field.GetLength())
+				rs = vmax(rs,acc_trace_field[i].step_field.Last().end);
 		for (index_t i = 0; i < whl_trace_field.Count(); i++)
-			if (whl_trace_field[i].step_field.length())
-				rs = vmax(rs,whl_trace_field[i].step_field.last().end);
+			if (whl_trace_field[i].step_field.GetLength())
+				rs = vmax(rs,whl_trace_field[i].step_field.Last().end);
 		return rs;
 	}
 
@@ -5384,7 +5384,7 @@ template <class Def>	template <class C>
 	void	AnimatorA<Def>::scale(const C&factor)
 	{
 		for (index_t i = 0; i < obj_trace_field.Count(); i++)
-			for (index_t j = 0; j < obj_trace_field[i].step_field.length(); j++)
+			for (index_t j = 0; j < obj_trace_field[i].step_field.GetLength(); j++)
 			{
 				M::Vec::mult(M::Vec::ref3(obj_trace_field[i].step_field[j].range),factor);	//only affect translaction
 				M::Vec::mult(M::Vec::ref3(obj_trace_field[i].step_field[j].slope0),factor);
@@ -5396,7 +5396,7 @@ template <class Def>	template <class C>
 template <class Def> template <class Obj, unsigned Band>
 	void AnimatorA<Def>::storeTargetNames(Ctr::ArrayData<TraceA<Obj,Band> >&field)
 	{
-		for (index_t i = 0; i < field.length(); i++)
+		for (index_t i = 0; i < field.GetLength(); i++)
 			field[i].tname = field[i].target->name;
 	}
 
@@ -5409,13 +5409,13 @@ template <class Def> void AnimatorA<Def>::storeTargetNames()
 
 template <class Def> bool AnimatorA<Def>::valid(Geometry<Def>*structure)
 {
-	for (index_t i = 0; i < obj_trace_field.length(); i++)
+	for (index_t i = 0; i < obj_trace_field.GetLength(); i++)
 		if (!structure->isMember(obj_trace_field[i].target))
 			return false;
-	for (index_t i = 0; i < acc_trace_field.length(); i++)
+	for (index_t i = 0; i < acc_trace_field.GetLength(); i++)
 		if (!structure->isMember(acc_trace_field[i].target))
 			return false;
-	for (index_t i = 0; i < whl_trace_field.length(); i++)
+	for (index_t i = 0; i < whl_trace_field.GetLength(); i++)
 		if (!structure->isMember(whl_trace_field[i].target))
 			return false;
 	return true;
@@ -5423,7 +5423,7 @@ template <class Def> bool AnimatorA<Def>::valid(Geometry<Def>*structure)
 
 template <class Def> String AnimatorA<Def>::ToString(const String&intend)	const
 {
-	return "Animator (ObjecCTraces: "+String(obj_trace_field.length())+"; AcceleratorTraces: "+String(acc_trace_field.length())+"; WheelTraces: "+String(whl_trace_field.length())+")";
+	return "Animator (ObjecCTraces: "+String(obj_trace_field.GetLength())+"; AcceleratorTraces: "+String(acc_trace_field.GetLength())+"; WheelTraces: "+String(whl_trace_field.GetLength())+")";
 }
 
 template <class Def> void AnimatorA<Def>::SetSize(count_t obj_count, count_t acc_count, count_t whl_count)
@@ -5462,7 +5462,7 @@ template <class T, unsigned B>
 	void	TraceA<T,B>::revert()
 	{
 		step_field.revert();
-		for (index_t i = 0; i < step_field.length(); i++)
+		for (index_t i = 0; i < step_field.GetLength(); i++)
 		{
 			VecUnroll<B>::mult(step_field[i].range,-1);
 			VecUnroll<B>::mult(step_field[i].slope0,-1);
@@ -5483,26 +5483,26 @@ template <class T, unsigned B>
 template <class T, unsigned B>
 	void	TraceA<T,B>::calculateSlopes()
 	{
-		if (!step_field.length())
+		if (!step_field.GetLength())
 			return;
-		//CGS_MSG("Auto generating slopes for trace of length "+String(step_field.length()));
+		//CGS_MSG("Auto generating slopes for trace of length "+String(step_field.GetLength()));
 		VecUnroll<B>::div(step_field.First().range,step_field.First().end-step_field.First().start,step_field.First().slope0);
 		//CGS_MSG("Initial slope calculated at "+_toString(step_field.First().slope0,B));
-		for (index_t i = 0; i < step_field.length(); i++)
+		for (index_t i = 0; i < step_field.GetLength(); i++)
 		{
 			double v0[B],v1[B],v2[B];
 			if (i)
 				VecUnroll<B>::div(step_field[i-1].range,step_field[i-1].end-step_field[i-1].start,v0);
 			VecUnroll<B>::div(step_field[i].range,step_field[i].end-step_field[i].start,v1);
-			if (i+1 < step_field.length())
+			if (i+1 < step_field.GetLength())
 				VecUnroll<B>::div(step_field[i+1].range,step_field[i+1].end-step_field[i+1].start,v2);
 			if (i)
 				VecUnroll<B>::center(v0,v1,step_field[i].slope0);
-			if (i+1 < step_field.length())
+			if (i+1 < step_field.GetLength())
 				VecUnroll<B>::center(v1,v2,step_field[i].slope1);
 		}
-		VecUnroll<B>::div(step_field.last().range,step_field.last().end-step_field.last().start,step_field.last().slope1);
-		//CGS_MSG("Final slope calculated at "+_toString(step_field.last().slope1,B));
+		VecUnroll<B>::div(step_field.Last().range,step_field.Last().end-step_field.Last().start,step_field.Last().slope1);
+		//CGS_MSG("Final slope calculated at "+_toString(step_field.Last().slope1,B));
 	}
 
 
@@ -5510,12 +5510,12 @@ template <class T, unsigned B>
 	void	TraceA<T,B>::current(const double&time, double out[B])	const
 	{
 		VecUnroll<B>::clear(out);
-		if (!step_field.length() || time <= step_field.First().start)
+		if (!step_field.GetLength() || time <= step_field.First().start)
 			return;
 	
-		for (index_t i = 0; i < step_field.length(); i++)
+		for (index_t i = 0; i < step_field.GetLength(); i++)
 		{
-			//CGS_MSG("Processing step "+String(i)+"/"+String(step_field.length()));
+			//CGS_MSG("Processing step "+String(i)+"/"+String(step_field.GetLength()));
 			const TStep<B>&step = step_field[i];
 			if (time < step.start)
 				return;
@@ -5571,10 +5571,10 @@ template <class T, unsigned B>
 	for (index_t i = 0; i < traces.Count(); i++)
 	{
 		ByteStreamBuffer trace;
-		trace << (UINT32)traces[i].target->name.length();
-		trace.Append(traces[i].target->name.c_str(),traces[i].target->name.length());
+		trace << (UINT32)traces[i].target->name.GetLength();
+		trace.Append(traces[i].target->name.c_str(),traces[i].target->name.GetLength());
 		double delta;
-		for (index_t j = 0; j < traces[i].step_field.length(); j++)
+		for (index_t j = 0; j < traces[i].step_field.GetLength(); j++)
 		{
 			delta = traces[i].step_field[j].end - traces[i].step_field[j].start;
 			trace.Append(delta);
@@ -5634,7 +5634,7 @@ void AnimatorA<Def>::loadTraces(Ctr::ArrayData<TraceA<T,B> >&array,Riff::File&ri
 						trace.tname.TrimThis();
 
 						double time(0),len;
-						for (index_t i = 0; i < trace.step_field.length(); i++)
+						for (index_t i = 0; i < trace.step_field.GetLength(); i++)
 						{
 							trace.step_field[i].start = time;
 							riff.Stream(len);
@@ -5660,7 +5660,7 @@ void AnimatorA<Def>::loadTraces(Ctr::ArrayData<TraceA<T,B> >&array,Riff::File&ri
 						riff.Stream(trace.tname.mutablePointer(),name_length);
 						trace.step_field.SetSize((riff.GetSize()-riff.StreamTell())/((1+B*3)*sizeof(double)));
 						double time(0),len;
-						for (index_t i = 0; i < trace.step_field.length(); i++)
+						for (index_t i = 0; i < trace.step_field.GetLength(); i++)
 						{
 							trace.step_field[i].start = time;
 							riff.Stream(len);
@@ -5704,16 +5704,16 @@ template <class Def> double AnimatorA<Def>::executionTime()	const
 {
 	double len = 0;
 			
-	for (index_t i = 0; i < obj_trace_field.length(); i++)
-		for (index_t j = 0; j < obj_trace_field[i].step_field.length(); j++)
+	for (index_t i = 0; i < obj_trace_field.GetLength(); i++)
+		for (index_t j = 0; j < obj_trace_field[i].step_field.GetLength(); j++)
 			if (obj_trace_field[i].step_field[j].end > len)
 				len = obj_trace_field[i].step_field[j].end;
-	for (index_t i = 0; i < acc_trace_field.length(); i++)
-		for (index_t j = 0; j < acc_trace_field[i].step_field.length(); j++)
+	for (index_t i = 0; i < acc_trace_field.GetLength(); i++)
+		for (index_t j = 0; j < acc_trace_field[i].step_field.GetLength(); j++)
 			if (acc_trace_field[i].step_field[j].end > len)
 				len = acc_trace_field[i].step_field[j].end;
-	for (index_t i = 0; i < whl_trace_field.length(); i++)
-		for (index_t j = 0; j < whl_trace_field[i].step_field.length(); j++)
+	for (index_t i = 0; i < whl_trace_field.GetLength(); i++)
+		for (index_t j = 0; j < whl_trace_field[i].step_field.GetLength(); j++)
 			if (whl_trace_field[i].step_field[j].end > len)
 				len = whl_trace_field[i].step_field[j].end;
 	return len;
@@ -5726,7 +5726,7 @@ template <class Def> void AnimatorA<Def>::link(Geometry<Def>*domain)
 	count_t invalid;
 	
 	invalid = 0;
-	for (index_t i = 0; i < obj_trace_field.length(); i++)
+	for (index_t i = 0; i < obj_trace_field.GetLength(); i++)
 	{
 		obj_trace_field[i].target = domain->lookupObject(obj_trace_field[i].tname);
 		if (!obj_trace_field[i].target)
@@ -5734,9 +5734,9 @@ template <class Def> void AnimatorA<Def>::link(Geometry<Def>*domain)
 	}
 	if (invalid)
 	{
-		Ctr::Array<TraceA<SubGeometryA<Def>,6>,Adopt>	new_field(obj_trace_field.length()-invalid);
+		Ctr::Array<TraceA<SubGeometryA<Def>,6>,Adopt>	new_field(obj_trace_field.GetLength()-invalid);
 		index_t at = 0;
-		for (index_t i = 0; i < obj_trace_field.length(); i++)
+		for (index_t i = 0; i < obj_trace_field.GetLength(); i++)
 		{
 			if (obj_trace_field[i].target)
 				new_field[at++] = obj_trace_field[i];
@@ -5746,7 +5746,7 @@ template <class Def> void AnimatorA<Def>::link(Geometry<Def>*domain)
 	
 	
 	invalid = 0;
-	for (index_t i = 0; i < acc_trace_field.length(); i++)
+	for (index_t i = 0; i < acc_trace_field.GetLength(); i++)
 	{
 		acc_trace_field[i].target = domain->lookupAccelerator(acc_trace_field[i].tname);
 		if (!acc_trace_field[i].target)
@@ -5754,9 +5754,9 @@ template <class Def> void AnimatorA<Def>::link(Geometry<Def>*domain)
 	}
 	if (invalid)
 	{
-		Ctr::Array<TraceA<TAccelerator<Def>,1>,Adopt>	new_field(acc_trace_field.length()-invalid);
+		Ctr::Array<TraceA<TAccelerator<Def>,1>,Adopt>	new_field(acc_trace_field.GetLength()-invalid);
 		index_t at = 0;
-		for (index_t i = 0; i < acc_trace_field.length(); i++)
+		for (index_t i = 0; i < acc_trace_field.GetLength(); i++)
 		{
 			if (acc_trace_field[i].target)
 				new_field[at++] = acc_trace_field[i];
@@ -5765,7 +5765,7 @@ template <class Def> void AnimatorA<Def>::link(Geometry<Def>*domain)
 	}
 	
 	invalid = 0;
-	for (index_t i = 0; i < whl_trace_field.length(); i++)
+	for (index_t i = 0; i < whl_trace_field.GetLength(); i++)
 	{
 		whl_trace_field[i].target = domain->lookupWheel(whl_trace_field[i].tname);
 		if (!whl_trace_field[i].target)
@@ -5773,9 +5773,9 @@ template <class Def> void AnimatorA<Def>::link(Geometry<Def>*domain)
 	}
 	if (invalid)
 	{
-		Ctr::Array<TraceA<TWheel<Def>,2>,Adopt>		new_field(whl_trace_field.length()-invalid);
+		Ctr::Array<TraceA<TWheel<Def>,2>,Adopt>		new_field(whl_trace_field.GetLength()-invalid);
 		index_t at = 0;
-		for (index_t i = 0; i < whl_trace_field.length(); i++)
+		for (index_t i = 0; i < whl_trace_field.GetLength(); i++)
 		{
 			if (whl_trace_field[i].target)
 				new_field[at++] = whl_trace_field[i];
@@ -5786,7 +5786,7 @@ template <class Def> void AnimatorA<Def>::link(Geometry<Def>*domain)
 
 template <class Def> void AnimatorA<Def>::saveToRiff(Riff::Chunk*riff)	const
 {
-	riff->AppendBlock("ANIM",name.c_str(),name.length());
+	riff->AppendBlock("ANIM",name.c_str(),name.GetLength());
 	Riff::Chunk*list = riff->AppendBlock("LIST");
 		saveTraces(obj_trace_field,list,"OTR2");
 		saveTraces(acc_trace_field,list,"ATR2");
@@ -5818,7 +5818,7 @@ template <class Def>
 			return;
 		normalsFromQuad = currentLOD->quadIndices.Count();
 		normalsFromTriangle = currentLOD->triangleIndices.Count();
-		normalsFromVertex = currentLOD->vertexData.length() / config.vsize;
+		normalsFromVertex = currentLOD->vertexData.GetLength() / config.vsize;
 	}
 
 template <class Def> 
@@ -5826,7 +5826,7 @@ template <class Def>
 	{
 		if (!(config.vertexFlags & HasNormalFlag))
 			return;
-		const count_t numVertices = currentLOD->vertexData.length() / config.vsize;
+		const count_t numVertices = currentLOD->vertexData.GetLength() / config.vsize;
 		const count_t numQuadIndices = currentLOD->quadIndices.Count();
 		const count_t numTriIndices = currentLOD->triangleIndices.Count();
 		Float*vertexData = currentLOD->vertexData.pointer();
@@ -5880,8 +5880,8 @@ template <class Def>
 		for (index_t l = 0; l < lods.Count(); l++)
 		{
 			const LOD&lod = lods[l];
-			ASSERT__(!(lod.vertexData.length()%config.vsize));
-			const count_t numVertices = lod.vertexData.length()/config.vsize;
+			ASSERT__(!(lod.vertexData.GetLength()%config.vsize));
+			const count_t numVertices = lod.vertexData.GetLength()/config.vsize;
 			ASSERT__(!(lod.triangleIndices.Count()%3));
 			ASSERT__(!(lod.quadIndices.Count()%4));
 			for (index_t i = 0; i < lod.triangleIndices.Count(); i++)
@@ -5896,11 +5896,11 @@ template <class Def>
 			{
 				Ctr::Array<bool>	used(numVertices);
 				used.Fill(false);
-				for (index_t i = 0; i < lod.triangleIndices.length(); i++)
+				for (index_t i = 0; i < lod.triangleIndices.GetLength(); i++)
 					used[lod.triangleIndices[i]] = true;
-				for (index_t i = 0; i < lod.quadIndices.length(); i++)
+				for (index_t i = 0; i < lod.quadIndices.GetLength(); i++)
 					used[lod.quadIndices[i]] = true;
-				for (index_t i = 0; i < used.length(); i++)
+				for (index_t i = 0; i < used.GetLength(); i++)
 					ASSERT1__(used[i],i);
 			}
 		}
@@ -5925,7 +5925,7 @@ template <class Def>
 		Float	min = std::numeric_limits<Float>::max(),	//no error
 				max = std::numeric_limits<Float>::min();
 		M::Box<Float>	result(min,min,min,max,max,max);
-		const count_t numVertices = lods[lod].vertexData.length()/config.vsize;
+		const count_t numVertices = lods[lod].vertexData.GetLength()/config.vsize;
 		const Float*vdata = lods[lod].vertexData.pointer();
 		for (index_t i = 0; i < numVertices; i++)
 		{

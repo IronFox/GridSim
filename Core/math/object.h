@@ -417,7 +417,7 @@ namespace DeltaWorks
 
 		/*!
 			\overload
-			\param vertex_field Vertex float field. Each vertex is required to provide two components (x and y). Thus the number of polygon vertices is vertex_field.length()/2
+			\param vertex_field Vertex float field. Each vertex is required to provide two components (x and y). Thus the number of polygon vertices is vertex_field.GetLength()/2
 		*/
 		MFUNC2	(bool)		_oTriangulate(const Ctr::ArrayData<M::TVec2<C0> >&vertex_field, Mesh<C1>&target);//two entries per vertex
 

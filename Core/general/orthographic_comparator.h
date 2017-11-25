@@ -52,10 +52,10 @@ namespace DeltaWorks
 		}
 		
 		template <typename T0, typename T1>
-			OrthographicComparison&	AddCompareTo(const T0&object0, const T1&object1)	//! Adds a comparison by compareTo() method invokation. @a object0 must implement a compareTo() method that accepts @a object1 as parameter. No comparison is performed if the local comparison has already come to a decision
+			OrthographicComparison&	AddCompareTo(const T0&object0, const T1&object1)	//! Adds a comparison by CompareTo() method invokation. @a object0 must implement a CompareTo() method that accepts @a object1 as parameter. No comparison is performed if the local comparison has already come to a decision
 			{
 				if (current == 0)
-					current = object0.compareTo(object1);
+					current = object0.CompareTo(object1);
 				return *this;
 			}
 

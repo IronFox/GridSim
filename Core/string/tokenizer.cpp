@@ -26,14 +26,14 @@ namespace DeltaWorks
 
 	void        StringTokenizer::reg(const String&pattern, unsigned ident, bool left_open, bool right_open)
 	{
-		if (!pattern.length())
+		if (!pattern.GetLength())
 			return;
 		Pattern	p;
 		p.ident = ident;
 		p.pre_open = left_open;
 		p.post_open = right_open;
 		p.pattern = pattern;
-		p.length = p.pattern.length();
+		p.length = p.pattern.GetLength();
 		if (p.pre_open)
 			open[(BYTE)pattern.FirstChar()] << p;
 		else
@@ -62,7 +62,7 @@ namespace DeltaWorks
 		root[p.length] = 0;
 		t.ident = p.ident;
 		t.content = root;
-		t.index = out.length()-1;
+		t.index = out.GetLength()-1;
 		root[p.length] = old;
 	}
 
@@ -72,7 +72,7 @@ namespace DeltaWorks
 		*current = 0;
 
 		TToken&t = out.append();
-		t.index = out.length()-1;
+		t.index = out.GetLength()-1;
 		t.ident = string_ident;
 		t.content = root;
 		*current = old;
@@ -117,7 +117,7 @@ namespace DeltaWorks
 	{
 		if (!sorted)
 			FATAL__("Please call finalize() before parsing");
-		size_t len = string.length();
+		size_t len = string.GetLength();
 		if (!len)
 			return;
         
@@ -129,7 +129,7 @@ namespace DeltaWorks
 	void	StringTokenizer::parse(Ctr::Array<char>&field,TokenList&out)	const
 	{
 		char  *current = field.pointer(),
-			  *end = field+field.length()-1;
+			  *end = field+field.GetLength()-1;
 		if (*end != 0)
 			end++;
           
@@ -200,7 +200,7 @@ namespace DeltaWorks
 		for (index_t i = 0; i < ARRAYSIZE(list); i++)
 		{
 			rs+="row "+String(i)+" ('"+(char)i+"'): ";
-			for (index_t j = 0; j < list[i].length(); j++)
+			for (index_t j = 0; j < list[i].GetLength(); j++)
 			{
 				const Pattern&p = list[i][j];
 				rs+="'"+p.pattern+"'("+String(p.length)+") ";
@@ -210,7 +210,7 @@ namespace DeltaWorks
 		for (index_t i = 0; i < ARRAYSIZE(open); i++)
 		{
 			rs+="open row "+String(i)+" ('"+(char)i+"'): ";
-			for (index_t j = 0; j < list[i].length(); j++)
+			for (index_t j = 0; j < list[i].GetLength(); j++)
 			{
 				const Pattern&p = open[i][j];
 				rs+="'"+p.pattern+"'("+String(p.length)+") ";

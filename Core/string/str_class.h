@@ -24,7 +24,7 @@ as the Borland AnsiString-class.
 
 
 #include <string.h>
-
+#include "charSequence.h"
 
 
 
@@ -110,16 +110,10 @@ void	gotoxy(int x, int y);	//!< Locates the console out cursor at the specified 
 #define STRING_METHOD_END	//cout << "function leave ("<<__LINE__<<"): "<<__func__<<endl; ::flush(cout);
 
 
-#define STRING_CHECK(_STRING_)	ASSERT_EQUAL__((_STRING_).length(),strlen((_STRING_).c_str()))
+#define STRING_CHECK(_STRING_)	ASSERT_EQUAL__((_STRING_).GetLength(),strlen((_STRING_).c_str()))
 
 #define CHECK_STRING(_STRING_)	STRING_CHECK(_STRING_)
 
-#ifdef _MSC_VER
-	#define strcmpi _strcmpi
-	#define strnicmp _strnicmp
-	#define wcscmpi _wcsicmp
-
-#endif
 
 #ifdef __llvm__
 	#define strnicmp	strncasecmp
@@ -207,299 +201,42 @@ namespace DeltaWorks
 		Used to reference a character array segment without copying
 		*/
 		template <typename T>
-			class ReferenceExpression
+			class ReferenceExpression : public Sequence<const T>
 			{
-			private:
-				const T			*reference;
-				size_t			len;
 			public:
-				typedef const T*iterator,const_iterator;
+				typedef Sequence<const T>	Super;
 				typedef ReferenceExpression<T> Self;
 
-				/**/			ReferenceExpression():reference(NULL),len(0) {}
-				/**/			ReferenceExpression(const T*str):reference(str),len(CharFunctions::strlen(str)) {}
-				/**/			ReferenceExpression(const T*str, size_t length):reference(str),len(length)
+				/**/			ReferenceExpression() {}
+				/**/			ReferenceExpression(const T*str):Super(str) {}
+				/**/			ReferenceExpression(const T*str, size_t length):Super(str,length)
 				{
-					while (len > 0 && str[len-1] == 0)
-						len--;
+					while (Super::elements > 0 && Super::data[Super::elements-1] == 0)
+						Super::elements--;
 				}
-
-
-				friend hash_t	Hash(const Self&ref)
-				{
-					return StdCharHash(ref.pointer(),ref.size());
-				}
-
-				iterator		begin() const {return reference;}
-				iterator		end() const {return reference + len;}
-				bool			IsEmpty() const {return len == 0;}
-				bool			IsNotEmpty() const {return len != 0;}
 				inline bool		DropLastChar()
 								{
-									if (!len)
+									if (!Super::elements)
 										return false;
-									len--;
+									Super::elements--;
 									return true;
 								}
 				inline bool		DropFirstChar()
 								{
-									if (!len)
+									if (!Super::elements)
 										return false;
-									len--;
-									reference++;
+									Super::elements--;
+									Super::data++;
 									return true;
 								}
-				inline bool		EndsWith(const T*str) const
-								{
-									size_t slen = CharFunctions::strlen(str);
-									if (slen > len)
-										return false;
-									return !CharFunctions::strncmp(reference+len-slen,str, slen);
-								}
-				inline bool		EndsWith(T c) const
-								{
-									if (!len)
-										return false;
-									return reference[len-1] == c;
-								}
-				inline bool		BeginsWith(const T*str) const
-								{
-									size_t slen = CharFunctions::strlen(str);
-									if (slen > len)
-										return false;
-									return !CharFunctions::strncmp(reference,str, slen);
-								}
-				inline bool		BeginsWith(T c) const
-								{
-									if (!len)
-										return false;
-									return reference[0] == c;
-								}
-				inline T		GetFirstChar() const
-								{
-									if (!len)
-										FATAL__("Cannot access first char. Expression is empty");
-									return *reference;
-								}
-				inline T		GetLastChar() const
-								{
-									if (!len)
-										FATAL__("Cannot access first char. Expression is empty");
-									return reference[len-1];
-								}
-				inline T		operator[](index_t at) const
-								{
-									return reference[at];
-								}
-				inline size_t	length()	const	//! Retrieves the length of the reference character segment (excluding any trailing zero) @return Length in characters
-								{
-									return len;
-								}
-				inline size_t	size() const {return len;}
-				inline size_t	GetLength() const {return len;}
-				inline const T*	pointer()	const
-								{
-									return reference;
-								}
-				inline ReferenceExpression<T>	SubStringRefS(sindex_t index, count_t count = (count_t)-1)	 const;
-				inline ReferenceExpression<T>	SubStringRef(index_t index, count_t count = (count_t)-1) const	{return SubStringRefS((sindex_t)index,count);}
-				inline ReferenceExpression<T>	Trim() const;
-				inline ReferenceExpression<T>	TrimLeft() const;
-				inline ReferenceExpression<T>	TrimRight() const;
+
+				inline Self		SubStringRefS(sindex_t index, count_t count = (count_t)-1)	 const;
+				inline Self		SubStringRef(index_t index, count_t count = (count_t)-1) const	{return SubStringRefS((sindex_t)index,count);}
+				inline Self		Trim() const;
+				inline Self		TrimLeft() const;
+				inline Self		TrimRight() const;
 				inline Template<char>		ToString()			const;	//!< Converts the expression architecture including data to a string for debug output
 
-				/**
-				Attempts to locate the last occurance of the specified string.
-				Search is case sensitive.
-				@param needle String segment to look for
-				@param offset Index to start from (first character). Reduced if necessary
-				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t			FindLast(const Self&needle, index_t offset = InvalidIndex)	const;
-				/**
-				Attempts to locate the last occurance of the specified character.
-				Search is case sensitive.
-				@param needle Character to look for
-				@param offset Index to start from. Reduced if necessary
-				@return Index of the found character (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t			FindLast(T needle, index_t offset = InvalidIndex)					const;
-								/**
-				Attempts to locate the first occurance of the specified string.
-				Search is case sensitive.
-				@param needle String segment to look for
-				@param offset Index to start from 
-				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t			Find(const Self&needle, index_t offset = 0)	const;
-				/**
-				Attempts to locate the first occurance of the specified (zero-terminated) string.
-				Search is case sensitive.
-				@param needle Pointer to the first character of the string segment to look for
-				@param offset Index to start from 
-				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t			Find(const T*needle, index_t offset = 0)		const	{return Find(Self(needle),offset);}
-				/**
-				Attempts to locate the first occurance of the specified character.
-				Search is case sensitive.
-				@param needle Character to look for
-				@param offset Index to start from 
-				@return Index of the found character (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t			Find(T needle, index_t offset = 0)					const;
-				/**
-				Attempts to locate the first occurance of a character for which the specified callback function returns true.
-				Search is case sensitive.
-				@param callback Pointer to a function to determine whether a character is a valid match. The function should return true if the character is a valid match, false otherwise
-				@param offset Index to start from 
-				@return Index of the found character (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t			Find(bool callback(T), index_t offset = 0) const;
-				/**
-				Searches the local string for the first occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric.
-				Search is case sensitive.
-				@param needle String to search for
-				@param offset Index to start from 
-				@return Starting index of the found word (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t			FindWord(const T*needle, index_t offset = 0) const	{return FindWord(ReferenceExpression<T>(needle),offset);}
-				/**
-				@copydoc FindWord()
-				*/
-				index_t			FindWord(const Self&needle, index_t offset = 0) const;
-
-				/**
-				Attempts to locate the first occurance of the specified string.
-				Search ignores case.
-				@param needle String segment to look for
-				@param offset Index to start from 
-				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t			FindIgnoreCase(const Self&needle, index_t offset = 0)	const;
-				/**
-				Attempts to locate the first occurance of the specified (zero-terminated) string.
-				Search ignores case.
-				@param needle Pointer to the first character of the string segment to look for
-				@param offset Index to start from 
-				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t			FindIgnoreCase(const T*needle, index_t offset = 0)		const	{return FindIgnoreCase(Self(needle),offset);}
-				/**
-				Attempts to locate the first occurance of the specified character.
-				Search ignores case.
-				@param needle Character to look for
-				@param offset Index to start from 
-				@return Index of the found character (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t			FindIgnoreCase(T needle, index_t offset = 0)					const;
-
-				/**
-				Searches the local string for the first occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric.
-				Search ignores case.
-				@param needle String to search for
-				@param offset Index to start from 
-				@return Starting index of the found word (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t			FindWordIgnoreCase(const T*needle, index_t offset = 0) const	{return FindWordIgnoreCase(ReferenceExpression<T>(needle),offset);}
-				/**
-				@copydoc FindWordIgnoreCase()
-				*/
-				index_t			FindWordIgnoreCase(const Self&needle, index_t offset = 0) const;
-
-
-				inline void		print(std::ostream&stream)			const;	//!< Prints the local expression content to the specified stream @param stream Stream to print to
-				#ifdef WCOUT
-					inline void	print(std::wostream&stream)			const;	//!< Prints the local expression content to the specified wide character stream @param stream Stream to print to
-				#endif
-				template <class Stream>
-					inline void	printArchitecture(Stream&stream)			const
-								{
-									stream << "reference<\"";
-									print(stream);
-									stream << "\", "<<length()<<">";
-								}
-	
-				inline T*		WriteTo(T*target)	const				//! Writes the local expression content to a character array. The array must be sufficiently large since the operation does not perform any length checks. @param target Character array to write to @return Ctr::Array position once the operation is completed. The returned pointer points one character past the last written character
-								{
-									memcpy(target,reference,len*sizeof(T));
-									return target+len;
-								}
-				template <typename T2>
-					inline	T2*	WriteTo(T2*target)	const				//! Type variant version of the above. @overload
-								{
-									for (size_t i = 0; i < len; i++)
-										(*target++) = reference[i];
-									return target;
-								}
-						
-				inline T*		WriteTo(T*target, T*end)	const		//! Writes the local expression content to a character array of constrained size. @param target Character array to write to @param end Pointer to one past the last writable character. @return Ctr::Array position once the operation is completed. The returned pointer points one character past the last written character. The returned pointer will not point further than @a end
-								{
-									size_t cpy = end-target;
-									if (len < cpy)
-										cpy = len;
-									memcpy(target,reference,cpy*sizeof(T));
-									return target+cpy;
-								}
-						
-				template <typename T2>
-					inline T2*	WriteTo(T2*target, T2*end)	const				//! Type variant version of the above. @overload
-								{
-									for (size_t i = 0; i < len && target < end; i++)
-										(*target++) = reference[i];
-									return target;
-								}
-
-				template <typename T2>
-					inline int	compareSegment(const T2*string, size_t string_length)	const	//! Nested compare method
-								{
-									int result = CharFunctions::strncmp(reference,string,string_length<len?string_length:len);
-									if (result)
-										return result;
-									if (string_length < len)
-										return 1;
-									return 0;
-								}
-				template <typename T2>
-					inline int	compareTo(const T2*string, size_t string_length)	const	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param string_length Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
-								{
-									int result = compareSegment(string,string_length);
-									if (!result && string_length > len)
-										result = -1;
-									return result;
-								}
-				template <typename T2>
-					inline int	compareSegmentIgnoreCase(const T2*string, size_t string_length)	const	//! Nested compare method (case ignore)
-								{
-									int result = CharFunctions::strncmpi(reference,string,string_length<len?string_length:len);
-									if (result)
-										return result;
-									if (string_length < len)
-										return 1;
-									return 0;
-								}
-				template <typename T2>
-					inline int	compareToIgnoreCase(const T2*string, size_t string_length)	const	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param string_length Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
-								{
-									int result = compareSegmentIgnoreCase(string,string_length);
-									if (!result && string_length > len)
-										result = -1;
-									return result;
-								}
-				template <typename T2>
-					inline int	CompareToIgnoreCase(const T2*string)	const	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param string_length Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
-								{
-									size_t slen = CharFunctions::strlen(string);
-									int result = compareSegmentIgnoreCase(string,slen);
-									if (!result && slen > len)
-										result = -1;
-									return result;
-								}
-				template <typename T2>
-					inline bool	references(const T2*field)	const	//! Checks whether this expression references the specified field @param field Pointer to the field to look for @return true if the pointer was found, false otherwise
-								{
-									return (const T*)field == reference;
-								}
 				template <typename T2>
 					inline ConcatExpression<ReferenceExpression<T>,ReferenceExpression<T2> >
 								operator+(const ReferenceExpression<T2>&expression)	const;
@@ -513,20 +250,20 @@ namespace DeltaWorks
 					inline ConcatExpression<ReferenceExpression<T>,CharacterExpression<T2> >
 								operator+(const CharacterExpression<T2>&expression)	const;
 	
-				template <typename T2>
-					bool		operator<(const Template<T2>&other)	const;
-				template <typename T2>
-					bool		operator<=(const Template<T2>&other)	const;
-				template <typename T2>
-					bool		operator>(const Template<T2>&other)	const;
-				template <typename T2>
-					bool		operator>=(const Template<T2>&other)	const;
-				template <typename T2>
-					bool		operator!=(const Template<T2>&other)	const;
-				template <typename T2>
-					bool		operator==(const Template<T2>&other)	const;
-				bool			operator==(const T*str)	const	{size_t l = CharFunctions::strlen(str); return l == len && CharFunctions::strncmp(str,reference,len) == 0;}
-				bool			operator!=(const T*str)	const	{return !operator==(str);}
+				//template <typename T2>
+				//	bool		operator<(const ConstArrayRef<T2>&other)	const	{return Super::operator<(other);}
+				//template <typename T2>
+				//	bool		operator<=(const ConstArrayRef<T2>&other)	const	{return Super::operator<=(other);}
+				//template <typename T2>
+				//	bool		operator>(const ConstArrayRef<T2>&other)	const	{return Super::operator>(other);}
+				//template <typename T2>
+				//	bool		operator>=(const ConstArrayRef<T2>&other)	const	{return Super::operator>=(other);}
+				//template <typename T2>
+				//	bool		operator!=(const ConstArrayRef<T2>&other)	const	{return Super::operator!=(other);}
+				//template <typename T2>
+				//	bool		operator==(const ConstArrayRef<T2>&other)	const	{return Super::operator==(other);}
+				//bool			operator==(const T*str)	const	{return Super::operator==(str);}
+				//bool			operator!=(const T*str)	const	{return Super::operator==(str);}
 			};
 
 		/**
@@ -542,27 +279,27 @@ namespace DeltaWorks
 			public:
 								CharacterExpression(T c):ch(c)
 								{}
-			inline	size_t		length()	const	//! Retrieves the length of the local expression @return Length in characters
+			inline	size_t		GetLength()	const	//! Retrieves the length of the local expression @return Length in characters
 								{
 									return 1;
 								}
 			inline	Template<char>		ToString()			const;
-			inline	void		print(std::ostream&stream)			const	//! Prints the local expression content to the specified stream @param stream Stream to print to
+			inline	void		Print(std::ostream&stream)			const	//! Prints the local expression content to the specified stream @param stream Stream to print to
 								{
 									stream << (char)ch;
 								}
 			#ifdef WCOUT
-				inline	void	print(std::wostream&stream)			const
+				inline	void	Print(std::wostream&stream)			const
 								{
 									stream << (wchar_t)ch;
 								}
 			#endif
 			template <class Stream>
-				inline	void	printArchitecture(Stream&stream)			const
+				inline	void	PrintArchitecture(Stream&stream)			const
 								{
 									stream << "character<";
-									print(stream);
-									stream << ", "<<length()<<">";
+									Print(stream);
+									stream << ", "<<GetLength()<<">";
 								}
 	
 			inline	T*			WriteTo(T*target)	const				//! Writes the local expression content to a character array. The array must be sufficiently large since the operation does not perform any length checks. @param target Character array to write to @return Ctr::Array position once the operation is completed. The returned pointer points one character past the last written character
@@ -593,46 +330,46 @@ namespace DeltaWorks
 								}
 
 			template <typename T2>
-				inline	int		compareSegment(const T2*string, size_t string_length)	const	//! Nested compare method
+				inline	int		CompareSegment(const T2*string, size_t cmpLen)	const	//! Nested compare method
 								{
 									T	compare_to[2] = {ch,0};
-									int result = CharFunctions::strncmp(compare_to,string,string_length?1:0);
+									int result = CharFunctions::strncmp(compare_to,string,cmpLen?1:0);
 									if (result)
 										return result;
-									if (string_length < 1)
+									if (cmpLen < 1)
 										return 1;
 									return 0;
 								}
 			template <typename T2>
-				inline	int		compareTo(const T2*string, size_t string_length)	const	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param string_length Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
+				inline	int		CompareTo(const T2*string, size_t cmpLen)	const	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param Super::elements Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
 								{
-									int result = compareSegment(string,string_length);
-									if (!result && string_length > 1)
+									int result = CompareSegment(string,cmpLen);
+									if (!result && cmpLen > 1)
 										result = -1;
 									return result;
 								}
 						
 			template <typename T2>
-				inline	int		compareSegmentIgnoreCase(const T2*string, size_t string_length)	const	//! Nested compare method
+				inline	int		CompareSegmentIgnoreCase(const T2*string, size_t cmpLen)	const	//! Nested compare method
 								{
 									T	compare_to[2] = {ch,0};
-									int result = CharFunctions::strncmpi(compare_to,string,string_length?1:0);
+									int result = CharFunctions::strncmpi(compare_to,string,cmpLen?1:0);
 									if (result)
 										return result;
-									if (string_length < 1)
+									if (cmpLen < 1)
 										return 1;
 									return 0;
 								}
 			template <typename T2>
-				inline	int		compareToIgnoreCase(const T2*string, size_t string_length)	const	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param string_length Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
+				inline	int		CompareToIgnoreCase(const T2*string, size_t cmpLen)	const	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param Super::elements Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
 								{
-									int result = compareSegmentIgnoreCase(string,string_length);
-									if (!result && string_length > 1)
+									int result = CompareSegmentIgnoreCase(string,cmpLen);
+									if (!result && cmpLen > 1)
 										result = -1;
 									return result;
 								}
 			template <typename T2>
-				inline	bool	references(const T2*field)	const	//! Checks whether this expression references the specified field @param field Pointer to the field to look for @return true if the pointer was found, false otherwise
+				inline	bool	References(const T2*)	const	//! Checks whether this expression references the specified Super::data @param Super::data Pointer to the Super::data to look for @return true if the pointer was found, false otherwise
 								{
 									return false;
 								}
@@ -687,13 +424,13 @@ namespace DeltaWorks
 								{}
 							#endif
 			template <typename T2>
-				inline	int		compareSegment(const T2*string, size_t string_length)	const;	//! Nested compare method
+				inline	int		CompareSegment(const T2*string, size_t cmpLen)	const;	//! Nested compare method
 			template <typename T2>
-				inline	int		compareTo(const T2*string, size_t string_length)	const;	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param string_length Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
+				inline	int		CompareTo(const T2*string, size_t cmpLen)	const;	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param Super::elements Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
 			template <typename T2>
-				inline	int		compareSegmentIgnoreCase(const T2*string, size_t string_length)	const;	//! Nested compare method
+				inline	int		CompareSegmentIgnoreCase(const T2*string, size_t cmpLen)	const;	//! Nested compare method
 			template <typename T2>
-				inline	int		compareToIgnoreCase(const T2*string, size_t string_length)	const;	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param string_length Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
+				inline	int		CompareToIgnoreCase(const T2*string, size_t cmpLen)	const;	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param Super::elements Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
 			inline	Template<char>		ToString()			const;
 		
 
@@ -711,18 +448,18 @@ namespace DeltaWorks
 								operator+(const ConcatExpression<T2,T3>&expression)	const;
 						
 			template <typename T2>
-				inline	bool	references(const T2*pointer)	const	//! Checks whether this expression references the specified field @param field Pointer to the field to look for @return true if the pointer was found, false otherwise
+				inline	bool	References(const T2*pointer)	const	//! Checks whether this expression references the specified Super::data @param Super::data Pointer to the Super::data to look for @return true if the pointer was found, false otherwise
 								{
-									return false; //pointer == Template<T>::field;	//don't need to actually compare because being a string object the pointer would be managed even if matching, preventing its deletion
+									return false; //pointer == Template<T>::Super::data;	//don't need to actually compare because being a string object the pointer would be managed even if matching, preventing its deletion
 								}
 			template <class Stream>
-				inline	void	print(Stream&stream)			const;	//!< Prints the local expression content to the specified stream @param stream Stream to print to
+				inline	void	Print(Stream&stream)			const;	//!< Prints the local expression content to the specified stream @param stream Stream to print to
 			template <class Stream>
-				inline	void	printArchitecture(Stream&stream)			const	//! Prints the local expression content and architecture to the specified stream @param stream Stream to print to
+				inline	void	PrintArchitecture(Stream&stream)			const	//! Prints the local expression content and architecture to the specified stream @param stream Stream to print to
 								{
 									stream << "string<\"";
-									print(stream);
-									stream << "\", "<<Template<T>::length()<<">";
+									Print(stream);
+									stream << "\", "<<Template<T>::GetLength()<<">";
 								}
 						
 			};
@@ -746,9 +483,9 @@ namespace DeltaWorks
 								ConcatExpression(T0&&expression0, T1&&expression1):exp0(expression0),exp1(expression1)
 								{}
 							#endif
-			inline	size_t		length()	const	//! Retrieves the length of the local expression @return Length in characters
+			inline	size_t		GetLength()	const	//! Retrieves the length of the local expression @return Length in characters
 								{
-									return exp0.length()+exp1.length();
+									return exp0.GetLength()+exp1.GetLength();
 								}
 			template <typename T2>
 				inline	T2*		WriteTo(T2*target)	const				//! Writes the local expression content to a character array. The array must be sufficiently large since the operation does not perform any length checks. @param target Character array to write to @return Ctr::Array position once the operation is completed. The returned pointer points one character past the last written character
@@ -765,60 +502,60 @@ namespace DeltaWorks
 			inline	Template<char>		ToString()			const;
 
 			template <class Stream>
-				inline	void	print(Stream&stream)			const	//! Prints the local expression content to the specified stream @param stream Stream to print to
+				inline	void	Print(Stream&stream)			const	//! Prints the local expression content to the specified stream @param stream Stream to print to
 								{
-									exp0.print(stream);
-									exp1.print(stream);
+									exp0.Print(stream);
+									exp1.Print(stream);
 								}			
 			template <class Stream>
-				inline	void	printArchitecture(Stream&stream)			const
+				inline	void	PrintArchitecture(Stream&stream)			const
 								{
 									stream << "concat<";
-									exp0.printArchitecture(stream);
+									exp0.PrintArchitecture(stream);
 									stream << ", ";
-									exp1.printArchitecture(stream);
-									stream << ", "<<length()<<">";
+									exp1.PrintArchitecture(stream);
+									stream << ", "<<GetLength()<<">";
 								}
 						
 			template <typename T2>
-				inline	int		compareSegment(const T2*string, size_t string_length)	const	//! Nested compare method
+				inline	int		CompareSegment(const T2*string, size_t cmpLen)	const	//! Nested compare method
 								{
-									int rs = exp0.compareSegment(string,string_length);
+									int rs = exp0.CompareSegment(string,Super::elements);
 									if (rs)
 										return rs;
-									size_t	len0 = exp0.length(),
-											len1 = exp1.length();
-									if (string_length == len0)
+									size_t	len0 = exp0.GetLength(),
+											len1 = exp1.GetLength();
+									if (Super::elements == len0)
 										return !!len1;			//return isgreater if the second expression is longer 0, isequal otherwise
-									return exp1.compareSegment(string+len0,string_length-len0);
+									return exp1.CompareSegment(string+len0,Super::elements-len0);
 							
 								}
 			template <typename T2>
-				inline	int		compareTo(const T2*string, size_t string_length)	const	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param string_length Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
+				inline	int		CompareTo(const T2*string, size_t cmpLen)	const	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param Super::elements Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
 								{
-									int result = compareSegment(string,string_length);
-									if (!result && string_length > length())
+									int result = CompareSegment(string,Super::elements);
+									if (!result && Super::elements > GetLength())
 										result = -1;
 									return result;
 								}						
 			template <typename T2>
-				inline	int		compareSegmentIgnoreCase(const T2*string, size_t string_length)	const	//! Nested compare method
+				inline	int		CompareSegmentIgnoreCase(const T2*string, size_t cmpLen)	const	//! Nested compare method
 								{
-									int rs = exp0.compareSegmentIgnoreCase(string,string_length);
+									int rs = exp0.CompareSegmentIgnoreCase(string,Super::elements);
 									if (rs)
 										return rs;
-									size_t	len0 = exp0.length(),
-											len1 = exp1.length();
-									if (string_length == len0)
+									size_t	len0 = exp0.GetLength(),
+											len1 = exp1.GetLength();
+									if (Super::elements == len0)
 										return !!len1;			//return isgreater if the second expression is longer 0, isequal otherwise
-									return exp1.compareSegmentIgnoreCase(string+len0,string_length-len0);
+									return exp1.CompareSegmentIgnoreCase(string+len0,Super::elements-len0);
 							
 								}
 			template <typename T2>
-				inline	int		compareToIgnoreCase(const T2*string, size_t string_length)	const	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param string_length Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
+				inline	int		CompareToIgnoreCase(const T2*string, size_t cmpLen)	const	//! Expression comparison. Allows to orthographically compare the local string to the specified character segment @param string String to compare to @param Super::elements Number of characters that the specified string is in length @return -1 if the local expression is orthographically smaller than the specified string, 0 if it is equal, +1 if it is orthographically larger
 								{
-									int result = compareSegmentIgnoreCase(string,string_length);
-									if (!result && string_length > length())
+									int result = CompareSegmentIgnoreCase(string,Super::elements);
+									if (!result && Super::elements > GetLength())
 										result = -1;
 									return result;
 								}						
@@ -869,9 +606,9 @@ namespace DeltaWorks
 									return ConcatExpression<ConcatExpression<T0,T1>,ConcatExpression<T2,T3> >(*this,expression);
 								}
 			template <typename T2>
-				inline	bool	references(const T2*field)	const	//! Checks whether this expression references the specified field @param field Pointer to the field to look for @return true if the pointer was found, false otherwise
+				inline	bool	References(const T2*cmp)	const	//! Checks whether this expression references the specified Super::data @param Super::data Pointer to the Super::data to look for @return true if the pointer was found, false otherwise
 								{
-									return exp0.references(field) || exp1.references(field);
+									return exp0.References(cmp) || exp1.References(cmp);
 								}
 		
 		
@@ -899,81 +636,7 @@ namespace DeltaWorks
 					{}
 		};
 
-		/**
-		General purpose character markers, used internally by some methods of Template<>.
-		They must provide a ()-operator that accepts a character, and returns true it the character is marked.
-		Typically, this operator is const, but is not required to be.
-		Some applications may fail if the operator is not const.
-		*/
-		namespace Marker
-		{
 
-			template <typename T>
-				struct UnEscapeMarker
-				{
-					bool	escaped = false;
-					const T	escapeChar;
-
-					/**/	UnEscapeMarker(T escapeChar = T('\\')):escapeChar(escapeChar) {}
-					bool	operator()(T c) throw()
-					{
-						if (c == escapeChar)
-							escaped = !escaped;
-						else
-							escaped = false;
-						return escaped;
-					}
-				};
-
-			template <typename T>
-				struct FieldMarker
-				{
-					const T	*begin,
-							*end;
-
-					/**/	FieldMarker(const T*begin_, const T*end_):begin(begin_),end(end_) {}
-					/**/	FieldMarker(const T*begin_, size_t length):begin(begin_),end(begin_+length) {}
-
-					bool	operator()(T c) const throw()
-					{
-						for (const T*it = begin; it < end; it++)
-							if ((*it) == c)
-								return true;
-						return false;
-					}
-				};
-
-			template <typename T>
-				struct CaseInsensitiveFieldMarker
-				{
-					const T	*begin,
-							*end;
-
-					/**/	CaseInsensitiveFieldMarker(const T*begin_, const T*end_):begin(begin_),end(end_) {}
-					/**/	CaseInsensitiveFieldMarker(const T*begin_, size_t length):begin(begin_),end(begin_+length){}
-
-					bool	operator()(T c) const throw()
-					{
-						c = CharFunctions::tolower(c);
-						for (const T*it = begin; it < end; it++)
-							if (CharFunctions::tolower(*it) == c)
-								return true;
-						return false;
-					}
-				};
-
-			template <typename T>
-				struct CharacterMarker
-				{
-					T		chr;
-							CharacterMarker(T chr_):chr(chr_) {}
-
-					bool	operator()(T c) const throw()
-					{
-						return c == chr;
-					}
-				};
-		}
 
 		#if !__STR_EXPRESSION_TMPLATES__
 			template <typename T0, typename T1>
@@ -993,9 +656,10 @@ namespace DeltaWorks
 			The string object uses copy-on-write and block-wise allocations to keep memory allocations and freeing minimal.
 		*/
 		template <typename T>
-			class Template:public IHashable, public IString<T>
+			class Template:/*public IHashable, */public IString<T>, public Sequence<T>
 			{
 				typedef Template<T>	Self;
+				typedef Sequence<T> Super;
 			public:
 				typedef T		char_t;
 				static const count_t MaxLengthConst = std::numeric_limits<count_t>::max();
@@ -1009,25 +673,13 @@ namespace DeltaWorks
 				static const int 		anchor_entries = (int)__STR_REFERENCE_COUNT__ + (int)__STR_BLOCK_ALLOC__;
 				static const size_t 	anchor_size = sizeof(UINT32)*anchor_entries;
 	
-					/**
-						@brief Zero terminated string field. Never NULL
-			
-						@a field points to the first entry of the allocated character array. The size of this contained character array is aligned to the constant value stored in @a block_size<br />
-						Unless @a field points to @a sz, the four bytes preceding this pointer are used to store the reference counter.
-						If the reference counter (exists and) is 1 then the entire array is proprietary to the local string object and deleted together with it. The same character array may be shared between different string objects.
-						Shared character arrays are copied when modified.
-					*/
-					T				*field;
-					size_t			string_length;	//!< Number of characters of @a field that are currently used. Does neither include preceeding reference counter nor trailing zero. Trailing padding characters are also not counted.
-			
-				
 			static	T				zero;	//!< Terminal zero character (optional)
 			static	T				*sz;	//!< Points to a string containing just one character: the trailing zero. The allocation call allocating an empty string returns this pointer while delocating it results in no action taken.
 
 			#if __STR_REFERENCE_COUNT__
-				static inline UINT32&	count(T*field)	//! Retrieves a reference to the 32bit reference-counter preceding the specified character array. The specified array must be valid and not NULL
+				static inline UINT32&	count(T*Super::data)	//! Retrieves a reference to the 32bit reference-counter preceding the specified character array. The specified array must be valid and not NULL
 				{
-					return *(((UINT32*)field)-1);
+					return *(((UINT32*)Super::data)-1);
 				}
 			#endif
 	
@@ -1040,23 +692,23 @@ namespace DeltaWorks
 					friend inline Template<T0> operator+(wchar_t c, const Template<T0>&);
 			#endif
 	
-			static inline char*	root(T*field)	//!< Retrieves a pointer to the actually allocated memory section. Retrieving this pointer is required only if it is about to be deleted
+			static inline char*	root(T*p)	//!< Retrieves a pointer to the actually allocated memory section. Retrieving this pointer is required only if it is about to be deleted
 			{
-				return (char*)(((UINT32*)field)
+				return (char*)(((UINT32*)p)
 					-(int)__STR_BLOCK_ALLOC__
 					-(int)__STR_REFERENCE_COUNT__
 				);
 			}
 	
 			#if __STR_BLOCK_ALLOC__
-				static inline UINT32&	capacity(T*field)
+				static inline UINT32&	capacity(T*Super::data)
 				{
-					return *(((UINT32*)field)-1-(int)__STR_REFERENCE_COUNT__);
+					return *(((UINT32*)Super::data)-1-(int)__STR_REFERENCE_COUNT__);
 				}
 				/**
-					@brief Computes the recommended allocation size for a field that should contain at least @a field_length characters (including trailing zero).
+					@brief Computes the recommended allocation size for a Super::data that should contain at least @a field_length characters (including trailing zero).
 
-					pad() determines the field length (in characters) that should actually be allocated given the specified number of entries. Given that the trailing zero should be included in the calculation, a valid parameter would be at least 1.
+					pad() determines the Super::data length (in characters) that should actually be allocated given the specified number of entries. Given that the trailing zero should be included in the calculation, a valid parameter would be at least 1.
 					Since 1 indicates an actually empty string, however, containing only the trailing zero, the result in this case would be 1 as well. All other values are padded to the smallest greater multiple of @a block_size
 			
 					@param field_length Number of required characters (including trailing zero)
@@ -1074,13 +726,9 @@ namespace DeltaWorks
 			#endif
 
 			public:
-				typedef const T*	iterator, const_iterator;
-
-				inline iterator	begin() const {return field;}
-				inline iterator	end() const {return field + string_length;}
 
 				/**
-				@brief Writes a floating point value to the specified char field
+				@brief Writes a floating point value to the specified char Super::data
 		
 				This function is rather lowlevel. Use with caution.
 				The function does @a NOT write a terminating zero.
@@ -1096,7 +744,7 @@ namespace DeltaWorks
 					static T* FloatToStr(Type value, unsigned char exactness, bool force_trailing_zeros, T*end, T*first);
 		
 				/**
-				@brief Writes a signed integer value to the specified char field
+				@brief Writes a signed integer value to the specified char Super::data
 		
 				This function is rather lowlevel. Use with caution.
 				The function does @a NOT Write a terminating zero.
@@ -1139,11 +787,11 @@ namespace DeltaWorks
 		
 				If the passed value is 0 then @a sz is returned instead. @a sz does not feature a preceding reference counter and should not be modified.
 		
-				@param length Number of characters (not including trailing zero) that the new field should hold (at least).
+				@param length Number of characters (not including trailing zero) that the new Super::data should hold (at least).
 			*/
 			static inline T*		allocate(size_t length)
 					{
-						STRING_DEBUG("allocating new field of length "<<length);
+						STRING_DEBUG("allocating new Super::data of length "<<length);
 						if (!length)
 						{
 							STRING_DEBUG("return sz");
@@ -1179,10 +827,10 @@ namespace DeltaWorks
 					}
 	
 			/**
-				@brief Allocates a new field including anchor (if any)
+				@brief Allocates a new Super::data including anchor (if any)
 		
 				allocateField() allocates the specified number of characters (non-padded) plus any number of required anchor bytes (reference counter, capacity, etc).
-				The method does not write any data to the newly allocated field, not even a trailing zero.
+				The method does not write any data to the newly allocated Super::data, not even a trailing zero.
 				Should reference counting and/or character block allocation be enabled then their respective anchor values will be properly initialized (ref_count=1, capacity=new_alloc) after allocation
 		
 				@param new_alloc Number of characters to allocate. @b Important: Must not be 0 and already include space for any trailing zero
@@ -1219,7 +867,7 @@ namespace DeltaWorks
 			static inline void			delocate(T*c)
 					{
 						//ASSERT_NOT_NULL__(c);
-						STRING_DEBUG("delocating field "<<(void*)c);
+						STRING_DEBUG("delocating Super::data "<<(void*)c);
 						if (c == &zero)
 						{
 							STRING_DEBUG("is sz. ignoring request");
@@ -1245,16 +893,16 @@ namespace DeltaWorks
 			#if __STR_REFERENCE_COUNT__
 				inline	void				duplicate()	//! Signals that the array will be modified in succeeding operations and should be made exclusive property of the local string object. The method has no effect if the local string is empty or its reference counter 1
 						{
-							//ASSERT_NOT_NULL__(field);
-							if (field == &zero)
+							//ASSERT_NOT_NULL__(Super::data);
+							if (Super::data == &zero)
 								return;
-							UINT32&cnt = count(field);
+							UINT32&cnt = count(Super::data);
 							if (cnt == 1)
 								return;
-							T*n = allocate(string_length);
-							memcpy(n,field,string_length*sizeof(T));
+							T*n = allocate(Super::elements);
+							memcpy(n,Super::data,Super::elements*sizeof(T));
 							cnt--;
-							field = n;
+							Super::data = n;
 						}
 			#endif
 
@@ -1277,41 +925,41 @@ namespace DeltaWorks
 				template <typename T1>
 				explicit					Template(const Template<T1>&other)
 											{
-												string_length = other.length();
-												field = allocate(string_length);
+												Super::elements = other.Length();
+												Super::data = allocate(Super::elements);
 												const T1*otherField = other.c_str();
-												DBG_ASSERT_NOT_NULL__(field);	//gonna crash with an access violation otherwise anyway
-												CharFunctions::Cast(otherField,field,string_length);
+												DBG_ASSERT_NOT_NULL__(Super::data);	//gonna crash with an access violation otherwise anyway
+												CharFunctions::Cast(otherField,Super::data,Super::elements);
 											}
 
-											Template():field(sz),string_length(0)
+											Template():Super(sz,0)
 											{
-												ASSERT_NOT_NULL__(field);
+												ASSERT_NOT_NULL__(Super::data);
 											}
-											Template(const TStringLength&len):field(allocate(len.characters)),string_length(len.characters)
+											Template(const TStringLength&len):Super(allocate(len.characters),len.characters)
 											{
-												ASSERT_NOT_NULL__(field);
+												ASSERT_NOT_NULL__(Super::data);
 											}
 										#if __STR_RVALUE_REFERENCES__
-											Template(Template<T>&&other):field(other.field),string_length(other.string_length)
+											Template(Template<T>&&other):Super(other)
 											{
-												other.field = sz;
-												other.string_length = 0;
+												other.data = sz;
+												other.elements = 0;
 											}
 										#endif
 
 											Template(const Template<T>&other)
 											{
-												string_length = other.string_length;
+												Super::elements = other.elements;
 												#if __STR_REFERENCE_COUNT__
-													field = other.field;
-													if (field != &zero)
-														count(field)++;
+													Super::data = other.Super::data;
+													if (Super::data != &zero)
+														count(Super::data)++;
 												#else
-													field = allocate(string_length);
-													memcpy(field, other.field,string_length*sizeof(T));
+													Super::data = allocate(Super::elements);
+													memcpy(Super::data, other.Super::data,Super::elements*sizeof(T));
 												#endif
-												DBG_ASSERT_NOT_NULL__(field);
+												DBG_ASSERT_NOT_NULL__(Super::data);
 											}
 			template <typename T2>
 				/**/						Template(const T2*string, size_t length);
@@ -1334,7 +982,7 @@ namespace DeltaWorks
 											Template(long double, unsigned char precision=10, bool force_trailing_zeros=false);
 											Template(long long);
 											Template(unsigned long long);
-											Template(const Ctr::ArrayData<T>&array);
+											Template(const ConstArrayRef<T>&array);
 											Template(const void*);
 									
 										#ifdef DSTRING_H
@@ -1357,21 +1005,6 @@ namespace DeltaWorks
 	
 				void					free();					//!< Replaces local string content with an empty string
 				void					Clear()	{free();}
-				/**
-				Retrieves the current string length in characters (not including trailing zero)
-				@return String length in characters
-				*/
-				inline count_t			length()	const {return string_length;}
-				/**
-				Retrieves the current string length in characters (not including trailing zero)
-				@return String length in characters
-				*/
-				inline count_t			size() const {return string_length;}
-				/**
-				Retrieves the current string length in characters (not including trailing zero)
-				@return String length in characters
-				*/
-				inline count_t			GetLength() const {return string_length;}
 				const T*				c_str()		const;		//!< Retrieves a constant zero terminated character array containing the local string
 				T*						mutablePointer();				//!< Retrieves a writable zero terminated character array containing the local string. Characters may be modified but the trailing zero and thus the length of the string should not be modified.
 
@@ -1390,14 +1023,6 @@ namespace DeltaWorks
 				count_t					EraseCharactersIgnoreCase(const T* characters, bool erase_matches=true);										//!< Erases any character that is contained in the zero-terminated string specified by @a characters . Case insensitive @return Number of erased characters
 				count_t					EraseCharactersIgnoreCase(const T* characters, count_t character_count, bool erase_matches=true);				//!< Erases any character that is contained in the range starting at @a characters . Checks @a character_count characters  . Case insensitive @return Number of erased characters
 
-				count_t					CountCharacters(const Template<T>& characters, bool count_matches=true)	const;							//!< Counts how often each of the characters in the specified string is contained in the local string;	@param count_matches Set true to count matching characters, false to count non-matching characters
-				count_t					CountCharacters(const T* characters, bool count_matches=true)	const;											//!< Counts how often each of the characters in the specified string is contained in the local string;	@param count_matches Set true to count matching characters, false to count non-matching characters
-				count_t					CountCharacters(const T* characters, count_t character_count, bool count_matches=true)	const;							//!< Counts how often each of the characters in the specified string is contained in the local string;	@param count_matches Set true to count matching characters, false to count non-matching characters
-				count_t					CountCharacters(bool isMatch(T character), bool count_matches=true)	const;							//!< Counts how often characters are contained by the local string for which isMatch(c) returns true (or false if @a count_matches is false).	@param count_matches Set true to count matching characters, false to count non-matching characters
-				count_t					CountCharactersIgnoreCase(const Template<T>& characters, bool count_matches=true)	const;							//!< Counts how often each of the characters in the specified string is contained in the local string; Case insensitive version	@param count_matches Set true to count matching characters, false to count non-matching characters
-				count_t					CountCharactersIgnoreCase(const T* characters, bool count_matches=true)	const;											//!< Counts how often each of the characters in the specified string is contained in the local string; Case insensitive version	@param count_matches Set true to count matching characters, false to count non-matching characters
-				count_t					CountCharactersIgnoreCase(const T* characters, count_t character_count, bool count_matches=true)	const;							//!< Counts how often each of the characters in the specified string is contained in the local string; Case insensitive version	@param count_matches Set true to count matching characters, false to count non-matching characters
-
 
 				Template<T>				Escape()	const;		//!< Returns a copy with \ added before \, ', and " characters
 				Template<T>				Escape(const T*	before_characters) const;
@@ -1411,239 +1036,6 @@ namespace DeltaWorks
 
 				Template<T>				StripSlashes()	const;		//!< Returns a copy with stripped \ characters
 				count_t					StripSlashesFromThis();		//!< Strips \ characters @return Number of stripped slashes
-
-				/**
-				Checks if the specified token is part of the local string
-				*/
-				bool					Contains(const Template<T>&needle)	const	{return Find(needle) != InvalidIndex;}
-				bool					Contains(const ReferenceExpression<T>&needle)	const	{return Find(needle) != InvalidIndex;}
-				bool					Contains(const T*needle)		const	{return Find(needle) != InvalidIndex;}
-				bool					Contains(T c)					const	{return Find(c) != InvalidIndex;}
-				bool					ContainsWord(const T*word) const		{return FindWord(word) != InvalidIndex;}
-				bool					ContainsWord(const Template<T>&word) const	{return FindWord(word) != InvalidIndex;}
-				bool					ContainsWord(const ReferenceExpression<T>&word) const	{return FindWord(word) != InvalidIndex;}
-				bool					ContainsIgnoreCase(const Template<T>&needle)	const	{return FindIgnoreCase(needle) != InvalidIndex;}
-				bool					ContainsIgnoreCase(const ReferenceExpression<T>&needle)	const	{return FindIgnoreCase(needle) != InvalidIndex;}
-				bool					ContainsIgnoreCase(const T*needle)		const	{return FindIgnoreCase(needle) != InvalidIndex;}
-				bool					ContainsIgnoreCase(T needle)			const	{return FindIgnoreCase(needle) != InvalidIndex;}
-				bool					ContainsWordIgnoreCase(const T*word)	const	{return FindWordIgnoreCase(word) != InvalidIndex;}
-				bool					ContainsWordIgnoreCase(const Template<T>&word) const{return FindWordIgnoreCase(word) != InvalidIndex;}
-				bool					ContainsWordIgnoreCase(const ReferenceExpression<T>&word) const{return FindWordIgnoreCase(word) != InvalidIndex;}
-
-
-				/**
-				Attempts to locate the first occurance of the specified string.
-				Search is case sensitive.
-				@param needle String segment to look for
-				@param offset Index to start from 
-				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t					Find(const Template<T>&needle, index_t offset = 0)	const	{return Find(needle.ToRef(),offset);}
-				/**
-				@copydoc Find();
-				*/
-				index_t					Find(const ReferenceExpression<T>&needle, index_t offset = 0)	const;
-				/**
-				Attempts to locate the first occurance of the specified (zero-terminated) string.
-				Search is case sensitive.
-				@param needle Pointer to the first character of the string segment to look for
-				@param offset Index to start from 
-				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t					Find(const T*needle, index_t offset = 0)		const	{return Find(ReferenceExpression<T>(needle),offset);}
-				/**
-				Attempts to locate the first occurance of the specified character.
-				Search is case sensitive.
-				@param needle Character to look for
-				@param offset Index to start from 
-				@return Index of the found character (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t					Find(T needle, index_t offset = 0)					const;
-				/**
-				Attempts to locate the first occurance of a character for which the specified callback function returns true.
-				Search is case sensitive.
-				@param callback Pointer to a function to determine whether a character is a valid match. The function should return true if the character is a valid match, false otherwise
-				@param offset Index to start from 
-				@return Index of the found character (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t					Find(bool callback(T), index_t offset = 0) const;
-				/**
-				Searches the local string for the first occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric.
-				Search is case sensitive.
-				@param needle String to search for
-				@param offset Index to start from 
-				@return Starting index of the found word (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t					FindWord(const T*needle, index_t offset = 0) const	{return FindWord(ReferenceExpression<T>(needle),offset);}
-				/**
-				@copydoc FindWord()
-				*/
-				index_t					FindWord(const Template<T>&needle, index_t offset = 0) const	{return FindWord(needle.ToRef(),offset);}
-				/**
-				@copydoc FindWord()
-				*/
-				index_t					FindWord(const ReferenceExpression<T>&needle, index_t offset = 0) const;
-
-
-
-				
-				/**
-				Attempts to locate the first occurance of the specified string.
-				Search ignores case.
-				@param needle String segment to look for
-				@param offset Index to start from 
-				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t					FindIgnoreCase(const Template<T>&needle, index_t offset = 0)	const	{return FindIgnoreCase(needle.ToRef(),offset);}
-				/**
-				@copydoc FindIgnoreCase()
-				*/
-				index_t					FindIgnoreCase(const ReferenceExpression<T>&needle, index_t offset = 0)	const;
-				/**
-				Attempts to locate the first occurance of the specified (zero-terminated) string.
-				Search ignores case.
-				@param needle Pointer to the first character of the string segment to look for
-				@param offset Index to start from 
-				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t					FindIgnoreCase(const T*needle, index_t offset = 0)		const	{return FindIgnoreCase(ReferenceExpression<T>(needle),offset);}
-				/**
-				Attempts to locate the first occurance of the specified character.
-				Search ignores case.
-				@param needle Character to look for
-				@param offset Index to start from 
-				@return Index of the found character (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t					FindIgnoreCase(T needle, index_t offset = 0)					const;
-				/**
-				Searches the local string for the first occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric.
-				Search ignores case.
-				@param needle String to search for
-				@param offset Index to start from 
-				@return Starting index of the found word (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t					FindWordIgnoreCase(const T*needle, index_t offset = 0) const	{return FindWordIgnoreCase(ReferenceExpression<T>(needle),offset);}
-				/**
-				@copydoc FindWordIgnoreCase()
-				*/
-				index_t					FindWordIgnoreCase(const Template<T>&needle, index_t offset = 0) const	{return FindWordIgnoreCase(needle.ToRef(),offset);}
-				/**
-				@copydoc FindWordIgnoreCase()
-				*/
-				index_t					FindWordIgnoreCase(const ReferenceExpression<T>&needle, index_t offset = 0) const;
-
-
-
-
-				/**
-				Attempts to locate the last occurance of the specified string.
-				Search is case sensitive.
-				@param needle String segment to look for
-				@param offset Index to start from (first character). Reduced if necessary
-				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t					FindLast(const Template<T>&needle, index_t offset = InvalidIndex)	const	{return FindLast(needle.ToRef(),offset);}
-				/**
-				@copydoc FindLast()
-				*/
-				index_t					FindLast(const ReferenceExpression<T>&needle, index_t offset = InvalidIndex)	const;
-				/**
-				Attempts to locate the last occurance of the specified (zero-terminated) string.
-				Search is case sensitive.
-				@param needle Pointer to the first character of the string segment to look for
-				@param offset Index to start from (first character). Reduced if necessary
-				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t					FindLast(const T*needle, index_t offset = InvalidIndex)		const	{return FindLast(ReferenceExpression<T>(needle),offset);}
-				/**
-				Attempts to locate the last occurance of the specified character.
-				Search is case sensitive.
-				@param needle Character to look for
-				@param offset Index to start from. Reduced if necessary
-				@return Index of the found character (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t					FindLast(T needle, index_t offset = InvalidIndex)					const;
-				/**
-				Attempts to locate the last occurance of a character for which the specified callback function returns true.
-				Search is case sensitive.
-				@param callback Pointer to a function to determine whether a character is a valid match. The function should return true if the character is a valid match, false otherwise
-				@param offset Index to start from. Reduced if necessary
-				@return Index of the found character (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t					FindLast(bool callback(T), index_t offset = InvalidIndex) const;
-				/**
-				Searches the local string for the last occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric.
-				Search is case sensitive.
-				@param needle String to search for
-				@param offset Index to start from (first character). Reduced if necessary
-				@return Starting index of the found word (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t					FindLastWord(const T*needle, index_t offset = InvalidIndex) const	{return FindLastWord(ReferenceExpression<T>(needle),offset);}
-				/**
-				@copydoc FindLastWord()
-				*/
-				index_t					FindLastWord(const Template<T>&needle, index_t offset = InvalidIndex) const	{return FindLastWord(needle.ToRef(),offset);}
-				/**
-				@copydoc FindLastWord()
-				*/
-				index_t					FindLastWord(const ReferenceExpression<T>&needle, index_t offset = InvalidIndex) const;
-
-
-				
-
-				/**
-				Attempts to locate the last occurance of the specified string.
-				Search is case sensitive.
-				@param needle String segment to look for
-				@param offset Index to start from (first character). Reduced if necessary
-				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t					FindLastIgnoreCase(const Template<T>&needle, index_t offset = InvalidIndex)	const	{return FindLastIgnoreCase(needle.ToRef(),offset);}
-				/**
-				@copydoc FindLastIgnoreCase()
-				*/
-				index_t					FindLastIgnoreCase(const ReferenceExpression<T>&needle, index_t offset = InvalidIndex)	const;
-				/**
-				Attempts to locate the last occurance of the specified (zero-terminated) string.
-				Search is case sensitive.
-				@param needle Pointer to the first character of the string segment to look for
-				@param offset Index to start from (first character). Reduced if necessary
-				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t					FindLastIgnoreCase(const T*needle, index_t offset = InvalidIndex)		const	{return FindLastIgnoreCase(ReferenceExpression<T>(needle),offset);}
-				/**
-				Attempts to locate the last occurance of the specified character.
-				Search is case sensitive.
-				@param needle Character to look for
-				@param offset Index to start from. Reduced if necessary
-				@return Index of the found character (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t					FindLastIgnoreCase(T needle, index_t offset = InvalidIndex)					const;
-				/**
-				Searches the local string for the last occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric.
-				Search is case sensitive.
-				@param needle String to search for
-				@param offset Index to start from (first character). Reduced if necessary
-				@return Starting index of the found word (0=first char) or InvalidIndex if no occurance was found
-				*/
-				index_t					FindLastWordIgnoreCase(const T*needle, index_t offset = InvalidIndex) const	{return FindLastWordIgnoreCase(ReferenceExpression<T>(needle),offset);}
-				/**
-				@copydoc FindLastWordIgnoreCase()
-				*/
-				index_t					FindLastWordIgnoreCase(const Template<T>&needle, index_t offset = InvalidIndex) const	{return FindLastWordIgnoreCase(needle.ToRef(),offset);}
-				/**
-				@copydoc FindLastWordIgnoreCase()
-				*/
-				index_t					FindLastWordIgnoreCase(const ReferenceExpression<T>&needle, index_t offset = InvalidIndex) const;
-
-
-
-
-
-
-
-
-				virtual hash_t			ToHash()	const override;
 
 				Template<T>&			setLength(size_t newLength);								//!< Updates the local string to match the given number of characters. The new array will be uninitialized, except for the trailing zero @param newLength New string length in characters (not including trailing zero) @return Reference to the local string object once the modification is done
 				Template<T>&			SetLength(size_t newLength)	{return setLength(newLength);}
@@ -1684,7 +1076,7 @@ namespace DeltaWorks
 				ReferenceExpression<T>	TrimRightRef()	const;	//!< Identical to the above but returns a reference instead
 		
 				/*!	\brief Inserts a string into the local string
-				\param index Character offset to insert before (in the range [0,length()-1])
+				\param index Character offset to insert before (in the range [0,GetLength()-1])
 				\param str String to insert
 				\return Reference to this string
 									
@@ -1693,7 +1085,7 @@ namespace DeltaWorks
 				Template<T>&			Insert(size_t index, const ReferenceExpression<T>&str);
 		
 				/*!	\brief Inserts a character into the local string
-				\param index Character offset to insert before (in the range [0,length()-1])
+				\param index Character offset to insert before (in the range [0,GetLength()-1])
 				\param c Character to insert
 				\return Reference to this string
 									
@@ -1719,20 +1111,6 @@ namespace DeltaWorks
 				*/
 				Template<T>				GetBetween(const Template<T>&left_delimiter, const Template<T>&right_delimiter)	const;
 				ReferenceExpression<T>	GetBetweenRef(const Template<T>&left_delimiter, const Template<T>&right_delimiter)	const;		//!< Identical to the above but returns a reference instead
-				bool					BeginsWith(const T*string)		const;		//!< Returns true if the local string begins with the specified string, false otherwise
-				bool					BeginsWith(const Template<T>&string)	const;		//!< Returns true if the local string begins with the specified string, false otherwise
-				bool					BeginsWith(const ReferenceExpression<T>&string)	const;		//!< Returns true if the local string begins with the specified string, false otherwise
-				bool					EndsWith(const T*string)			const;		//!< Returns true if the local string ends with the specified string, false otherwise
-				bool					EndsWith(const Template<T>&string)		const;		//!< Returns true if the local string ends with the specified string, false otherwise
-				bool					EndsWith(const ReferenceExpression<T>&string)		const;		//!< Returns true if the local string ends with the specified string, false otherwise
-				bool					BeginsWithIgnoreCase(const T*string)		const;		//!< Returns true if the local string begins with the specified string, false otherwise
-				bool					BeginsWithIgnoreCase(const Template<T>&string)	const;		//!< Returns true if the local string begins with the specified string, false otherwise
-				bool					BeginsWithIgnoreCase(const ReferenceExpression<T>&string)	const;		//!< Returns true if the local string begins with the specified string, false otherwise
-				bool					EndsWithIgnoreCase(const T*string)			const;		//!< Returns true if the local string ends with the specified string, false otherwise
-				bool					EndsWithIgnoreCase(const Template<T>&string)		const;		//!< Returns true if the local string ends with the specified string, false otherwise
-				bool					EndsWithIgnoreCase(const ReferenceExpression<T>&string)		const;		//!< Returns true if the local string ends with the specified string, false otherwise
-				T						FirstChar()							const;		//!< Returns the first character
-				T						LastChar()							const;		//!< Returns the last character. Access is valid only if the local string is not empty
 				const T*				lastCharPointer()					const;		//!< Returns a pointer to the last character. The returned pointer points one before the trailing zero and is valid only if the local string is not empty.
 				Template<T>				GetFirstWord()							const;		//!< Retrieves the first word, either the full string or until the first whitespace character is encountered
 				ReferenceExpression<T>	GetFirstWordRef()						const;		//!< Identical to the above but returns a reference instead
@@ -1764,32 +1142,8 @@ namespace DeltaWorks
 				*/
 				count_t					FindAndReplace(bool doReplace(T character), T replacement);
 
-				bool					IsValid(bool validCharacter(T character))	const;					//!< Runs each character of the local string by the specified validation function. Returns true if all characters passed the validation, false otherwise.
 				void					Set(size_t index, T c);
 			
-									/*!	\brief Const character access method
-										\param Index of the character to retrieve in the range [0,length()-1]
-									
-										If \b index is not in the range [0,length()-1] (0=first character) then the result will be 0.*/
-				T						GetChar(index_t index) const;
-				T						operator[](index_t index) const {return GetChar(index);}
-				#if 0
-									/*!	\brief Const character access operator
-										\param Index of the character to retrieve in the range [0,length()-1]
-									
-										If \b index is not in the range [0,length()-1] (0=first character) then the result will be 0.*/
-				T						operator[](size_t index) const;
-									/*!	\brief Const character access operator
-										\param Index of the character to retrieve in the range [0,length()-1]
-									
-										If \b index is not in the range [0,length()-1] (0=first character) then the result will be 0.*/
-				T						operator[](int index)			const;
-									/*!	\brief Const character access operator
-										\param Index of the character to retrieve in the range [0,length()-1]
-									
-										If \b index is not in the range [0,length()-1] (0=first character) then the result will be 0.*/
-				T						operator[](BYTE index)			const;
-				#endif
 				void					operator+=(const Template<T>&other);			//!< Appends the specified string to the end of the local string. \param other String to append to the local string.
 				void					operator+=(const T*string);				//!< Appends the specified string to the end of the local string. \param string String to append to the local string.
 				void					operator+=(T c);							//!< Appends the specified character to the end of the local string. \param c Character to append to the local string.
@@ -1838,7 +1192,7 @@ namespace DeltaWorks
 				#if __STR_RVALUE_REFERENCES__
 					Template<T>&		operator=(Template<T>&&);					//!< Overwrites the local string content with the content of the specified Template object. \return Reference to the local string object.
 				#endif
-				Template<T>&			operator=(const Ctr::ArrayData<T>&array);
+				Template<T>&			operator=(const ConstArrayRef<T>&array);
 			
 				template <typename T2>
 					Template<T>&		operator=(const T2*);						//!< Overwrites the local string content with the content of the specified const char array. \return Reference to the local string object.
@@ -1925,13 +1279,12 @@ namespace DeltaWorks
 				#ifdef DSTRING_H
 					bool					EqualsIgnoreCase(const AnsiString&)	const;
 				#endif
-					bool					EqualsIgnoreCase(const Template<T>&)		const;		//!< Tests for case insensitive equality to another String object. \return true if the local and the remote string content are identical, false otherwise.
-					bool					EqualsIgnoreCase(const T*)			const;		//!< Tests for case insensitive equality to a const char array. \return true if the local string content and the remote const char*array content are identical, false otherwise.
-					bool					EqualsIgnoreCase(T)					const;		//!< Tests for case insensitive equality to a character. \return true if the local string content matches the specified character, false otherwise.
+				template <class T0>
+					bool					EqualsIgnoreCase(const ConstArrayRef<T0>&str)	const	{return Super::EqualsIgnoreCase(str);}
+					bool					EqualsIgnoreCase(const T*str)					const	{return Super::EqualsIgnoreCase(str);}
+					bool					EqualsIgnoreCase(T str)							const	{return Super::EqualsIgnoreCase(str);}
 				template <typename T0, typename T1>
 					bool					EqualsIgnoreCase(const ConcatExpression<T0,T1>&expression)	const;
-				template <class T0>
-					bool					EqualsIgnoreCase(const ReferenceExpression<T0>&expression)	const;
 				template <class T0>
 					bool					EqualsIgnoreCase(const CharacterExpression<T0>&expression)	const;
 				template <class T0>
@@ -1997,33 +1350,18 @@ namespace DeltaWorks
 					bool					operator>=(const StringExpression<T0>&expression)	const;
 				inline	void				Resize(size_t new_length);		//!< Resizes the local string length to match the specified number of characters (not including trailing zero). The resize operation leaves the local string content uninitialized save for an automatically set trailing zero. The string is duplicated even if the new size matches the existing one if it's not exclusively owned
 				inline	void				resizeCopy(size_t new_length);	//!< Resizes the local string length to match the specified number of characters (not including trailing zero). Any available string content is copied and the trailing zero set. If the local string length is increased then the new characters following the existing ones are left undefined.
-				inline	bool				IsEmpty()	const	{return string_length==0;}
-				inline	bool				IsNotEmpty()const	{return string_length!=0;}
-				inline	T*					WriteTo(T*target)	const;
-				template <typename T2>
-					inline	T2*				WriteTo(T2*target)	const;
-				inline	T*					WriteTo(T*target, T*end)	const;
-				template <typename T2>
-					inline	T2*				WriteTo(T2*target, T2*end)	const;
 
-
-				friend hash_t				Hash(const Template<T>&ref)
-				{
-					return StdCharHash(ref.c_str(),ref.size());
-				}	
-
-				virtual const T*			ToCString() const override {return field;}	// IString::ToCString()
+				virtual const T*			ToCString() const override {return Super::data;}	// IString::ToCString()
 
 
 				friend void					SerialSync(IWriteStream&s, const Self&v)
 				{
-					s.WriteSize(v.string_length);
-					s.Write(v.field,(serial_size_t)(v.string_length*sizeof(T)));
+					SerialSync(s,(Super&)v);
 				}
 				friend void					SerialSync(IReadStream&s, Self&v)
 				{
 					v.SetLength(s.ReadSize());
-					s.Read(v.field,(serial_size_t)(v.string_length*sizeof(T)));
+					s.Read(v.Super::data,(serial_size_t)(v.Super::elements*sizeof(T)));
 				}
 			};
 		/*
@@ -2140,8 +1478,8 @@ namespace DeltaWorks
 	//int				extractInt(const char*string);
 	//float			extractFloat(const char*string);
 
-	char*			writeToCharField(unsigned value, char*offset, char*end);	//!< Writes the specified unsigned value to the specified char field. Does \b not add a trailing 0. \param value Unsigned value to transform \param offset Character out offset \param end Pointer to one character past the end of the field. The function will stop when it hits this pointer.
-	char*			writeFloatToCharField(float value, char*offset, char*end);	//!< Writes the specified float value to the specified char field. Does \b not add a trailing 0. \param value Unsigned value to transform \param offset Character out offset \param end Pointer to one character past the end of the field. The function will stop when it hits this pointer.
+	char*			writeToCharField(unsigned value, char*offset, char*end);	//!< Writes the specified unsigned value to the specified char Super::data. Does \b not add a trailing 0. \param value Unsigned value to transform \param offset Character out offset \param end Pointer to one character past the end of the Super::data. The function will stop when it hits this pointer.
+	char*			writeFloatToCharField(float value, char*offset, char*end);	//!< Writes the specified float value to the specified char Super::data. Does \b not add a trailing 0. \param value Unsigned value to transform \param offset Character out offset \param end Pointer to one character past the end of the Super::data. The function will stop when it hits this pointer.
 
 
 	void			ErrMessage(const String&line);

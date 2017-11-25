@@ -70,7 +70,7 @@ namespace DeltaWorks
 								{
 									return M::Vec::compare(p,other.p)<0;
 								}
-			int					compareTo(const PoolVertex&other) const throw()
+			int					CompareTo(const PoolVertex&other) const throw()
 								{
 									return M::Vec::compare(p,other.p);
 								}
@@ -159,11 +159,11 @@ namespace DeltaWorks
 								}
 			bool				operator>(const ObjVertexNT&other)	const throw()
 								{
-									return compareTo(other)>0;
+									return CompareTo(other)>0;
 								}
 			bool				operator<(const ObjVertexNT&other)	const throw()
 								{
-									return compareTo(other)<0;
+									return CompareTo(other)<0;
 								}
 			bool				operator==(const ObjVertexNT&other) const throw()
 								{
@@ -173,7 +173,7 @@ namespace DeltaWorks
 								{
 									return !M::Vec::similar(p,other.p) || !M::Vec::similar(n,other.n) || !M::Vec::similar(t,other.t);
 								}
-			int					compareTo(const ObjVertexNT&other) const throw()
+			int					CompareTo(const ObjVertexNT&other) const throw()
 								{
 									OrthographicComparison cmp(M::Vec::compare(p,other.p));
 									if (!cmp.IsDecided())
@@ -222,11 +222,11 @@ namespace DeltaWorks
 								}
 			bool				operator>(const ObjVertexN&other)	const throw()
 								{
-									return compareTo(other)>0;
+									return CompareTo(other)>0;
 								}
 			bool				operator<(const ObjVertexN&other)	const throw()
 								{
-									return compareTo(other)<0;
+									return CompareTo(other)<0;
 								}
 			bool				operator==(const ObjVertexN&other)	const throw()
 								{
@@ -236,7 +236,7 @@ namespace DeltaWorks
 								{
 									return !M::Vec::similar(p,other.p) || !M::Vec::similar(n,other.n);
 								}
-			int					compareTo(const ObjVertexN&other) const throw()
+			int					CompareTo(const ObjVertexN&other) const throw()
 								{
 									return OrthographicComparison(M::Vec::compare(p,other.p)).AddComparisonResult(M::Vec::compare(n,other.n));
 								}
@@ -334,7 +334,7 @@ namespace DeltaWorks
 						Ctr::Array<Vertex>		out_field;
 						Ctr::Array<index_t>		out_index_field;
 						Super::ExportTo(out_field,out_index_field);
-						Concurrency::parallel_for((index_t)0,out_index_field.length(),[&out,&out_field,&out_index_field](index_t i)
+						Concurrency::parallel_for((index_t)0,out_index_field.GetLength(),[&out,&out_field,&out_index_field](index_t i)
 						{
 							out[out_index_field[i]] = out_field[i];
 						});

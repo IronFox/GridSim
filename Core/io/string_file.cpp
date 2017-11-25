@@ -34,14 +34,14 @@ namespace DeltaWorks
 				{
 					at++;
 					if (conversion_flags&CM_RECORD_COMMENTS)
-						comment += " "+str.subString(comment_start+comment_begin.length(),at-comment_start-comment_begin.length()+1);
-					str.Erase(comment_start,at+comment_end.length()-comment_start + 1);
+						comment += " "+str.subString(comment_start+comment_begin.GetLength(),at-comment_start-comment_begin.GetLength()+1);
+					str.Erase(comment_start,at+comment_end.GetLength()-comment_start + 1);
 					in_comment = false;
 				}
 				else
 				{
 					if (conversion_flags&CM_RECORD_COMMENTS)
-						comment += " "+str.subString(comment_start+comment_begin.length());
+						comment += " "+str.subString(comment_start+comment_begin.GetLength());
 					str.Erase(comment_start);
 					//log_file << " => '"<<str<<"'"<<nl;
 					return;
@@ -77,7 +77,7 @@ namespace DeltaWorks
 			if (lscommentAt != InvalidIndex)
 			{
 				if (conversion_flags&CM_RECORD_COMMENTS)
-					comment += " "+str.subString(lscommentAt+lineStartComment.length());
+					comment += " "+str.subString(lscommentAt+lineStartComment.GetLength());
 				str.Erase(lscommentAt);
 				//log_file << " => '"<<str<<"'"<<nl;
 				return;
@@ -85,7 +85,7 @@ namespace DeltaWorks
 			if (lcommentAt < bcommentAt)
 			{
 				if (conversion_flags&CM_RECORD_COMMENTS)
-					comment += " "+str.subString(lcommentAt+lineComment.length());
+					comment += " "+str.subString(lcommentAt+lineComment.GetLength());
 				str.Erase(lcommentAt);
 				//log_file << " => '"<<str<<"'"<<nl;
 				return;
@@ -236,9 +236,9 @@ namespace DeltaWorks
 					//log_file << "reached end of file. finalizing"<<nl;
 					target = fragment;
 					fragment = "";
-					if (target.length())
+					if (target.GetLength())
 						stripComments(target);
-					return target.length()>0;
+					return target.GetLength()>0;
 				}
 			}
 			char*c = string;
@@ -263,9 +263,9 @@ namespace DeltaWorks
 					target = fragment+string;
 					string = c+1;
 					fragment = "";
-					if (target.length())
+					if (target.GetLength())
 						stripComments(target);
-					if (target.length()||(conversion_flags&CM_RETURN_EMPTY_LINES))
+					if (target.GetLength()||(conversion_flags&CM_RETURN_EMPTY_LINES))
 					{
 						return true;
 					}
@@ -300,7 +300,7 @@ namespace DeltaWorks
 	{
 		if (!write_mode)
 			return *this;
-		awrite(line.pointer(),line.length());
+		awrite(line.pointer(),line.GetLength());
 		return *this;
 	}
 

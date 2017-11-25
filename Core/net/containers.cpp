@@ -36,7 +36,7 @@ namespace DeltaWorks
 		{
 			if (str.GetLength() > maxLength)
 				return false;
-			for (index_t i = 0; i < str.length(); i++)
+			for (index_t i = 0; i < str.GetLength(); i++)
 				if (!IsValidChar(str[i]))
 				{
 					//cout << "invalid char '"<<
@@ -50,7 +50,7 @@ namespace DeltaWorks
 			#ifndef _DEBUG
 				str.Truncate(maxLength);
 
-				for (index_t i = 0; i < str.length(); i++)
+				for (index_t i = 0; i < str.GetLength(); i++)
 				{
 					const char c = str[i];
 					if (!IsValidChar(c))
@@ -77,7 +77,7 @@ namespace DeltaWorks
 			if (str.GetLength() > maxLength)
 				throw Except::Program::ParameterFault(CLOCATION,String("NetString: '"+str+"' (length "+String(str.GetLength())+") exceeds maximum allowed length "+String(maxLength)));
 
-			for (index_t i = 0; i < str.length(); i++)
+			for (index_t i = 0; i < str.GetLength(); i++)
 			{
 				const char c = str[i];
 				if (!IsValidChar(c))

@@ -24,7 +24,7 @@ template <>
 template <typename T>
 	inline std::ostream& operator<<(std::ostream&stream, const StringType::ReferenceExpression<T>&expression)
 	{
-		expression.print(stream);
+		expression.Print(stream);
 		return stream;
 	}
 
@@ -32,7 +32,7 @@ template <typename T>
 template <typename E0, typename E1>
 	inline std::ostream& operator<<(std::ostream&stream, const StringType::ConcatExpression<E0, E1>&expression)
 	{
-		expression.print(stream);
+		expression.Print(stream);
 		return stream;
 	}
 
@@ -41,7 +41,7 @@ template <typename E0, typename E1>
 template <typename T>
 	inline std::ostream& operator<<(std::ostream&stream, const StringType::CharacterExpression<T>&expression)
 	{
-		expression.print(stream);
+		expression.Print(stream);
 		return stream;
 	}
 	
@@ -75,7 +75,7 @@ template <typename T>
 	template <typename T>
 		inline std::wostream& operator<<(std::wostream&stream, const StringType::ReferenceExpression<T>&expression)
 		{
-			expression.print(stream);
+			expression.Print(stream);
 			return stream;
 		}
 
@@ -83,7 +83,7 @@ template <typename T>
 	template <typename E0, typename E1>
 		inline std::wostream& operator<<(std::wostream&stream, const StringType::ConcatExpression<E0, E1>&expression)
 		{
-			expression.print(stream);
+			expression.Print(stream);
 			return stream;
 		}
 
@@ -92,7 +92,7 @@ template <typename T>
 	template <typename T>
 		inline std::wostream& operator<<(std::wostream&stream, const StringType::CharacterExpression<T>&expression)
 		{
-			expression.print(stream);
+			expression.Print(stream);
 			return stream;
 		}
 		
@@ -118,7 +118,7 @@ template <typename T0, typename T1, typename T2>
 	{
 		if (!delimiter || !delimiter_length)
 			return;
-		if (!string.length())
+		if (!string.GetLength())
 		{
 			result.SetSize(1);
 			result[0] = string;
@@ -128,7 +128,7 @@ template <typename T0, typename T1, typename T2>
 		
 		//Ctr::ArrayData<T1>	buffer(string);
 		const T1*at = string.pointer();
-		const T1*const end = at+string.length();
+		const T1*const end = at+string.GetLength();
 		size_t count = 0;
 		while (at != end)
 		{
@@ -173,7 +173,7 @@ template <typename T0, typename T1, typename T2>
 template <typename T0, typename T1, typename T2>
 	void	explode(const StringType::Template<T0>&delimiter, const StringType::Template<T1>&string, Ctr::ArrayData<T2>&result)
 	{
-		explode(delimiter.c_str(),delimiter.length(),string,result);
+		explode(delimiter.c_str(),delimiter.GetLength(),string,result);
 	}
 
 
@@ -203,7 +203,7 @@ template <typename T0, typename T1>
 	{
 		//Ctr::ArrayData<T0>	buffer(string);
 		const T0*at = string.pointer();
-		const T0*const end = at + string.length();
+		const T0*const end = at + string.GetLength();
 		size_t count = 0;
 		while (at != end)
 		{
@@ -254,7 +254,7 @@ template <typename T0, typename T1>
 	{
 		//Ctr::ArrayData<T0>	buffer(string);
 		const T0*at = string.pointer();
-		const T0*const end = at + string.length();
+		const T0*const end = at + string.GetLength();
 		size_t count = 0;
 		while (at!=end)
 		{
@@ -306,23 +306,23 @@ template <typename T0, typename T1>
 			return "";
 		size_t len = 0;
 		for (size_t i = 0; i < numPieces; i++)
-			len += pieces[i].length();
+			len += pieces[i].GetLength();
 		const T0*glue_str = glue.c_str();
-		size_t glue_len = glue.length();
+		size_t glue_len = glue.GetLength();
 		len += (numPieces-1)*glue_len;
 		StringType::Template<T1> result = TStringLength(len);
 		T1*out = result.mutablePointer();
 		for (size_t i = 0; i < numPieces-1;i++)
 		{
-			CharFunctions::strncpy(out,pieces[i].pointer(),pieces[i].length());
-			out+=pieces[i].length();
+			CharFunctions::strncpy(out,pieces[i].pointer(),pieces[i].GetLength());
+			out+=pieces[i].GetLength();
 			CharFunctions::strncpy(out,glue_str,glue_len);
 			out+=glue_len;
 		}
-		CharFunctions::strncpy(out,pieces[numPieces-1].pointer(),pieces[numPieces-1].length());
-		//out+=pieces[numPieces-1].length();
+		CharFunctions::strncpy(out,pieces[numPieces-1].pointer(),pieces[numPieces-1].GetLength());
+		//out+=pieces[numPieces-1].GetLength();
 		//(*out) = 0;
-		//ASSERT_EQUAL__(out, (result.c_str()+result.length()));
+		//ASSERT_EQUAL__(out, (result.c_str()+result.GetLength()));
 		return result;
 	}
 
@@ -333,20 +333,20 @@ template <typename T>
 			return "";
 		size_t len = 0;
 		for (size_t i = 0; i < numPieces; i++)
-			len += pieces[i].length();
+			len += pieces[i].GetLength();
 		len += (numPieces-1);
 		StringType::Template<T> result = TStringLength(len);
 		T*out = result.mutablePointer();
 		for (size_t i = 0; i < numPieces-1;i++)
 		{
-			CharFunctions::strncpy(out,pieces[i].pointer(),pieces[i].length());
-			out+=pieces[i].length();
+			CharFunctions::strncpy(out,pieces[i].pointer(),pieces[i].GetLength());
+			out+=pieces[i].GetLength();
 			(*out++) = glue;
 		}
-		CharFunctions::strncpy(out,pieces[numPieces-1].pointer(),pieces[numPieces-1].length());
-		//out+=pieces.last().length();
+		CharFunctions::strncpy(out,pieces[numPieces-1].pointer(),pieces[numPieces-1].GetLength());
+		//out+=pieces.Last().GetLength();
 		//(*out) = 0;
-		//ASSERT_EQUAL__(out, (result.c_str()+result.length()));
+		//ASSERT_EQUAL__(out, (result.c_str()+result.GetLength()));
 		return result;
 	}
 	
@@ -357,22 +357,22 @@ template <typename T0, typename T1>
 			return "";
 		size_t len = 0;
 		for (size_t i = 0; i < numPieces; i++)
-			len += pieces[i].length();
+			len += pieces[i].GetLength();
 		size_t glue_len = CharFunctions::strlen(glue_str);
 		len += (numPieces-1)*glue_len;
 		StringType::Template<T1> result = TStringLength(len);
 		T1*out = result.mutablePointer();
 		for (size_t i = 0; i < numPieces-1;i++)
 		{
-			CharFunctions::strncpy(out,pieces[i].pointer(),pieces[i].length());
-			out+=pieces[i].length();
+			CharFunctions::strncpy(out,pieces[i].pointer(),pieces[i].GetLength());
+			out+=pieces[i].GetLength();
 			CharFunctions::strncpy(out,glue_str,glue_len);
 			out+=glue_len;
 		}
-		CharFunctions::strncpy(out,pieces[numPieces-1].pointer(),pieces[numPieces-1].length());
-		//out+=pieces.last().length();
+		CharFunctions::strncpy(out,pieces[numPieces-1].pointer(),pieces[numPieces-1].GetLength());
+		//out+=pieces.Last().GetLength();
 		//(*out) = 0;
-		//ASSERT_EQUAL__(out, (result.c_str()+result.length()));
+		//ASSERT_EQUAL__(out, (result.c_str()+result.GetLength()));
 		return result;
 	}
 
@@ -386,23 +386,23 @@ template <typename T0, typename T1>
 			return "";
 		size_t len = 0;
 		for (size_t i = 0; i < numPieces; i++)
-			len += pieces[i].length();
+			len += pieces[i].GetLength();
 		const T0*glue_str = glue.c_str();
-		size_t glue_len = glue.length();
+		size_t glue_len = glue.GetLength();
 		len += (numPieces-1)*glue_len;
 		StringType::Template<T1> result = TStringLength(len);
 		T1*out = result.mutablePointer();
 		for (size_t i = 0; i < numPieces-1;i++)
 		{
-			CharFunctions::strncpy(out,pieces[i].c_str(),pieces[i].length());
-			out+=pieces[i].length();
+			CharFunctions::strncpy(out,pieces[i].c_str(),pieces[i].GetLength());
+			out+=pieces[i].GetLength();
 			CharFunctions::strncpy(out,glue_str,glue_len);
 			out+=glue_len;
 		}
-		CharFunctions::strncpy(out,pieces[numPieces-1].c_str(),pieces[numPieces-1].length());
-		//out+=pieces[numPieces-1].length();
+		CharFunctions::strncpy(out,pieces[numPieces-1].c_str(),pieces[numPieces-1].GetLength());
+		//out+=pieces[numPieces-1].GetLength();
 		//(*out) = 0;
-		//ASSERT_EQUAL__(out, (result.c_str()+result.length()));
+		//ASSERT_EQUAL__(out, (result.c_str()+result.GetLength()));
 		return result;
 	}
 
@@ -413,20 +413,20 @@ template <typename T>
 			return "";
 		size_t len = 0;
 		for (size_t i = 0; i < numPieces; i++)
-			len += pieces[i].length();
+			len += pieces[i].GetLength();
 		len += (numPieces-1);
 		StringType::Template<T> result = StringType::TStringLength(len);
 		T*out = result.mutablePointer();
 		for (size_t i = 0; i < numPieces-1;i++)
 		{
-			CharFunctions::strncpy(out,pieces[i].c_str(),pieces[i].length());
-			out+=pieces[i].length();
+			CharFunctions::strncpy(out,pieces[i].c_str(),pieces[i].GetLength());
+			out+=pieces[i].GetLength();
 			(*out++) = glue;
 		}
-		CharFunctions::strncpy(out,pieces[numPieces-1].c_str(),pieces[numPieces-1].length());
-		//out+=pieces.last().length();
+		CharFunctions::strncpy(out,pieces[numPieces-1].c_str(),pieces[numPieces-1].GetLength());
+		//out+=pieces.Last().GetLength();
 		//(*out) = 0;
-		//ASSERT_EQUAL__(out, (result.c_str()+result.length()));
+		//ASSERT_EQUAL__(out, (result.c_str()+result.GetLength()));
 		return result;
 	}
 	
@@ -437,22 +437,22 @@ template <typename T0, typename T1>
 			return "";
 		size_t len = 0;
 		for (size_t i = 0; i < numPieces; i++)
-			len += pieces[i].length();
+			len += pieces[i].GetLength();
 		size_t glue_len = CharFunctions::strlen(glue_str);
 		len += (numPieces-1)*glue_len;
 		StringType::Template<T1> result = TStringLength(len);
 		T1*out = result.mutablePointer();
 		for (size_t i = 0; i < numPieces-1;i++)
 		{
-			CharFunctions::strncpy(out,pieces[i].c_str(),pieces[i].length());
-			out+=pieces[i].length();
+			CharFunctions::strncpy(out,pieces[i].c_str(),pieces[i].GetLength());
+			out+=pieces[i].GetLength();
 			CharFunctions::strncpy(out,glue_str,glue_len);
 			out+=glue_len;
 		}
-		CharFunctions::strncpy(out,pieces[numPieces-1].c_str(),pieces[numPieces-1].length());
-		//out+=pieces.last().length();
+		CharFunctions::strncpy(out,pieces[numPieces-1].c_str(),pieces[numPieces-1].GetLength());
+		//out+=pieces.Last().GetLength();
 		//(*out) = 0;
-		//ASSERT_EQUAL__(out, (result.c_str()+result.length()));
+		//ASSERT_EQUAL__(out, (result.c_str()+result.GetLength()));
 		return result;
 	}
 
@@ -463,23 +463,23 @@ template <typename T0, typename T1>
 			return "";
 		size_t len = 0;
 		for (size_t i = 0; i < pieces.Count(); i++)
-			len += pieces[i].length();
+			len += pieces[i].GetLength();
 		const T0*glue_str = glue.c_str();
-		size_t glue_len = glue.length();
+		size_t glue_len = glue.GetLength();
 		len += (pieces.Count()-1)*glue_len;
 		StringType::Template<T1> result = TStringLength(len);
 		T1*out = result.mutablePointer();
 		for (size_t i = 0; i < pieces.Count()-1;i++)
 		{
-			CharFunctions::strncpy(out,pieces[i].c_str(),pieces[i].length());
-			out+=pieces[i].length();
+			CharFunctions::strncpy(out,pieces[i].c_str(),pieces[i].GetLength());
+			out+=pieces[i].GetLength();
 			CharFunctions::strncpy(out,glue_str,glue_len);
 			out+=glue_len;
 		}
-		CharFunctions::strncpy(out,pieces.last().c_str(),pieces.last().length());
-		//out+=pieces.last().length();
+		CharFunctions::strncpy(out,pieces.Last().c_str(),pieces.Last().GetLength());
+		//out+=pieces.Last().GetLength();
 		//(*out) = 0;
-		//ASSERT_EQUAL__(out, (result.c_str()+result.length()));
+		//ASSERT_EQUAL__(out, (result.c_str()+result.GetLength()));
 		return result;
 	}
 
@@ -490,20 +490,20 @@ template <typename T>
 			return "";
 		size_t len = 0;
 		for (size_t i = 0; i < pieces.Count(); i++)
-			len += pieces[i].length();
+			len += pieces[i].GetLength();
 		len += (pieces.Count()-1);
 		StringType::Template<T> result = StringType::TStringLength(len);
 		T*out = result.mutablePointer();
 		for (size_t i = 0; i < pieces.Count()-1;i++)
 		{
-			CharFunctions::strncpy(out,pieces[i].c_str(),pieces[i].length());
-			out+=pieces[i].length();
+			CharFunctions::strncpy(out,pieces[i].c_str(),pieces[i].GetLength());
+			out+=pieces[i].GetLength();
 			(*out++) = glue;
 		}
-		CharFunctions::strncpy(out,pieces.last().c_str(),pieces.last().length());
-		//out+=pieces.last().length();
+		CharFunctions::strncpy(out,pieces.Last().c_str(),pieces.Last().GetLength());
+		//out+=pieces.Last().GetLength();
 		//(*out) = 0;
-		//ASSERT_EQUAL__(out, (result.c_str()+result.length()));
+		//ASSERT_EQUAL__(out, (result.c_str()+result.GetLength()));
 		return result;
 	}
 	
@@ -514,22 +514,22 @@ template <typename T0, typename T1>
 			return "";
 		size_t len = 0;
 		for (size_t i = 0; i < pieces.Count(); i++)
-			len += pieces[i].length();
+			len += pieces[i].GetLength();
 		size_t glue_len = CharFunctions::strlen(glue_str);
 		len += (pieces.Count()-1)*glue_len;
 		StringType::Template<T1> result = StringType::TStringLength(len);
 		T1*out = result.mutablePointer();
 		for (size_t i = 0; i < pieces.Count()-1;i++)
 		{
-			CharFunctions::strncpy(out,pieces[i].c_str(),pieces[i].length());
-			out+=pieces[i].length();
+			CharFunctions::strncpy(out,pieces[i].c_str(),pieces[i].GetLength());
+			out+=pieces[i].GetLength();
 			CharFunctions::strncpy(out,glue_str,glue_len);
 			out+=glue_len;
 		}
-		CharFunctions::strncpy(out,pieces.last().c_str(),pieces.last().length());
-		//out+=pieces.last().length();
+		CharFunctions::strncpy(out,pieces.Last().c_str(),pieces.Last().GetLength());
+		//out+=pieces.Last().GetLength();
 		//(*out) = 0;
-		//ASSERT_EQUAL__(out, (result.c_str()+result.length()));
+		//ASSERT_EQUAL__(out, (result.c_str()+result.GetLength()));
 		return result;
 	}
 	
@@ -692,39 +692,8 @@ namespace StringType
 	template <typename T>
 		inline	Template<char>		ReferenceExpression<T>::ToString()			const
 							{
-								return Template<char>("Reference<")+Template<char>(len)+">";
+								return Template<char>("Reference<")+Template<char>(Super::elements)+">";
 							}
-						
-	template <>
-		inline	void		ReferenceExpression<char>::print(std::ostream&stream)	const
-							{
-								stream.write(reference,len);
-							}
-						
-	template <typename T>
-		inline	void		ReferenceExpression<T>::print(std::ostream&stream)	const
-							{
-								for (size_t i = 0; i < len; i++)
-									stream << (char)reference[i];
-							}
-
-	#ifdef WCOUT
-
-		template <>
-			inline	void		ReferenceExpression<wchar_t>::print(std::wostream&stream)	const
-								{
-									stream.write(reference,len);
-								}
-
-							
-		template <typename T>
-			inline	void		ReferenceExpression<T>::print(std::wostream&stream)	const
-								{
-									for (size_t i = 0; i < len; i++)
-										stream << (wchar_t)reference[i];
-								}
-
-	#endif						
 
 	template <typename E0, typename E1>
 		inline	Template<char>		ConcatExpression<E0,E1>::ToString()			const
@@ -740,56 +709,56 @@ namespace StringType
 	template <typename T>
 		inline	Template<char>		StringExpression<T>::ToString()			const
 							{
-								return Template<char>("Temporary<")+Template<char>(Template<T>::string_length)+">";
+								return Template<char>("Temporary<")+Template<char>(Template<T>::Super::elements)+">";
 							}
 						
 	template <typename T>
 		template <class Stream>
-			inline	void		StringExpression<T>::print(Stream&stream)			const
+			inline	void		StringExpression<T>::Print(Stream&stream)			const
 								{
 									stream << Template<T>::c_str();
 								}						
 
 	template <typename T>
 		template <typename T2>
-			inline	int		StringExpression<T>::compareSegment(const T2*string, size_t string_length_)	const
+			inline	int		StringExpression<T>::CompareSegment(const T2*string, size_t string_length_)	const
 			{
-				int result = CharFunctions::strncmp(Template<T>::field,string,string_length_<Template<T>::string_length?string_length_:Template<T>::string_length);
+				int result = CharFunctions::strncmp(Template<T>::Super::data,string,string_length_<Template<T>::Super::elements?string_length_:Template<T>::Super::elements);
 				if (result)
 					return result;
-				if (string_length_ < Template<T>::string_length)
+				if (string_length_ < Template<T>::Super::elements)
 					return 1;
 				return 0;
 			}
 		
 	template <typename T>
 		template <typename T2>
-			inline	int		StringExpression<T>::compareTo(const T2*string, size_t string_length_)	const
+			inline	int		StringExpression<T>::CompareTo(const T2*string, size_t string_length_)	const
 			{
-				int result = compareSegment(string,string_length_);
-				if (!result && string_length_ > Template<T>::string_length)
+				int result = CompareSegment(string,string_length_);
+				if (!result && string_length_ > Template<T>::Super::elements)
 					result = -1;
 				return result;
 			}
 
 	template <typename T>
 		template <typename T2>
-			inline	int		StringExpression<T>::compareSegmentIgnoreCase(const T2*string, size_t string_length_)	const
+			inline	int		StringExpression<T>::CompareSegmentIgnoreCase(const T2*string, size_t string_length_)	const
 			{
-				int result = CharFunctions::strncmpi(Template<T>::field,string,string_length_<Template<T>::string_length?string_length_:Template<T>::string_length);
+				int result = CharFunctions::strncmpi(Template<T>::Super::data,string,string_length_<Template<T>::Super::elements?string_length_:Template<T>::Super::elements);
 				if (result)
 					return result;
-				if (string_length_ < Template<T>::string_length)
+				if (string_length_ < Template<T>::Super::elements)
 					return 1;
 				return 0;
 			}
 		
 	template <typename T>
 		template <typename T2>
-			inline	int		StringExpression<T>::compareToIgnoreCase(const T2*string, size_t string_length_)	const
+			inline	int		StringExpression<T>::CompareToIgnoreCase(const T2*string, size_t string_length_)	const
 			{
-				int result = compareSegmentIgnoreCase(string,string_length_);
-				if (!result && string_length_ > Template<T>::string_length)
+				int result = CompareSegmentIgnoreCase(string,string_length_);
+				if (!result && string_length_ > Template<T>::Super::elements)
 					result = -1;
 				return result;
 			}
@@ -805,10 +774,10 @@ namespace StringType
 		template <typename Expression>
 			inline void Template<T>::makeFromExpression(const Expression&e)
 			{
-				string_length = e.length();
-				field = allocate(string_length);
-				e.WriteTo(field);
-				//ASSERT_NOT_NULL__(field);
+				Super::elements = e.GetLength();
+				Super::data = allocate(Super::elements);
+				e.WriteTo(Super::data);
+				//ASSERT_NOT_NULL__(Super::data);
 			}
 
 	template <typename T>
@@ -816,7 +785,7 @@ namespace StringType
 			Template<T>::Template(const ConcatExpression<T0,T1>&expression)
 			{
 				makeFromExpression(expression);
-				//ASSERT_NOT_NULL__(field);
+				//ASSERT_NOT_NULL__(Super::data);
 			}
 		
 	template <typename T>
@@ -824,7 +793,7 @@ namespace StringType
 			Template<T>::Template(const ReferenceExpression<T0>&expression)
 			{
 				makeFromExpression(expression);
-				//ASSERT_NOT_NULL__(field);
+				//ASSERT_NOT_NULL__(Super::data);
 			}
 
 	template <typename T>
@@ -832,7 +801,7 @@ namespace StringType
 			Template<T>::Template(const StringExpression<T0>&expression)
 			{
 				makeFromExpression(expression);
-				//ASSERT_NOT_NULL__(field);
+				//ASSERT_NOT_NULL__(Super::data);
 			}
 
 	
@@ -842,23 +811,23 @@ namespace StringType
 			{
 				while (length > 0 && string[length-1] == 0)
 					length--;
-				field = allocate(length);
-				string_length = length;
-				CharFunctions::Cast(string,field,length);
-				//ASSERT_NOT_NULL__(field);
+				Super::data = allocate(length);
+				Super::elements = length;
+				CharFunctions::Cast(string,Super::data,length);
+				//ASSERT_NOT_NULL__(Super::data);
 			}	
 		
 	template <typename T>
-			Template<T>::Template(const Ctr::ArrayData<T>&array)
+			Template<T>::Template(const ConstArrayRef<T>&array)
 			{
-				size_t len = array.length();
-				if (len > 0 && array.last() == (T)0)
+				size_t len = array.Length();
+				while (len > 0 && array[len-1] == (T)0)
 					len --;
-				field = allocate(len);
-				string_length = len;
+				Super::data = allocate(len);
+				Super::elements = len;
 				for (size_t i = 0; i < len; i++)
-					field[i] = array[i];
-				//ASSERT_NOT_NULL__(field);
+					Super::data[i] = array[i];
+				//ASSERT_NOT_NULL__(Super::data);
 			}
 	
 
@@ -866,18 +835,18 @@ namespace StringType
 		void						Template<T>::SetupFromCharArray(const T*string)
 		{
 			size_t len = CharFunctions::strlen(string);
-			field = allocate(len);
-			string_length = len;
-			memcpy(field,string,len*sizeof(T));
+			Super::data = allocate(len);
+			Super::elements = len;
+			memcpy(Super::data,string,len*sizeof(T));
 		}
 	template <typename T>
 		template <typename T2>
 			void					Template<T>::SetupFromCastCharArray(const T2*string)
 			{
 				size_t len = CharFunctions::strlen(string);
-				field = allocate(len);
-				string_length = len;
-				CharFunctions::Cast(string,field,len);
+				Super::data = allocate(len);
+				Super::elements = len;
+				CharFunctions::Cast(string,Super::data,len);
 			}
 
 
@@ -967,10 +936,10 @@ namespace StringType
 			const T*first = pointerToHexT<T>(pointer,sizeof(pointer)*2,buffer+256,buffer);
 			size_t len = buffer+256-first;
 		
-			field = allocate(len);
-			memcpy(field,first,len);
-			string_length = len;
-			//ASSERT_NOT_NULL__(field);
+			Super::data = allocate(len);
+			memcpy(Super::data,first,len);
+			Super::elements = len;
+			//ASSERT_NOT_NULL__(Super::data);
 		}
 
 
@@ -979,41 +948,41 @@ namespace StringType
 		{
 			if (b)
 			{
-				string_length = 4;
-				field = allocate(4);
-				field[0] = (T)'t';
-				field[1] = (T)'r';
-				field[2] = (T)'u';
-				field[3] = (T)'e';
+				Super::elements = 4;
+				Super::data = allocate(4);
+				Super::data[0] = (T)'t';
+				Super::data[1] = (T)'r';
+				Super::data[2] = (T)'u';
+				Super::data[3] = (T)'e';
 			}
 			else
 			{
-				string_length = 5;
-				field = allocate(5);
-				field[0] = (T)'f';
-				field[1] = (T)'a';
-				field[2] = (T)'l';
-				field[3] = (T)'s';
-				field[4] = (T)'e';
+				Super::elements = 5;
+				Super::data = allocate(5);
+				Super::data[0] = (T)'f';
+				Super::data[1] = (T)'a';
+				Super::data[2] = (T)'l';
+				Super::data[3] = (T)'s';
+				Super::data[4] = (T)'e';
 			}
 		}
 
 	template <typename T>
 		Template<T>::Template(char c)
 		{
-			string_length = 1;
-			field = allocate(1);
-			field[0] = (T)c;
-			//ASSERT_NOT_NULL__(field);
+			Super::elements = 1;
+			Super::data = allocate(1);
+			Super::data[0] = (T)c;
+			//ASSERT_NOT_NULL__(Super::data);
 		}
 
 	template <typename T>
 		Template<T>::Template(wchar_t c)
 		{
-			string_length = 1;
-			field = allocate(1);
-			field[0] = (T)c;
-			//ASSERT_NOT_NULL__(field);
+			Super::elements = 1;
+			Super::data = allocate(1);
+			Super::data[0] = (T)c;
+			//ASSERT_NOT_NULL__(Super::data);
 		}
 	
 	
@@ -1087,9 +1056,9 @@ namespace StringType
 		template <typename T>
 			Template<T>::Template(const AnsiString&string)
 			{
-				string_length = string.GetLength();
-				field = allocate(string_length);
-				CharFunctions::strncpy(field,string.c_str(),string_length);
+				Super::elements = string.GetLength();
+				Super::data = allocate(Super::elements);
+				CharFunctions::strncpy(Super::data,string.c_str(),Super::elements);
 			}
 	#endif
 
@@ -1097,14 +1066,14 @@ namespace StringType
 	template <typename T>
 		Template<T>::~Template()
 		{
-			delocate(field);
+			delocate(Super::data);
 		}
 
 	template <typename T>
 		void			Template<T>::swap(Template<T>&other)
 		{
-			swp(field,other.field);
-			swp(string_length,other.string_length);
+			swp(Super::data,other.Super::data);
+			swp(Super::elements,other.Super::elements);
 		}
 
 	template <typename T>
@@ -1114,56 +1083,56 @@ namespace StringType
 				return;
 			/*
 				case 1: fields are identical:
-					situation: count(field) = count(other.field) >= 2
-					delocate(field) same as delocate(other.field) decreases counter but does not reach 0 (actual memory freeing)
-					field copies other.field (which generates an unnecessary copy, though harmless)
-					same for string_length
-					other.field and other.string_length are set to empty
+					situation: count(Super::data) = count(other.Super::data) >= 2
+					delocate(Super::data) same as delocate(other.Super::data) decreases counter but does not reach 0 (actual memory freeing)
+					Super::data copies other.Super::data (which generates an unnecessary copy, though harmless)
+					same for Super::elements
+					other.Super::data and other.Super::elements are set to empty
 					valid situation assuming it was valid before
 				case 2: fields are not identical
 					trivial
 			*/
-			delocate(field);
-			field = other.field;
-			string_length = other.string_length;
+			delocate(Super::data);
+			Super::data = other.Super::data;
+			Super::elements = other.Super::elements;
 		
-			other.field = sz;
-			other.string_length = 0;
+			other.Super::data = sz;
+			other.Super::elements = 0;
 		}
 	
 	
 	template <typename T>
 		inline void Template<T>::Resize(size_t new_length)
 		{
-			//ASSERT_NOT_NULL__(field);
-			STRING_DEBUG("invoking resize. current length is "<<(string_length+1)<<", new length is "<<(new_length+1));
+			//ASSERT_NOT_NULL__(Super::data);
+			STRING_DEBUG("invoking resize. current length is "<<(Super::elements+1)<<", new length is "<<(new_length+1));
 		
 			#if __STR_BLOCK_ALLOC__
-				size_t		current_alloc = field!=sz?capacity(field):1,
+				size_t		current_alloc = Super::data!=sz?capacity(Super::data):1,
 							new_alloc = pad(new_length+1);
 			#else
-				size_t		current_alloc = string_length+1,
+				size_t		current_alloc = Super::elements+1,
 							new_alloc = new_length+1;
 			#endif
 
-			STRING_DEBUG(" current allocation is "<<current_alloc<<" at "<<(void*)field);
+			STRING_DEBUG(" current allocation is "<<current_alloc<<" at "<<(void*)Super::data);
 			STRING_DEBUG(" new allocation is "<<new_alloc);
 		
 			if (current_alloc == new_alloc
 				#if __STR_REFERENCE_COUNT__
-					&& (new_alloc==1 || count(field) == 1)
+					&& (new_alloc==1 || count(Super::data) == 1)
 				#endif
 				)
 			{
 				STRING_DEBUG(" nothing new. aborting");
 		
 				#if __STR_BLOCK_ALLOC__
-					if (new_length != string_length)
+					if (new_length != Super::elements)
 					{
-						STRING_DEBUG(" replacing trailing zero and updating string_length");
+						STRING_DEBUG(" replacing trailing zero and updating Super::elements");
 
-						field[new_length] = 0;
-						string_length = new_length;
+						Super::data[new_length] = 0;
+						Super::elements = new_length;
 					}
 				#endif
 				return;
@@ -1172,18 +1141,18 @@ namespace StringType
 		
 
 		
-			delocate(field);
+			delocate(Super::data);
 		
 			if (!new_length)
 			{
 				STRING_DEBUG("clearing");
-				field = sz;
-				string_length = 0;
+				Super::data = sz;
+				Super::elements = 0;
 				return;
 			}
-			field = allocateField(new_alloc);
-			field[new_length] = 0;	
-			string_length = new_length;
+			Super::data = allocateField(new_alloc);
+			Super::data[new_length] = 0;	
+			Super::elements = new_length;
 		
 			STRING_DEBUG("resize done");
 		}
@@ -1191,29 +1160,29 @@ namespace StringType
 	template <typename T>
 		inline void Template<T>::resizeCopy(size_t new_length)
 		{
-			STRING_DEBUG("invoking resize copy. current length is "<<(string_length+1)<<", new length is "<<(new_length+1));
+			STRING_DEBUG("invoking resize copy. current length is "<<(Super::elements+1)<<", new length is "<<(new_length+1));
 			#if __STR_BLOCK_ALLOC__
-				size_t		current_alloc = field!=sz?capacity(field):1,
+				size_t		current_alloc = Super::data!=sz?capacity(Super::data):1,
 							new_alloc = pad(new_length+1);
 			#else
-				size_t		current_alloc = (string_length+1),
+				size_t		current_alloc = (Super::elements+1),
 							new_alloc = (new_length+1);
 			#endif
-			STRING_DEBUG(" current allocation is "<<current_alloc<<" at "<<(void*)field);
+			STRING_DEBUG(" current allocation is "<<current_alloc<<" at "<<(void*)Super::data);
 			STRING_DEBUG(" new allocation is "<<new_alloc);
 			if (current_alloc == new_alloc
 				#if __STR_REFERENCE_COUNT__
-					&& (new_alloc==1 || count(field) == 1)
+					&& (new_alloc==1 || count(Super::data) == 1)
 				#endif
 				)
 			{
 				STRING_DEBUG(" nothing new. aborting");
 				#if __STR_BLOCK_ALLOC__
-					if (new_length != string_length)
+					if (new_length != Super::elements)
 					{
-						STRING_DEBUG(" replacing trailing zero and updating string_length");
-						field[new_length] = 0;
-						string_length = new_length;
+						STRING_DEBUG(" replacing trailing zero and updating Super::elements");
+						Super::data[new_length] = 0;
+						Super::elements = new_length;
 					}
 				#endif
 				return;
@@ -1222,9 +1191,9 @@ namespace StringType
 			if (!new_length)
 			{
 				STRING_DEBUG(" reducing to empty string");
-				delocate(field);
-				field = sz;
-				string_length = 0;
+				delocate(Super::data);
+				Super::data = sz;
+				Super::elements = 0;
 				STRING_DEBUG(" resize done");
 				return;
 			}
@@ -1233,15 +1202,15 @@ namespace StringType
 		
 			STRING_DEBUG("copying");
 		
-			if (new_length > string_length)
-				memcpy(new_field,field,string_length*sizeof(T));
+			if (new_length > Super::elements)
+				memcpy(new_field,Super::data,Super::elements*sizeof(T));
 			else
-				memcpy(new_field,field,new_length*sizeof(T));
+				memcpy(new_field,Super::data,new_length*sizeof(T));
 			new_field[new_length] = 0;	
 		
-			delocate(field);
-			field = new_field;
-			string_length = new_length;
+			delocate(Super::data);
+			Super::data = new_field;
+			Super::elements = new_length;
 			STRING_DEBUG("resize done");
 		}
 
@@ -1249,7 +1218,7 @@ namespace StringType
 	template <typename T>
 		const T*			Template<T>::c_str()		const
 		{
-			return field;
+			return Super::data;
 		}
 	
 	template <typename T>
@@ -1258,7 +1227,7 @@ namespace StringType
 			#if __STR_REFERENCE_COUNT__
 				duplicate();
 			#endif
-			return field;
+			return Super::data;
 		}
 
 	template <typename T>
@@ -1270,7 +1239,7 @@ namespace StringType
 	template <typename T>
 		inline				Template<T>::operator const T*()					const
 		{
-			return field;
+			return Super::data;
 		}*/
 
 
@@ -1279,32 +1248,32 @@ namespace StringType
 			count_t				Template<T>::genericEraseCharacters(Marker marked, bool erase_matches)
 			{
 				index_t erase_count = 0;
-				const T*read = field;
+				const T*read = Super::data;
 				while (*read)
 					erase_count += (marked(*read++) == erase_matches);
 				if (!erase_count)
 					return 0;
-				if (erase_count == string_length)
+				if (erase_count == Super::elements)
 				{
 					free();
 					return erase_count;
 				}
 
-				T*n = allocate(string_length-erase_count);
+				T*n = allocate(Super::elements-erase_count);
 				T*write = n;
-				read = field;
+				read = Super::data;
 				while (*read)
 				{
 					if (marked(*read) != erase_matches)
 						(*write++) = *read;
 					read++;
 				}
-				ASSERT_EQUAL__(read,field+string_length);
-				ASSERT_EQUAL__(write,n+string_length-erase_count);
+				ASSERT_EQUAL__(read,Super::data+Super::elements);
+				ASSERT_EQUAL__(write,n+Super::elements-erase_count);
 
-				string_length -= erase_count;
-				delocate(field);
-				field = n;
+				Super::elements -= erase_count;
+				delocate(Super::data);
+				Super::data = n;
 
 				return erase_count;
 			}
@@ -1318,9 +1287,9 @@ namespace StringType
 	template <typename T>
 		count_t		Template<T>::EraseCharacters(const Template<T>& characters, bool erase_matches)
 		{
-			if (!characters.string_length)
+			if (!characters.Super::elements)
 				return 0;
-			return genericEraseCharacters(Marker::FieldMarker<T>(characters.field,characters.string_length),erase_matches);
+			return genericEraseCharacters(Marker::FieldMarker<T>(characters.Super::data,characters.Super::elements),erase_matches);
 		}
 
 	template <typename T>
@@ -1351,9 +1320,9 @@ namespace StringType
 	template <typename T>
 		count_t		Template<T>::EraseCharactersIgnoreCase(const Template<T>& characters, bool erase_matches)
 		{
-			if (!characters.string_length)
+			if (!characters.Super::elements)
 				return 0;
-			return genericEraseCharacters(Marker::CaseInsensitiveFieldMarker<T>(characters.field,characters.string_length),erase_matches);
+			return genericEraseCharacters(Marker::CaseInsensitiveFieldMarker<T>(characters.Super::data,characters.Super::elements),erase_matches);
 		}
 
 	template <typename T>
@@ -1377,73 +1346,6 @@ namespace StringType
 		}
 
 
-	template <typename T>
-		template <class Marker>
-			count_t					Template<T>::genericCountCharacters(const Marker&marked, bool count_matches)const
-			{
-				index_t count = 0;
-				const T*read = field;
-				while (*read)
-					count += (marked(*read++) == count_matches);
-				return count;
-			}
-
-	template <typename T>
-		count_t					Template<T>::CountCharacters(const Template<T>& characters, bool count_matches)	const
-		{
-			if (!characters.string_length)
-				return 0;
-
-			return genericCountCharacters(Marker::FieldMarker<T>(characters.field,characters.string_length),count_matches);
-		}
-	template <typename T>
-		count_t					Template<T>::CountCharacters(const T* characters, bool count_matches)	const
-		{
-			if (!characters)
-				return 0;
-			size_t len = CharFunctions::strlen(characters);
-			if (!len)
-				return 0;
-			return genericCountCharacters(Marker::FieldMarker<T>(characters,len),count_matches);
-		}
-
-	template <typename T>
-		count_t					Template<T>::CountCharacters(const T* characters, count_t character_count, bool count_matches)	const
-		{
-			if (!characters || !character_count)
-				return 0;
-			return genericCountCharacters(Marker::FieldMarker<T>(characters,character_count),count_matches);
-		}
-	template <typename T>
-		count_t					Template<T>::CountCharacters(bool isMatch(T character), bool count_matches)	const
-		{
-			return genericCountCharacters(isMatch,count_matches);
-		}
-	template <typename T>
-		count_t					Template<T>::CountCharactersIgnoreCase(const Template<T>& characters, bool count_matches)	const
-		{
-			if (!characters.string_length)
-				return 0;
-			return genericCountCharacters(Marker::CaseInsensitiveFieldMarker<T>(characters.field,characters.string_length),count_matches);
-		}
-	template <typename T>
-		count_t					Template<T>::CountCharactersIgnoreCase(const T* characters, bool count_matches)	const
-		{
-			if (!characters)
-				return 0;
-			size_t len = CharFunctions::strlen(characters);
-			if (!len)
-				return 0;
-
-			return genericCountCharacters(Marker::CaseInsensitiveFieldMarker<T>(characters,len),count_matches);
-		}
-	template <typename T>
-		count_t					Template<T>::CountCharactersIgnoreCase(const T* characters, count_t character_count, bool count_matches)	const
-		{
-			if (!characters || !character_count)
-				return 0;
-			return genericCountCharacters(Marker::CaseInsensitiveFieldMarker<T>(characters,character_count),count_matches);
-		}
 
 	template <typename T>
 		template <class Marker>
@@ -1453,9 +1355,9 @@ namespace StringType
 				if (!matches)
 					return;
 
-				T*n = allocate(string_length+matches);
+				T*n = allocate(Super::elements+matches);
 				T*write = n;
-				const T*read = field;
+				const T*read = Super::data;
 				while (*read)
 				{
 					if (marked(*read))
@@ -1463,12 +1365,12 @@ namespace StringType
 					(*write++) = *read;
 					read++;
 				}
-				ASSERT_EQUAL__(read,field+string_length);
-				ASSERT_EQUAL__(write,n+string_length+matches);
+				ASSERT_EQUAL__(read,Super::data+Super::elements);
+				ASSERT_EQUAL__(write,n+Super::elements+matches);
 
-				string_length += matches;
-				delocate(field);
-				field = n;
+				Super::elements += matches;
+				delocate(Super::data);
+				Super::data = n;
 			}
 
 
@@ -1550,20 +1452,20 @@ namespace StringType
 	template <typename T>
 		Template<T>&		Template<T>::Erase(size_t index,size_t count)
 		{
-			size_t old_len = string_length;
-			if (index >= string_length)
+			size_t old_len = Super::elements;
+			if (index >= Super::elements)
 				return *this;
-			if (count > string_length-index)
-				count = string_length-index;
+			if (count > Super::elements-index)
+				count = Super::elements-index;
 			if (!count)
 				return *this;
 
-			T*n = allocate(string_length-count);
-			memcpy(n,field,index*sizeof(T));
-			memcpy(n+index,field+(index+count),(string_length-index-count)*sizeof(T));
-			string_length -= count;
-			delocate(field);
-			field = n;
+			T*n = allocate(Super::elements-count);
+			memcpy(n,Super::data,index*sizeof(T));
+			memcpy(n+index,Super::data+(index+count),(Super::elements-index-count)*sizeof(T));
+			Super::elements -= count;
+			delocate(Super::data);
+			Super::data = n;
 			return *this;
 		}
 
@@ -1572,21 +1474,21 @@ namespace StringType
 		{
 			if (!count_)
 				return *this;
-			if (count_ >= string_length)
+			if (count_ >= Super::elements)
 			{
-				delocate(field);
-				field = sz;
-				string_length = 0;
+				delocate(Super::data);
+				Super::data = sz;
+				Super::elements = 0;
 				return *this;
 			}
-			size_t	new_length = string_length-count_;
+			size_t	new_length = Super::elements-count_;
 
 		
-			STRING_DEBUG("invoking eraseLeft. current length is "<<(string_length+1)<<", new length is "<<(new_length+1));
+			STRING_DEBUG("invoking eraseLeft. current length is "<<(Super::elements+1)<<", new length is "<<(new_length+1));
 			#if __STR_BLOCK_ALLOC__
-				size_t	current_alloc = field!=sz?capacity(field):1,
+				size_t	current_alloc = Super::data!=sz?capacity(Super::data):1,
 						new_alloc = pad(new_length+1);
-				STRING_DEBUG(" current allocation is "<<current_alloc<<" at "<<(void*)field);
+				STRING_DEBUG(" current allocation is "<<current_alloc<<" at "<<(void*)Super::data);
 			#else
 				size_t	new_alloc = (new_length+1);
 			#endif
@@ -1595,14 +1497,14 @@ namespace StringType
 			#if __STR_BLOCK_ALLOC__
 				if (current_alloc == new_alloc
 					#if __STR_REFERENCE_COUNT__
-						&& count(field) == 1
+						&& count(Super::data) == 1
 					#endif
 					)
 				{
 					STRING_DEBUG(" no re-allocation necessary. simply moving to front");
-					memcpy(field, field+count_,new_length);
-					field[new_length] = 0;
-					string_length = new_length;
+					memcpy(Super::data, Super::data+count_,new_length);
+					Super::data[new_length] = 0;
+					Super::elements = new_length;
 				
 					return *this;
 				}
@@ -1612,12 +1514,12 @@ namespace StringType
 		
 			STRING_DEBUG("copying");
 		
-			memcpy(new_field,field+count_,new_length*sizeof(T));
+			memcpy(new_field,Super::data+count_,new_length*sizeof(T));
 			new_field[new_length] = 0;	
 		
-			delocate(field);
-			field = new_field;
-			string_length = new_length;
+			delocate(Super::data);
+			Super::data = new_field;
+			Super::elements = new_length;
 			STRING_DEBUG("operation done");
 		
 		
@@ -1627,9 +1529,9 @@ namespace StringType
 	template <typename T>
 		Template<T>&		Template<T>::Truncate(size_t maxLength)
 		{
-			if (string_length <= maxLength)
+			if (Super::elements <= maxLength)
 				return *this;
-			return EraseRight(string_length - maxLength);
+			return EraseRight(Super::elements - maxLength);
 		}
 
 
@@ -1638,378 +1540,19 @@ namespace StringType
 		{
 			if (!count)
 				return *this;
-			if (count >= string_length)
+			if (count >= Super::elements)
 			{
-				delocate(field);
-				field = sz;
-				string_length = 0;
+				delocate(Super::data);
+				Super::data = sz;
+				Super::elements = 0;
 				return *this;
 			}
 		
-			resizeCopy(string_length-count);
+			resizeCopy(Super::elements-count);
 
 		
 			return *this;
 		}
-
-
-
-
-	
-	template <typename T>
-		index_t			Template<T>::FindWord(const ReferenceExpression<T>&needle, index_t offset /*=0*/) const
-		{
-			return ref().FindWord(needle,offset);
-		}
-	
-
-	template <typename T>
-		index_t			Template<T>::FindWordIgnoreCase(const ReferenceExpression<T>&needle, index_t offset /*=0*/) const
-		{
-			return ref().FindWordIgnoreCase(needle);
-		}
-	
-
-	
-	template <typename T>
-		index_t			Template<T>::Find(const ReferenceExpression<T>&needle, index_t offset /*=0*/)	const
-		{
-			if (needle.IsEmpty() || offset+needle.GetLength() > string_length)
-				return InvalidIndex;
-			const T*ptr = CharFunctions::strstr(begin()+offset,end(),needle.begin(),needle.end());
-			if (ptr != nullptr)
-				return ptr - field;
-			return InvalidIndex;
-		}
-
-
-	template <typename T>
-		index_t			Template<T>::Find(T c, index_t offset /*=0*/)					const
-		{
-			if (offset >= string_length)
-				return InvalidIndex;
-			const T*pntr = CharFunctions::strchr(field+offset,c);
-			return pntr?(pntr-field):InvalidIndex;
-		}
-
-
-	
-	template <typename T>
-		index_t			Template<T>::Find(bool callback(T), index_t offset /*=0*/)					const
-		{
-			const T *end = field+string_length,
-					*haystack = field+offset;
-			while (haystack < end && !callback(*haystack))
-				haystack++;
-			return haystack < end?haystack-field:InvalidIndex;
-		}
-
-
-
-	template <typename T>
-		index_t			Template<T>::FindIgnoreCase(const ReferenceExpression<T>&needle, index_t offset /*=0*/)	const
-		{
-			if (needle.IsEmpty() || offset+needle.GetLength() > string_length)
-				return InvalidIndex;
-			const T*ptr = CharFunctions::stristr(begin()+offset,end(),needle.begin(),needle.end());
-			if (ptr != nullptr)
-				return ptr - field;
-			return InvalidIndex;
-		}
-
-	template <typename T>
-		index_t			Template<T>::FindIgnoreCase(T c, index_t offset /*=0*/)					const
-		{
-			if (offset >= string_length)
-				return InvalidIndex;
-			const T*pntr = CharFunctions::strichr(field+offset,c);
-			return pntr?(pntr-field):InvalidIndex;
-		}
-
-
-
-
-	template <typename T>
-		index_t			ReferenceExpression<T>::FindWord(const Self&needle, index_t offset /*=0*/) const
-		{
-			if (needle.IsEmpty() || offset + needle.GetLength() > len)
-				return InvalidIndex;
-//			const T*offset = field + offset_;
-			const size_t nlen = needle.GetLength();
-			while (true)
-			{
-				index_t next = Find(needle,offset);
-				if (next == InvalidIndex)
-					return InvalidIndex;
-				if (!CharFunctions::isalnum(reference[next+nlen]))
-					return next;
-				offset = next+nlen;
-				while (offset < len && CharFunctions::isalnum(reference[offset]))
-					offset++;
-				if (offset == len)
-					return InvalidIndex;
-			}
-		}
-	
-
-	template <typename T>
-		index_t			ReferenceExpression<T>::FindWordIgnoreCase(const Self&needle, index_t offset /*=0*/) const
-		{
-			if (needle.IsEmpty() || offset + needle.GetLength() > len)
-				return InvalidIndex;
-//			const T*offset = field + offset_;
-			const size_t nlen = needle.GetLength();
-			while (true)
-			{
-				index_t next = FindIgnoreCase(needle,offset);
-				if (next == InvalidIndex)
-					return InvalidIndex;
-				if (!CharFunctions::isalnum(reference[next+nlen]))
-					return next;
-				offset = next+nlen;
-				while (offset < len && CharFunctions::isalnum(reference[offset]))
-					offset++;
-				if (offset == len)
-					return InvalidIndex;
-			}
-		}
-	
-
-	
-	template <typename T>
-		index_t			ReferenceExpression<T>::Find(const Self&needle, index_t offset /*=0*/)	const
-		{
-			if (needle.IsEmpty() || offset+needle.GetLength() > len)
-				return InvalidIndex;
-			const T*ptr = CharFunctions::strstr(begin()+offset,end(),needle.begin(),needle.end());
-			if (ptr != nullptr)
-				return ptr - reference;
-			return InvalidIndex;
-		}
-
-
-	template <typename T>
-		index_t			ReferenceExpression<T>::Find(T c, index_t offset /*=0*/)					const
-		{
-			if (offset >= len)
-				return InvalidIndex;
-			const T*pntr = CharFunctions::strchr(reference+offset, reference+len,c);
-			return pntr?(pntr-reference):InvalidIndex;
-		}
-
-
-	
-	template <typename T>
-		index_t			ReferenceExpression<T>::Find(bool callback(T), index_t offset /*=0*/)					const
-		{
-			const T *end = reference+len,
-					*haystack = reference+offset;
-			while (haystack < end && !callback(*haystack))
-				haystack++;
-			return haystack < end?haystack-reference:InvalidIndex;
-		}
-
-
-
-	template <typename T>
-		index_t			ReferenceExpression<T>::FindIgnoreCase(const Self&needle, index_t offset /*=0*/)	const
-		{
-			if (needle.IsEmpty() || offset+needle.GetLength() > len)
-				return InvalidIndex;
-			const T*ptr = CharFunctions::stristr(begin()+offset,end(),needle.begin(),needle.end());
-			if (ptr != nullptr)
-				return ptr - reference;
-			return InvalidIndex;
-		}
-
-	template <typename T>
-		index_t			ReferenceExpression<T>::FindIgnoreCase(T c, index_t offset /*=0*/)					const
-		{
-			if (offset >= len)
-				return InvalidIndex;
-			const T*pntr = CharFunctions::strichr(reference+offset,reference+len,c);
-			return pntr?(pntr-reference):InvalidIndex;
-		}
-
-
-
-
-
-
-
-
-	template <typename T>
-		index_t			Template<T>::FindLastWord(const ReferenceExpression<T>&needle, index_t offset_ /*=InvalidIndex*/ ) const
-		{
-			if (needle.GetLength() == 0 || needle.GetLength() > string_length)
-				return InvalidIndex;
-			const size_t len = needle.GetLength();
-			const T*offset = field+ std::min( string_length-len, offset_);
-			while (offset >= field)
-			{
-				while (offset > field && (CharFunctions::isalnum(offset[-1]) || CharFunctions::isalnum(offset[len])))
-					offset--;
-				if (CharFunctions::isalnum(offset[len]))
-					return InvalidIndex;
-				if (!CharFunctions::strncmp(offset,needle.pointer(), len))
-					return offset-field;
-				offset--;
-			}
-			return InvalidIndex;
-		}
-
-
-
-
-	template <typename T>
-		index_t			Template<T>::FindLastWordIgnoreCase(const ReferenceExpression<T>&needle, index_t offset_ /*=InvalidIndex*/ ) const
-		{
-			if (needle.GetLength() == 0 || needle.GetLength() > string_length)
-				return InvalidIndex;
-			const size_t len = needle.GetLength();
-			const T*offset = field+ std::min( string_length-len, offset_);
-			while (offset >= field)
-			{
-				while (offset > field && (CharFunctions::isalnum(offset[-1]) || CharFunctions::isalnum(offset[len])))
-					offset--;
-				if (CharFunctions::isalnum(offset[len]))
-					return InvalidIndex;
-				if (!CharFunctions::strncmpi(offset,needle.pointer(), len))
-					return offset-field;
-				offset--;
-			}
-			return InvalidIndex;
-		}
-
-	
-	
-	template <typename T>
-		index_t			Template<T>::FindLastIgnoreCase(const ReferenceExpression<T>&needle, index_t offset /*=InvalidIndex*/ )	const
-		{
-			if (string_length < needle.GetLength() || needle.IsEmpty())
-				return InvalidIndex;
-			const T	
-					*haystack = field+std::min(string_length-needle.GetLength(), offset),
-					*end = haystack + needle.GetLength(),
-					*needle_end = needle.end();
-			while (haystack >= field)
-			{
-				const T	*p0 = haystack;
-				const T	*p1 = needle.begin();
-				while (p0 < end && p1 < needle_end && CharFunctions::tolower(*p0) == CharFunctions::tolower(*p1))
-				{
-					p0++;
-					p1++;
-				}
-				if (p1==needle_end)
-					return haystack-field;
-				haystack--;
-			}
-			return InvalidIndex;
-		}
-	
-
-	
-	
-	template <typename T>
-		index_t			Template<T>::FindLast(const ReferenceExpression<T>&needle, index_t offset /*=InvalidIndex*/ )	const
-		{
-			return ref().FindLast(needle,offset);
-		}
-
-	template <typename T>
-		index_t			ReferenceExpression<T>::FindLast(const ReferenceExpression<T>&needle, index_t offset /*=InvalidIndex*/ )	const
-		{
-			if (len < needle.GetLength() || needle.IsEmpty())
-				return InvalidIndex;
-			const T	
-					*haystack = reference+std::min(len-needle.GetLength(), offset),
-					*end = haystack + needle.GetLength(),
-					*needle_end = needle.end();
-			while (haystack >= reference)
-			{
-				const T	*p0 = haystack;
-				const T	*p1 = needle.begin();
-				while (p0 < end && p1 < needle_end && *p0 == *p1)
-				{
-					p0++;
-					p1++;
-				}
-				if (p1==needle_end)
-					return haystack-reference;
-				haystack--;
-			}
-			return InvalidIndex;
-		}
-
-	template <typename T>
-		index_t			Template<T>::FindLast(T c, index_t offset /*=InvalidIndex*/ )					const
-		{
-			return this->ref().FindLast(c,offset);
-		}
-
-	template <typename T>
-		index_t			ReferenceExpression<T>::FindLast(T c, index_t offset /*=InvalidIndex*/ )					const
-		{
-			const T 
-					*haystack = reference+std::min(len-1, offset),
-					*end = haystack + 1;
-			while (haystack >= reference && *haystack != c)
-				haystack--;
-			return haystack >= reference?haystack-reference:InvalidIndex;
-		}
-
-
-
-
-	template <typename T>
-		index_t			Template<T>::FindLastIgnoreCase(T c, index_t offset /*=InvalidIndex*/ )					const
-		{
-			c = CharFunctions::tolower(c);
-			const T 
-					*haystack = field+std::min(string_length-1, offset),
-					*end = haystack + 1;
-			while (haystack >= field && CharFunctions::tolower(*haystack) != c)
-				haystack--;
-			return haystack >= field?haystack-field:InvalidIndex;
-		}
-
-
-
-	template <typename T>
-		index_t			Template<T>::FindLast(bool callback(T), index_t offset /*=InvalidIndex*/)					const
-		{
-			const T 
-					*haystack = field+std::min(string_length-1, offset),
-					*end = haystack + 1;
-			while (haystack >= field && !callback(*haystack))
-				haystack--;
-			return haystack >= field?haystack-field:InvalidIndex;
-		}
-
-
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-	template <typename T>
-		hash_t	Template<T>::ToHash() const
-		{
-			return StdCharHash(field,field+string_length);
-		}
-
-
-
 
 
 	template <typename T>
@@ -2029,13 +1572,13 @@ namespace StringType
 				count += index;
 				index=0;
 			}
-			if ((size_t)index >= string_length)
+			if ((size_t)index >= Super::elements)
 				return Template<T>();
-			if (count > string_length)
-				count = string_length;
-			if (index+count>string_length)
-				count = string_length-index;
-			return Template<T>(field+index,count);
+			if (count > Super::elements)
+				count = Super::elements;
+			if (index+count>Super::elements)
+				count = Super::elements-index;
+			return Template<T>(Super::data+index,count);
 		}
 
 
@@ -2048,19 +1591,19 @@ namespace StringType
 				count += index;
 				index=0;
 			}
-			if ((size_t)index >= string_length)
-				return ReferenceExpression<T>(field,0);
-			if (count > string_length)
-				count = string_length;
-			if (index+count>string_length)
-				count = string_length-index;
-			return ReferenceExpression<T>(field+index,count);
+			if ((size_t)index >= Super::elements)
+				return ReferenceExpression<T>(Super::data,0);
+			if (count > Super::elements)
+				count = Super::elements;
+			if (index+count>Super::elements)
+				count = Super::elements-index;
+			return ReferenceExpression<T>(Super::data+index,count);
 		}
 
 	template <typename T>
 		ReferenceExpression<T>				Template<T>::ref()	const
 		{
-			return ReferenceExpression<T>(field,string_length);
+			return ReferenceExpression<T>(Super::data,Super::elements);
 		}
 
 
@@ -2069,29 +1612,29 @@ namespace StringType
 	template <typename T>
 		Template<T>&				Template<T>::TrimThis()
 		{
-			if (!string_length || (!IsWhitespace(field[0]) && !IsWhitespace(field[string_length-1])))
+			if (!Super::elements || (!IsWhitespace(Super::data[0]) && !IsWhitespace(Super::data[Super::elements-1])))
 				return *this;
 
-			const T*left=field;
+			const T*left=Super::data;
 			while ((*left) && IsWhitespace(*left))
 				left++;
 			if (!*left)
 			{
-				delocate(field);
-				field = sz;
-				string_length = 0;
+				delocate(Super::data);
+				Super::data = sz;
+				Super::elements = 0;
 				return *this;
 			}
-			const T*right = field+string_length-1;
+			const T*right = Super::data+Super::elements-1;
 			while (IsWhitespace(*right))
 				right--;
 			size_t len = right-left+1;
 
 			T*n = allocate(len);
 			memcpy(n,left,len*sizeof(T));
-			delocate(field);
-			field = n;
-			string_length = len;
+			delocate(Super::data);
+			Super::data = n;
+			Super::elements = len;
 			return *this;
 		}
 
@@ -2099,10 +1642,10 @@ namespace StringType
 	template <typename T>
 		ReferenceExpression<T>				ReferenceExpression<T>::Trim()			const
 		{
-			if (!len)
+			if (!Super::elements)
 				return ReferenceExpression<T>();
-			const T*left=reference;
-			const T*const end = reference + len;
+			const T*left=Super::begin();
+			const T*const end = Super::end();
 			while (left < end && IsWhitespace(*left))
 				left++;
 			if (left == end)
@@ -2111,7 +1654,7 @@ namespace StringType
 			while (IsWhitespace(*right))
 				right--;
 			size_t len2 = right-left+1;
-			if (!left && len2 == len)
+			if (!left && len2 == Super::elements)
 				return *this;
 			return ReferenceExpression<T>(left,len2);
 		}
@@ -2124,13 +1667,13 @@ namespace StringType
 				count += index;
 				index=0;
 			}
-			if ((size_t)index >= len)
-				return ReferenceExpression<T>(reference,0);
-			if (count > len)
-				count = len;
-			if (index+count>len)
-				count = len-index;
-			return ReferenceExpression<T>(reference+index,count);
+			if ((size_t)index >= Super::elements)
+				return ReferenceExpression<T>(Super::data,0);
+			if (count > Super::elements)
+				count = Super::elements;
+			if (index+count>Super::elements)
+				count = Super::elements-index;
+			return ReferenceExpression<T>(Super::data+index,count);
 		}
 
 
@@ -2139,27 +1682,27 @@ namespace StringType
 		{
 			size_t left = 0;
 	//		const T*const end = pointer + len;
-			while (left < len && IsWhitespace(reference[left]))
+			while (left < Super::elements && IsWhitespace(Super::data[left]))
 				left++;
 			if (!left)
 				return *this;
-			return ReferenceExpression<T>(reference+left,len-left);
+			return ReferenceExpression<T>(Super::data+left,Super::elements-left);
 		}
 
 
 	template <typename T>
 		ReferenceExpression<T>				ReferenceExpression<T>::TrimRight()		const
 		{
-			if (!len)
+			if (!Super::elements)
 				return ReferenceExpression<T>();
-			size_t right = len-1;
-			while (right && IsWhitespace(reference[right]))
+			size_t right = Super::elements-1;
+			while (right && IsWhitespace(Super::data[right]))
 				right--;
-			right+=!IsWhitespace(reference[right]);  //should increase cnt if necessary
+			right+=!IsWhitespace(Super::data[right]);  //should increase cnt if necessary
 		
-			if (right == len)
+			if (right == Super::elements)
 				return *this;
-			return ReferenceExpression<T>(reference,right);
+			return ReferenceExpression<T>(Super::data,right);
 		}
 
 	
@@ -2206,19 +1749,19 @@ namespace StringType
 		{
 			if (str.IsEmpty())
 				return *this;
-			if (!string_length)
+			if (!Super::elements)
 				return this->operator=(str);
 
-			if (index >= string_length)
-				index = string_length-1;
-			T*n = allocate(string_length+str.GetLength());
+			if (index >= Super::elements)
+				index = Super::elements-1;
+			T*n = allocate(Super::elements+str.GetLength());
 		
-			memcpy(n,field,index*sizeof(T));
+			memcpy(n,Super::data,index*sizeof(T));
 			memcpy(n+index,str.pointer(),str.GetLength()*sizeof(T));
-			memcpy(n+index+str.GetLength(),field+index,(string_length-index)*sizeof(T));
-			string_length += str.GetLength();
-			delocate(field);
-			field = n;
+			memcpy(n+index+str.GetLength(),Super::data+index,(Super::elements-index)*sizeof(T));
+			Super::elements += str.GetLength();
+			delocate(Super::data);
+			Super::data = n;
 			return *this;
 		}
 
@@ -2228,43 +1771,43 @@ namespace StringType
 			if (str.IsEmpty())
 				return Erase(index,count);
 		
-			if (!string_length)
+			if (!Super::elements)
 				return this->operator=(str);
 			
-			if (index >= string_length)
-				index = string_length-1;
-			if (count > string_length-index)
-				count = string_length-index;
+			if (index >= Super::elements)
+				index = Super::elements-1;
+			if (count > Super::elements-index)
+				count = Super::elements-index;
 
-			size_t new_len = string_length-count+str.GetLength();
+			size_t new_len = Super::elements-count+str.GetLength();
 			T*n = allocate(new_len);
-			memcpy(n,field,index*sizeof(T));
+			memcpy(n,Super::data,index*sizeof(T));
 			memcpy(n+index,str.pointer(),str.GetLength()*sizeof(T));
-			memcpy(n+index+str.GetLength(),field+(index+count),(string_length-index-count)*sizeof(T));
-			string_length = new_len;
-			delocate(field);
-			field = n;
+			memcpy(n+index+str.GetLength(),Super::data+(index+count),(Super::elements-index-count)*sizeof(T));
+			Super::elements = new_len;
+			delocate(Super::data);
+			Super::data = n;
 			return *this;
 		}
 
 	template <typename T>
 		Template<T>&				Template<T>::Insert(size_t index, T c)
 		{
-			if (!string_length)
+			if (!Super::elements)
 			{
 				this->operator=(c);
 				return *this;
 			}
-			if (index >= string_length)
-				index = string_length-1;
-			T*n = allocate(string_length+1);
+			if (index >= Super::elements)
+				index = Super::elements-1;
+			T*n = allocate(Super::elements+1);
 		
-			memcpy(n,field,index*sizeof(T));
+			memcpy(n,Super::data,index*sizeof(T));
 			n[index] = c;
-			memcpy(n+index+1,field+index,(string_length-index)*sizeof(T));
-			string_length ++;
-			delocate(field);
-			field = n;
+			memcpy(n+index+1,Super::data+index,(Super::elements-index)*sizeof(T));
+			Super::elements ++;
+			delocate(Super::data);
+			Super::data = n;
 			return *this;
 
 		}
@@ -2276,7 +1819,7 @@ namespace StringType
 			#if __STR_REFERENCE_COUNT__
 				duplicate();
 			#endif
-			CharFunctions::strlwr(field);
+			CharFunctions::strlwr(Super::data);
 			return *this;
 		}
 
@@ -2286,7 +1829,7 @@ namespace StringType
 			#if __STR_REFERENCE_COUNT__
 				duplicate();
 			#endif
-			CharFunctions::strupr(field);
+			CharFunctions::strupr(Super::data);
 			return *this;
 		}
 
@@ -2305,11 +1848,11 @@ namespace StringType
 	template <typename T>
 		Template<T>				Template<T>::GetBetween(const Template<T>&left_delimiter, const Template<T>&right_delimiter)	const
 		{
-			const T*begin = CharFunctions::strstr(field,left_delimiter.field);
+			const T*begin = CharFunctions::strstr(Super::data,left_delimiter.Super::data);
 			if (!begin)
 				return Template<T>();
-			begin += left_delimiter.string_length;
-			const T*end = CharFunctions::strstr(begin,right_delimiter.field);
+			begin += left_delimiter.Super::elements;
+			const T*end = CharFunctions::strstr(begin,right_delimiter.Super::data);
 			if (!end)
 				return Template<T>();
 			return Template<T>(begin,end-begin);
@@ -2318,136 +1861,20 @@ namespace StringType
 	template <typename T>
 		ReferenceExpression<T>				Template<T>::GetBetweenRef(const Template<T>&left_delimiter, const Template<T>&right_delimiter)	const
 		{
-			const T*begin = CharFunctions::strstr(field,left_delimiter.field);
+			const T*begin = CharFunctions::strstr(Super::data,left_delimiter.Super::data);
 			if (!begin)
-				return ReferenceExpression<T>(field,0);
-			begin += left_delimiter.string_length;
-			const T*end = CharFunctions::strstr(begin,right_delimiter.field);
+				return ReferenceExpression<T>(Super::data,0);
+			begin += left_delimiter.Super::elements;
+			const T*end = CharFunctions::strstr(begin,right_delimiter.Super::data);
 			if (!end)
-				return ReferenceExpression<T>(field,0);
+				return ReferenceExpression<T>(Super::data,0);
 			return ReferenceExpression<T>(begin,end-begin);
-		}
-
-
-	template <typename T>
-		bool				Template<T>::BeginsWith(const T*string)		const
-		{
-			size_t len = CharFunctions::strlen(string);
-			if (len > string_length)
-				return false;
-			return !CharFunctions::strncmp(field,string,len);
-		}
-
-	template <typename T>
-		bool				Template<T>::BeginsWith(const Template<T>&string)		const
-		{
-			if (string.string_length > string_length)
-				return false;
-			return !CharFunctions::strncmp(field,string.field,string.string_length);
-
-		}
-	template <typename T>
-		bool				Template<T>::BeginsWith(const ReferenceExpression<T>&string)		const
-		{
-			if (string.length() > string_length)
-				return false;
-			return !CharFunctions::strncmp(field,string.pointer(),string.length());
-
-		}
-
-	template <typename T>
-		bool				Template<T>::EndsWith(const T*string)			const
-		{
-			size_t len = CharFunctions::strlen(string);
-			if (len > string_length)
-				return false;
-			return !CharFunctions::strncmp(field+string_length-len,string,len);
-		}
-
-	template <typename T>
-		bool				Template<T>::EndsWith(const Template<T>&string)		const
-		{
-			if (string.string_length > string_length)
-				return false;
-			return !CharFunctions::strncmp(field+string_length-string.string_length,string.field,string.string_length);
-		}
-
-	template <typename T>
-		bool				Template<T>::EndsWith(const ReferenceExpression<T>&string)		const
-		{
-			if (string.length() > string_length)
-				return false;
-			return !CharFunctions::strncmp(field+string_length-string.length(),string.pointer(),string.length());
-		}
-
-	template <typename T>
-		bool				Template<T>::BeginsWithIgnoreCase(const T*string)		const
-		{
-			size_t len = CharFunctions::strlen(string);
-			if (len > string_length)
-				return false;
-			return !CharFunctions::strncmpi(field,string,len);
-		}
-
-	template <typename T>
-		bool				Template<T>::BeginsWithIgnoreCase(const Template<T>&string)		const
-		{
-			if (string.string_length > string_length)
-				return false;
-			return !CharFunctions::strncmpi(field,string.field,string.string_length);
-
-		}
-	template <typename T>
-		bool				Template<T>::BeginsWithIgnoreCase(const ReferenceExpression<T>&string)		const
-		{
-			if (string.length() > string_length)
-				return false;
-			return !CharFunctions::strncmpi(field,string.pointer(),string.length());
-
-		}
-
-	template <typename T>
-		bool				Template<T>::EndsWithIgnoreCase(const T*string)			const
-		{
-			size_t len = CharFunctions::strlen(string);
-			if (len > string_length)
-				return false;
-			return !CharFunctions::strncmpi(field+string_length-len,string,len);
-		}
-
-	template <typename T>
-		bool				Template<T>::EndsWithIgnoreCase(const Template<T>&string)		const
-		{
-			if (string.string_length > string_length)
-				return false;
-			return !CharFunctions::strncmpi(field+string_length-string.string_length,string.field,string.string_length);
-		}
-
-	template <typename T>
-		bool				Template<T>::EndsWithIgnoreCase(const ReferenceExpression<T>&string)		const
-		{
-			if (string.length() > string_length)
-				return false;
-			return !CharFunctions::strncmpi(field+string_length-string.length(),string.pointer(),string.length());
-		}
-
-	
-	template <typename T>
-		T				Template<T>::FirstChar()							const
-		{
-			return field[0];
-		}
-
-	template <typename T>
-		T				Template<T>::LastChar()							const
-		{
-			return field[string_length-1];
 		}
 
 	template <typename T>
 		const T*		Template<T>::lastCharPointer()					const
 		{
-			return field+string_length-1;
+			return Super::data+Super::elements-1;
 		}
 
 
@@ -2455,7 +1882,7 @@ namespace StringType
 	template <typename T>
 		Template<T>				Template<T>::GetFirstWord()							const
 		{
-			const T*begin = field;
+			const T*begin = Super::data;
 			while (IsWhitespace(*begin))
 				begin++;
 			const T*end = begin;
@@ -2467,7 +1894,7 @@ namespace StringType
 	template <typename T>
 		ReferenceExpression<T>				Template<T>::GetFirstWordRef()							const
 		{
-			const T*begin = field;
+			const T*begin = Super::data;
 			while (IsWhitespace(*begin))
 				begin++;
 			const T*end = begin;
@@ -2479,12 +1906,12 @@ namespace StringType
 	template <typename T>
 		Template<T>				Template<T>::GetLastWord()							const
 		{
-			const T	*end = field+string_length-1,
-					*begin = field;
+			const T	*end = Super::data+Super::elements-1,
+					*begin = Super::data;
 			while (end >= begin && IsWhitespace(*end))
 				end--;
 			begin = end;
-			while (begin >= field && !IsWhitespace(*begin))
+			while (begin >= Super::data && !IsWhitespace(*begin))
 				begin--;
 			begin++;
 			end++;
@@ -2495,12 +1922,12 @@ namespace StringType
 	template <typename T>
 		ReferenceExpression<T>				Template<T>::GetLastWordRef()							const
 		{
-			const T	*end = field+string_length-1,
-					*begin = field;
+			const T	*end = Super::data+Super::elements-1,
+					*begin = Super::data;
 			while (end >= begin && IsWhitespace(*end))
 				end--;
 			begin = end;
-			while (begin >= field && !IsWhitespace(*begin))
+			while (begin >= Super::data && !IsWhitespace(*begin))
 				begin--;
 			begin++;
 			end++;
@@ -2532,7 +1959,7 @@ namespace StringType
 			{
 				rs++;
 				ReplaceSubString(at,1,replacement);
-				at += replacement.length();
+				at += replacement.Length();
 			}
 			return rs;
 		}
@@ -2544,23 +1971,13 @@ namespace StringType
 				duplicate();
 			#endif
 			count_t rs = 0;
-			for (size_t i = 0; i < string_length; i++)
-				if (doReplace(field[i]))
+			for (size_t i = 0; i < Super::elements; i++)
+				if (doReplace(Super::data[i]))
 				{
-					field[i] = replacement;
+					Super::data[i] = replacement;
 					rs++;
 				}
 			return rs;
-		}
-
-
-	template <typename T>
-		bool	Template<T>::IsValid(bool validCharacter(T character))	const
-		{
-			for (size_t i = 0; i < string_length; i++)
-				if (!validCharacter(field[i]))
-					return false;
-			return true;
 		}
 
 	template <typename T>
@@ -2570,10 +1987,10 @@ namespace StringType
 				duplicate();
 			#endif
 			count_t rs = 0;
-			for (size_t i = 0; i < string_length; i++)
-				if (field[i] == replace_what)
+			for (size_t i = 0; i < Super::elements; i++)
+				if (Super::data[i] == replace_what)
 				{
-					field[i] = replace_with;
+					Super::data[i] = replace_with;
 					rs++;
 				}
 			return rs;
@@ -2582,62 +1999,55 @@ namespace StringType
 	template <typename T>
 		void				Template<T>::Set(size_t index, T c)
 		{
-			if (index >= string_length)
+			if (index >= Super::elements)
 				return;
 			#if __STR_REFERENCE_COUNT__
 				duplicate();
 			#endif
-			field[index] = c;
+			Super::data[index] = c;
 		}
 
-	template <typename T>
-		T				Template<T>::GetChar(size_t index) const
-		{
-			if (index >= string_length)
-				return 0;
-			return field[index];
-		}
 
 
 	#if 0
 	template <typename T>
 		T				Template<T>::operator[](size_t index) const
 		{
-			if (index >= string_length)
+			if (index >= Super::elements)
 				return 0;
-			return field[index];
+			return Super::data[index];
 		}
 
 	template <typename T>
 		T				Template<T>::operator[](int index)			const
 		{
-			if (/*index < 0 ||*/ (size_t)index >= string_length)
+			if (/*index < 0 ||*/ (size_t)index >= Super::elements)
 				return 0;
-			return field[index];
+			return Super::data[index];
 		}
 
 	template <typename T>
 		T				Template<T>::operator[](BYTE index)			const
 		{
-			if ((size_t)index >= string_length)
+			if ((size_t)index >= Super::elements)
 				return 0;
-			return field[index];
+			return Super::data[index];
 		}
 	#endif
 
 	template <typename T>
 		void	Template<T>::operator+=(const Template<T>&other)
 		{
-			if (!other.string_length)
+			if (!other.Super::elements)
 				return;
 			STRING_METHOD_BEGIN("(const Template<T>&other)",other);
-			size_t old_length = string_length;
-			size_t new_length = string_length + other.string_length;
+			size_t old_length = Super::elements;
+			size_t new_length = Super::elements + other.Super::elements;
 			resizeCopy(new_length);
 			if (&other != this)
-				memcpy(field+old_length,other.field,other.string_length*sizeof(T));
+				memcpy(Super::data+old_length,other.Super::data,other.Super::elements*sizeof(T));
 			else
-				memcpy(field+old_length,field,old_length*sizeof(T));
+				memcpy(Super::data+old_length,Super::data,old_length*sizeof(T));
 			STRING_METHOD_END
 		}
 
@@ -2654,14 +2064,14 @@ namespace StringType
 				STRING_METHOD_END
 				return;
 			}
-			size_t	old_length = string_length,
-					new_length = string_length+len;
-			bool self = field == string;
+			size_t	old_length = Super::elements,
+					new_length = Super::elements+len;
+			bool self = Super::data == string;
 			resizeCopy(new_length);
 			if (!self)
-				memcpy(field+old_length,string,len*sizeof(T));
+				memcpy(Super::data+old_length,string,len*sizeof(T));
 			else
-				memcpy(field+old_length,field,old_length*sizeof(T));
+				memcpy(Super::data+old_length,Super::data,old_length*sizeof(T));
 			STRING_METHOD_END
 		}
 
@@ -2669,9 +2079,9 @@ namespace StringType
 		void	Template<T>::operator+=(T c)
 		{
 			STRING_METHOD_BEGIN("(T c)",c);
-			size_t new_length = string_length + 1;
+			size_t new_length = Super::elements + 1;
 			resizeCopy(new_length);
-			field[string_length-1] = c;	//string_length increased during resizeCopy(). Trailing zero should be set
+			Super::data[Super::elements-1] = c;	//Super::elements increased during resizeCopy(). Trailing zero should be set
 			STRING_METHOD_END
 		}
 
@@ -2680,23 +2090,23 @@ namespace StringType
 		template <typename Expression>
 			inline void	Template<T>::appendExpression(const Expression&expression)
 			{
-				size_t	old_length = string_length,
-						new_length = string_length + expression.length();
-				if (new_length == string_length)
+				size_t	old_length = Super::elements,
+						new_length = Super::elements + expression.GetLength();
+				if (new_length == Super::elements)
 					return;
-				if (string_length && expression.references(field))
+				if (Super::elements && expression.References(Super::data))
 				{
 					T*new_field = allocate(new_length);
-					memcpy(new_field,field,old_length*sizeof(T));
+					memcpy(new_field,Super::data,old_length*sizeof(T));
 					expression.WriteTo(new_field+old_length);
-					delocate(field);
-					field = new_field;
-					string_length = new_length;
+					delocate(Super::data);
+					Super::data = new_field;
+					Super::elements = new_length;
 				}
 				else
 				{
 					resizeCopy(new_length);
-					expression.WriteTo(field+old_length);
+					expression.WriteTo(Super::data+old_length);
 				}
 			}
 
@@ -2734,224 +2144,218 @@ namespace StringType
 		template <typename T0, typename T1>
 			bool	Template<T>::operator<(const ConcatExpression<T0,T1>&expression)	const
 			{
-				return expression.compareTo(field,string_length)>0;
+				return expression.CompareTo(Super::data,Super::elements)>0;
 			}
 		
 	template <typename T>	
 		template <class T0>
 			bool				Template<T>::operator<(const ReferenceExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)>0;
+				return expression.CompareTo(Super::data,Super::elements)>0;
 			}
 				
 	template <typename T>	
 		template <class T0>
 			bool				Template<T>::operator<(const CharacterExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)>0;
+				return expression.CompareTo(Super::data,Super::elements)>0;
 			}
 		
 	template <typename T>
 		template <class T0>
 			bool				Template<T>::operator<(const StringExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)>0;
+				return expression.CompareTo(Super::data,Super::elements)>0;
 			}
 
 	template <typename T>	
 		template <typename T0, typename T1>
 			bool	Template<T>::operator<=(const ConcatExpression<T0,T1>&expression)	const
 			{
-				return expression.compareTo(field,string_length)>=0;
+				return expression.CompareTo(Super::data,Super::elements)>=0;
 			}
 		
 	template <typename T>	
 		template <class T0>
 			bool				Template<T>::operator<=(const CharacterExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)>=0;
+				return expression.CompareTo(Super::data,Super::elements)>=0;
 			}
 				
 	template <typename T>	
 		template <class T0>
 			bool				Template<T>::operator<=(const ReferenceExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)>=0;
+				return expression.CompareTo(Super::data,Super::elements)>=0;
 			}
 		
 	template <typename T>
 		template <class T0>
 			bool				Template<T>::operator<=(const StringExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)>=0;
+				return expression.CompareTo(Super::data,Super::elements)>=0;
 			}
 
 	template <typename T>	
 		template <typename T0, typename T1>
 			bool	Template<T>::operator>=(const ConcatExpression<T0,T1>&expression)	const
 			{
-				return expression.compareTo(field,string_length)<=0;
+				return expression.CompareTo(Super::data,Super::elements)<=0;
 			}
 		
 	template <typename T>	
 		template <class T0>
 			bool				Template<T>::operator>=(const CharacterExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)<=0;
+				return expression.CompareTo(Super::data,Super::elements)<=0;
 			}
 		
 	template <typename T>	
 		template <class T0>
 			bool				Template<T>::operator>=(const ReferenceExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)<=0;
+				return expression.CompareTo(Super::data,Super::elements)<=0;
 			}
 		
 	template <typename T>
 		template <class T0>
 			bool				Template<T>::operator>=(const StringExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)<=0;
+				return expression.CompareTo(Super::data,Super::elements)<=0;
 			}
 
 	template <typename T>	
 		template <typename T0, typename T1>
 			bool	Template<T>::operator>(const ConcatExpression<T0,T1>&expression)	const
 			{
-				return expression.compareTo(field,string_length)<0;
+				return expression.CompareTo(Super::data,Super::elements)<0;
 			}
 		
 	template <typename T>	
 		template <class T0>
 			bool				Template<T>::operator>(const ReferenceExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)<0;
+				return expression.CompareTo(Super::data,Super::elements)<0;
 			}
 		
 	template <typename T>	
 		template <class T0>
 			bool				Template<T>::operator>(const CharacterExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)<0;
+				return expression.CompareTo(Super::data,Super::elements)<0;
 			}
 		
 	template <typename T>
 		template <class T0>
 			bool				Template<T>::operator>(const StringExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)<0;
+				return expression.CompareTo(Super::data,Super::elements)<0;
 			}
 
 	template <typename T>	
 		template <typename T0, typename T1>
 			bool	Template<T>::operator!=(const ConcatExpression<T0,T1>&expression)	const
 			{
-				return expression.compareTo(field,string_length)!=0;
+				return expression.CompareTo(Super::data,Super::elements)!=0;
 			}
 		
 	template <typename T>	
 		template <typename T0>
 			bool	Template<T>::operator!=(const CharacterExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)!=0;
+				return expression.CompareTo(Super::data,Super::elements)!=0;
 			}
 		
 	template <typename T>	
 		template <class T0>
 			bool				Template<T>::operator!=(const ReferenceExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)!=0;
+				return expression.CompareTo(Super::data,Super::elements)!=0;
 			}
 		
 	template <typename T>
 		template <class T0>
 			bool				Template<T>::operator!=(const StringExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)!=0;
+				return expression.CompareTo(Super::data,Super::elements)!=0;
 			}
 
 	template <typename T>	
 		template <typename T0, typename T1>
 			bool	Template<T>::operator==(const ConcatExpression<T0,T1>&expression)	const
 			{
-				return expression.compareTo(field,string_length)==0;
+				return expression.CompareTo(Super::data,Super::elements)==0;
 			}
 		
 	template <typename T>	
 		template <class T0>
 			bool				Template<T>::operator==(const ReferenceExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)==0;
+				return expression.CompareTo(Super::data,Super::elements)==0;
 			}
 				
 	template <typename T>	
 		template <class T0>
 			bool				Template<T>::operator==(const CharacterExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)==0;
+				return expression.CompareTo(Super::data,Super::elements)==0;
 			}
 		
 	template <typename T>
 		template <class T0>
 			bool				Template<T>::operator==(const StringExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)==0;
+				return expression.CompareTo(Super::data,Super::elements)==0;
 			}
 
 	template <typename T>	
 		template <typename T0, typename T1>
 			bool	Template<T>::Equals(const ConcatExpression<T0,T1>&expression)	const
 			{
-				return expression.compareTo(field,string_length)==0;
+				return expression.CompareTo(Super::data,Super::elements)==0;
 			}
 		
 	template <typename T>	
 		template <class T0>
 			bool				Template<T>::Equals(const ReferenceExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)==0;
+				return expression.CompareTo(Super::data,Super::elements)==0;
 			}
 				
 	template <typename T>	
 		template <class T0>
 			bool				Template<T>::Equals(const CharacterExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)==0;
+				return expression.CompareTo(Super::data,Super::elements)==0;
 			}
 		
 	template <typename T>
 		template <class T0>
 			bool				Template<T>::Equals(const StringExpression<T0>&expression)	const
 			{
-				return expression.compareTo(field,string_length)==0;
+				return expression.CompareTo(Super::data,Super::elements)==0;
 			}
 
 	template <typename T>	
 		template <typename T0, typename T1>
 			bool	Template<T>::EqualsIgnoreCase(const ConcatExpression<T0,T1>&expression)	const
 			{
-				return expression.compareToIgnoreCase(field,string_length)==0;
+				return expression.CompareToIgnoreCase(Super::data,Super::elements)==0;
 			}
 		
-	template <typename T>	
-		template <class T0>
-			bool				Template<T>::EqualsIgnoreCase(const ReferenceExpression<T0>&expression)	const
-			{
-				return expression.compareToIgnoreCase(field,string_length)==0;
-			}
 				
 	template <typename T>	
 		template <class T0>
 			bool				Template<T>::EqualsIgnoreCase(const CharacterExpression<T0>&expression)	const
 			{
-				return expression.compareToIgnoreCase(field,string_length)==0;
+				return expression.CompareToIgnoreCase(Super::data,Super::elements)==0;
 			}
 		
 	template <typename T>
 		template <class T0>
 			bool				Template<T>::EqualsIgnoreCase(const StringExpression<T0>&expression)	const
 			{
-				return expression.compareToIgnoreCase(field,string_length)==0;
+				return expression.CompareToIgnoreCase(Super::data,Super::elements)==0;
 			}
 
 		
@@ -2959,49 +2363,49 @@ namespace StringType
 		template <typename T>
 			bool				Template<T>::operator<(const AnsiString&string)	const
 			{
-				return CharFunctions::strcmp(field,string.c_str())<0;
+				return CharFunctions::strcmp(Super::data,string.c_str())<0;
 			}
 
 		template <typename T>
 			bool				Template<T>::operator<=(const AnsiString&string)	const
 			{
-				return CharFunctions::strcmp(field,string.c_str())<=0;
+				return CharFunctions::strcmp(Super::data,string.c_str())<=0;
 			}
 
 		template <typename T>
 			bool				Template<T>::operator>(const AnsiString&string)	const
 			{
-				return CharFunctions::strcmp(field,string.c_str())>0;
+				return CharFunctions::strcmp(Super::data,string.c_str())>0;
 			}
 
 		template <typename T>
 			bool				Template<T>::operator>=(const AnsiString&string)	const
 			{
-				return CharFunctions::strcmp(field,string.c_str())>=0;
+				return CharFunctions::strcmp(Super::data,string.c_str())>=0;
 			}
 
 		template <typename T>
 			bool				Template<T>::operator==(const AnsiString&string)	const
 			{
-				return CharFunctions::strcmp(field,string.c_str())==0;
+				return CharFunctions::strcmp(Super::data,string.c_str())==0;
 			}
 
 		template <typename T>
 			bool				Template<T>::Equals(const AnsiString&string)	const
 			{
-				return CharFunctions::strcmp(field,string.c_str())==0;
+				return CharFunctions::strcmp(Super::data,string.c_str())==0;
 			}
 
 		template <typename T>
 			bool				Template<T>::equalsCaseIgnore(const AnsiString&string)	const
 			{
-				return CharFunctions::strcmpi(field,string.c_str())==0;
+				return CharFunctions::strcmpi(Super::data,string.c_str())==0;
 			}
 
 		template <typename T>
 			bool				Template<T>::operator!=(const AnsiString&string)	const
 			{
-				return CharFunctions::strcmp(field,string.c_str())!=0;
+				return CharFunctions::strcmp(Super::data,string.c_str())!=0;
 			}
 
 	#endif
@@ -3010,145 +2414,129 @@ namespace StringType
 	template <typename T>
 		bool				Template<T>::operator<(const Template<T>&string)		const
 		{
-			return CharFunctions::strcmp(field,string.field)<0;
+			return CharFunctions::strcmp(Super::data,string.Super::data)<0;
 		}
 	
 	template <typename T>
 		bool				Template<T>::operator<=(const Template<T>&string)		const
 		{
-			return CharFunctions::strcmp(field,string.field)<=0;
+			return CharFunctions::strcmp(Super::data,string.Super::data)<=0;
 		}
 	
 	template <typename T>
 		bool				Template<T>::operator>(const Template<T>&string)		const
 		{
-			return CharFunctions::strcmp(field,string.field)>0;
+			return CharFunctions::strcmp(Super::data,string.Super::data)>0;
 		}
 	
 	template <typename T>
 		bool				Template<T>::operator>=(const Template<T>&string)		const
 		{
-			return CharFunctions::strcmp(field,string.field)>=0;
+			return CharFunctions::strcmp(Super::data,string.Super::data)>=0;
 		}
 	
 	template <typename T>
 		bool				Template<T>::operator==(const Template<T>&string)		const
 		{
-			return CharFunctions::strcmp(field,string.field)==0;
+			return CharFunctions::strcmp(Super::data,string.Super::data)==0;
 		}
 	
 	template <typename T>
 		bool				Template<T>::operator!=(const Template<T>&string)		const
 		{
-			return CharFunctions::strcmp(field,string.field)!=0;
+			return CharFunctions::strcmp(Super::data,string.Super::data)!=0;
 		}
 
 	template <typename T>
 		bool				Template<T>::operator<(const T*string)		const
 		{
-			return CharFunctions::strcmp(field,string)<0;
+			return CharFunctions::strcmp(Super::data,string)<0;
 		}
 
 	template <typename T>
 		bool				Template<T>::operator<=(const T*string)		const
 		{
-			return CharFunctions::strcmp(field,string)<=0;
+			return CharFunctions::strcmp(Super::data,string)<=0;
 		}
 
 	template <typename T>
 		bool				Template<T>::operator>(const T*string)		const
 		{
-			return CharFunctions::strcmp(field,string)>0;
+			return CharFunctions::strcmp(Super::data,string)>0;
 		}
 
 	template <typename T>
 		bool				Template<T>::operator>=(const T*string)		const
 		{
-			return CharFunctions::strcmp(field,string)>=0;
+			return CharFunctions::strcmp(Super::data,string)>=0;
 		}
 
 	template <typename T>
 		bool				Template<T>::operator==(const T*string)		const
 		{
-			return CharFunctions::strcmp(field,string)==0;
+			return CharFunctions::strcmp(Super::data,string)==0;
 		}
 
 	template <typename T>
 		bool				Template<T>::Equals(const T*string)		const
 		{
-			return CharFunctions::strcmp(field,string)==0;
+			return CharFunctions::strcmp(Super::data,string)==0;
 		}
 	template <typename T>
 		bool				Template<T>::Equals(T chr)		const
 		{
-			return field[0] == chr && !field[1];;
+			return Super::data[0] == chr && !Super::data[1];;
 		}
 	template <typename T>
 		bool				Template<T>::Equals(const Template<T>&string)		const
 		{
-			return CharFunctions::strcmp(field,string.field)==0;
+			return CharFunctions::strcmp(Super::data,string.Super::data)==0;
 		}
 
-	template <typename T>
-		bool				Template<T>::EqualsIgnoreCase(const T*string)		const
-		{
-			return CharFunctions::strcmpi(field,string)==0;
-		}
-
-	template <typename T>
-		bool				Template<T>::EqualsIgnoreCase(const Template<T>&string)		const
-		{
-			return CharFunctions::strcmpi(field,string.field)==0;
-		}
-	template <typename T>
-		bool				Template<T>::EqualsIgnoreCase(T chr)		const
-		{
-			return CharFunctions::toupper(field[0]) == CharFunctions::toupper(chr) && !field[1];
-		}
 
 
 
 	template <typename T>
 		bool				Template<T>::operator!=(const T*string)		const
 		{
-			return CharFunctions::strcmp(field,string)!=0;
+			return CharFunctions::strcmp(Super::data,string)!=0;
 		}
 
 
 	template <typename T>
 		bool				Template<T>::operator<(T c)		const
 		{
-			return field[0] < c;
+			return Super::data[0] < c;
 		}
 	
 	template <typename T>
 		bool				Template<T>::operator<=(T c)		const
 		{
-			return field[0] <= c;
+			return Super::data[0] <= c;
 		}
 	
 	template <typename T>
 		bool				Template<T>::operator>(T c)		const
 		{
-			return field[0] > c;
+			return Super::data[0] > c;
 		}
 	
 	template <typename T>
 		bool				Template<T>::operator>=(T c)		const
 		{
-			return field[0] >= c;
+			return Super::data[0] >= c;
 		}
 	
 	template <typename T>
 		bool				Template<T>::operator==(T c)		const
 		{
-			return field[0] == c && string_length==1;
+			return Super::data[0] == c && Super::elements==1;
 		}
 	
 	template <typename T>
 		bool				Template<T>::operator!=(T c)		const
 		{
-			return field[0] != c || string_length!=1;
+			return Super::data[0] != c || Super::elements!=1;
 		}
 	
 
@@ -3158,19 +2546,19 @@ namespace StringType
 			Template<T>&	Template<T>::operator=(const AnsiString&string)
 			{
 				Resize(string.GetLength());
-				CharFunctions::strncpy(field,string.c_str(),string_length);
+				CharFunctions::strncpy(Super::data,string.c_str(),Super::elements);
 				return *this;
 			}
 	#endif
 	
 
 	template <typename T>
-		Template<T>&	Template<T>::operator=(const Ctr::ArrayData<T>&string)
+		Template<T>&	Template<T>::operator=(const ConstArrayRef<T>&string)
 		{
-			//ASSERT_NOT_NULL__(field);
+			//ASSERT_NOT_NULL__(Super::data);
 			STRING_METHOD_BEGIN("(const Ctr::ArrayData<T>&string)",string.pointer());
-			count_t length = string.length();
-			if (length > 0 && string.last() == (T)0)
+			count_t length = string.Length();
+			while (length > 0 && string[length-1] == (T)0)
 				length--;
 			if (!length)
 				Resize(0);
@@ -3181,7 +2569,7 @@ namespace StringType
 				while (last >= first && !*last)
 					last--;
 				Resize(last-first+1);
-				CharFunctions::strncpy(field,string.pointer(),string_length);
+				CharFunctions::strncpy(Super::data,string.pointer(),Super::elements);
 			}
 			STRING_METHOD_END
 			return *this;
@@ -3200,7 +2588,7 @@ namespace StringType
 	template <typename T>
 		Template<T>&	Template<T>::operator=(const Template<T>&string)
 		{
-			//ASSERT_NOT_NULL__(field);
+			//ASSERT_NOT_NULL__(Super::data);
 			STRING_METHOD_BEGIN("(const Template<T>&string)",string.c_str());
 			if (&string == this)
 			{
@@ -3208,14 +2596,14 @@ namespace StringType
 				return *this;
 			}
 			#if __STR_REFERENCE_COUNT__
-				delocate(field);
-				string_length = string.string_length;
-				field = string.field;
-				if (field != sz)
-					count(field)++;
+				delocate(Super::data);
+				Super::elements = string.Super::elements;
+				Super::data = string.Super::data;
+				if (Super::data != sz)
+					count(Super::data)++;
 			#else
-				Resize(string.string_length);
-				memcpy(field,string.field,string_length*sizeof(T));
+				Resize(string.Super::elements);
+				memcpy(Super::data,string.Super::data,Super::elements*sizeof(T));
 			#endif
 			STRING_METHOD_END
 			return *this;
@@ -3225,23 +2613,23 @@ namespace StringType
 		template <typename T2>
 			Template<T>&	Template<T>::operator=(const T2*string)
 			{
-				//ASSERT_NOT_NULL__(field);
+				//ASSERT_NOT_NULL__(Super::data);
 				STRING_METHOD_BEGIN("(const T2*string)",string);
-				if (string == (const T2*)field)
+				if (string == (const T2*)Super::data)
 				{
 					STRING_METHOD_END
 					return *this;
 				}
 				Resize(CharFunctions::strlen(string));
-				for (size_t i = 0; i < string_length; i++)
-					field[i] = (T)string[i];
+				for (size_t i = 0; i < Super::elements; i++)
+					Super::data[i] = (T)string[i];
 				STRING_METHOD_END
 				return *this;
 			}	
 	template <typename T>
 		Template<T>&	Template<T>::operator=(const T*string)
 		{
-			//ASSERT_NOT_NULL__(field);
+			//ASSERT_NOT_NULL__(Super::data);
 			STRING_METHOD_BEGIN("(const T*string)",string);
 			if (string == nullptr)
 			{
@@ -3249,13 +2637,13 @@ namespace StringType
 				STRING_METHOD_END
 				return *this;
 			}
-			if (string == field)
+			if (string == Super::data)
 			{
 				STRING_METHOD_END
 				return *this;
 			}
 			Resize(CharFunctions::strlen(string));
-			memcpy(field,string,string_length*sizeof(T));
+			memcpy(Super::data,string,Super::elements*sizeof(T));
 			STRING_METHOD_END
 			return *this;
 		}
@@ -3263,7 +2651,7 @@ namespace StringType
 	template <typename T>
 		Template<T>&	Template<T>::operator=(char c)
 		{
-			//ASSERT_NOT_NULL__(field);
+			//ASSERT_NOT_NULL__(Super::data);
 			STRING_METHOD_BEGIN("(char c)",c);
 			STRING_DEBUG("resize to 1");
 		
@@ -3271,7 +2659,7 @@ namespace StringType
 		
 			STRING_DEBUG("write char");
 		
-			field[0] = (T)c;
+			Super::data[0] = (T)c;
 		
 			STRING_DEBUG("done");
 			STRING_METHOD_END
@@ -3281,10 +2669,10 @@ namespace StringType
 	template <typename T>
 		Template<T>&	Template<T>::operator=(wchar_t c)
 		{
-			//ASSERT_NOT_NULL__(field);
+			//ASSERT_NOT_NULL__(Super::data);
 			STRING_METHOD_BEGIN("(wchar_t c)",(char)c);		
 			Resize(1);
-			field[0] = (T)c;
+			Super::data[0] = (T)c;
 			STRING_METHOD_END
 			return *this;
 		}
@@ -3315,8 +2703,8 @@ namespace StringType
 					(*(--c)) = (T)'0';
 				Resize(end-c+negative);
 				if (negative)
-					field[0] = '-';
-				memcpy(field+negative,c,(end-c)*sizeof(T));
+					Super::data[0] = '-';
+				memcpy(Super::data+negative,c,(end-c)*sizeof(T));
 			}
 
 	template <typename T>
@@ -3334,7 +2722,7 @@ namespace StringType
 				if (c==end)
 					(*(--c)) = (T)'0';
 				Resize(end-c);
-				memcpy(field,c,(end-c)*sizeof(T));
+				memcpy(Super::data,c,(end-c)*sizeof(T));
 			}
 		
 
@@ -3360,11 +2748,11 @@ namespace StringType
 				}
 				if (c==end)
 					(*(--c)) = (T)'0';
-				string_length = end-c+negative;
-				field = allocate(string_length);
+				Super::elements = end-c+negative;
+				Super::data = allocate(Super::elements);
 				if (negative)
-					field[0] = '-';
-				memcpy(field+negative,c,(end-c)*sizeof(T));
+					Super::data[0] = '-';
+				memcpy(Super::data+negative,c,(end-c)*sizeof(T));
 			}
 
 
@@ -3382,9 +2770,9 @@ namespace StringType
 				}
 				if (c==end)
 					(*(--c)) = (T)'0';
-				string_length = end-c;
-				field = allocate(string_length);
-				memcpy(field,c,(end-c)*sizeof(T));
+				Super::elements = end-c;
+				Super::data = allocate(Super::elements);
+				memcpy(Super::data,c,(end-c)*sizeof(T));
 			}
 
 
@@ -3587,7 +2975,7 @@ namespace StringType
 					*str = FloatToStr(value, 5, false,buffer+ARRAYSIZE(buffer)-1, buffer);
 
 				Resize(buffer+ARRAYSIZE(buffer)-str-1);
-				memcpy(field,str,string_length*sizeof(T));
+				memcpy(Super::data,str,Super::elements*sizeof(T));
 			}
 
 	template <typename T>
@@ -3597,45 +2985,11 @@ namespace StringType
 				T	buffer[257],
 					*str = FloatToStr(value, precision, force_trailing_zeros, buffer+ARRAYSIZE(buffer)-1, buffer);
 
-				string_length = buffer+ARRAYSIZE(buffer)-str-1;
-				field = allocate(string_length);
-				memcpy(field,str,string_length*sizeof(T));
+				Super::elements = buffer+ARRAYSIZE(buffer)-str-1;
+				Super::data = allocate(Super::elements);
+				memcpy(Super::data,str,Super::elements*sizeof(T));
 			}
 		
-	template <typename T>
-		inline	T*			Template<T>::WriteTo(T*target)	const
-							{
-								memcpy(target,field,string_length*sizeof(T));
-								return target+string_length;
-							}
-	template <typename T>
-		template <typename T2>
-			inline	T2*		Template<T>::WriteTo(T2*target)	const
-							{
-								for (size_t i = 0; i < string_length; i++)
-									(*target++) = field[i];
-								return target;
-							}
-						
-	template <typename T>
-		inline	T*			Template<T>::WriteTo(T*target, T*end)	const
-							{
-								size_t cpy = end-target;
-								if (string_length < cpy)
-									cpy = string_length;
-								memcpy(target,field,cpy*sizeof(T));
-								return target+cpy;
-							}
-						
-	template <typename T>
-		template <typename T2>
-			inline	T2*		Template<T>::WriteTo(T2*target, T2*end)	const
-							{
-								for (size_t i = 0; i < string_length && target < end; i++)
-									(*target++) = field[i];
-								return target;
-							}		
-
 
 	template <typename T>
 		Template<T>&	Template<T>::operator=(double value)
@@ -3663,22 +3017,22 @@ namespace StringType
 		template <typename Expression>
 			inline void Template<T>::copyExpression(const Expression&expression)
 			{
-				if (string_length && expression.references(field))
+				if (Super::elements && expression.References(Super::data))
 				{
-					size_t len = expression.length();
+					size_t len = expression.GetLength();
 					T*new_field = allocate(len);
-					STRING_DEBUG("writing expression to new field...");
+					STRING_DEBUG("writing expression to new Super::data...");
 					expression.WriteTo(new_field);
-					STRING_DEBUG("new field is filled with '"<<new_field<<"' now");
-					STRING_DEBUG("discarding old field");
-					delocate(field);
-					field = new_field;
-					string_length = len;
+					STRING_DEBUG("new Super::data is filled with '"<<new_field<<"' now");
+					STRING_DEBUG("discarding old Super::data");
+					delocate(Super::data);
+					Super::data = new_field;
+					Super::elements = len;
 				}
 				else
 				{
-					Resize(expression.length());
-					expression.WriteTo(field);
+					Resize(expression.GetLength());
+					expression.WriteTo(Super::data);
 				}
 				//CHECK_STRING(*this);
 			}
@@ -3784,9 +3138,9 @@ namespace StringType
 					size_t len = CharFunctions::strlen(string);
 					if (!len)
 						return *this;
-					Template<T> result = Template<T>(TStringLength(string_length+(size_t)len));
-					memcpy(result.field,field,string_length*sizeof(T));
-					memcpy(result.field+string_length,string,len*sizeof(T));
+					Template<T> result = Template<T>(TStringLength(Super::elements+(size_t)len));
+					memcpy(result.Super::data,Super::data,Super::elements*sizeof(T));
+					memcpy(result.Super::data+Super::elements,string,len*sizeof(T));
 					return result;
 				}
 	
@@ -3798,10 +3152,10 @@ namespace StringType
 						size_t len = CharFunctions::strlen(string);
 						if (!len)
 							return *this;
-						Template<T> result = Template<T>(TStringLength(string_length+len));
-						T*out = result.field;
-						for (size_t i = 0; i < string_length; i++)
-							(*out++) = (T)field[i];
+						Template<T> result = Template<T>(TStringLength(Super::elements+len));
+						T*out = result.Super::data;
+						for (size_t i = 0; i < Super::elements; i++)
+							(*out++) = (T)Super::data[i];
 						for (size_t i = 0; i < len; i++)
 							(*out++) = (T)string[i];
 						return result;
@@ -3811,9 +3165,9 @@ namespace StringType
 			Template<T>
 				Template<T>::operator+(T c)	const
 				{
-					Template<T> result = Template<T>(TStringLength(string_length+1));
-					memcpy(result.field,field,string_length*sizeof(T));
-					result.field[string_length] = c;
+					Template<T> result = Template<T>(TStringLength(Super::elements+1));
+					memcpy(result.Super::data,Super::data,Super::elements*sizeof(T));
+					result.Super::data[Super::elements] = c;
 					return result;
 				}
 			
@@ -3823,12 +3177,12 @@ namespace StringType
 				Template<T>
 					Template<T>::operator+(const ConcatExpression<T0,T1>&expression)	const
 					{
-						size_t len = expression.length();
+						size_t len = expression.GetLength();
 						if (!len)
 							return *this;
-						Template<T> result = Template<T>(TStringLength(string_length+len));
-						memcpy(result.field,field,string_length*sizeof(T));
-						expression.WriteTo(result.field+string_length);
+						Template<T> result = Template<T>(TStringLength(Super::elements+len));
+						memcpy(result.Super::data,Super::data,Super::elements*sizeof(T));
+						expression.WriteTo(result.Super::data+Super::elements);
 						return result;
 					}
 					
@@ -3837,12 +3191,12 @@ namespace StringType
 				Template<T>
 					Template<T>::operator+(const ReferenceExpression<T0>&expression)	const
 					{
-						size_t len = expression.length();
+						size_t len = expression.GetLength();
 						if (!len)
 							return *this;
-						Template<T> result = Template<T>(TStringLength(string_length+len));
-						memcpy(result.field,field,string_length*sizeof(T));
-						expression.WriteTo(result.field+string_length);
+						Template<T> result = Template<T>(TStringLength(Super::elements+len));
+						memcpy(result.Super::data,Super::data,Super::elements*sizeof(T));
+						expression.WriteTo(result.Super::data+Super::elements);
 						return result;
 					}
 				
@@ -3851,12 +3205,12 @@ namespace StringType
 				Template<T>
 					Template<T>::operator+(const StringExpression<T0>&expression)	const
 					{
-						size_t len = expression.length();
+						size_t len = expression.GetLength();
 						if (!len)
 							return *this;
-						Template<T> result = Template<T>(TStringLength(string_length+len));
-						memcpy(result.field,field,string_length*sizeof(T));
-						expression.WriteTo(result.field+string_length);
+						Template<T> result = Template<T>(TStringLength(Super::elements+len));
+						memcpy(result.Super::data,Super::data,Super::elements*sizeof(T));
+						expression.WriteTo(result.Super::data+Super::elements);
 						return result;
 					}
 				
@@ -3865,12 +3219,12 @@ namespace StringType
 				Template<T>
 					Template<T>::operator+(const Template<T0>&expression)	const
 					{
-						size_t len = expression.length();
+						size_t len = expression.GetLength();
 						if (!len)
 							return *this;
-						Template<T> result = Template<T>(TStringLength(string_length+len));
-						memcpy(result.field,field,string_length*sizeof(T));
-						expression.WriteTo(result.field+string_length);
+						Template<T> result = Template<T>(TStringLength(Super::elements+len));
+						memcpy(result.Super::data,Super::data,Super::elements*sizeof(T));
+						expression.WriteTo(result.Super::data+Super::elements);
 						return result;
 					}
 
@@ -3881,12 +3235,12 @@ namespace StringType
 				size_t len = CharFunctions::strlen(c);
 				if (!len)
 					return string;
-				Template<T1> result = Template<T1>(TStringLength(string.string_length+len));
-				T1*out = result.field;
+				Template<T1> result = Template<T1>(TStringLength(string.Super::elements+len));
+				T1*out = result.Super::data;
 				for (size_t i = 0; i < len; i++)
 					(*out++) = c[i];
-				for (size_t i = 0; i < string.string_length; i++)
-					(*out++) = string.field[i];
+				for (size_t i = 0; i < string.Super::elements; i++)
+					(*out++) = string.Super::data[i];
 				return result;
 			}
 	/*		
@@ -3896,9 +3250,9 @@ namespace StringType
 				size_t len = CharFunctions::strlen(c);
 				if (!len)
 					return string;
-				Template<char> result = Template<char>(TStringLength(string.string_length+len));
-				memcpy(result.field,c,len);
-				memcpy(result.field+len,string.field,string.string_length);
+				Template<char> result = Template<char>(TStringLength(string.Super::elements+len));
+				memcpy(result.Super::data,c,len);
+				memcpy(result.Super::data+len,string.Super::data,string.Super::elements);
 				return result;
 			}
 		
@@ -3908,18 +3262,18 @@ namespace StringType
 				size_t len = CharFunctions::strlen(c);
 				if (!len)
 					return string;
-				Template<wchar_t> result = Template<wchar_t>(TStringLength(string.string_length+len));
-				memcpy(result.field,c,len*sizeof(wchar_t));
-				memcpy(result.field+len,string.field,string.string_length*sizeof(wchar_t));
+				Template<wchar_t> result = Template<wchar_t>(TStringLength(string.Super::elements+len));
+				memcpy(result.Super::data,c,len*sizeof(wchar_t));
+				memcpy(result.Super::data+len,string.Super::data,string.Super::elements*sizeof(wchar_t));
 				return result;
 			}
 	*/
 		template <typename T>
 			Template<T> inline operator+(char c, const Template<T>& string)
 			{
-				Template<T> result = Template<T>(TStringLength(string.string_length+1));
-				memcpy(result.field+1,string.field,string.string_length*sizeof(T));
-				result.field[0] = (T)c;
+				Template<T> result = Template<T>(TStringLength(string.Super::elements+1));
+				memcpy(result.Super::data+1,string.Super::data,string.Super::elements*sizeof(T));
+				result.Super::data[0] = (T)c;
 				return result;
 			}
 
@@ -3927,9 +3281,9 @@ namespace StringType
 		template <typename T>
 			Template<T> inline operator+(wchar_t c, const Template<T>& string)
 			{
-				Template<T> result = Template<T>(TStringLength(string.string_length+1));
-				memcpy(result.field+1,string.field,string.string_length*sizeof(T));
-				result.field[0] = (T)c;
+				Template<T> result = Template<T>(TStringLength(string.Super::elements+1));
+				memcpy(result.Super::data+1,string.Super::data,string.Super::elements*sizeof(T));
+				result.Super::data[0] = (T)c;
 				return result;
 			}
 
@@ -4089,35 +3443,35 @@ namespace StringType
 		template <typename T2>
 			bool			ConcatExpression<E0, E1>::operator<(const StringType::Template<T2>&other)	const
 			{
-				return compareTo(other.c_str(),other.length())<0;
+				return CompareTo(other.c_str(),other.GetLength())<0;
 			}
 		
 	template <typename E0, typename E1>
 		template <typename T2>
 			bool			ConcatExpression<E0, E1>::operator<=(const StringType::Template<T2>&other)	const
 			{
-				return compareTo(other.c_str(),other.length())<=0;
+				return CompareTo(other.c_str(),other.GetLength())<=0;
 			}
 		
 	template <typename E0, typename E1>
 		template <typename T2>
 			bool			ConcatExpression<E0, E1>::operator>(const StringType::Template<T2>&other)	const
 			{
-				return compareTo(other.c_str(),other.length())>0;
+				return CompareTo(other.c_str(),other.GetLength())>0;
 			}
 		
 	template <typename E0, typename E1>
 		template <typename T2>
 			bool			ConcatExpression<E0, E1>::operator>=(const StringType::Template<T2>&other)	const
 			{
-				return compareTo(other.c_str(),other.length())>=0;
+				return CompareTo(other.c_str(),other.GetLength())>=0;
 			}
 		
 	template <typename E0, typename E1>
 		template <typename T2>
 			bool			ConcatExpression<E0, E1>::operator!=(const StringType::Template<T2>&other)	const
 			{
-				return compareTo(other.c_str(),other.length())!=0;
+				return CompareTo(other.c_str(),other.GetLength())!=0;
 			}
 	
 		
@@ -4125,42 +3479,42 @@ namespace StringType
 		template <typename T2>
 			bool			ConcatExpression<E0, E1>::operator==(const StringType::Template<T2>&other)	const
 			{
-				return compareTo(other.c_str(),other.length())==0;
+				return CompareTo(other.c_str(),other.GetLength())==0;
 			}
-
+/*
 	template <typename T>
 		template <typename T2>
 			bool			ReferenceExpression<T>::operator<(const StringType::Template<T2>&other)	const
 			{
-				return compareTo(other.c_str(),other.length())<0;
+				return CompareTo(other.c_str(),other.GetLength())<0;
 			}
 		
 	template <typename T>
 		template <typename T2>
 			bool			ReferenceExpression<T>::operator<=(const StringType::Template<T2>&other)	const
 			{
-				return compareTo(other.c_str(),other.length())<=0;
+				return CompareTo(other.c_str(),other.GetLength())<=0;
 			}
 		
 	template <typename T>
 		template <typename T2>
 			bool			ReferenceExpression<T>::operator>(const StringType::Template<T2>&other)	const
 			{
-				return compareTo(other.c_str(),other.length())>0;
+				return CompareTo(other.c_str(),other.GetLength())>0;
 			}
 		
 	template <typename T>
 		template <typename T2>
 			bool			ReferenceExpression<T>::operator>=(const StringType::Template<T2>&other)	const
 			{
-				return compareTo(other.c_str(),other.length())>=0;
+				return CompareTo(other.c_str(),other.GetLength())>=0;
 			}
 		
 	template <typename T>
 		template <typename T2>
 			bool			ReferenceExpression<T>::operator!=(const StringType::Template<T2>&other)	const
 			{
-				return compareTo(other.c_str(),other.length())!=0;
+				return CompareTo(other.c_str(),other.GetLength())!=0;
 			}
 	
 		
@@ -4168,7 +3522,7 @@ namespace StringType
 		template <typename T2>
 			bool			ReferenceExpression<T>::operator==(const StringType::Template<T2>&other)	const
 			{
-				return compareTo(other.c_str(),other.length())==0;
+				return CompareTo(other.c_str(),other.GetLength())==0;
 			}
 
 	
@@ -4176,35 +3530,35 @@ namespace StringType
 		template <typename T2>
 			bool			CharacterExpression<T>::operator<(const StringType::Template<T2>&other)	const
 			{
-				return compareTo(other.c_str(),other.length())<0;
+				return CompareTo(other.c_str(),other.GetLength())<0;
 			}
 		
 	template <typename T>
 		template <typename T2>
 			bool			CharacterExpression<T>::operator<=(const StringType::Template<T2>&other)	const
 			{
-				return compareTo(other.c_str(),other.length())<=0;
+				return CompareTo(other.c_str(),other.GetLength())<=0;
 			}
 		
 	template <typename T>
 		template <typename T2>
 			bool			CharacterExpression<T>::operator>(const StringType::Template<T2>&other)	const
 			{
-				return compareTo(other.c_str(),other.length())>0;
+				return CompareTo(other.c_str(),other.GetLength())>0;
 			}
 		
 	template <typename T>
 		template <typename T2>
 			bool			CharacterExpression<T>::operator>=(const StringType::Template<T2>&other)	const
 			{
-				return compareTo(other.c_str(),other.length())>=0;
+				return CompareTo(other.c_str(),other.GetLength())>=0;
 			}
 		
 	template <typename T>
 		template <typename T2>
 			bool			CharacterExpression<T>::operator!=(const StringType::Template<T2>&other)	const
 			{
-				return compareTo(other.c_str(),other.length())!=0;
+				return CompareTo(other.c_str(),other.GetLength())!=0;
 			}
 	
 		
@@ -4212,8 +3566,8 @@ namespace StringType
 		template <typename T2>
 			bool			CharacterExpression<T>::operator==(const StringType::Template<T2>&other)	const
 			{
-				return compareTo(other.c_str(),other.length())==0;
-			}
+				return CompareTo(other.c_str(),other.GetLength())==0;
+			}*/
 }
 	
 

@@ -143,7 +143,7 @@ namespace DeltaWorks
 	template <typename Stream>
 	static void EncodeValueToStreamP(Stream&stream, XML::Encoding enc, XML::Encoding hostEnc, const String&content)
 	{
-		DBG_ASSERT_EQUAL1__(content.length(),strlen(content.c_str()),content.c_str());
+		DBG_ASSERT_EQUAL1__(content.GetLength(),strlen(content.c_str()),content.c_str());
 	
 		//String rs = content;
 		const char*c = content.c_str(),
@@ -179,7 +179,7 @@ namespace DeltaWorks
 	template <typename Stream>
 	static void EncodeValueToStreamB(Stream&stream, XML::Encoding enc, XML::Encoding hostEnc, const String&content)
 	{
-		DBG_ASSERT_EQUAL1__(content.length(),strlen(content.c_str()),content.c_str());
+		DBG_ASSERT_EQUAL1__(content.GetLength(),strlen(content.c_str()),content.c_str());
 	
 		//String rs = content;
 		const char*c = content.c_str(),
@@ -262,7 +262,7 @@ namespace DeltaWorks
 		buffer.Clear();
 
 		const char*source = content.pointer();
-		const char*const end = source + content.length();
+		const char*const end = source + content.GetLength();
 		while (source < end)
 		{
 			if (*source != '&')
@@ -310,7 +310,7 @@ namespace DeltaWorks
 			return content;
 		buffer.Clear();
 		const char*source = content.pointer();
-		const char*const end = source + content.length();
+		const char*const end = source + content.GetLength();
 		while (source != end)
 			DecodeCharacter(source,end,buffer,enc,hostEnc);
 		return buffer.ToStringRef();
@@ -564,7 +564,7 @@ namespace DeltaWorks
 				active_entry->name = DecodeWord(GetWord(c),encoding,hostEncoding,myBuffer);
 	//			ShowMessage("opening "+active_entry->name);
 				in_block = true;
-				c += active_entry->name.length();
+				c += active_entry->name.GetLength();
 				open = true;
 				while (unsigned len = findWord(c))
 				{
@@ -591,7 +591,7 @@ namespace DeltaWorks
 					c += len;
 					if (pvalue.GetFirstChar() == '\"' || pvalue.GetFirstChar() == '\'')
 						pvalue.DropFirstChar();
-					if (pvalue.length() && (pvalue.GetLastChar() == '\"' || pvalue.GetLastChar() == '\''))
+					if (pvalue.GetLength() && (pvalue.GetLastChar() == '\"' || pvalue.GetLastChar() == '\''))
 						pvalue.DropLastChar();
 					active_entry->Set(pname,DecodeValue(pvalue,encoding,hostEncoding,myBuffer));
 	//				ShowMessage("specifying parameter "+pname+" = "+pvalue);
@@ -618,8 +618,8 @@ namespace DeltaWorks
 	{
 		Clear();
 	
-		Ctr::Array<char>	field(content.c_str(),content.length()+1);
-		size_t len = content.length();
+		Ctr::Array<char>	field(content.c_str(),content.GetLength()+1);
+		size_t len = content.GetLength();
 	
 		field[len] = 0;
 	
@@ -666,10 +666,10 @@ namespace DeltaWorks
 
 	inline static void trim(Ctr::Array<String,Adopt>&field)
 	{
-		for (unsigned i = 0; i < field.length(); i++)
+		for (unsigned i = 0; i < field.GetLength(); i++)
 		{
 			field[i].TrimThis();
-			if (!field[i].length())
+			if (!field[i].GetLength())
 				field.Erase(i--);
 		}
 	}
@@ -749,7 +749,7 @@ namespace DeltaWorks
 					{
 						if (lines.IsNotEmpty())
 						{
-							EncodeValueToStreamB(outfile,enc,hostEnc,lines.first());
+							EncodeValueToStreamB(outfile,enc,hostEnc,lines.First());
 						}
 						if (entry->children.IsNotEmpty())
 							outfile << nl;
@@ -963,7 +963,7 @@ namespace DeltaWorks
 		}
 		ASSERT_NOT_NULL__(context);
 		context = &context->children.append();
-		context->name = components.last();
+		context->name = components.Last();
 		context->inner_content = inner_content;
 		return *context;
 	}
@@ -1203,7 +1203,7 @@ namespace DeltaWorks
 		while (working)
 		{
 			//cursor is now behind the '<'-character of the new tag.
-			if (!read('>',buffer,f) || !buffer.length())	//read out all data until the end of the tag
+			if (!read('>',buffer,f) || !buffer.GetLength())	//read out all data until the end of the tag
 			{
 				error = true;
 				working = false;
@@ -1212,7 +1212,7 @@ namespace DeltaWorks
 		
 			char*field = buffer.pointer(),						//extract working buffer
 				*c = field,
-				*end = field+buffer.length();
+				*end = field+buffer.GetLength();
 			while (!IsWhitespace(*c) && c != end)	//find end of name
 				c++;
 			unsigned name_len = c-field;
@@ -1283,7 +1283,7 @@ namespace DeltaWorks
 					(*attrib) = 0;
 					const char*name_end = attrib;
 					attrib++;
-					field[buffer.length()] = 0;
+					field[buffer.GetLength()] = 0;
 					char quote = *attrib;
 					if ((quote != '\"' && quote != '\'') || attrib-name_offset<2)
 					{
@@ -1311,7 +1311,7 @@ namespace DeltaWorks
 
 					name_offset = attrib+1;
 				}
-			bool do_enter = field[buffer.length()-1] != '/';
+			bool do_enter = field[buffer.GetLength()-1] != '/';
 		
 			if ((next && next->want_content)||(!next && except))
 			{

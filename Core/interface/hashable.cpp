@@ -30,11 +30,11 @@ namespace DeltaWorks
 
 		//hash_t Hash(const String&ident)
 		//{
-		//	return StdCharHash(ident.c_str(),ident.length());
+		//	return StdCharHash(ident.c_str(),ident.GetLength());
 		//}
 		//hash_t Hash(const StringW&ident)
 		//{
-		//	return StdCharHash(ident.c_str(),ident.length());
+		//	return StdCharHash(ident.c_str(),ident.GetLength());
 		//}
 		hash_t 			Hash(const std::string&ident)
 		{
@@ -46,11 +46,11 @@ namespace DeltaWorks
 		}
 		//hash_t 			Hash(const StringRef&ident)
 		//{
-		//	return StdCharHash(ident.pointer(),ident.length());
+		//	return StdCharHash(ident.pointer(),ident.GetLength());
 		//}
 		//hash_t 			Hash(const StringRefW&ident)
 		//{
-		//	return StdCharHash(ident.pointer(),ident.length());
+		//	return StdCharHash(ident.pointer(),ident.GetLength());
 		//}
 
 		hash_t 			Hash(float value)

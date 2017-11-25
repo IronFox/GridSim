@@ -666,27 +666,27 @@ namespace DeltaWorks
 					return findLast(other.data,other.elements);
 				}
 				
-			inline C&	first()	//!< Retrieves a reference to the first element in the field. The method will return an undefined result if the local array is empty
+			inline C&	First()	//!< Retrieves a reference to the first element in the field. The method will return an undefined result if the local array is empty
 			{
 				return data[0];
 			}
 				
-			inline const C& first()	const
+			inline const C& First()	const
 			{
 				return data[0];
 			}
 				
-			inline C&	last()
+			inline C&	Last()
 			{
 				return data[elements-1];
 			}
 				
-			inline const C& last()	const
+			inline const C& Last()	const
 			{
 				return data[elements-1];
 			}
 				
-			inline count_t length()	const		//! Queries the current array size in elements \return Number of elements 
+			inline count_t GetLength()	const		//! Queries the current array size in elements \return Number of elements 
 			{
 				return elements;
 			}
@@ -856,7 +856,7 @@ namespace DeltaWorks
 	template <class FieldType, size_t A, class IndexType0, class IndexType1> inline void   reloc(AlignedArray<FieldType,A>&array, IndexType0&length, IndexType1 new_length)
 	{
 		array.Resize(new_length);
-		length = array.length();
+		length = array.GetLength();
 	}
 
 	/*!

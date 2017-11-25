@@ -191,12 +191,11 @@ namespace DeltaWorks
 				void				PushFront(const Entry&data);
 				Entry&				PushFront();
 
-				bool				IsEmpty()					const;	//!< Identical to length()==0
-				bool				IsNotEmpty()				const;	//!< Identical to length()!=0
-				count_t				length()					const;	//!< Returns the current number of element stored in the queue
-				inline count_t		GetLength()					const {return length();}
-				inline count_t		CountEntries()				const {return length();}
-				inline count_t		size()						const {return length();}		//!< Identical to length()
+				bool				IsEmpty()					const;	//!< Identical to GetLength()==0
+				bool				IsNotEmpty()				const;	//!< Identical to GetLength()!=0
+				count_t				GetLength()					const;	//!< Returns the current number of element stored in the queue
+				inline count_t		CountEntries()				const {return GetLength();}
+				inline count_t		size()						const {return GetLength();}		//!< Identical to GetLength()
 				iterator			erase(iterator it);
 				bool				operator>>(Entry&entry);			//!< Identical to pop()
 				Queue<Entry,MyStrategy>&	operator<<(const Entry&entry);		//!< Identical to push() @return *this
@@ -206,8 +205,8 @@ namespace DeltaWorks
 				const Entry&		GetOldest()					const;	//!< Returns a reference to the last (oldest) element in the queue. Identical to peek() @return last element in the queue
 				Entry&				GetNewest();							//!< Returns a reference to the first (newest) element in the queue @return first element in the queue
 				const Entry&		GetNewest()					const;	//!< Returns a reference to the first (newest) element in the queue @return first element in the queue
-				Entry&				operator[](size_t index);			//!< Returns the nth element from the queue. @param index Index of the element to return ranging [0, length()-1] @return Reference to the requested object
-				const Entry&		operator[](size_t index)	const;	//!< Returns the nth element from the queue. @param index Index of the element to return ranging [0, length()-1] @return Reference to the requested object
+				Entry&				operator[](size_t index);			//!< Returns the nth element from the queue. @param index Index of the element to return ranging [0, GetLength()-1] @return Reference to the requested object
+				const Entry&		operator[](size_t index)	const;	//!< Returns the nth element from the queue. @param index Index of the element to return ranging [0, GetLength()-1] @return Reference to the requested object
 				void				clear();							//!< Clears the local queue of all entries. No objects are actually erased
 				inline void			Clear()	{clear();}
 				bool				Contains(const Entry&entry)	const;	//!< Checks if the queue contains the specified element
@@ -220,7 +219,7 @@ namespace DeltaWorks
 				void				CopyToArray(Ctr::ArrayData<Entry>&out) const;
 				void				MoveToArray(Ctr::ArrayData<Entry>&out, bool clearSelfWhenDone=true);
 			
-				inline count_t		Count()						const	{return length();};	//!< Returns the current number of element stored in the queue
+				inline count_t		Count()						const	{return GetLength();};	//!< Returns the current number of element stored in the queue
 
 				bool				operator==(const Self&other) const;
 				bool				operator!=(const Self&other) const;
@@ -263,11 +262,11 @@ namespace DeltaWorks
 				void				EraseLeast();						//!< Erases the element of least priority from the queue, decreasing the number of stored elements by one. Identical to PopLeast() but without copy constructors
 				void				Push(const Entry&data, const Priority&priority);		//!< Pushes an element into the queue increasing the number of stored elements by one. The queue automatically increases the size of its data field if appropriate @param data Element to push into the queue @param priority Priority of the newly inserted element
 				bool				alterPriority(const Entry&data, const Priority&old_priority, const Priority&new_priority);
-				bool				IsEmpty()					const;	//!< Identical to length()==0
-				bool				IsNotEmpty()				const;	//!< Identical to length()!=0
-				count_t				length()					const;	//!< Returns the current number of element stored in the queue
-				inline 	count_t		Count()						const	{return length();};	//!< Returns the current number of element stored in the queue
-				inline	count_t		size()						const {return length();}		//!< Identical to length()
+				bool				IsEmpty()					const;	//!< Identical to GetLength()==0
+				bool				IsNotEmpty()				const;	//!< Identical to GetLength()!=0
+				count_t				GetLength()					const;	//!< Returns the current number of element stored in the queue
+				inline 	count_t		Count()						const	{return GetLength();};	//!< Returns the current number of element stored in the queue
+				inline	count_t		size()						const {return GetLength();}		//!< Identical to GetLength()
 				bool				operator>>(Entry&entry);			//!< Identical to pop()
 				Entry&				peek();								//!< Returns a reference to the next returned element (of greatest priority) in the queue @return next element in the queue
 				const Entry&		peek()						const;	//!< Returns a reference to the next returned element (of greatest priority) in the queue @return next element in the queue

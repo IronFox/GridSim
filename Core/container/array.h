@@ -226,83 +226,56 @@ namespace DeltaWorks
 
 
 		template <typename T>
-			class ArrayRef
+			class ConstArrayRef
 			{
 			protected:
 				T*				data;
 				count_t			elements;
 
+				ConstArrayRef():data(nullptr),elements(0)	{}
+				ConstArrayRef(T*data, count_t elements):data(data),elements(elements)	{}
+				ConstArrayRef(T&element):data(&element),elements(1)	{}
 			public:
-				typedef T*			iterator;
+				typedef ConstArrayRef<T>	Self;
 				typedef const T*	const_iterator;
 
-				ArrayRef():data(nullptr),elements(0)	{}
-				ArrayRef(T*data, count_t elements):data(data),elements(elements)	{}
-				ArrayRef(T&element):data(&element),elements(1)	{}
 
-				virtual ~ArrayRef()	{}
+				virtual				 ~ConstArrayRef()	{}
 
 
 
-				operator ArrayRef<const T>() const {return ArrayRef<const T>(data,elements);}
+				operator ConstArrayRef<const T>() const {return ConstArrayRef<const T>(data,elements);}
 
 				template <typename I>
-					inline	T*		operator+(I rel)	//! Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
+					const T*		operator+(I rel) const	//! Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
 									{
-										//#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
-										//	if ((count_t)rel >= elements || rel < 0)
-										//		FATAL__("Index out of bounds");
-										//#endif
 										return data+rel;
 									}
 				
 				template <typename I>
-					inline const T*	operator+(I rel) const	//! @copydoc operator+()
+					const T*		operator-(I rel) const	//! Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
 									{
-										//#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
-										//	if ((count_t)rel >= elements || rel < 0)
-										//		FATAL__("Index out of bounds");
-										//#endif
-										return data+rel;
-									}
-
-				template <typename I>
-					inline	T*		operator-(I rel)	//! Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
-									{
-										//#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
-										//	if ((count_t)-rel >= elements || rel > 0)
-										//		FATAL__("Index out of bounds");
-										//#endif
 										return data-rel;
 									}
 				
-				template <typename I>
-					inline const T*	operator-(I rel) const	//! @copydoc operator-()
-									{
-										//#if defined(_DEBUG) && __ARRAY_DBG_RANGE_CHECK__
-										//	if ((count_t)-rel >= elements || rel > 0)
-										//		FATAL__("Index out of bounds");
-										//#endif
-										return data-rel;
-									}
-				inline	T*			pointer()			//! Explicit type conversion to a native array of the contained type \return Pointer to the first contained element or NULL if the local array is empty.
+				inline const T*		pointer() const			//! Explicit type conversion to a native array of the contained type \return Pointer to the first contained element or NULL if the local array is empty.
 									{
 										return data;
 									}
-				inline const T*		pointer() const		//! @copydoc pointer()
-									{
-										return data;
-									}
-				inline	T*			GetPointer()			//! Explicit type conversion to a native array of the contained type \return Pointer to the first contained element or NULL if the local array is empty.
-									{
-										return data;
-									}
-				inline const T*		GetPointer() const		//! @copydoc pointer()
+				/**
+				Explicit type conversion to a native array of the contained type \return Pointer to the first contained element or NULL if the local array is empty.
+				*/
+				inline const T*		GetPointer() const
 									{
 										return data;
 									}
 
-				inline	T&			operator[](index_t index)		//! Sub-element access \param index Index of the requested element (0 = first element) \return Reference to the requested element
+				/**
+				Sub-element access 
+				@param index Index of the requested element (0 = first element)
+				@return Reference to the requested element
+				*/
+				const T&			operator[](index_t index) const
 									{
 										#ifdef __ARRAY_DBG_RANGE_CHECK__
 											if (index >= elements)
@@ -310,7 +283,7 @@ namespace DeltaWorks
 										#endif
 										return data[index];
 									}
-				inline	const T&	operator[](index_t index) const	//! @copydoc operator[]()
+				const T&			at(index_t index) const		//! @copydoc operator[]()
 									{
 										#ifdef __ARRAY_DBG_RANGE_CHECK__
 											if (index >= elements)
@@ -318,32 +291,10 @@ namespace DeltaWorks
 										#endif
 										return data[index];
 									}
-				inline	T&			at(index_t index)		//! @copydoc operator[]()
-									{
-										#ifdef __ARRAY_DBG_RANGE_CHECK__
-											if (index >= elements)
-												FATAL__("Index out of bounds");
-										#endif
-										return data[index];
-									}
-				inline	const T&	at(index_t index) const	//! @copydoc at()
-									{
-										#ifdef __ARRAY_DBG_RANGE_CHECK__
-											if (index >= elements)
-												FATAL__("Index out of bounds");
-										#endif
-										return data[index];
-									}
-				inline	T&			GetFromEnd(index_t index)					//! Retrieves the nth element from the end of the array. GetFromEnd(0) is identical to last()
-									{
-										index = elements - index - 1;
-										#ifdef __ARRAY_DBG_RANGE_CHECK__
-											if (index >= elements)
-												FATAL__("Index out of bounds");
-										#endif
-										return data[index];
-									}
-				inline	const T&	GetFromEnd(index_t index)			const	//! @copydoc GetFromEnd()
+				/**
+				Retrieves the nth element from the end of the array. GetFromEnd(0) is identical to Last()
+				*/
+				const T&			GetFromEnd(index_t index) const
 									{
 										index = elements - index - 1;
 										#ifdef __ARRAY_DBG_RANGE_CHECK__
@@ -356,7 +307,7 @@ namespace DeltaWorks
 				template <typename T1>
 					inline int		CompareTo(const ArrayRef<T1>&other, int comparer(const T&, const T1&) ) const	//! Compares the local array with the remote array. The objects of the local array must implement a compareTo method that accepts objects of the remote array
 									{
-										count_t len = elements < other.length()?elements:other.length();
+										count_t len = elements < other.GetLength()?elements:other.GetLength();
 										for (count_t i = 0; i < len; i++)
 										{
 											char val = comparer(data[i],other[i]);
@@ -364,38 +315,36 @@ namespace DeltaWorks
 												return val;
 										}
 
-										if (elements > other.length())
+										if (elements > other.GetLength())
 											return 1;
-										if (elements < other.length())
+										if (elements < other.GetLength())
 											return -1;
 										return 0;
 									}
 
 				template <typename T1>
-					inline int		compareTo(const ArrayRef<T1>&other) const	//! Compares the local array with the remote array. The objects of the local array must implement a compareTo method that accepts objects of the remote array
+					inline int		CompareTo(const ArrayRef<T1>&other) const	//! Compares the local array with the remote array. The objects of the local array must implement a compareTo method that accepts objects of the remote array
 									{
-										count_t len = elements < other.length()?elements:other.length();
+										return CompareTo(other);
+										count_t len = elements < other.GetLength()?elements:other.GetLength();
 										for (count_t i = 0; i < len; i++)
 										{
-											char val = data[i].compareTo(other[i]);
+											char val = data[i].CompareTo(other[i]);
 											if (val != 0)
 												return val;
 										}
 
-										if (elements > other.length())
+										if (elements > other.GetLength())
 											return 1;
-										if (elements < other.length())
+										if (elements < other.GetLength())
 											return -1;
 										return 0;
 									}
 
 				template <typename T1>
-					inline int		CompareTo(const ArrayRef<T1>&other) const	/**@copydoc compareTo()*/ {return compareTo(other);}
-
-				template <typename T1>
 					inline bool		operator==(const ArrayRef<T1>&other) const //! Equality query \return true if all elements of the local array are identical to their respective counter parts in \b other. Equality is queried via the = operator.
 									{
-										if (elements != other.length())
+										if (elements != other.GetLength())
 											return false;
 										for (count_t i = 0; i < elements; i++)
 											if (data[i] != other[i])
@@ -406,7 +355,7 @@ namespace DeltaWorks
 				template <typename T1>
 					inline bool		operator!=(const ArrayRef<T1>&other) const //! Equality query
 									{
-										if (elements != other.length())
+										if (elements != other.GetLength())
 											return true;
 										for (count_t i = 0; i < elements; i++)
 											if (data[i] != other[i])
@@ -417,33 +366,33 @@ namespace DeltaWorks
 				template <typename T1>
 					inline bool		operator>(const ArrayRef<T1>&other) const //! Dictionary comparison
 									{
-										count_t len = elements < other.length()?elements:other.length();
+										count_t len = elements < other.GetLength()?elements:other.GetLength();
 										for (count_t i = 0; i < len; i++)
 											if (data[i] > other[i])
 												return true;
 											else
 												if (data[i] < other[i])
 													return false;
-										return elements > other.length();
+										return elements > other.GetLength();
 									}
 
 				template <typename T1>
 					inline bool		operator<(const ArrayRef<T1>&other) const //! Dictionary comparison
 									{
-										count_t len = elements < other.length()?elements:other.length();
+										count_t len = elements < other.GetLength()?elements:other.GetLength();
 										for (count_t i = 0; i < len; i++)
 											if (data[i] > other[i])
 												return false;
 											else
 												if (data[i] < other[i])
 													return true;
-										return elements < other.length();
+										return elements < other.GetLength();
 									}
 
 				template <typename T1>
 					inline bool		operator>=(const ArrayRef<T1>&other) const //! Dictionary comparison
 									{
-										count_t len = elements < other.length()?elements:other.length();
+										count_t len = elements < other.GetLength()?elements:other.GetLength();
 										for (count_t i = 0; i < len; i++)
 											if (data[i] > other[i])
 												return true;
@@ -456,7 +405,7 @@ namespace DeltaWorks
 				template <typename T1>
 					inline bool		operator<=(const ArrayRef<T1>&other) const //! Dictionary comparison
 									{
-										count_t len = elements < other.length()?elements:other.length();
+										count_t len = elements < other.GetLength()?elements:other.GetLength();
 										for (count_t i = 0; i < len; i++)
 											if (data[i] > other[i])
 												return false;
@@ -464,19 +413,6 @@ namespace DeltaWorks
 												if (data[i] < other[i])
 													return true;
 										return true;
-									}
-
-				template <typename T1>
-					inline	void	Fill(const T1&element, count_t offset=0, count_t max=InvalidIndex)	//! Sets up to \b max elements starting from @b offset of the local array to \b element \param element Element to repeat @param offset First index \param max If specified: Maximum number of elements to set to \b element
-									{
-										if (!elements)
-											return;
-										if (offset >= elements)
-											offset = elements-1;
-										if (max > elements)
-											max = elements;
-										for (count_t i = offset; i < max; i++)
-											data[i] = (T)element;
 									}
 
 				inline	bool		IsEmpty()	const	//! Checks if the local array is empty
@@ -560,22 +496,6 @@ namespace DeltaWorks
 										return 0;
 									}
 
-				//template <class T1>
-				//	inline index_t	FindFirst(const T1*string) const
-				//					{
-				//						const T1*terminator(string);
-				//						while (*terminator++);
-				//						return FindFirst(string,terminator-string-1);
-				//					}
-
-				//template <class T1>
-				//	inline index_t	FindLast(const T1*string) const
-				//					{
-				//						const T1*terminator(string);
-				//						while (*terminator++);
-				//						return FindLast(string,terminator-string-1);
-				//					}
-
 				inline index_t		FindFirst(const ArrayRef<T>&other) const
 									{
 										return FindFirst(other.data,other.elements);
@@ -586,74 +506,41 @@ namespace DeltaWorks
 										return FindLast(other.data,other.elements);
 									}
 
-				inline iterator		begin()			{return data;}
 				inline const_iterator begin() const	{return data;}
-				inline iterator		end()			{return data+elements;}
 				inline const_iterator end() const	{return data+elements;}
 
-				inline T&			first()	//!< Retrieves a reference to the first element in the field. The method will return an undefined result if the local array is empty
-									{
-										#ifdef __ARRAY_DBG_RANGE_CHECK__
-											if (!elements)
-												FATAL__("Array is empty - cannot retrieve first()");
-										#endif
-										return data[0];
-									}
-
-				inline const T&		first()	const
-									{
-										#ifdef __ARRAY_DBG_RANGE_CHECK__
-											if (!elements)
-												FATAL__("Array is empty - cannot retrieve first()");
-										#endif
-
-										return data[0];
-									}
-
-				inline T&			last()
-									{
-										#ifdef __ARRAY_DBG_RANGE_CHECK__
-											if (!elements)
-												FATAL__("Array is empty - cannot retrieve last()");
-										#endif
-
-										return data[elements-1];
-									}
-
-				inline const T&		last()	const
-									{
-										#ifdef __ARRAY_DBG_RANGE_CHECK__
-											if (!elements)
-												FATAL__("Array is empty - cannot retrieve last()");
-										#endif
-										return data[elements-1];
-									}
-
-				inline T&			First()	//!< Retrieves a reference to the first element in the field. The method will return an undefined result if the local array is empty
-									{
-										return first();
-									}
-
+				/**
+				Retrieves a const reference to the first element in the field.
+				The method return an undefined result, possibly causing access violations if the local array is empty
+				*/
 				inline const T&		First()	const
 									{
-										return first();
+										#ifdef __ARRAY_DBG_RANGE_CHECK__
+											if (!elements)
+												FATAL__("Array is empty - cannot retrieve First()");
+										#endif
+
+										return data[0];
 									}
 
-				inline T&			Last()
-									{
-										return last();
-									}
-
+				/**
+				Retrieves a const reference to the first element in the field.
+				The method return an undefined result, possibly causing access violations if the local array is empty
+				*/
 				inline const T&		Last()	const
 									{
-										return last();
+										#ifdef __ARRAY_DBG_RANGE_CHECK__
+											if (!elements)
+												FATAL__("Array is empty - cannot retrieve Last()");
+										#endif
+										return data[elements-1];
 									}
 
-				inline count_t		length()	const		//! Queries the current array size in elements \return Number of elements 
+				inline count_t		Length()	const		//! Queries the current array size in elements \return Number of elements 
 									{
 										return elements;
 									}
-				inline count_t		GetLength()	const		/**@copydoc length()*/ {return length();}
+				inline count_t		GetLength()	const		/**@copydoc GetLength()*/ {return elements;}
 				inline count_t		Count()	const		//! Queries the current array size in elements \return Number of elements 
 									{
 										return elements;
@@ -673,37 +560,259 @@ namespace DeltaWorks
 									}
 
 
-				inline ArrayRef<T>	SubRef(index_t start, count_t count) const
+				inline Self			SubRef(index_t start, count_t count) const
 				{
 					if (IsEmpty())
-						return ArrayRef<T>();
+						return Self();
 					start = std::min(start,elements-1);
 					count = std::min(count,elements-start);
-					return ArrayRef<T>(data+start,count);
+					return Self(data+start,count);
 				}
 
-				inline ArrayRef<T>	SubRef(index_t start) const
+				inline Self			SubRef(index_t start) const
 				{
 					if (IsEmpty())
-						return ArrayRef<T>();
+						return Self();
 					start = std::min(start,elements-1);
 					count_t count = elements-start;
-					return ArrayRef<T>(data+start,count);
+					return Self(data+start,count);
 				}
 
 
-				friend hash_t		Hash(const ArrayRef<T>&data)
+				friend hash_t		Hash(const Self&data)
 				{
 					return HashField(data.data,data.elements);
 				}
 
-				friend void			SerialSync(IWriteStream&s, const ArrayRef<T>&v)
+				friend void			SerialSync(IWriteStream&s, const Self&v)
 				{
 					using Serialization::SerialSync;
 					s.WriteSize(v.elements);
 					for (index_t i = 0; i < v.elements; i++)
 						SerialSync(s,v.data[i]);
 				}
+			};
+
+
+	template <typename T>
+			class ArrayRef : public ConstArrayRef<T>
+			{
+			public:
+				typedef ConstArrayRef<T>	Super;
+				typedef ArrayRef<T>	Self;
+
+				typedef T*			iterator;
+				typedef const T*	const_iterator;
+
+				ArrayRef()	{}
+				ArrayRef(T*data, count_t elements):Super(data,elements)	{}
+				ArrayRef(T&element):Super(element)	{}
+
+
+				operator ArrayRef<const T>() const {return ArrayRef<const T>(data,elements);}
+
+				template <typename I>
+					inline	T*		operator+(I rel)	//! Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
+									{
+										return data+rel;
+									}
+				
+				template <typename I>
+					inline const T*	operator+(I rel) const	//! @copydoc operator+()
+									{
+										return data+rel;
+									}
+
+				template <typename I>
+					inline	T*		operator-(I rel)	//! Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
+									{
+										return data-rel;
+									}
+				
+				template <typename I>
+					inline const T*	operator-(I rel) const	//! @copydoc operator-()
+									{
+										return data-rel;
+									}
+				inline	T*			pointer()			//! Explicit type conversion to a native array of the contained type \return Pointer to the first contained element or NULL if the local array is empty.
+									{
+										return data;
+									}
+				inline const T*		pointer() const		//! @copydoc pointer()
+									{
+										return data;
+									}
+				inline	T*			GetPointer()			//! Explicit type conversion to a native array of the contained type \return Pointer to the first contained element or NULL if the local array is empty.
+									{
+										return data;
+									}
+				inline const T*		GetPointer() const		//! @copydoc pointer()
+									{
+										return data;
+									}
+
+				inline	T&			operator[](index_t index)		//! Sub-element access \param index Index of the requested element (0 = first element) \return Reference to the requested element
+									{
+										#ifdef __ARRAY_DBG_RANGE_CHECK__
+											if (index >= elements)
+												FATAL__("Index out of bounds");
+										#endif
+										return data[index];
+									}
+				inline	const T&	operator[](index_t index) const	//! @copydoc operator[]()
+									{
+										#ifdef __ARRAY_DBG_RANGE_CHECK__
+											if (index >= elements)
+												FATAL__("Index out of bounds");
+										#endif
+										return data[index];
+									}
+				inline	T&			at(index_t index)		//! @copydoc operator[]()
+									{
+										#ifdef __ARRAY_DBG_RANGE_CHECK__
+											if (index >= elements)
+												FATAL__("Index out of bounds");
+										#endif
+										return data[index];
+									}
+				inline	const T&	at(index_t index) const	//! @copydoc at()
+									{
+										#ifdef __ARRAY_DBG_RANGE_CHECK__
+											if (index >= elements)
+												FATAL__("Index out of bounds");
+										#endif
+										return data[index];
+									}
+				inline	T&			GetFromEnd(index_t index)					//! Retrieves the nth element from the end of the array. GetFromEnd(0) is identical to Last()
+									{
+										index = elements - index - 1;
+										#ifdef __ARRAY_DBG_RANGE_CHECK__
+											if (index >= elements)
+												FATAL__("Index out of bounds");
+										#endif
+										return data[index];
+									}
+				inline	const T&	GetFromEnd(index_t index)			const	//! @copydoc GetFromEnd()
+									{
+										index = elements - index - 1;
+										#ifdef __ARRAY_DBG_RANGE_CHECK__
+											if (index >= elements)
+												FATAL__("Index out of bounds");
+										#endif
+										return data[index];
+									}
+
+				template <typename T1>
+					inline bool		operator==(const ArrayRef<T1>&other) const //! Equality query \return true if all elements of the local array are identical to their respective counter parts in \b other. Equality is queried via the = operator.
+									{
+										return Super::operator==(other);
+									}
+				
+				template <typename T1>
+					inline bool		operator!=(const ArrayRef<T1>&other) const //! Equality query
+									{
+										return Super::operator!=(other);
+									}
+
+				template <typename T1>
+					inline bool		operator>(const ArrayRef<T1>&other) const //! Dictionary comparison
+									{
+										return Super::operator>(other);
+									}
+
+				template <typename T1>
+					inline bool		operator<(const ArrayRef<T1>&other) const //! Dictionary comparison
+									{
+										return Super::operator<(other);
+									}
+
+				template <typename T1>
+					inline bool		operator>=(const ArrayRef<T1>&other) const //! Dictionary comparison
+									{
+										return Super::operator>=(other);
+									}
+
+				template <typename T1>
+					inline bool		operator<=(const ArrayRef<T1>&other) const //! Dictionary comparison
+									{
+										return Super::operator<=(other);
+									}
+
+				template <typename T1>
+					inline	void	Fill(const T1&element, count_t offset=0, count_t max=InvalidIndex)	//! Sets up to \b max elements starting from @b offset of the local array to \b element \param element Element to repeat @param offset First index \param max If specified: Maximum number of elements to set to \b element
+									{
+										if (!elements)
+											return;
+										if (offset >= elements)
+											offset = elements-1;
+										if (max > elements)
+											max = elements;
+										for (count_t i = offset; i < max; i++)
+											data[i] = (T)element;
+									}
+
+				inline iterator		begin()			{return data;}
+				inline const_iterator begin() const	{return data;}
+				inline iterator		end()			{return data+elements;}
+				inline const_iterator end() const	{return data+elements;}
+
+				inline T&			First()	//!< Retrieves a reference to the first element in the field. The method will return an undefined result if the local array is empty
+									{
+										#ifdef __ARRAY_DBG_RANGE_CHECK__
+											if (!elements)
+												FATAL__("Array is empty - cannot retrieve First()");
+										#endif
+										return data[0];
+									}
+
+				inline const T&		First()	const
+									{
+										#ifdef __ARRAY_DBG_RANGE_CHECK__
+											if (!elements)
+												FATAL__("Array is empty - cannot retrieve First()");
+										#endif
+
+										return data[0];
+									}
+
+				inline T&			Last()
+									{
+										#ifdef __ARRAY_DBG_RANGE_CHECK__
+											if (!elements)
+												FATAL__("Array is empty - cannot retrieve Last()");
+										#endif
+
+										return data[elements-1];
+									}
+
+				inline const T&		Last()	const
+									{
+										#ifdef __ARRAY_DBG_RANGE_CHECK__
+											if (!elements)
+												FATAL__("Array is empty - cannot retrieve Last()");
+										#endif
+										return data[elements-1];
+									}
+
+
+				inline Self			SubRef(index_t start, count_t count) const
+				{
+					if (IsEmpty())
+						return Self();
+					start = std::min(start,elements-1);
+					count = std::min(count,elements-start);
+					return Self(data+start,count);
+				}
+
+				inline Self			SubRef(index_t start) const
+				{
+					if (IsEmpty())
+						return Self();
+					start = std::min(start,elements-1);
+					count_t count = elements-start;
+					return Self(data+start,count);
+				}
+
 			};
 
 
@@ -1481,7 +1590,7 @@ namespace DeltaWorks
 		inline void   reloc(Ctr::ArrayData<FieldType>&array, IndexType0&length, IndexType1 new_length)
 		{
 			array.SetSize(new_length);
-			length = array.length();
+			length = array.GetLength();
 		}
 
 	/*!

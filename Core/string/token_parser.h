@@ -129,7 +129,7 @@ namespace DeltaWorks
 			{
 				MapEntry*entry = sequence_map.QueryPointer(name);
 				if (entry && entry->Count())
-					return &Super::at(entry->first());
+					return &Super::at(entry->First());
 				return nullptr;
 			}
 			

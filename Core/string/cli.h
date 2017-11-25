@@ -311,7 +311,7 @@ namespace DeltaWorks
 				typedef typename Super::const_iterator	const_iterator;
 
 				Super::Count;
-				Super::length;
+				Super::GetLength;
 				Super::size;
 
 
@@ -340,7 +340,7 @@ namespace DeltaWorks
 				Type					InsertNew(const String&name, T*newObject)
 				{
 					Set(name,Type(newObject));
-					return Super::last();
+					return Super::Last();
 				}
 				void					Set(const String&name, const Type&object)
 				{

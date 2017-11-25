@@ -240,7 +240,7 @@ namespace DeltaWorks
 		//						{}
 		//						Name(const sockaddr_storage&ident):NetIdent(ident)
 		//						{}
-		//		int				compareTo(const Name&other)	const
+		//		int				CompareTo(const Name&other)	const
 		//						{
 		//							addr->
 		//							if (this->ss_family < other.ss_family)
@@ -270,15 +270,15 @@ namespace DeltaWorks
 		//						}
 		//		bool			operator<(const Name&other) const
 		//						{
-		//							return compareTo(other) < 0;
+		//							return CompareTo(other) < 0;
 		//						}
 		//		bool			operator>(const Name&other) const
 		//						{
-		//							return compareTo(other) > 0;
+		//							return CompareTo(other) > 0;
 		//						}
 		//		bool			operator==(const Name&other) const
 		//						{
-		//							return compareTo(other) == 0;
+		//							return CompareTo(other) == 0;
 		//						}
 		//		String			ToString() const;		//!< Converts a network address into a string of the form 192.168.0.1:2048 \return String representation of the address
 		//};

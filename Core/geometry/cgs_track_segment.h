@@ -295,7 +295,7 @@ namespace DeltaWorks
 			template <typename Def>
 				void							bendHull(const Mesh<Def>&source_hull, Mesh<Def>&target_hull, count_t repeat, float lower_z_boundary, float zrange, float segment_length, float stretch,const M::TMatrix4<CGS::StdDef::SystemType>&path, const M::TVec3<>&center) const
 												{
-													count_t	vframe_length = source_hull.vertex_field.length();
+													count_t	vframe_length = source_hull.vertex_field.GetLength();
 													ASSERT1__(source_hull.valid(),source_hull.errorStr());	//TRANSITORY
 				
 													target_hull.vertex_field.SetSize(vframe_length*repeat);
@@ -331,13 +331,13 @@ namespace DeltaWorks
 													});
 													//ASSERT_CONCLUSION(obj.vertex_field,vfrom);
 
-													target_hull.triangle_field.SetSize(source_hull.triangle_field.length()*repeat);
+													target_hull.triangle_field.SetSize(source_hull.triangle_field.GetLength()*repeat);
 													const typename Mesh<Def>::Triangle	*tfrom = source_hull.triangle_field.pointer();
-													for (index_t k = 0; k < source_hull.triangle_field.length(); k++)
+													for (index_t k = 0; k < source_hull.triangle_field.GetLength(); k++)
 													{
 														for (index_t l = 0; l < repeat; l++)
 														{
-															typename Mesh<Def>::Triangle	&tto = target_hull.triangle_field[l*source_hull.triangle_field.length()+k];
+															typename Mesh<Def>::Triangle	&tto = target_hull.triangle_field[l*source_hull.triangle_field.GetLength()+k];
 						
 															tto.v0 = target_hull.vertex_field+(index_t)(tfrom->v0-source_hull.vertex_field)+l*vframe_length;
 															tto.v1 = target_hull.vertex_field+(index_t)(tfrom->v1-source_hull.vertex_field)+l*vframe_length;
@@ -347,13 +347,13 @@ namespace DeltaWorks
 													}
 													ASSERT_CONCLUSION(source_hull.triangle_field,tfrom);
 
-													target_hull.quad_field.SetSize(source_hull.quad_field.length()*repeat);
+													target_hull.quad_field.SetSize(source_hull.quad_field.GetLength()*repeat);
 													const typename Mesh<Def>::Quad	*qfrom = source_hull.quad_field.pointer();
-													for (index_t k = 0; k < source_hull.quad_field.length(); k++)
+													for (index_t k = 0; k < source_hull.quad_field.GetLength(); k++)
 													{
 														for (index_t l = 0; l < repeat; l++)
 														{
-															typename Mesh<Def>::Quad	&qto = target_hull.quad_field[l*source_hull.quad_field.length()+k];
+															typename Mesh<Def>::Quad	&qto = target_hull.quad_field[l*source_hull.quad_field.GetLength()+k];
 						
 															qto.v0 = target_hull.vertex_field+(index_t)(qfrom->v0-source_hull.vertex_field)+l*vframe_length;
 															qto.v1 = target_hull.vertex_field+(index_t)(qfrom->v1-source_hull.vertex_field)+l*vframe_length;
@@ -364,13 +364,13 @@ namespace DeltaWorks
 													}
 													ASSERT_CONCLUSION(source_hull.quad_field,qfrom);
 					
-													target_hull.edge_field.SetSize(source_hull.edge_field.length()*repeat);
+													target_hull.edge_field.SetSize(source_hull.edge_field.GetLength()*repeat);
 													const typename Mesh<Def>::Edge	*efrom = source_hull.edge_field.pointer();
-													for (index_t k = 0; k < source_hull.edge_field.length(); k++)
+													for (index_t k = 0; k < source_hull.edge_field.GetLength(); k++)
 													{
 														for (index_t l = 0; l < repeat; l++)
 														{
-															typename Mesh<Def>::Edge	&eto = target_hull.edge_field[l*source_hull.edge_field.length()+k];
+															typename Mesh<Def>::Edge	&eto = target_hull.edge_field[l*source_hull.edge_field.GetLength()+k];
 						
 															eto.v0 = target_hull.vertex_field+(index_t)(efrom->v0-source_hull.vertex_field)+l*vframe_length;
 															eto.v1 = target_hull.vertex_field+(index_t)(efrom->v1-source_hull.vertex_field)+l*vframe_length;
@@ -378,9 +378,9 @@ namespace DeltaWorks
 															for (BYTE m = 0; m < 2; m++)
 																if (efrom->n[m])
 																	if (efrom->n[m].is_quad)
-																		eto.n[m].Set(target_hull.quad_field+(index_t)(efrom->n[m].quad-source_hull.quad_field)+l*source_hull.quad_field.length());
+																		eto.n[m].Set(target_hull.quad_field+(index_t)(efrom->n[m].quad-source_hull.quad_field)+l*source_hull.quad_field.GetLength());
 																	else
-																		eto.n[m].Set(target_hull.triangle_field+(index_t)(efrom->n[m].triangle-source_hull.triangle_field)+l*source_hull.triangle_field.length());
+																		eto.n[m].Set(target_hull.triangle_field+(index_t)(efrom->n[m].triangle-source_hull.triangle_field)+l*source_hull.triangle_field.GetLength());
 														}
 														efrom++;
 													}

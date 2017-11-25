@@ -9,16 +9,16 @@ namespace DeltaWorks
 
 		static void linearize(CGS::SubGeometryA<>&sub,Buffer<CGS::SubGeometryA<>*>&objects, bool visible_only)
 		{
-			if (!visible_only || (sub.vs_hull_field.length() && sub.vs_hull_field.first().vertex_field.length()))
+			if (!visible_only || (sub.vs_hull_field.GetLength() && sub.vs_hull_field.First().vertex_field.GetLength()))
 				objects << &sub;
-			for (index_t i = 0; i < sub.child_field.length(); i++)
+			for (index_t i = 0; i < sub.child_field.GetLength(); i++)
 				linearize(sub.child_field[i],objects,visible_only);
 		}
 		static void linearize(const CGS::SubGeometryA<>&sub,Buffer<const CGS::SubGeometryA<>*>&objects, bool visible_only)
 		{
-			if (!visible_only || (sub.vs_hull_field.length() && sub.vs_hull_field.first().vertex_field.length()))
+			if (!visible_only || (sub.vs_hull_field.GetLength() && sub.vs_hull_field.First().vertex_field.GetLength()))
 				objects << &sub;
-			for (index_t i = 0; i < sub.child_field.length(); i++)
+			for (index_t i = 0; i < sub.child_field.GetLength(); i++)
 				linearize(sub.child_field[i],objects,visible_only);
 		}
 	
@@ -51,8 +51,8 @@ namespace DeltaWorks
 			if (!stub)
 				return;
 	
-			ASSERT_EQUAL__(connectors.Count(),stub->geometry.connector_field.length());
-			ASSERT_EQUAL__(nodes.Count(),stub->geometry.connector_field.length());
+			ASSERT_EQUAL__(connectors.Count(),stub->geometry.connector_field.GetLength());
+			ASSERT_EQUAL__(nodes.Count(),stub->geometry.connector_field.GetLength());
 		
 			float offset = -stub->dim.z.max;
 			//(is_outbound)?-stub->dim[2]:-stub->dim[5];	//stubs are rotated. always upper boundary :P
@@ -71,7 +71,7 @@ namespace DeltaWorks
 		
 		
 		
-			for (index_t i = 0; i < stub->geometry.connector_field.length(); i++)
+			for (index_t i = 0; i < stub->geometry.connector_field.GetLength(); i++)
 			{
 				const CGS::TConnector<>&cc=stub->geometry.connector_field[i];
 				TTrackNode&tn = nodes[i];
@@ -137,16 +137,16 @@ namespace DeltaWorks
 						(*error_out) = "Both stub and segment are not NULL";
 					return false;
 				}
-				if (nodes.Count() != stub->geometry.connector_field.length())
+				if (nodes.Count() != stub->geometry.connector_field.GetLength())
 				{
 					if (error_out)
-						(*error_out) = "Node count ("+String(nodes.Count())+") differs from base connector field length ("+String(stub->geometry.connector_field.length())+")";
+						(*error_out) = "Node count ("+String(nodes.Count())+") differs from base connector field length ("+String(stub->geometry.connector_field.GetLength())+")";
 					return false;
 				}
-				if (connectors.Count() != stub->geometry.connector_field.length())
+				if (connectors.Count() != stub->geometry.connector_field.GetLength())
 				{
 					if (error_out)
-						(*error_out) = "Connector count ("+String(connectors.Count())+") differs from base connector field length ("+String(stub->geometry.connector_field.length())+")";
+						(*error_out) = "Connector count ("+String(connectors.Count())+") differs from base connector field length ("+String(stub->geometry.connector_field.GetLength())+")";
 					return false;
 				}
 				if (!instance || instance->target != &stub->geometry)
@@ -184,7 +184,7 @@ namespace DeltaWorks
 						(*error_out) = "Connector is configured as segment connector but does have a stub geometry instance";
 					return false;
 				}
-				if (nodes.length() || connectors.length())
+				if (nodes.GetLength() || connectors.GetLength())
 				{
 					if (error_out)
 						(*error_out) = "Connector is configured as segment connector but does have nodes and/or connectors";
@@ -193,7 +193,7 @@ namespace DeltaWorks
 				return true;
 			}
 		
-			if (nodes.length() || connectors.length())
+			if (nodes.GetLength() || connectors.GetLength())
 			{
 				if (error_out)
 					(*error_out) = "Connector is configured for neither stub nor segment but does have nodes and/or connectors";
@@ -212,10 +212,10 @@ namespace DeltaWorks
 			stub = stub_;
 			if (preserve_where_possible)
 			{
-				for (index_t i = stub->geometry.connector_field.length(); i < connectors.Count(); i++)
+				for (index_t i = stub->geometry.connector_field.GetLength(); i < connectors.Count(); i++)
 					if (connectors[i].segment)
 						connectors[i].segment->disconnectFrom(this);
-				connectors.ResizePreserveContent(stub->geometry.connector_field.length());
+				connectors.ResizePreserveContent(stub->geometry.connector_field.GetLength());
 			
 				if (segment)
 				{
@@ -232,8 +232,8 @@ namespace DeltaWorks
 				}
 			}
 			else
-				connectors.SetSize(stub->geometry.connector_field.length());
-			nodes.SetSize(stub->geometry.connector_field.length());
+				connectors.SetSize(stub->geometry.connector_field.GetLength());
+			nodes.SetSize(stub->geometry.connector_field.GetLength());
 		
 			instance = stub->geometry.createInstance();
 		
@@ -738,11 +738,11 @@ namespace DeltaWorks
 			object.meta = input_object.meta;
 			object.name = input_object.name;	//hmmmm, no, no name needed. yes, yes, it is... gah
 			//object.system_link = &object.path;	//done later
-			object.vs_hull_field.SetSize(input_object.vs_hull_field.length());
+			object.vs_hull_field.SetSize(input_object.vs_hull_field.GetLength());
 
-			object.child_field.SetSize(input_object.child_field.length());
+			object.child_field.SetSize(input_object.child_field.GetLength());
 
-			for (index_t i = 0; i < object.child_field.length(); i++)
+			for (index_t i = 0; i < object.child_field.GetLength(); i++)
 				allocateBendableComponents(input_object.child_field[i],object.child_field[i]);
 		}
 			
@@ -760,22 +760,22 @@ namespace DeltaWorks
 			else
 				geometry.texture_resource = source.geometry.texture_resource;
 
-			geometry.object_field.SetSize(source.geometry.object_field.length());
-			for (index_t i = 0; i < geometry.object_field.length(); i++)
+			geometry.object_field.SetSize(source.geometry.object_field.GetLength());
+			for (index_t i = 0; i < geometry.object_field.GetLength(); i++)
 				allocateBendableComponents(source.geometry.object_field[i],geometry.object_field[i]);
 
 			geometry.animator_field.free();	//can't be bent
 			geometry.connector_field.free();
 
-			geometry.material_field.SetSize(source.geometry.material_field.length());
-			for (index_t i = 0; i < geometry.material_field.length(); i++)
+			geometry.material_field.SetSize(source.geometry.material_field.GetLength());
+			for (index_t i = 0; i < geometry.material_field.GetLength(); i++)
 			{
 				const CGS::MaterialA<>&source_material = source.geometry.material_field[i];
 				CGS::MaterialA<>&target_material = geometry.material_field[i];
 
 				target_material.info = source_material.info;
 				target_material.data.coord_layers = source_material.data.coord_layers;
-				target_material.data.object_field.SetSize(source_material.data.object_field.length());
+				target_material.data.object_field.SetSize(source_material.data.object_field.GetLength());
 			}
 
 			geometry.resetLinkage();
@@ -817,8 +817,8 @@ namespace DeltaWorks
 
 		
 		
-			for (index_t i = 0; i < geometry.material_field.length(); i++)
-				for (index_t j = 0; j < geometry.material_field[i].data.object_field.length(); j++)
+			for (index_t i = 0; i < geometry.material_field.GetLength(); i++)
+				for (index_t j = 0; j < geometry.material_field[i].data.object_field.GetLength(); j++)
 				{
 					CGS::RenderObjectA<>&target_robj = geometry.material_field[i].data.object_field[j];
 					const CGS::RenderObjectA<>&source_robj = source.geometry.material_field[i].data.object_field[j];
@@ -830,7 +830,7 @@ namespace DeltaWorks
 					target_robj.vpool.vlyr = source_robj.vpool.vlyr;
 					target_robj.vpool.vflags = source_robj.vpool.vflags;
 
-					count_t		frame_length = source_robj.vpool.vdata.length(),
+					count_t		frame_length = source_robj.vpool.vdata.GetLength(),
 								vframe_length = source_robj.vpool.vcnt,
 								vsize = source_robj.vpool.vsize();
 					target_robj.vpool.vdata.SetSize(frame_length*repeat);	//simple clone here, i can't be arsed to merge them
@@ -907,14 +907,14 @@ namespace DeltaWorks
 				
 					if (repeat > 1)
 					{
-						count_t iframe_length = source_robj.ipool.idata.length();
+						count_t iframe_length = source_robj.ipool.idata.GetLength();
 						target_robj.ipool.idata.SetSize(iframe_length*repeat);
 						//Ctr::Array<CGS::StdDef::IndexType>	new_field(iframe_length*repeat);
 						CGS::StdDef::IndexType*at = target_robj.ipool.idata.pointer();
-						//for (index_t k = 0; k < robj.ipool.sdata.length(); k++)
+						//for (index_t k = 0; k < robj.ipool.sdata.GetLength(); k++)
 						{
 							for (index_t m = 0; m < repeat; m++)
-								for (index_t l = 0; l < source_robj.ipool.idata.length(); l++)
+								for (index_t l = 0; l < source_robj.ipool.idata.GetLength(); l++)
 									*at++ = CGS::StdDef::IndexType(source_robj.ipool.idata[l]+m*vframe_length);
 							target_robj.ipool.triangles = source_robj.ipool.triangles * repeat;
 							target_robj.ipool.quads =  source_robj.ipool.quads * repeat;
@@ -933,7 +933,7 @@ namespace DeltaWorks
 		
 			Buffer<const CGS::SubGeometryA<>*>source_objects;
 			Buffer<CGS::SubGeometryA<>*>objects;
-			for (index_t i = 0; i < geometry.object_field.length(); i++)
+			for (index_t i = 0; i < geometry.object_field.GetLength(); i++)
 			{
 				linearize(geometry.object_field[i],objects,false);
 				linearize(source.geometry.object_field[i],source_objects,false);
@@ -944,12 +944,12 @@ namespace DeltaWorks
 		
 			for (index_t i = 0; i < objects.Count(); i++)
 			{
-				ASSERT_EQUAL__(objects[i]->vs_hull_field.length(),source_objects[i]->vs_hull_field.length());	//TRANSITORY
+				ASSERT_EQUAL__(objects[i]->vs_hull_field.GetLength(),source_objects[i]->vs_hull_field.GetLength());	//TRANSITORY
 
 				objects[i]->meta.shortest_edge_length = source_objects[i]->meta.shortest_edge_length * spline_length / repeat;
 				const M::TMatrix4<CGS::StdDef::SystemType>&path = source_objects[i]->path;
 
-				for (index_t j = 0; j < objects[i]->vs_hull_field.length(); j++)
+				for (index_t j = 0; j < objects[i]->vs_hull_field.GetLength(); j++)
 				{
 					typedef CGS::SubGeometryA<>::VsDef Def;
 				

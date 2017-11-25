@@ -38,7 +38,7 @@ namespace DeltaWorks
 		}
 		else
 		{
-			ASSERT_LESS__(offset+1,color.length());
+			ASSERT_LESS__(offset+1,color.GetLength());
 			USHORT col = *(USHORT*)(color + offset);
 			out[0] = ((col>>10)&(0x1F))*255/0x1F;
 			out[1] = ((col>>5)&(0x1F))*255/0x1F;

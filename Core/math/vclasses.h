@@ -25,7 +25,7 @@ namespace DeltaWorks
 			v+=w;
 			float dot_product = (v-w)*u,
 					component = u[1], // equal to u.y or u.v[1]
-					length = u.length();
+					length = u.GetLength();
 
 		Line/Line is an experimental combination of a point and a vector forming a straight line in 3-dimensional space
 
@@ -75,8 +75,8 @@ namespace DeltaWorks
 			MF_DECLARE(void)				clear()									{Vec::clear(*this);}
 			MF_DECLARE(void)				Clear()									{Vec::clear(*this);}
 			MF_DECLARE(String)				ToString()								const	{return Vec::toString(*this);}
-			MF_DECLARE(C)					length()								const	{return Vec::length(*this);}
 			MF_DECLARE(C)					GetLength()								const	{return Vec::length(*this);}
+			MF_DECLARE(C)					Length()								const	{return Vec::length(*this);}
 			MF_DECLARE(C)					quadraticLength()						const	{return Vec::dot(*this);}
 			MF_DECLARE(C)					QuadraticLength()						const	{return Vec::dot(*this);}
 			MF_DECLARE(C)					sqr()							 		const	{return Vec::dot(*this);}
@@ -113,7 +113,6 @@ namespace DeltaWorks
 			MFUNC1 (bool)					operator!=(const TVec3<C0>&other)		const;
 			MFUNC1 (bool)					operator>(const TVec3<C0>&other)		const;		//!< Lexicographic order using _compare
 			MFUNC1 (bool)					operator<(const TVec3<C0>&other)		const;		//!< Lexicographic order using _compare
-			MFUNC1 (int)					compareTo(const TVec3<C0>&other)		const	{return Vec::compare(*this,other);}
 			MFUNC1 (int)					CompareTo(const TVec3<C0>&other)		const	{return Vec::compare(*this,other);}
 			MF_DECLARE(Type&)				operator[](index_t component);						//return component of the vector
 			MF_DECLARE(const Type&)			operator[](index_t component)			const;
@@ -148,8 +147,8 @@ namespace DeltaWorks
 			MF_DECLARE(void)				clear()									{Vec::clear(*this);}
 			MF_DECLARE(void)				Clear()									{Vec::clear(*this);}
 			MF_DECLARE(String)				ToString()								const	{return Vec::toString(*this);}
-			MF_DECLARE(C)					length()								const	{return Vec::length(*this);}
 			MF_DECLARE(C)					GetLength()								const	{return Vec::length(*this);}
+			MF_DECLARE(C)					Length()								const	{return Vec::length(*this);}
 			MF_DECLARE(C)					sqr()							 		const	{return Vec::dot(*this);}
 			MF_DECLARE(C)					Sqr()							 		const	{return Vec::dot(*this);}
 			MF_DECLARE(C)					summary()								const	{return x+y;}
@@ -187,7 +186,6 @@ namespace DeltaWorks
 			MFUNC1 (bool)					operator!=(const TVec2<C0>&other)		const;
 			MFUNC1 (bool)					operator>(const TVec2<C0>&other)		const;		//!< Lexicographic order using _compare
 			MFUNC1 (bool)					operator<(const TVec2<C0>&other)		const;		//!< Lexicographic order using _compare
-			MFUNC1 (int)					compareTo(const TVec2<C0>&other)		const	{return Vec::compare(*this,other);}
 			MFUNC1 (int)					CompareTo(const TVec2<C0>&other)		const	{return Vec::compare(*this,other);}
 			MF_DECLARE(Type&)				operator[](index_t component);						//return component of the vector
 			MF_DECLARE(const Type&)			operator[](index_t component)			const;
@@ -225,8 +223,8 @@ namespace DeltaWorks
 			MF_DECLARE(void)				clear()									{Vec::clear(*this);}
 			MF_DECLARE(void)				Clear()									{Vec::clear(*this);}
 			MF_DECLARE(String)				ToString()								const	{return Vec::toString(*this);}
-			MF_DECLARE(C)					length()								const	{return Vec::length(*this);}
 			MF_DECLARE(C)					GetLength()								const	{return Vec::length(*this);}
+			MF_DECLARE(C)					Length()								const	{return Vec::length(*this);}
 			MF_DECLARE(C)					sqr()							 		const	{return Vec::dot(*this);}
 			MF_DECLARE(C)					Sqr()							 		const	{return Vec::dot(*this);}
 			MF_DECLARE(C)					summary()								const	{return x+y+z+w;}
@@ -263,7 +261,6 @@ namespace DeltaWorks
 			MFUNC1 (bool)					operator!=(const TVec4<C0>&other)		const;
 			MFUNC1 (bool)					operator>(const TVec4<C0>&other)		const;		//!< Lexicographic order using _compare
 			MFUNC1 (bool)					operator<(const TVec4<C0>&other)		const;		//!< Lexicographic order using _compare
-			MFUNC1 (int)					compareTo(const TVec4<C0>&other)		const	{return Vec::compare(*this,other);}
 			MFUNC1 (int)					CompareTo(const TVec4<C0>&other)		const	{return Vec::compare(*this,other);}
 			MF_DECLARE(Type&)				operator[](index_t component);						//return component of the vector
 			MF_DECLARE(const Type&)			operator[](index_t component)			const;
@@ -294,7 +291,7 @@ namespace DeltaWorks
 			MFUNC1 (Line<C>)			operator-(const Line<C0>&)			 const;
 			MFUNC1 (Line<C>)			operator*(const C0&)					const;
 			MFUNC1 (Line<C>)			operator/(const C0&)					const;
-			MF_DECLARE(Line<C>)		operator-()							 const;
+			MF_DECLARE(Line<C>)			operator-()							 const;
 		};
 
 
@@ -331,15 +328,15 @@ namespace DeltaWorks
 													}
 
 					MF_CONSTRUCTOR					VecN()									{}
-					MF_CONSTRUCTOR					VecN(C value)							{VecUnroll<Len>::Set(v,value);}
+					MF_CONSTRUCTOR					VecN(C value)							{VecUnroll<Len>::set(v,value);}
 					MF_CONSTRUCTOR					VecN(C x, C y)							{v[0] = x; v[1] = y;};
 					MF_CONSTRUCTOR					VecN(C x, C y, C z)						{v[0] = x; v[1] = y; v[2] = z;};
 					MF_CONSTRUCTOR					VecN(C x, C y, C z, C a)				{v[0] = x; v[1] = y; v[2] = z; v[3] = a;};
 					MF_CONSTRUCTOR1					VecN(const C0 field[Len])				{VecUnroll<Len>::copy(field,v);};
 					MF_DECLARE(void)				clear();											//sets all values to 0
 					MF_DECLARE(String)				ToString()								const;		//returns string of vector-content
-					MF_DECLARE(C)					length()								const;		//calculates norm of the vector
-					MF_DECLARE(C)					GetLength()								const	{return length();}
+					MF_DECLARE(C)					GetLength()								const;		//calculates norm of the vector
+					MF_DECLARE(C)					Length()								const	{return GetLength();}
 					MF_DECLARE(C)					sqr()							 		const;		//calculates square of the vector
 					MF_DECLARE(C)					summary()								const;		//calculates sum of all vector-components
 					MF_INIT VecN<C,Len> MF_CC		normalized()							const;		//returns normalized vector
@@ -371,7 +368,7 @@ namespace DeltaWorks
 					MFUNCV1_(bool)					operator!=(const TVec<C0,Len0>&v)		const;
 					MFUNC1 (bool)					operator>(const TVec<C0,Len>&other)		const;		//!< Lexicographic order using _compare
 					MFUNC1 (bool)					operator<(const TVec<C0,Len>&other)		const;		//!< Lexicographic order using _compare
-					MFUNC1 (char)					compareTo(const TVec<C0,Len>&other)		const;		//!< Lexicographic order using _compare
+					MFUNC1 (char)					CompareTo(const TVec<C0,Len>&other)		const;		//!< Lexicographic order using _compare
 					MF_DECLARE(Base&)				operator[](index_t component);						//return component of the vector
 					MF_DECLARE(const Base&)			operator[](index_t component)			const;
 			};

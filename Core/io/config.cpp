@@ -12,7 +12,7 @@ Extended configuration-file-parser.
 #define _err(x,code) {err(x,code);return code;}
 #define serr(x,code) {err_to=code; err_list.add("syntax-error in section '"+dif+"': "+String(x));}
 
-//(included from '"+file_history.last()+"')
+//(included from '"+file_history.Last()+"')
 //
 
 namespace DeltaWorks
@@ -64,7 +64,7 @@ namespace DeltaWorks
 
 			Ctr::Array<String>	components;
 			explode('/',name,components);
-			return protectedDefineContext(components.pointer(),components.Count()-1).protectedDefine(components.last().Trim(),value);
+			return protectedDefineContext(components.pointer(),components.Count()-1).protectedDefine(components.Last().Trim(),value);
 		}
 
 		Context&					Context::protectedDefineContext(const String*names, count_t num_names)
@@ -194,31 +194,31 @@ namespace DeltaWorks
 			if (!segments.Count())
 				return nullptr;
 			String mode;
-			index_t at= segments.first().Find(':');
+			index_t at= segments.First().Find(':');
 			if ( at != InvalidIndex)
 			{
-				mode = segments.first().subString(0,at);
-				segments.first().Erase(0,at+1).TrimThis();
-				if (!segments.first().length())
+				mode = segments.First().subString(0,at);
+				segments.First().Erase(0,at+1).TrimThis();
+				if (!segments.First().GetLength())
 					segments.Erase(index_t(0));
 			
 			}
 			//std::cout << "retrieving attribute '"+implode(", ",segments)+"' ("+mode+")"<<std::endl;
-			Context*context = (segments.Count()>1||mode.length())?GetContext(segments.pointer(),segments.Count()-1,mode):this;
+			Context*context = (segments.Count()>1||mode.GetLength())?GetContext(segments.pointer(),segments.Count()-1,mode):this;
 			if (!context)
 			{
 				//std::cout << " context could not be located"<<std::endl;
 				return nullptr;
 			}
 			index_t  resultAt;
-			if (context->attributeMap.Query(segments.last(),resultAt))
+			if (context->attributeMap.Query(segments.Last(),resultAt))
 				return context->attributes + resultAt;
-			/*std::cout << " attribute '"+segments.last()+"' could not be located:"<<std::endl;
+			/*std::cout << " attribute '"+segments.Last()+"' could not be located:"<<std::endl;
 			context->attributes.reset();
 			while (Attribute*a = context->attributes.each())
 			{
 				std::cout << "  "<<a->name<<std::endl;
-				if (a->name == segments.last())
+				if (a->name == segments.Last())
 					std::cout << "  ERROR: found unmapped attribute '"<<a->name<<"'!!!"<<std::endl;
 			}*/
 
@@ -233,20 +233,20 @@ namespace DeltaWorks
 			if (!segments.Count())
 				return nullptr;
 			String mode;
-			index_t at = segments.first().Find(':');
+			index_t at = segments.First().Find(':');
 			if (at != InvalidIndex)
 			{
-				mode = segments.first().subString(0,at);
-				segments.first().Erase(0,at+1).TrimThis();
-				if (!segments.first().length())
+				mode = segments.First().subString(0,at);
+				segments.First().Erase(0,at+1).TrimThis();
+				if (!segments.First().GetLength())
 					segments.Erase(index_t(0));
 			
 			}
-			const Context*context = (segments.Count()>1||mode.length())?GetContext(segments.pointer(),segments.Count()-1,mode):this;
+			const Context*context = (segments.Count()>1||mode.GetLength())?GetContext(segments.pointer(),segments.Count()-1,mode):this;
 			if (!context)
 				return nullptr;
 			index_t  resultAt;
-			if (context->attributeMap.Query(segments.last(),resultAt))
+			if (context->attributeMap.Query(segments.Last(),resultAt))
 				return context->attributes + resultAt;
 			return nullptr;
 		}
@@ -391,11 +391,11 @@ namespace DeltaWorks
 			if (!segments.Count())
 				return NULL;
 			String mode;
-			index_t at = segments.first().Find(':');
+			index_t at = segments.First().Find(':');
 			if (at != InvalidIndex)
 			{
-				mode = segments.first().subString(0,at);
-				segments.first().Erase(0,at+1);
+				mode = segments.First().subString(0,at);
+				segments.First().Erase(0,at+1);
 			}
 			return GetContext(segments.pointer(),segments.Count(),mode);
 		}
@@ -403,12 +403,12 @@ namespace DeltaWorks
 		Context*					Context::GetContext(const String*path, size_t path_len, const String&mode)
 		{
 			index_t at;
-			if (mode.length() && modeMap.Query(mode,at))
+			if (mode.GetLength() && modeMap.Query(mode,at))
 				if (Context*rs = modes[at].GetContext(path,path_len,""))
 					return rs;
 			if (path_len && childMap.Query(*path,at))
 				return children[at].GetContext(path+1,path_len-1,mode);
-			return path_len || mode.length()?nullptr:this;
+			return path_len || mode.GetLength()?nullptr:this;
 		}
 	
 		const Context*					Context::GetContext(const String&path) const
@@ -418,11 +418,11 @@ namespace DeltaWorks
 			if (!segments.Count())
 				return nullptr;
 			String mode;
-			index_t at = segments.first().Find(':');
+			index_t at = segments.First().Find(':');
 			if (at != InvalidIndex)
 			{
-				mode = segments.first().subString(0,at);
-				segments.first().Erase(0,at+1);
+				mode = segments.First().subString(0,at);
+				segments.First().Erase(0,at+1);
 			}
 			return GetContext(segments.pointer(),segments.Count(),mode);
 		}
@@ -430,12 +430,12 @@ namespace DeltaWorks
 		const Context*					Context::GetContext(const String*path, size_t path_len, const String&mode) const
 		{
 			index_t at;
-			if (mode.length() && modeMap.Query(mode,at))
+			if (mode.GetLength() && modeMap.Query(mode,at))
 				if (const Context*rs = modes[at].GetContext(path,path_len,""))
 					return rs;
 			if (path_len && childMap.Query(*path,at))
 				return children[at].GetContext(path+1,path_len-1,mode);
-			return path_len || mode.length()?nullptr:this;
+			return path_len || mode.GetLength()?nullptr:this;
 		}
 	
 		const String&					Context::GetOperator(const String&path)						const
@@ -481,8 +481,8 @@ namespace DeltaWorks
 		{
 			foreach (attributes, attrib)
 			{
-				name_len = std::max(name_len,attrib->name.length() + indent);
-				value_len = std::max(value_len,attrib->value.length() + 2 + indent);
+				name_len = std::max(name_len,attrib->name.GetLength() + indent);
+				value_len = std::max(value_len,attrib->value.GetLength() + 2 + indent);
 			}
 			foreach (children,child)
 				child->RetrieveMaxNameValueLength(name_len,value_len,indent+4);
@@ -490,7 +490,7 @@ namespace DeltaWorks
 			foreach (modes,mode)
 			{
 				if (mode->children.Count() == 1 && mode->attributes.IsEmpty())
-					mode->children.first().RetrieveMaxNameValueLength(name_len,value_len,indent+4);
+					mode->children.First().RetrieveMaxNameValueLength(name_len,value_len,indent+4);
 				else
 					mode->RetrieveMaxNameValueLength(name_len,value_len,indent+4);
 			}
@@ -518,20 +518,20 @@ namespace DeltaWorks
 				}
 
 				buffer << indent << attrib->name;
-				count_t tabs = (name_len-attrib->name.length()-indent.length()*4)/4;
-				if ((name_len-attrib->name.length()-indent.length()*4)%4)
+				count_t tabs = (name_len-attrib->name.GetLength()-indent.GetLength()*4)/4;
+				if ((name_len-attrib->name.GetLength()-indent.GetLength()*4)%4)
 					tabs++;
 				for (index_t i = 0; i <= tabs; i++)
 					buffer << '\t';
 			
 				buffer<<attrib->assignment_operator<<"\t";
 			
-				size_t len = attrib->value.length();
+				size_t len = attrib->value.GetLength();
 				if (!isBool(attrib->value.c_str()) && !isFloat(attrib->value.c_str()))
 				{
 					String value = attrib->value;
 					//std::cout << "'"<<value<<"'"<<std::endl;
-					for (index_t i = 0; i < value.length(); i++)
+					for (index_t i = 0; i < value.GetLength(); i++)
 						if (value.GetChar(i) == '\"')
 						{
 							value.Insert(i,'\\');
@@ -540,7 +540,7 @@ namespace DeltaWorks
 						}
 					//std::cout << "'"<<value<<"'"<<std::endl;
 					buffer << "\""<<value<<"\"";
-					len = value.length()+2;
+					len = value.GetLength()+2;
 				}
 				else
 					buffer << attrib->value;
@@ -551,8 +551,8 @@ namespace DeltaWorks
 			{
 				if (mode->children.Count() == 1 && mode->attributes.IsEmpty() && mode->modes.IsEmpty())
 				{
-					buffer << indent << "["<<mode->name<<":"<<mode->children.first().name<<"]"<<nl;
-					mode->children.first().WriteContent(buffer,name_len,value_len,indent+"\t");
+					buffer << indent << "["<<mode->name<<":"<<mode->children.First().name<<"]"<<nl;
+					mode->children.First().WriteContent(buffer,name_len,value_len,indent+"\t");
 				}
 				else
 				{
@@ -589,7 +589,7 @@ namespace DeltaWorks
 		{
 			if (string == '=')
 				return true;
-			if (string.length() != 2 || string.GetChar(1) != '=')
+			if (string.GetLength() != 2 || string.GetChar(1) != '=')
 				return false;
 			char c = string.FirstChar();
 			switch (c)
@@ -660,7 +660,7 @@ namespace DeltaWorks
 			StringBuffer	bufferedComments;
 			while (file>>line)
 			{
-				if (!line.Trim().length())
+				if (!line.Trim().GetLength())
 				{
 	//				String cmt = file.comment;
 					bufferedComments << ' ' << file.comment.TrimRef();
@@ -681,14 +681,14 @@ namespace DeltaWorks
 				while (depth < stack_elements.Count()-1)
 					stack_elements.EraseLast();
 			
-				Context*context = stack_elements.last();
+				Context*context = stack_elements.Last();
 			
 				String mode;
 				if (line.TrimRef().EndsWith(':'))
 				{
 					group = "";
 					mode = line.Trim();
-					mode.Erase(mode.length()-1);
+					mode.Erase(mode.GetLength()-1);
 				}
 			
 				index_t at = group.Find(':');
@@ -699,7 +699,7 @@ namespace DeltaWorks
 					group.Erase(0,at+1).TrimThis();
 				}
 			
-				if (mode.length())
+				if (mode.GetLength())
 				{
 					bool exists = false;
 					foreach (stack_elements,ctx)
@@ -716,12 +716,12 @@ namespace DeltaWorks
 					else
 					{
 						Context&child = context->DefineMode(mode);
-						if (!group.length())
+						if (!group.GetLength())
 							stack_elements.append(&child);
 						context = &child;
 					}
 				}
-				if (group.length())
+				if (group.GetLength())
 				{
 					Context&child = context->CreateContext(group);
 					stack_elements.append(&child);
@@ -729,11 +729,11 @@ namespace DeltaWorks
 					child.comment = bufferedComments.ToStringRef();
 					child.comment.TrimThis();
 					while (child.comment.BeginsWith(child.name+":"))
-						child.comment = child.comment.subString(child.name.length()+1).TrimRef();
+						child.comment = child.comment.subString(child.name.GetLength()+1).TrimRef();
 					bufferedComments.Clear();
 				}
 			
-				if (!group.length() && !mode.length())
+				if (!group.GetLength() && !mode.GetLength())
 				{
 					Tokenizer::tokenize(line,configuration,tokens);
 					if (!tokens)
@@ -744,8 +744,8 @@ namespace DeltaWorks
 						errors = true;
 						continue;
 					}
-					Attribute&attrib = context->Define(tokens.first());
-					if (attrib.value.length())
+					Attribute&attrib = context->Define(tokens.First());
+					if (attrib.value.GetLength())
 					{
 						error += "\nRedefining attribute '"+attrib.name+"' to '"+tokens[2]+"' in line "+String(file.root_line)+":\n "+line;
 						errors = true;
@@ -757,7 +757,7 @@ namespace DeltaWorks
 					attrib.comment += file.comment.Trim();
 					attrib.comment.TrimThis();
 					while (attrib.comment.BeginsWith(attrib.name+":"))
-						attrib.comment = attrib.comment.subString(attrib.name.length()+1).TrimRef();
+						attrib.comment = attrib.comment.subString(attrib.name.GetLength()+1).TrimRef();
 					bufferedComments.Clear();
 				}
 			}
@@ -798,14 +798,14 @@ namespace DeltaWorks
 			for (index_t i = 0; i < comments.Count(); i++)
 			{
 				String&line = comments[i];
-				while (line.length() > 80)
+				while (line.GetLength() > 80)
 				{
 					const char	*begin = line.c_str(),
 								*c = begin+80;
 					while (c != begin && (*c) != ' ')
 						c--;
 					if (c==begin)
-						c = begin+line.length()/2;
+						c = begin+line.GetLength()/2;
 					comments.Insert(i+1,line.subString(c-begin+1));
 					line.Erase(c-begin);
 				}
@@ -856,11 +856,11 @@ namespace DeltaWorks
 		{
 			Buffer<index_t>	segment_start(2);
 			Buffer<bool>		Is_segment(2);
-			for (index_t i = 0; i < expression.length(); i++)
+			for (index_t i = 0; i < expression.GetLength(); i++)
 			{
 				if (expression.GetChar(i) == '(')
 				{
-					Is_segment << !(i+1 == expression.length() || expression.GetChar(i+1)!='$');
+					Is_segment << !(i+1 == expression.GetLength() || expression.GetChar(i+1)!='$');
 					segment_start << i;
 				}
 				elif (expression.GetChar(i) == ')')
@@ -894,14 +894,14 @@ namespace DeltaWorks
 						}
 						if (singular)
 						{
-							expression.ReplaceSubString(start, i-start+1, variable->first());
-							i = start+variable->first().length();
+							expression.ReplaceSubString(start, i-start+1, variable->First());
+							i = start+variable->First().GetLength();
 						}
 						else
 						{
 							String imploded = implode(", ",*variable);
 							expression.ReplaceSubString(start, i-start+1, imploded);
-							i = start+imploded.length();
+							i = start+imploded.GetLength();
 						}
 					}
 				}
@@ -920,8 +920,8 @@ namespace DeltaWorks
 					return NULL;
 				context = next.get();
 			}
-			std::cout << "checking for variable '"<<segments.last()<<"' among "<<context->variables.Count()<<" variables"<<std::endl;
-			return context->variables.QueryPointer(segments.last());
+			std::cout << "checking for variable '"<<segments.Last()<<"' among "<<context->variables.Count()<<" variables"<<std::endl;
+			return context->variables.QueryPointer(segments.Last());
 		}
 	
 		const CXContext::Variable*					CXContext::innerFindVariable(const Ctr::ArrayData<String>&segments) const
@@ -934,8 +934,8 @@ namespace DeltaWorks
 					return NULL;
 				context = next.get();
 			}
-			std::cout << "checking for variable '"<<segments.last()<<"' among "<<context->variables.Count()<<" variables of "<<context->name<<std::endl;
-			return context->variables.QueryPointer(segments.last());
+			std::cout << "checking for variable '"<<segments.Last()<<"' among "<<context->variables.Count()<<" variables of "<<context->name<<std::endl;
+			return context->variables.QueryPointer(segments.Last());
 		}
 	
 		CXContext::Variable*					CXContext::FindVariable(const String&path)
@@ -1045,9 +1045,9 @@ namespace DeltaWorks
 			explode(';',content,lines);
 			if (!lines.Count())
 				return;
-			lines.last().TrimThis();
-			if (!lines.last().IsEmpty())
-				throw Except::IO::DriveAccess::FileDataFault("; expected at end of line '"+lines.last()+"'");
+			lines.Last().TrimThis();
+			if (!lines.Last().IsEmpty())
+				throw Except::IO::DriveAccess::FileDataFault("; expected at end of line '"+lines.Last()+"'");
 		
 			if (lines.Count() == 1)
 				return;
@@ -1069,13 +1069,13 @@ namespace DeltaWorks
 				if (at = value.GetIndexOf("($*)"))
 				{
 					if (var->Count())
-						value.ReplaceSubString(at-1,4,var->first());
+						value.ReplaceSubString(at-1,4,var->First());
 					else
 						value.Erase(at-1,4);
 					value.Insert(at-1,"($*),");
 				}
 				var->SetSize(1);
-				var->first() = value;
+				var->First() = value;
 			}
 
 		}
@@ -1116,7 +1116,7 @@ namespace DeltaWorks
 				Variable*variable = *it;
 				ASSERT_NOT_NULL__(variable);
 				ASSERT__(variable->Count() > 0);
-				String	value = variable->first();
+				String	value = variable->First();
 				String error;
 				std::cout << "finalizing variable = '"<<value<<"'"<<std::endl;
 				if (!Process(value,false,&error))
@@ -1226,7 +1226,7 @@ namespace DeltaWorks
 						continue;
 					}
 				
-					if (var->first() != attrib.value)
+					if (var->First() != attrib.value)
 					{
 						do_map = false;
 						break;
@@ -1294,7 +1294,7 @@ namespace DeltaWorks
 			explodeCallback(IsPathSeparator,variable_name,segments);
 			CXContext*context = this;
 			CXContext*result;
-			String var_name = segments.last();
+			String var_name = segments.Last();
 			segments.Erase(segments.Count()-1);
 			while (context)
 			{
@@ -1302,7 +1302,7 @@ namespace DeltaWorks
 				{
 					Variable*var = result->variables.append(var_name);
 					var->SetSize(1);
-					var->first() = variable_value;
+					var->First() = variable_value;
 					return true;
 				}
 				context = context->parent;
