@@ -83,14 +83,14 @@ namespace Engine
 			/**
 			Appends a character to the end of the buffer. Makes sure the internal buffer is zero-terminated
 			*/
-			void				Append(char c)	{Super::last() = c; if (c != 0) Super::Append('\0'); DBG_ASSERT__(IsSane());}
+			void				Append(char c)	{Super::Last() = c; if (c != 0) Super::Append('\0'); DBG_ASSERT__(IsSane());}
 			void				Append(const char*, size_t);
 			/**
 			Wipes and drops the last stored character (if any)
 			*/
-			void				EraseLast()		{if (IsEmpty()) return; Super::EraseLast(); Super::last() = 0; DBG_ASSERT__(IsSane());}
+			void				EraseLast()		{if (IsEmpty()) return; Super::EraseLast(); Super::Last() = 0; DBG_ASSERT__(IsSane());}
 
-			void				SetTo(const String&str)		{SetTo(str.c_str(),str.length());}
+			void				SetTo(const String&str)		{SetTo(str.c_str(),str.GetLength());}
 			void				SetTo(const char*str)		{SetTo(str,strlen(str));}
 			void				SetTo(const char*, size_t);
 
@@ -100,7 +100,7 @@ namespace Engine
 			@param len Length of the section to replace. Can be zero to allow insert operations, making @param from the first character after the inserted characters
 			@param str Characters to insert into the section. Does not have to be of the same length as @a len. Can be empty making this a deletion operation
 			*/
-			void				ReplaceSection(index_t from, size_t len, const String&str)	{ReplaceSection(from,len,str.c_str(),str.length());}
+			void				ReplaceSection(index_t from, size_t len, const String&str)	{ReplaceSection(from,len,str.c_str(),str.GetLength());}
 			void				ReplaceSection(index_t from, size_t len, const char*str)	{ReplaceSection(from,len,str,strlen(str));}
 			void				ReplaceSection(index_t from, size_t len, const char*str, size_t strLen);
 

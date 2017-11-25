@@ -89,7 +89,7 @@ namespace Engine
 									swp(handle,other.handle);
 								}
 				friend void		swap(Handle<T>&a, Handle<T>&b)	{a.swap(b);}
-				inline int		compareTo(const Handle<T>&other) const
+				inline int		CompareTo(const Handle<T>&other) const
 								{
 									if (handle > other.handle)
 										return 1;
@@ -97,7 +97,6 @@ namespace Engine
 										return -1;
 									return 0;
 								}
-				inline int		CompareTo(const Handle<T>&other) const {return compareTo(other);}
 				inline bool		operator==(const Handle<T>&other) const
 								{
 									return handle == other.handle;
@@ -503,8 +502,8 @@ namespace Engine
 
 			public:
 				inline	bool	load(const T*field, size_t num_units);	//!< Loads the specified data into the local buffer. @a field must be at least @a num_units units long but may be NULL if @a num_units is 0
-				inline	bool	load(const Array<T>&field)	{return load(field.pointer(),field.length());}	
-				inline	bool	load(const Ctr::Buffer<T>&field)	{return load(field.pointer(),field.length());}
+				inline	bool	load(const Array<T>&field)	{return load(field.pointer(),field.GetLength());}	
+				inline	bool	load(const Ctr::Buffer<T>&field)	{return load(field.pointer(),field.GetLength());}
 
 				void	adoptData(GeometryBuffer<T>&other)
 				{
@@ -572,7 +571,7 @@ namespace Engine
 								}
 			friend void			swap(Self&a, Self&b)	{a.swap(b);}
 
-			inline	int			compareTo(const SmartBuffer&other) const
+			inline	int			CompareTo(const SmartBuffer&other) const
 								{
 									if (on_device && !other.on_device)
 										return 1;
@@ -604,11 +603,11 @@ namespace Engine
 			/**/				}
 			inline	bool		operator<(const SmartBuffer&other) const
 			/**/				{
-			/**/					return compareTo(other) < 0;
+			/**/					return CompareTo(other) < 0;
 			/**/				}
 			inline	bool		operator>(const SmartBuffer&other) const
 			/**/				{
-			/**/					return compareTo(other) > 0;
+			/**/					return CompareTo(other) > 0;
 			/**/				}
 
 
@@ -693,14 +692,14 @@ namespace Engine
 
 
 				inline	void		load(const T*field, count_t num_units);	//!< Loads the specified data into the local buffer. @a field must be at least @a num_units units long but may be NULL if @a num_units is 0
-				inline	void		load(const ArrayData<T>&field)		{load(field.pointer(),field.length());}	
-				inline	void		load(const Ctr::BasicBuffer<T>&field)	{load(field.pointer(),field.length());}
+				inline	void		load(const ArrayData<T>&field)		{load(field.pointer(),field.GetLength());}	
+				inline	void		load(const Ctr::BasicBuffer<T>&field)	{load(field.pointer(),field.GetLength());}
 				template <typename StructType>
 					inline	void	loadStructs(const StructType*field, count_t num_structs)	{load((const T*)field,num_structs * sizeof(StructType)/sizeof(T));}
 				template <typename StructType>
-					inline	void	loadStructs(const ArrayData<StructType>&field)	{loadStructs(field.pointer(),field.length());}
+					inline	void	loadStructs(const ArrayData<StructType>&field)	{loadStructs(field.pointer(),field.GetLength());}
 				template <typename StructType>
-					inline	void	loadStructs(const Ctr::BasicBuffer<StructType>&field)	{loadStructs(field.pointer(),field.length());}
+					inline	void	loadStructs(const Ctr::BasicBuffer<StructType>&field)	{loadStructs(field.pointer(),field.GetLength());}
 				inline	const T*	getHostData() const		{return static_cast<const T*>(SmartBuffer::getHostData());}//!< Retrieves a pointer to any internally stored host data, or NULL if no such is available. Also returns NULL if the buffered data resides in device space
 				inline	count_t		countPrimitives()	const			//! Retrieves the number of primitives currently loaded into the buffer.
 									{

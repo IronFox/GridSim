@@ -140,11 +140,11 @@ namespace Engine
 
 	template <class Font> void Textout<Font>::Print(const String&str)
 	{
-	    Print(str.c_str(),str.length());
+	    Print(str.c_str(),str.GetLength());
 	}
 	template <class Font> void Textout<Font>::Print(const StringRef&str)
 	{
-	    Print(str.pointer(),str.length());
+	    Print(str.pointer(),str.GetLength());
 	}
 
 	template <class Font> void Textout<Font>::PrintTagged(const char*str, char tag)
@@ -244,13 +244,13 @@ namespace Engine
 	template <class Font>
 		Textout<Font>&	Textout<Font>::operator<<(const String&str)
 		{
-			Stream(str.c_str(),str.length());
+			Stream(str.c_str(),str.GetLength());
 			return *this;
 		}
 	template <class Font>
 		Textout<Font>&	Textout<Font>::operator<<(const StringRef&str)
 		{
-			Stream(str.pointer(),str.length());
+			Stream(str.pointer(),str.GetLength());
 			return *this;
 		}
 

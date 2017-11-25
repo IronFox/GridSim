@@ -571,10 +571,10 @@ namespace Engine
 	void ExtCont::divide(String line)
 	{
 		unsigned elements	= 0;
-		for (unsigned i	= 1; i < line.length(); i++)
+		for (unsigned i	= 1; i < line.GetLength(); i++)
 			if (line.GetChar(i) == ' ' && line.GetChar(i-1) != ' ')
 				elements++;
-		if (line.length() && line.LastChar() != ' ')
+		if (line.GetLength() && line.LastChar() != ' ')
 			elements++;
 		field.SetSize(elements);
 		for (index_t i	= 0; i < elements; i++)
@@ -600,8 +600,8 @@ namespace Engine
 	bool ExtCont::lookup(const String&element)
 	{
 		index_t		lower	= 0,
-					upper	= field.length();
-		while (lower< upper && upper <= field.length())
+					upper	= field.GetLength();
+		while (lower< upper && upper <= field.GetLength())
 		{
 			index_t el	= (lower+upper)/2;
 			if (field[el] > element)
@@ -942,7 +942,7 @@ namespace Engine
 					
 
 				const char	*at = source.c_str(),
-							*end = at+source.length();
+							*end = at+source.GetLength();
 				while (at < end)
 				{
 					const char*	min = NULL;
@@ -961,7 +961,7 @@ namespace Engine
 					}
 					StringRef	segment = item?StringRef(at,min-at):StringRef(at,end-at);
 					if (item)
-						at = min+item->length();
+						at = min+item->GetLength();
 					else
 						at = end;
 					switch (current-type)
@@ -1013,20 +1013,20 @@ namespace Engine
 					i++;
 					if (!sourceTarget)
 					{
-						if (group.TrimRef().length() > 0)
+						if (group.TrimRef().GetLength() > 0)
 							ErrMessage("Warning: unexpected code token(s) encountered: '"+group+"'");
 						continue;
 					}
 					for (; i < tokens.Count(); )
 					{
 						StringRef	source = tokens[i++].TrimRef();
-						if (source.length() == 0)
+						if (source.GetLength() == 0)
 							continue;
 						
-						if (source.pointer()[0] != '{' || source.pointer()[source.length()-1] != '}')
+						if (source.pointer()[0] != '{' || source.pointer()[source.GetLength()-1] != '}')
 							continue;
 						
-						*sourceTarget = StringRef(source.pointer() + 1, source.length()-2);
+						*sourceTarget = StringRef(source.pointer() + 1, source.GetLength()-2);
 						sourceTarget = NULL;
 						break;
 					}
@@ -1141,7 +1141,7 @@ namespace Engine
 				String copy	= source;
 				unsigned line(1);
 				index_t at;
-				while (copy.length())
+				while (copy.GetLength())
 				{
 					log<<"\n("+IntToStr(line++)+") ";
 					if ((at = copy.Find('\n'))!=InvalidIndex)
@@ -1217,7 +1217,7 @@ namespace Engine
 				buffer.Write(from+current,init->start-current);
 				current += init->length + (init->start-current);
 			}
-			buffer.Write(from+current,source.length()-current);
+			buffer.Write(from+current,source.GetLength()-current);
 			source = buffer.ToStringRef();
 
 		}
@@ -1775,7 +1775,7 @@ namespace Engine
 						{
 							target << segments[j] << lightIndex;
 						}
-						target << segments.last()<<nl;
+						target << segments.Last()<<nl;
 						/*if (innerLines[i].includes)
 							innerLines[i].includes->Block::Assemble(target,userConfig,renderConfig,type,lightIndex);*/
 					}
@@ -1826,7 +1826,7 @@ namespace Engine
 							{
 								target << segments[j] << lightIndex;
 							}
-							target << segments.last()<<nl;
+							target << segments.Last()<<nl;
 						}
 				}
 			}
@@ -2118,7 +2118,7 @@ namespace Engine
 					if (lines[i].BeginsWith("#include"))
 					{
 						String file = lines[i].subString(8).TrimThis();
-						if (!file.length())
+						if (!file.GetLength())
 						{
 							logOut << "#include directive broken in line "<<(i+1)<<nl;
 							LogLine(lines,i,logOut);					
@@ -2127,7 +2127,7 @@ namespace Engine
 						if ((file.FirstChar() == '"' && file.LastChar() == '"')
 							||
 							(file.FirstChar() == '<' && file.LastChar() == '>'))
-							file = file.subString(1,file.length()-2).TrimThis();
+							file = file.subString(1,file.GetLength()-2).TrimThis();
 						String*include = FindShaderIncludable(file);
 						if (!include)
 						{
@@ -2164,7 +2164,7 @@ namespace Engine
 			
 			
 					Array<Line,Adopt>&target = current->children.IsNotEmpty()
-												? current->children.last()->trailingLines
+												? current->children.Last()->trailingLines
 												: current->innerLines;
 			
 		/* 			if (current->children)
@@ -2239,7 +2239,7 @@ namespace Engine
 						}
 				
 						{
-							PBlock predecessor = current->parent->children.last();
+							PBlock predecessor = current->parent->children.Last();
 							if (!predecessor || (predecessor->type != Block::Conditional && predecessor->type != Block::ElseConditional))
 							{
 								logOut << "misplaced #"<<word<<" in line "<<(line+i+1)<<nl;
@@ -2273,7 +2273,7 @@ namespace Engine
 						}
 				
 						{
-							PBlock predecessor = current->parent->children.last();
+							PBlock predecessor = current->parent->children.Last();
 							if (!predecessor || (predecessor->type != Block::Conditional && predecessor->type != Block::ElseConditional))
 							{
 								logOut << "misplaced #"<<word<<" in line "<<(line+i+1)<<nl;
@@ -2322,7 +2322,7 @@ namespace Engine
 		
 				{
 					Array<Line,Adopt>&target = current->children.IsNotEmpty()
-												? current->children.last()->trailingLines
+												? current->children.Last()->trailingLines
 												: current->innerLines;
 			
 					target.SetSize(lines.Count()-blockBegin);
@@ -3459,7 +3459,7 @@ namespace Engine
 			return buffer.handle;
 		}
 		{
-			index = depthBufferList.length();
+			index = depthBufferList.GetLength();
 			DepthBuffer&buffer = depthBufferList.append();
 			buffer.resolution = res;
 			buffer.referenceCount = 1;
@@ -4863,26 +4863,26 @@ namespace Engine
 	String ExtCont::listColumns(const String&plank, BYTE columns)
 	{
 		String rs;
-		size_t height	= field.length() / columns;
-		if (field.length() % columns)
+		size_t height	= field.GetLength() / columns;
+		if (field.GetLength() % columns)
 			height++;
 		BYTE	width[256];
 		for (BYTE k	= 0; k < columns; k++)
 		{
 			width[k] = 0;
 			for (index_t i	= 0; i < height; i++)
-				if (height*k+i < field.length() && field[height*k+i].length() > width[k])
-					width[k] = BYTE(field[height*k+i].length());
+				if (height*k+i < field.GetLength() && field[height*k+i].GetLength() > width[k])
+					width[k] = BYTE(field[height*k+i].GetLength());
 			width[k]+= 2;
 		}
 		for (index_t i	= 0; i < height; i++)
 		{
 			rs += plank;
 			for (BYTE k	= 0; k < columns; k++)
-				if (height*k+i < field.length())
+				if (height*k+i < field.GetLength())
 				{
 					rs+= field[height*k+i];
-					for (BYTE j	= 0; j < width[k] - field[height*k+i].length(); j++)
+					for (BYTE j	= 0; j < width[k] - field[height*k+i].GetLength(); j++)
 						rs+=' ';
 				}
 			rs+='\n';
@@ -4895,17 +4895,17 @@ namespace Engine
 	{
 		count_t c	= 0;
 		String rs(plank);
-		for (index_t i	= 0; i < field.length(); i++)
+		for (index_t i	= 0; i < field.GetLength(); i++)
 		{
-			if (max_chars_per_line && c + field[i].length()+2 > max_chars_per_line)
+			if (max_chars_per_line && c + field[i].GetLength()+2 > max_chars_per_line)
 			{
 				rs+="\n"+plank;
 				c	= 0;
 			}
 			rs+=field[i];
-			if (i < field.length()-1)
+			if (i < field.GetLength()-1)
 				rs+= ", ";
-			c+= field[i].length()+2;
+			c+= field[i].GetLength()+2;
 		}
 		return rs;
 	}

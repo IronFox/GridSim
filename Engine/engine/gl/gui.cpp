@@ -1107,7 +1107,7 @@ namespace Engine
 			project(window.get(),-1,1,p);
 			rect.Include(p);
 			
-			if (window == windowStack.last())	//top most window also copies for menu windows, which override the parent window rather than blurring over it
+			if (window == windowStack.Last())	//top most window also copies for menu windows, which override the parent window rather than blurring over it
 				for (index_t i = 0; i < menu_stack.Count(); i++)
 				{
 					PWindow menu_ = menu_stack[i].lock();
@@ -1155,7 +1155,7 @@ namespace Engine
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
 			glActiveTexture(GL_TEXTURE0);
 			
-			glColor4f(window->toneBackground,0,0,is_menu || window->appearsFocused || windowStack.last()==window);
+			glColor4f(window->toneBackground,0,0,is_menu || window->appearsFocused || windowStack.Last()==window);
 
 
 			//ASSERT__(currentWindowShader->isInstalled());
@@ -1592,7 +1592,7 @@ namespace Engine
 			ASSERT__(clipStack.IsNotEmpty());
 			clipStack.eraseLast();
 			if (clipStack.IsNotEmpty())
-				_Apply(clipStack.last());
+				_Apply(clipStack.Last());
 			else
 				_Apply(M::Rect<int>(0,0,subRes.width,subRes.height));
 		}
@@ -1779,7 +1779,7 @@ namespace Engine
 
 
 			if (clipStack.IsNotEmpty())
-				_Apply(clipStack.last());
+				_Apply(clipStack.Last());
 			else
 				_Apply(M::Rect<int>(0,0,subRes.width,subRes.height));
 
@@ -2007,7 +2007,7 @@ namespace Engine
 		
 		void					ColorRenderer::PeekColor()
 		{
-			color = colorStack.last();
+			color = colorStack.Last();
 			glColor4fv(color.v);
 		}
 
@@ -2075,7 +2075,7 @@ namespace Engine
 
 		void					NormalRenderer::PeekNormalMatrix()
 		{
-			normalSystem = normalSystemStack.last();
+			normalSystem = normalSystemStack.Last();
 			DBG_VERIFY__(normalSystemVariable.Set(normalSystem));
 		}
 
@@ -2635,7 +2635,7 @@ namespace Engine
 					{
 					/*	if (last_x != mouse.location.fx || last_y != mouse.location.fy)
 						{
-							windowStack.last()->mouseMove((float)(mouse.location.fx*display->GetClientWidth()),(float)(mouse.location.fy*display->GetClientHeight()));
+							windowStack.Last()->mouseMove((float)(mouse.location.fx*display->GetClientWidth()),(float)(mouse.location.fy*display->GetClientHeight()));
 							last_x = mouse.location.fx;
 							last_y = mouse.location.fy;
 						}*/
@@ -2643,12 +2643,12 @@ namespace Engine
 				}
 				if (clicked)
 				{
-					PWindow	window = menu_stack.IsNotEmpty()?menu_stack.last().lock():windowStack.last();
+					PWindow	window = menu_stack.IsNotEmpty()?menu_stack.Last().lock():windowStack.Last();
 
 					if (!window && menu_stack.IsNotEmpty())	//last window has been erased
 					{
 						hideMenus();
-						window = windowStack.last();
+						window = windowStack.Last();
 					}
 
 					#ifdef DEEP_GUI
@@ -2951,7 +2951,7 @@ namespace Engine
 		{
 			if (windowStack.IsEmpty())
 				return PWindow();
-			return windowStack.last();
+			return windowStack.Last();
 		}
 
 		/**
@@ -2959,7 +2959,7 @@ namespace Engine
 		*/
 		bool				Operator::showingModalWindows()	const
 		{
-			return windowStack.IsNotEmpty() && windowStack.last()->isModal;
+			return windowStack.IsNotEmpty() && windowStack.Last()->isModal;
 		}
 
 
@@ -2977,11 +2977,11 @@ namespace Engine
 			}
 			else
 				window->operatorLink = shared_from_this();
-			if (windowStack.IsNotEmpty() && windowStack.last() == window)
+			if (windowStack.IsNotEmpty() && windowStack.Last() == window)
 				return;
 			windowStack.findAndErase(window);
 
-			if (!window->isModal && windowStack.IsNotEmpty() && windowStack.last()->isModal)
+			if (!window->isModal && windowStack.IsNotEmpty() && windowStack.Last()->isModal)
 			{
 				index_t at = windowStack.size()-2;
 				while (at != InvalidIndex && windowStack[at]->isModal)
@@ -2991,7 +2991,7 @@ namespace Engine
 			else
 			{
 				if (windowStack.IsNotEmpty())
-					windowStack.last()->onFocusLost();
+					windowStack.Last()->onFocusLost();
 				windowStack << window;
 				Component::ResetFocused();
 				window->onFocusGained();
@@ -3009,7 +3009,7 @@ namespace Engine
 		
 		bool			Operator::HideWindow(const PWindow&window)
 		{
-			bool was_top = windowStack.IsNotEmpty() && windowStack.last() == window;
+			bool was_top = windowStack.IsNotEmpty() && windowStack.Last() == window;
 				
 			if (windowStack.findAndErase(window))
 			{
@@ -3018,7 +3018,7 @@ namespace Engine
 					window->onFocusLost();
 					Component::ResetFocused();
 					if (windowStack.IsNotEmpty())
-						windowStack.last()->onFocusGained();
+						windowStack.Last()->onFocusGained();
 				}
 				window->operatorLink.reset();
 				#ifdef DEEP_GUI

@@ -25,7 +25,7 @@ namespace Engine
 		/**/				RenderInstructionWrapper(index_t id, FRenderInstruction instruction):
 							orderIndex(id),instruction(instruction)	{}
 
-		int					compareTo(const RenderInstructionWrapper&other)
+		int					CompareTo(const RenderInstructionWrapper&other)
 							{
 								if (orderIndex < other.orderIndex)
 									return -1;

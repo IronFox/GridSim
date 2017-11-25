@@ -314,7 +314,7 @@ namespace Engine
 				{
 					if (!component)
 						return std::shared_ptr<Component>();
-					std::shared_ptr<GUI::Component> last = children.IsNotEmpty()?children.last():std::shared_ptr<GUI::Component>();
+					std::shared_ptr<GUI::Component> last = children.IsNotEmpty()?children.Last():std::shared_ptr<GUI::Component>();
 					float	y_offset = (last?last->offset.top-last->height:0),
 							x_offset = 0;
 

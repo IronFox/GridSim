@@ -61,7 +61,7 @@ namespace Engine
 				renderer->bindMaterial(material,typename GL::Shader());
 				renderer->bindVertices(vbo,binding);
 				renderer->bindIndices(ibo);
-				renderer->renderQuads(0,unsigned(indices.length()));
+				renderer->renderQuads(0,unsigned(indices.GetLength()));
 				
 				renderer->unbindAll();
 			}
@@ -79,7 +79,7 @@ namespace Engine
 				void	C3dGraph::printCaptions()
 				{
 					Textout<Font>*textout = TextoutManager<Font>::get();
-					if (data->countChannels() != text_location.length())
+					if (data->countChannels() != text_location.GetLength())
 						return;
 					const M::TVec3<>*location = text_location.pointer();
 					for (index_t i = 0; i < data->groups(); i++)
@@ -367,8 +367,8 @@ namespace Engine
 				for (unsigned j = 0; j < group.channels(); j++)
 				{
 					const Channel&channel = group.channel(j);
-					//ASSERT2__(channel.weighted_history.length() == res,channel.weighted_history.length(),res);
-					ASSERT2__(channel.history.length() == res,channel.history.length(),res);
+					//ASSERT2__(channel.weighted_history.GetLength() == res,channel.weighted_history.GetLength(),res);
+					ASSERT2__(channel.history.GetLength() == res,channel.history.GetLength(),res);
 					const float*h = channel.history.pointer();
 					for (unsigned t = 0; t < res; t++)
 						h_block[t] += h[t];
@@ -527,7 +527,7 @@ namespace Engine
 						for (index_t j = 0; j < group.channels(); j++)
 						{
 							const Channel&channel = group.channel(j);
-							float this_height = channel.history.last()*scale*Base::position.GetHeight();
+							float this_height = channel.history.Last()*scale*Base::position.GetHeight();
 							if (this_height>font_height)
 							{
 								M::TVec3<> color;
@@ -710,7 +710,7 @@ namespace Engine
 					for (unsigned j = 0; j < group.channels(); j++)
 					{
 						const Channel&channel = group.channel(j);
-						ASSERT2__(channel.history.length() == res,channel.history.length(),res);
+						ASSERT2__(channel.history.GetLength() == res,channel.history.GetLength(),res);
 						const float*h = channel.history.pointer();
 						for (unsigned t = 0; t < res; t++)
 							h_block[t] += h[t];
@@ -737,7 +737,7 @@ namespace Engine
 					
 					addRow(color);
 				}
-				str_current = h_field.last();
+				str_current = h_field.Last();
 				
 			}
 			else
@@ -746,9 +746,9 @@ namespace Engine
 				const Channel&ch = gr.channel(channel);
 				
 
-				ASSERT2__(ch.maximum_history.length() == res,ch.maximum_history.length(),res);
-				ASSERT2__(ch.minimum_history.length() == res,ch.minimum_history.length(),res);
-				ASSERT2__(ch.history.length() == res,ch.history.length(),res);
+				ASSERT2__(ch.maximum_history.GetLength() == res,ch.maximum_history.GetLength(),res);
+				ASSERT2__(ch.minimum_history.GetLength() == res,ch.minimum_history.GetLength(),res);
+				ASSERT2__(ch.history.GetLength() == res,ch.history.GetLength(),res);
 				{
 					const float*h = ch.minimum_history.pointer();
 					for (unsigned t = 0; t < res; t++)
@@ -770,7 +770,7 @@ namespace Engine
 					
 					addMaxRow(gr.color);
 				}
-				str_current = "~"+String(ch.history.last(),2)+" ["+String(ch.minimum_history.last(),2)+", "+String(ch.maximum_history.last(),2)+"]";
+				str_current = "~"+String(ch.history.Last(),2)+" ["+String(ch.minimum_history.Last(),2)+", "+String(ch.maximum_history.Last(),2)+"]";
 				
 			}
 			//ASSERT__(indices.Count() == cnt*(res-1)*4);
@@ -1115,7 +1115,7 @@ namespace Engine
 				for (index_t j = 0; j < group.channels(); j++)
 				{
 					const Channel&channel = group.channel(j);
-					ASSERT2__(channel.history.length() == res,channel.history.length(),res);
+					ASSERT2__(channel.history.GetLength() == res,channel.history.GetLength(),res);
 					const float*h = channel.history.pointer();
 					for (unsigned t = 0; t < res; t++)
 						h_block[t] += h[t];
@@ -1129,7 +1129,7 @@ namespace Engine
 							M::Vec::copy(group.color,color);
 						addRow(color,depth);
 					}
-					M::Vec::def(Base::text_location[cnt],Base::width,h_field.last()+h_block.last(),depth*Base::depth);
+					M::Vec::def(Base::text_location[cnt],Base::width,h_field.Last()+h_block.Last(),depth*Base::depth);
 					depth *= 0.8;
 					cnt++;
 				}
@@ -1154,7 +1154,7 @@ namespace Engine
 			for (unsigned i = 0; i < res; i++)
 				if (h_field[i] > highest)
 					highest = h_field[i];
-			str_current = h_field.last();
+			str_current = h_field.Last();
 			float scale = highest?Base::height/(highest*1.25f):1.0f;
 			
 			for (index_t i = 0; i < Base::vertices.Count()/(Base::dimensions+4); i++)
@@ -1170,7 +1170,7 @@ namespace Engine
 			
 			Base::shade();
 			
-			for (index_t i = 0; i < Base::text_location.length(); i++)
+			for (index_t i = 0; i < Base::text_location.GetLength(); i++)
 				Base::text_location[i].y *= scale;
 
 			
@@ -1332,7 +1332,7 @@ namespace Engine
 					for (index_t j = 0; j < group.channels(); j++)
 					{
 						const Channel&channel = group.channel(j);
-						ASSERT2__(channel.history.length() == res,channel.history.length(),res);
+						ASSERT2__(channel.history.GetLength() == res,channel.history.GetLength(),res);
 						const float*h = channel.history.pointer();
 
 						M::TVec3<> color;
@@ -1456,7 +1456,7 @@ namespace Engine
 			
 			Base::shade();
 			
-			for (index_t i = 0; i < Base::text_location.length(); i++)
+			for (index_t i = 0; i < Base::text_location.GetLength(); i++)
 				Base::text_location[i].y *= scale;
 			
 			

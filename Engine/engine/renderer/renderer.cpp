@@ -398,7 +398,7 @@ namespace Engine
 	}
 
 
-	char	TVertexSection::compareTo(const TVertexSection&other)	const
+	char	TVertexSection::CompareTo(const TVertexSection&other)	const
 	{
 		if (!length || !other.length)
 			return OrthographicComparison(length,other.length);
@@ -419,7 +419,7 @@ namespace Engine
 	}
 
 
-	char	MaterialLayer::compareTo(const MaterialLayer&other)	const
+	char	MaterialLayer::CompareTo(const MaterialLayer&other)	const
 	{
 		if (!enabled || !other.enabled)
 			return OrthographicComparison(enabled,other.enabled);
@@ -462,9 +462,9 @@ namespace Engine
 				&& (!alpha_test || M::Similar(alpha_threshold, other.alpha_threshold)) && (fully_reflective == other.fully_reflective);
 	}
 
-	char	MaterialColors::compareTo(const MaterialColors&other)	const
+	char	MaterialColors::CompareTo(const MaterialColors&other)	const
 	{
-		OrthographicComparison rs(ambient.compareTo(other.ambient));
+		OrthographicComparison rs(ambient.CompareTo(other.ambient));
 		rs	.AddCompareTo(diffuse,other.diffuse)
 			.AddCompareTo(specular,other.specular)
 			.AddCompareTo(emission,other.emission)
@@ -504,9 +504,9 @@ namespace Engine
 		return rs;
 	}
 
-	char	VertexBinding::compareTo(const VertexBinding&other) const
+	char	VertexBinding::CompareTo(const VertexBinding&other) const
 	{
-		return OrthographicComparison(vertex.compareTo(other.vertex))
+		return OrthographicComparison(vertex.CompareTo(other.vertex))
 			.AddCompareTo(tangent,other.tangent)
 			.AddCompareTo(normal,other.normal)
 			.AddCompareTo(color,other.color)
@@ -562,7 +562,7 @@ namespace Engine
 		else
 			color.Set(0,0);
 
-		texcoords.SetSize(info.layer_field.length());
+		texcoords.SetSize(info.layer_field.GetLength());
 		for (index_t i = 0; i < texcoords.Count(); i++)
 		{
 			if (CGS::layerRequiresTexCoords(info.layer_field[i]))
@@ -658,10 +658,10 @@ namespace Engine
 		MaterialColors::read(info);
 		//VertexBinding::read(info,floats_per_coordinate,flags);
 
-		layers.SetSize(info.layer_field.length());
+		layers.SetSize(info.layer_field.GetLength());
 			//texcoords.Count());
 
-		for (index_t i = 0; i < layers.length(); i++)
+		for (index_t i = 0; i < layers.GetLength(); i++)
 		{
 			const CGS::TLayer&from = info.layer_field[i];
 			MaterialLayer&to = layers[i];
@@ -736,9 +736,9 @@ namespace Engine
 		return	MaterialColors::operator==(other) && /*VertexBinding::operator==(other) && */layers == other.layers && name == other.name;
 	}
 
-	char	MaterialConfiguration::compareTo(const MaterialConfiguration&other)	const
+	char	MaterialConfiguration::CompareTo(const MaterialConfiguration&other)	const
 	{
-		return OrthographicComparison(MaterialColors::compareTo(other)).AddCompareTo(layers,other.layers);
+		return OrthographicComparison(MaterialColors::CompareTo(other)).AddCompareTo(layers,other.layers);
 	}
 
 

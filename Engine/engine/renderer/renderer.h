@@ -300,12 +300,12 @@ namespace Engine
 		bool						IsEmpty() const {return !length;}
 		bool						IsNotEmpty() const {return IsSet();}
 
-		char						compareTo(const TVertexSection&)	const;
+		char						CompareTo(const TVertexSection&)	const;
 
 		bool						operator==(const TVertexSection&)	const;
 		bool						operator!=(const TVertexSection&other)	const		{return !operator==(other);}
-		bool						operator>(const TVertexSection&other)	const		{return compareTo(other) > 0;}
-		bool						operator<(const TVertexSection&other)	const		{return compareTo(other) < 0;}
+		bool						operator>(const TVertexSection&other)	const		{return CompareTo(other) > 0;}
+		bool						operator<(const TVertexSection&other)	const		{return CompareTo(other) < 0;}
 
 		friend hash_t				Hash(const TVertexSection&s)
 									{
@@ -375,12 +375,12 @@ namespace Engine
 												&& (system_type != SystemType::Custom || custom_system != NULL);
 									}
 										
-		char						compareTo(const MaterialLayer&)		const;
+		char						CompareTo(const MaterialLayer&)		const;
 
 		bool						operator==(const MaterialLayer&)		const;
 		bool						operator!=(const MaterialLayer&other)	const		{return !operator==(other);}
-		bool						operator>(const MaterialLayer&other)	const		{return compareTo(other) > 0;}
-		bool						operator<(const MaterialLayer&other)	const		{return compareTo(other) < 0;}
+		bool						operator>(const MaterialLayer&other)	const		{return CompareTo(other) > 0;}
+		bool						operator<(const MaterialLayer&other)	const		{return CompareTo(other) < 0;}
 
 		virtual	hash_t				ToHash()	const	override
 									{
@@ -427,14 +427,14 @@ namespace Engine
 										return M::Vec::similar(*this,other);
 									}
 
-		char						compareTo(const TColor&other) const
+		char						CompareTo(const TColor&other) const
 									{
 										return M::Vec::compare(*this,other);
 									}
 
 		bool						operator!=(const TColor&other)	const		{return !operator==(other);}
-		bool						operator>(const TColor&other)	const		{return compareTo(other) > 0;}
-		bool						operator<(const TColor&other)	const		{return compareTo(other) < 0;}
+		bool						operator>(const TColor&other)	const		{return CompareTo(other) > 0;}
+		bool						operator<(const TColor&other)	const		{return CompareTo(other) < 0;}
 
 
 		TColor&						operator=(const M::TVec4<>&other)	{Super::operator=(other); return*this;}
@@ -462,12 +462,12 @@ namespace Engine
 
 		void 						read(const CGS::MaterialInfo&info);	//!< Fills all local variables in accordance with the specified CGS material
 
-		char						compareTo(const MaterialColors&)	const;
+		char						CompareTo(const MaterialColors&)	const;
 
 		bool						operator==(const MaterialColors&)	const;
 		bool						operator!=(const MaterialColors&other)	const		{return !operator==(other);}
-		bool						operator>(const MaterialColors&other)	const		{return compareTo(other) > 0;}
-		bool						operator<(const MaterialColors&other)	const		{return compareTo(other) < 0;}
+		bool						operator>(const MaterialColors&other)	const		{return CompareTo(other) > 0;}
+		bool						operator<(const MaterialColors&other)	const		{return CompareTo(other) < 0;}
 
 		void						resetToDefault();
 	};
@@ -503,12 +503,12 @@ namespace Engine
 										}
 		friend void						swap(Self&a, Self&b)	{a.swap(b);}
 
-		char							compareTo(const VertexBinding&)	const;
+		char							CompareTo(const VertexBinding&)	const;
 
 		bool							operator==(const VertexBinding&)		const;
 		bool							operator!=(const VertexBinding&other)	const	{return !operator==(other);}
-		bool							operator>(const VertexBinding&other)	const	{return compareTo(other) > 0;}
-		bool							operator<(const VertexBinding&other)	const	{return compareTo(other) < 0;}
+		bool							operator>(const VertexBinding&other)	const	{return CompareTo(other) > 0;}
+		bool							operator<(const VertexBinding&other)	const	{return CompareTo(other) < 0;}
 
 		UINT16							minFloatsPerVertex()	const;	//!< Calculates the minimal number of floats per vertex that this binding requires. A valid vertex binding complies with minFloatsPerVertex() <= floats_per_vertex
 
@@ -544,12 +544,12 @@ namespace Engine
 
 		virtual	void 				read(const CGS::MaterialInfo&info, UINT32 flags);	//!< Fills all local variables in accordance with the specified CGS material, floats per coordinate and flags
 
-		char						compareTo(const MaterialConfiguration&)		const;
+		char						CompareTo(const MaterialConfiguration&)		const;
 
 		bool						operator==(const MaterialConfiguration&)		const;
 		bool						operator!=(const MaterialConfiguration&other)	const	{return !operator==(other);}
-		bool						operator>(const MaterialConfiguration&other)	const	{return compareTo(other) > 0;}
-		bool						operator<(const MaterialConfiguration&other)	const	{return compareTo(other) < 0;}
+		bool						operator>(const MaterialConfiguration&other)	const	{return CompareTo(other) > 0;}
+		bool						operator<(const MaterialConfiguration&other)	const	{return CompareTo(other) < 0;}
 
 		void						adoptData(MaterialConfiguration&other)
 									{
@@ -631,14 +631,14 @@ namespace Engine
 									return MaterialConfiguration::operator==(other) && textures == other.textures;
 								}
 
-			inline	char		compareTo(const MaterialComposition<Texture>&other)	const
+			inline	char		CompareTo(const MaterialComposition<Texture>&other)	const
 			{
-				return OrthographicComparison(MaterialConfiguration::compareTo(other)).AddComparison(textures,other.textures);
+				return OrthographicComparison(MaterialConfiguration::CompareTo(other)).AddComparison(textures,other.textures);
 			}
 
 			inline	bool		operator!=(const MaterialComposition<Texture>&other)	const	{return !operator==(other);}
-			inline	bool		operator>(const MaterialComposition<Texture>&other)	const	{return compareTo(other) > 0;}
-			inline	bool		operator<(const MaterialComposition<Texture>&other)	const	{return compareTo(other) < 0;}
+			inline	bool		operator>(const MaterialComposition<Texture>&other)	const	{return CompareTo(other) > 0;}
+			inline	bool		operator<(const MaterialComposition<Texture>&other)	const	{return CompareTo(other) < 0;}
 
 						
 			virtual	void		setLayers(count_t num_layers)

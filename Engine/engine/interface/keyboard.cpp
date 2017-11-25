@@ -86,7 +86,7 @@ namespace Engine
 		for (index_t i = 0; i < GetLength(); i++)
 			if (Super::at(i) == 0)
 				return false;
-		return Super::last() == 0;
+		return Super::Last() == 0;
 	}
 
 

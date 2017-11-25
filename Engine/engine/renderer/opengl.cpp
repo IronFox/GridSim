@@ -1337,7 +1337,7 @@ namespace Engine
 		if (OpenGL::created_contexts.IsEmpty())
 			throw Except::Renderer::GeneralFault(Except::globalString("Cannot bind OpenGL context: none created"));
 		is_bound = true;
-		OpenGL::setCurrentContext(OpenGL::created_contexts.first());
+		OpenGL::setCurrentContext(OpenGL::created_contexts.First());
 	}
 
 	/*static*/			GL::ContextLock::~ContextLock()
@@ -1348,9 +1348,9 @@ namespace Engine
 		if (OpenGL::created_contexts.IsEmpty())
 			FATAL__("Cannot unbind OpenGL context: no reference context");
 		#if SYSTEM==WINDOWS
-			wglMakeCurrent(OpenGL::created_contexts.first().device_context, NULL);
+			wglMakeCurrent(OpenGL::created_contexts.First().device_context, NULL);
 		#elif SYSTEM_VARIANCE==LINUX
-			glXMakeCurrent(OpenGL::created_contexts.first().display,None,NULL);
+			glXMakeCurrent(OpenGL::created_contexts.First().display,None,NULL);
 		#endif
 	}
 
@@ -1540,7 +1540,7 @@ namespace Engine
 	void OpenGL::enableLight(const PLight&light)
 	{
 		GL_BEGIN
-		if (getLightSceneOf(light) != active_scene || state.render_setup.num_enabled_lights >= state.render_setup.enabled_light_field.length())	//can't enable
+		if (getLightSceneOf(light) != active_scene || state.render_setup.num_enabled_lights >= state.render_setup.enabled_light_field.GetLength())	//can't enable
 		{
 			GL_END
 			return;
@@ -3219,21 +3219,21 @@ namespace Engine
 
 		if (structure.field[SimpleGeometry::Triangles].IsNotEmpty())
 		{
-			glVertexPointer(3,GL_FLOAT,sizeof(tCVertex),structure.field[SimpleGeometry::Triangles].first().v);
-			glColorPointer(4,GL_FLOAT,sizeof(tCVertex),structure.field[SimpleGeometry::Triangles].first().color.v);
-			glDrawArrays(GL_TRIANGLES,0,GLuint(structure.field[SimpleGeometry::Triangles].length()));
+			glVertexPointer(3,GL_FLOAT,sizeof(tCVertex),structure.field[SimpleGeometry::Triangles].First().v);
+			glColorPointer(4,GL_FLOAT,sizeof(tCVertex),structure.field[SimpleGeometry::Triangles].First().color.v);
+			glDrawArrays(GL_TRIANGLES,0,GLuint(structure.field[SimpleGeometry::Triangles].GetLength()));
 		}
 		if (structure.field[SimpleGeometry::Quads].IsNotEmpty())
 		{
-			glVertexPointer(3,GL_FLOAT,sizeof(tCVertex),structure.field[SimpleGeometry::Quads].first().v);
-			glColorPointer(4,GL_FLOAT,sizeof(tCVertex),structure.field[SimpleGeometry::Quads].first().color.v);
-			glDrawArrays(GL_QUADS,0,GLuint(structure.field[SimpleGeometry::Quads].length()));
+			glVertexPointer(3,GL_FLOAT,sizeof(tCVertex),structure.field[SimpleGeometry::Quads].First().v);
+			glColorPointer(4,GL_FLOAT,sizeof(tCVertex),structure.field[SimpleGeometry::Quads].First().color.v);
+			glDrawArrays(GL_QUADS,0,GLuint(structure.field[SimpleGeometry::Quads].GetLength()));
 		}
 		if (structure.field[SimpleGeometry::Lines].IsNotEmpty())
 		{
-			glVertexPointer(3,GL_FLOAT,sizeof(tCVertex),structure.field[SimpleGeometry::Lines].first().v);
-			glColorPointer(4,GL_FLOAT,sizeof(tCVertex),structure.field[SimpleGeometry::Lines].first().color.v);
-			glDrawArrays(GL_LINES,0,GLuint(structure.field[SimpleGeometry::Lines].length()));
+			glVertexPointer(3,GL_FLOAT,sizeof(tCVertex),structure.field[SimpleGeometry::Lines].First().v);
+			glColorPointer(4,GL_FLOAT,sizeof(tCVertex),structure.field[SimpleGeometry::Lines].First().color.v);
+			glDrawArrays(GL_LINES,0,GLuint(structure.field[SimpleGeometry::Lines].GetLength()));
 		}
 		GL_END
 	}

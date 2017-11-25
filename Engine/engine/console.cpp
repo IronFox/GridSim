@@ -104,7 +104,7 @@ void Console::emptyLine()
 void Console::print(const String&line)
 {
     String local = line;
-    while (local.length())
+    while (local.GetLength())
     {
         index_t nl = local.Find('\n');
         if (nl != InvalidIndex)

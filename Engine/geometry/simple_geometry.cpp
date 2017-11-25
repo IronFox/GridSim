@@ -58,13 +58,13 @@ namespace Engine
 	void SimpleGeometry::translate(float x_delta, float y_delta, float z_delta)
 	{
 	    M::TVec3<>	delta = {x_delta,y_delta,z_delta};
-	    for (unsigned i = 0; i < field[Triangles].length(); i++)
+	    for (unsigned i = 0; i < field[Triangles].GetLength(); i++)
 	        M::Vec::add(field[Triangles][i].xyz,delta);
 	        
-	    for (unsigned i = 0; i < field[Quads].length(); i++)
+	    for (unsigned i = 0; i < field[Quads].GetLength(); i++)
 	        M::Vec::add(field[Quads][i].xyz,delta);
 
-	    for (unsigned i = 0; i < field[Lines].length(); i++)
+	    for (unsigned i = 0; i < field[Lines].GetLength(); i++)
 	        M::Vec::add(field[Lines][i].xyz,delta);
 	}
 

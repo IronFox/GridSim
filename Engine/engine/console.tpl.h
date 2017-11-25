@@ -249,8 +249,8 @@ namespace Engine
 		{
 		    float len = absolute_text.GetWidth();
 		    char buffer[0x100];
-		    memcpy(buffer,origin.c_str(),vmin(origin.length(),sizeof(buffer)));
-		    BYTE at = vmin(origin.length()+1,sizeof(buffer))-1;
+		    memcpy(buffer,origin.c_str(),vmin(origin.GetLength(),sizeof(buffer)));
+		    BYTE at = vmin(origin.GetLength()+1,sizeof(buffer))-1;
 		    buffer[at] = 0;
 
 		    while (at && textout.GetUnscaledWidth(buffer)*font_x > len)
@@ -280,11 +280,11 @@ namespace Engine
 		        }
 				if (!split)
 				{
-					String&el = list.first();
-					while (el.length())
+					String&el = list.First();
+					while (el.GetLength())
 					{
 						bool printed=false;
-						for (unsigned i = 1; i <= el.length(); i++)
+						for (unsigned i = 1; i <= el.GetLength(); i++)
 							if (textout.GetUnscaledWidth(el.c_str(),i)*font_x > len)
 							{
 								lines.add(el.subString(0,i));
@@ -307,7 +307,7 @@ namespace Engine
 		void VisualConsole<GL,Font>::print(const String&line, bool word_wrap)
 		{
 		    String local = line;
-		    while (local.length())
+		    while (local.GetLength())
 		    {
 		        unsigned nl = local.GetIndexOf('\n');
 		        if (nl)

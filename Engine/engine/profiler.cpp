@@ -83,9 +83,9 @@ namespace Engine
 		
 		void		Channel::setResolution(unsigned res)
 		{
-			if (res == history.length())
+			if (res == history.GetLength())
 				return;
-			count_t old = history.length();
+			count_t old = history.GetLength();
 			history.ResizePreserveContent(res);
 			history.Fill(0,old);
 			//weighted_history.resizeCopy(res);
@@ -98,7 +98,7 @@ namespace Engine
 		
 		void		Channel::advance()
 		{
-			if (!history.length())
+			if (!history.GetLength())
 				return;
 			history.shiftDown();
 			minimum_history.shiftDown();
@@ -113,24 +113,24 @@ namespace Engine
 				//weighted_accumulated = 0;
 				maximum = minimum = 0;
 			}
-			history.last() = (faccumulated + timer.toSecondsf(accumulated))/counter;
+			history.Last() = (faccumulated + timer.toSecondsf(accumulated))/counter;
 			if (faccumulated > 0)
 			{
 				if (accumulated > 0)
 				{
-					minimum_history.last() = M::vmin(fminimum,timer.toSecondsf(minimum));
-					maximum_history.last() = M::vmax(fmaximum,timer.toSecondsf(maximum));
+					minimum_history.Last() = M::vmin(fminimum,timer.toSecondsf(minimum));
+					maximum_history.Last() = M::vmax(fmaximum,timer.toSecondsf(maximum));
 				}
 				else
 				{
-					minimum_history.last() = fminimum;
-					maximum_history.last() = fmaximum;
+					minimum_history.Last() = fminimum;
+					maximum_history.Last() = fmaximum;
 				}
 			}
 			else
 			{
-				minimum_history.last() = timer.toSecondsf(minimum);
-				maximum_history.last() = timer.toSecondsf(maximum);
+				minimum_history.Last() = timer.toSecondsf(minimum);
+				maximum_history.Last() = timer.toSecondsf(maximum);
 			}
 			
 			
@@ -138,7 +138,7 @@ namespace Engine
 			weighted_history.shiftLeft();
 			if (!weighted_counter)
 				weighted_counter = 1;
-			weighted_history.last() = (timer.toSecondsf(weighted_accumulated))/weighted_counter;
+			weighted_history.Last() = (timer.toSecondsf(weighted_accumulated))/weighted_counter;
 			*/
 			
 		

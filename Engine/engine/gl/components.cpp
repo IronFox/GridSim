@@ -23,7 +23,7 @@ namespace Engine
 		{
 			if (children.IsEmpty())
 				return false;
-			const PComponent&first = children.first();
+			const PComponent&first = children.First();
 			outRect = first->currentRegion;
 				
 			for (index_t i = 1; i < children.Count(); i++)
@@ -39,7 +39,7 @@ namespace Engine
 			DBG_ASSERT__(!children.Contains(component));
 			component->anchored.Set(true,false,false,true);
 			if (children.IsNotEmpty())
-				component->offset.top = children.last()->offset.top-children.last()->height;
+				component->offset.top = children.Last()->offset.top-children.Last()->height;
 			else
 				component->offset.top = 0;
 			component->offset.left = 0;
@@ -54,9 +54,9 @@ namespace Engine
 			DBG_ASSERT__(!children.Contains(component));
 			if (children.IsNotEmpty())
 			{
-				component->anchored = children.last()->anchored;
-				component->offset.top = children.last()->offset.top;
-				component->offset.left = children.last()->offset.left+children.last()->width;
+				component->anchored = children.Last()->anchored;
+				component->offset.top = children.Last()->offset.top;
+				component->offset.left = children.Last()->offset.left+children.Last()->width;
 			}
 			else
 			{
@@ -1255,7 +1255,7 @@ namespace Engine
 		{
 			component->anchored.Set(true,false,false,true);
 			if (children.IsNotEmpty())
-				component->offset.top = children.last()->offset.top-children.last()->height;
+				component->offset.top = children.Last()->offset.top-children.Last()->height;
 			else
 				component->offset.top = 0;
 			component->offset.left = 0;
@@ -1315,7 +1315,7 @@ namespace Engine
 
 			renderer.PeekColor();
 
-			size_t end = M::Min(viewEnd,text.length());
+			size_t end = M::Min(viewEnd,text.GetLength());
 			if (end>viewBegin)
 			{
 				renderer.Clip(cellLayout.client);
@@ -1386,7 +1386,7 @@ namespace Engine
 			if (goRight && !viewRightMost)
 			{
 				viewBegin++;
-				if (cursor < text.length())
+				if (cursor < text.GetLength())
 					cursor++;
 				_UpdateView();
 				return RequestingRepaint;
@@ -1416,7 +1416,7 @@ namespace Engine
 			{
 				//ShowMessage(String(x)+", "+String(y)+" is in "+cellLayout.client.ToString());
 				float rx = x - cellLayout.client.left();
-				size_t end = M::Min(viewEnd-1+viewRightMost,text.length());
+				size_t end = M::Min(viewEnd-1+viewRightMost,text.GetLength());
 				index_t index=viewBegin;
 				for (; index < end; index++)
 				{
@@ -1440,7 +1440,7 @@ namespace Engine
 		{
 			float rx = x - cellLayout.client.left();
 			goLeft = rx < 0;
-			size_t end = M::Min(viewEnd-1+viewRightMost,text.length());
+			size_t end = M::Min(viewEnd-1+viewRightMost,text.GetLength());
 			index_t index=viewBegin;
 			for (; index < end; index++)
 			{
@@ -1469,14 +1469,14 @@ namespace Engine
 			switch (key)
 			{
 				case Key::Left:
-					if (cursor && text.length())
+					if (cursor && text.GetLength())
 					{
 						if (!input.pressed[Key::Ctrl])
 							cursor--;
 						else
 						{
-							if (cursor >= text.length())
-								cursor = text.length()-1;
+							if (cursor >= text.GetLength())
+								cursor = text.GetLength()-1;
 							while (cursor && IsWhitespace(text[cursor-1]))
 								cursor--;
 							while (cursor && !IsWhitespace(text[cursor-1]))
@@ -1491,15 +1491,15 @@ namespace Engine
 					}
 				break;
 				case Key::Right:
-					if (cursor<text.length())
+					if (cursor<text.GetLength())
 					{
 						if (!input.pressed[Key::Ctrl])
 							cursor++;
 						else
 						{
-							while (cursor<text.length() && !IsWhitespace(text[cursor]))
+							while (cursor<text.GetLength() && !IsWhitespace(text[cursor]))
 								cursor++;
-							while (cursor<text.length() && IsWhitespace(text[cursor]))
+							while (cursor<text.GetLength() && IsWhitespace(text[cursor]))
 								cursor++;
 							//if (cursor && !isWhitespace(text[cursor-1])
 						}
@@ -1521,9 +1521,9 @@ namespace Engine
 					}
 				break;
 				case Key::End:
-					if (cursor<text.length() && !readOnly)
+					if (cursor<text.GetLength() && !readOnly)
 					{
-						cursor = text.length();
+						cursor = text.GetLength();
 						if (!input.pressed[Key::Shift])
 							selectionStart = cursor;
 						_UpdateView();
@@ -1680,17 +1680,17 @@ namespace Engine
 		
 		void	Edit::_UpdateView()
 		{
-			if (cursor > text.length())
-				cursor = text.length();
-			if (viewBegin >= text.length())
-				viewBegin = text.length()?text.length()-1:0;
+			if (cursor > text.GetLength())
+				cursor = text.GetLength();
+			if (viewBegin >= text.GetLength())
+				viewBegin = text.GetLength()?text.GetLength()-1:0;
 			if (cursor < viewBegin)
 				viewBegin = cursor;
 			else
 				while (_GetTextWidth(text.pointer()+viewBegin,cursor-viewBegin)>cellLayout.client.GetWidth())
 					viewBegin++;
 			viewEnd = viewBegin+1;
-			while (viewEnd < text.length() && _GetTextWidth(text.pointer()+viewBegin,viewEnd-viewBegin)<cellLayout.client.GetWidth())
+			while (viewEnd < text.GetLength() && _GetTextWidth(text.pointer()+viewBegin,viewEnd-viewBegin)<cellLayout.client.GetWidth())
 				viewEnd++;
 			viewRightMost = _GetTextWidth(text.pointer()+viewBegin,viewEnd-viewBegin)<cellLayout.client.GetWidth();
 			//if (textout.unscaledLength(text.root()+viewBegin,viewEnd-viewBegin)>=cellLayout.client.GetWidth())
@@ -2884,13 +2884,13 @@ namespace Engine
 			message_label->SetText(Query);
 			message_label->anchored.Set(true,true,true,true);
 			panel->Add(message_label);
-			panel->Add(buttons.first());
-			buttons.first()->anchored.Set(true,true,false,false);
+			panel->Add(buttons.First());
+			buttons.First()->anchored.Set(true,true,false,false);
 
 			for (index_t i = 1; i < buttons.Count(); i++)
 				panel->AppendRight(buttons[i]);
 
-			message_label->offset.bottom = buttons.first()->height;
+			message_label->offset.bottom = buttons.First()->height;
 
 			PWindow	window = Window::CreateNew(NewWindowConfig(title,WindowPosition(0,0,400,200,SizeChange::Fixed),true),panel);
 			window->size.height = (size_t)(window->fsize.y = window->GetMinHeight());
