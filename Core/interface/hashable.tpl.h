@@ -8,14 +8,13 @@ namespace GlobalHashFunctions
 	template <typename T0, typename T1>
 		inline hash_t 			Hash(const std::pair<T0,T1>&ident)
 		{
-			hash_t	result = Hash(ident.first);
-			result *= 17;
-			result += Hash(ident.second);
-			return result;
+			using GlobalHashFunctions::Hash;
+			return CombineHashes(Hash(ident.first),Hash(ident.second));
 		}
 
 
 }
+
 
 
 
@@ -25,10 +24,7 @@ template <typename T>
 		using GlobalHashFunctions::Hash;
 		hash_t	result = 0;
 		for (size_t i = 0; i < length; i++)
-		{
-			result *= 17;
-			result += Hash(field[i]);
-		}
+			result = CombineHashes(result,Hash(field[i]));
 		return result;
 	}
 

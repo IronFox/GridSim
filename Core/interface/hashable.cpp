@@ -3,6 +3,11 @@
 
 namespace DeltaWorks
 {
+	hash_t	CombineHashes(hash_t currentHash, hash_t additionalHash)
+	{
+		//https://stackoverflow.com/questions/2590677/how-do-i-combine-hash-values-in-c0x (boost, probably)
+		return currentHash ^ ( additionalHash + 0x9e3779b9 + (currentHash<<6) + (currentHash>>2) );
+	}
 
 	namespace GlobalHashFunctions
 	{

@@ -7,7 +7,13 @@
 namespace DeltaWorks
 {
 
-
+	/**
+	Combines two hash values into a new one
+	@param currentHash Continuous (current) hash value
+	@param additionalHash Hash to include into the combined hash value
+	@return Combined hash value, to use as currentHash in future combinations
+	*/
+	hash_t	CombineHashes(hash_t currentHash, hash_t additionalHash);
 
 
 
