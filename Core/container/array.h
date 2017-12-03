@@ -67,6 +67,8 @@ namespace DeltaWorks
 
 		template <typename T>
 			class ArrayRef;
+		template <typename T>
+			class ConstArrayRef;
 
 		/**
 			@brief Array with a fixed number of elements
@@ -165,7 +167,7 @@ namespace DeltaWorks
 					Super::operator=(other);
 				}
 
-				void					operator=(const ArrayRef<const T>&other);
+				void					operator=(const ConstArrayRef<const T>&other);
 
 				bool					operator==(const Self&other) const
 				{
@@ -232,17 +234,15 @@ namespace DeltaWorks
 				T*				data;
 				count_t			elements;
 
-				ConstArrayRef():data(nullptr),elements(0)	{}
-				ConstArrayRef(T*data, count_t elements):data(data),elements(elements)	{}
-				ConstArrayRef(T&element):data(&element),elements(1)	{}
 			public:
 				typedef ConstArrayRef<T>	Self;
 				typedef const T*	const_iterator;
 
 
-				virtual				 ~ConstArrayRef()	{}
-
-
+				/**/				ConstArrayRef():data(nullptr),elements(0)	{}
+				/**/				ConstArrayRef(T*data, count_t elements):data(data),elements(elements)	{}
+				/**/				ConstArrayRef(T&element):data(&element),elements(1)	{}
+				virtual				~ConstArrayRef()	{}
 
 				operator ConstArrayRef<const T>() const {return ConstArrayRef<const T>(data,elements);}
 
@@ -701,41 +701,6 @@ namespace DeltaWorks
 										return data[index];
 									}
 
-				template <typename T1>
-					inline bool		operator==(const ArrayRef<T1>&other) const //! Equality query \return true if all elements of the local array are identical to their respective counter parts in \b other. Equality is queried via the = operator.
-									{
-										return Super::operator==(other);
-									}
-				
-				template <typename T1>
-					inline bool		operator!=(const ArrayRef<T1>&other) const //! Equality query
-									{
-										return Super::operator!=(other);
-									}
-
-				template <typename T1>
-					inline bool		operator>(const ArrayRef<T1>&other) const //! Dictionary comparison
-									{
-										return Super::operator>(other);
-									}
-
-				template <typename T1>
-					inline bool		operator<(const ArrayRef<T1>&other) const //! Dictionary comparison
-									{
-										return Super::operator<(other);
-									}
-
-				template <typename T1>
-					inline bool		operator>=(const ArrayRef<T1>&other) const //! Dictionary comparison
-									{
-										return Super::operator>=(other);
-									}
-
-				template <typename T1>
-					inline bool		operator<=(const ArrayRef<T1>&other) const //! Dictionary comparison
-									{
-										return Super::operator<=(other);
-									}
 
 				template <typename T1>
 					inline	void	Fill(const T1&element, count_t offset=0, count_t max=InvalidIndex)	//! Sets up to \b max elements starting from @b offset of the local array to \b element \param element Element to repeat @param offset First index \param max If specified: Maximum number of elements to set to \b element
@@ -816,7 +781,7 @@ namespace DeltaWorks
 
 
 		template <typename T, size_t Length, class MyStrategy>
-			void FixedArray<T,Length,MyStrategy>::operator=(const ArrayRef<const T>&other) 
+			void FixedArray<T,Length,MyStrategy>::operator=(const ConstArrayRef<const T>&other) 
 			{
 				ASSERT__(Length == other.GetLength());
 				for (index_t i = 0; i < Length; i++)
@@ -1111,6 +1076,7 @@ namespace DeltaWorks
 			class Array: public ArrayData<C>
 			{
 				typedef ArrayData<C>	Super;
+				typedef Array<C,MyStrategy>	Self;
 				protected:
 					#ifdef __GNUC__
 						using ArrayData<C>::data;
@@ -1171,14 +1137,14 @@ namespace DeltaWorks
 						{
 							MyStrategy::copyElements(other.data,data,elements);
 						}
-				
+
 					template <class T>
-						inline	Array(const ArrayRef<T>&other):Data(other.Count())
+						inline	Array(const ConstArrayRef<T>&other):Data(other.Count())
 						{
 							MyStrategy::copyElements(other.GetPointer(),data,elements);
 						}
 				
-						inline	Array(const ArrayRef<C>&other):Data(other.Count())
+						inline	Array(const ConstArrayRef<C>&other):Data(other.Count())
 						{
 							MyStrategy::copyElements(other.GetPointer(),data,elements);
 						}
@@ -1199,27 +1165,10 @@ namespace DeltaWorks
 							}
 				#endif
 
-				
-							inline Array<C,MyStrategy>& operator=(const Array<C,MyStrategy>&other) //! Assignment operator
-							{
-								if (&other == this)
-									return *this;
-								reloc(data,elements,other.elements);
-								MyStrategy::copyElements(other.data,data,elements);
-								return *this;
-							}
 
-							inline Array<C,MyStrategy>& operator=(const ArrayRef<C>&other) //! Assignment operator
-							{
-								if (&other == this)
-									return *this;
-								reloc(data,elements,other.Count());
-								MyStrategy::copyElements(other.GetPointer(),data,elements);
-								return *this;
-							}
 				
 						template <class T, class OtherStrategy>
-							inline Array<C,MyStrategy>& operator=(const Array<T,OtherStrategy>&other) //! Assignment operator. Copies each element via the = operator
+							inline Self& operator=(const Array<T,OtherStrategy>&other) //! Assignment operator. Copies each element via the = operator
 							{
 								if ((const Array<C,MyStrategy>*)&other == this)	//this should not happen but anyway
 									return *this;
@@ -1227,18 +1176,27 @@ namespace DeltaWorks
 								HybridStrategy<MyStrategy,OtherStrategy>::copyElements(other.pointer(),data,elements);
 								return *this;
 							}
+
+							inline Self& operator=(const Self&other) //! Assignment operator. Copies each element via the = operator
+							{
+								return Copy(other);
+							}
 				
 				
 						template <class T>
-							inline Array<C,MyStrategy>& operator=(const ArrayRef<T>&other) //! Assignment operator. Copies each element via the = operator
+							inline Self& operator=(const ConstArrayRef<T>&other) //! Assignment operator. Copies each element via the = operator
 							{
-								if ((const ArrayRef<C>*)&other == this)	//this should not happen but anyway
+								return Copy(other);
+							}
+						template <class T>
+							inline Self& Copy(const ConstArrayRef<T>&other) //! Assignment operator. Copies each element via the = operator
+							{
+								if (((const ConstArrayRef<T>*)this) == &other)	//this should not happen but anyway
 									return *this;
 								reloc(data,elements,other.Count());
 								MyStrategy::copyElements(other.GetPointer(),data,elements);
 								return *this;
 							}
-				
 							
 							inline	C		shiftDown()	//!< Moves all array elements down, starting with the first, finishing with one before the last element. Elements are copied via the = operator. The original first element of the array will be removed from the array, the last one duplicated. @return Original (dropped) first element
 							{
