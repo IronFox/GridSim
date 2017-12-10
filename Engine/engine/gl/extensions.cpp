@@ -877,6 +877,11 @@ namespace Engine
 
 		bool		_ExtractFileContent(const String&filename, String&target)
 		{
+			if (filename.IsEmpty())
+			{
+				target = "";
+				return true;
+			}
 			FileStream	file(filename.c_str(),FileStream::StandardRead);
 			if (!file.isOpen())
 			{
