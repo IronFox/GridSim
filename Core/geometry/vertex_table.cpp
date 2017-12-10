@@ -38,7 +38,7 @@ namespace DeltaWorks
 			return carrier->cast();
 		
 		index_t result = position_map.Count();
-		TPosition&fp = position_map.append();
+		TPosition&fp = position_map.Append();
 		fp.x = position[0];
 		fp.y = position[1];
 		fp.z = position[2];

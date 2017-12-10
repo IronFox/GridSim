@@ -1573,7 +1573,7 @@ namespace Engine
 		
 		void		Renderer::Clip(const M::Rect<float>&region)	//!< Focuses on an area by applying the current viewport and translation to the specified region and further limiting the viewport. The existing translation will be modified by dx and dy
 		{
-			M::Rect<int>&next = clipStack.append();
+			M::Rect<int>&next = clipStack.Append();
 			//next = region;
 			next.x.min = (int)floor(region.x.min);
 			next.y.min = (int)floor(region.y.min);

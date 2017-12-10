@@ -39,7 +39,7 @@ namespace DeltaWorks
 			BYTE section(0);
 			while (*start == ' ')
 				start++;
-			M::TVec3<Def::FloatType>&v = target.append();
+			M::TVec3<Def::FloatType>&v = target.Append();
 			while (start < end && section < 3)
 			{
 				char*seg_end = start;
@@ -62,7 +62,7 @@ namespace DeltaWorks
 			BYTE section(0);
 			while (*start == ' ')
 				start++;
-			M::TVec2<Def::FloatType>&v = target.append();
+			M::TVec2<Def::FloatType>&v = target.Append();
 			while (start < end && section < 2)
 			{
 				char*seg_end = start;
@@ -145,7 +145,7 @@ namespace DeltaWorks
 				FATAL__("bad buffer state ("+String(ibuffer.Count())+")");
 			if (ibuffer.Count()==9)
 			{
-				TObjFace&face = current_group->face_buffer.append();
+				TObjFace&face = current_group->face_buffer.Append();
 				face.smooth_group = current_smooth_group;
 				face.material = current_material;
 				face.v[0] = ibuffer[0];
@@ -163,7 +163,7 @@ namespace DeltaWorks
 			}
 			elif (ibuffer.Count()==12)
 			{
-				TObjFace&face = current_group->face_buffer.append();
+				TObjFace&face = current_group->face_buffer.Append();
 				face.smooth_group = current_smooth_group;
 				face.material = current_material;
 				face.v[0] = ibuffer[0];
@@ -209,7 +209,7 @@ namespace DeltaWorks
 				if (_oTriangulate(tfield,triangulated))
 					for (index_t i = 0; i < triangulated.triangle_field.GetLength(); i++)
 					{
-						TObjFace&face = current_group->face_buffer.append();
+						TObjFace&face = current_group->face_buffer.Append();
 						face.smooth_group = current_smooth_group;
 						face.material = current_material;
 					
@@ -235,7 +235,7 @@ namespace DeltaWorks
 					logMessage("Warning: Triangulation failed for: (n"+M::Vec::toString(normal)+") "+String(tfield.GetLength()));
 					for (index_t i = 1; i < vertices-1; i++)
 					{
-						TObjFace&face = current_group->face_buffer.append();
+						TObjFace&face = current_group->face_buffer.Append();
 						face.smooth_group = current_smooth_group;
 						face.material = current_material;
 					
@@ -658,7 +658,7 @@ namespace DeltaWorks
 					{
 						if (!current_material)
 						{
-							current_material = material_list.append();
+							current_material = material_list.Append();
 							current_material->name = "nil";
 						}
 						parseObjFace(start+2,end);
@@ -789,7 +789,7 @@ namespace DeltaWorks
 		
 
 			resetImport();
-			//current_material = material_list.append();
+			//current_material = material_list.Append();
 			//current_material->name = "nil";
 			fseek(f,0,SEEK_SET);
 		
@@ -1046,7 +1046,7 @@ namespace DeltaWorks
 						if (face.v[3]!=0)
 						{
 						
-							TObjQuadT&q = s->tex_quads.append();
+							TObjQuadT&q = s->tex_quads.Append();
 							GETNT(face.v[0],face.n[0],face.t[0],v);
 							q.v[0] = s->tex_vertices.add(v);
 							GETNT(face.v[1],face.n[1],face.t[1],v);
@@ -1061,7 +1061,7 @@ namespace DeltaWorks
 						else
 						{
 
-							TObjTriangleT&q = s->tex_triangles.append();
+							TObjTriangleT&q = s->tex_triangles.Append();
 							GETNT(face.v[0],face.n[0],face.t[0],v);
 							q.v[0] = s->tex_vertices.add(v);
 							GETNT(face.v[1],face.n[1],face.t[1],v);
@@ -1077,7 +1077,7 @@ namespace DeltaWorks
 						ObjVertexN	v(0.0);
 						if (face.v[3]!=0)
 						{
-							TObjQuad&q = s->quads.append();
+							TObjQuad&q = s->quads.Append();
 							GETN(face.v[0],face.n[0],v);
 							q.v[0] = s->vertices.add(v);
 							GETN(face.v[1],face.n[1],v);
@@ -1089,7 +1089,7 @@ namespace DeltaWorks
 						}
 						else
 						{
-							TObjTriangle&q = s->triangles.append();
+							TObjTriangle&q = s->triangles.Append();
 							GETN(face.v[0],face.n[0],v);
 							q.v[0] = s->vertices.add(v);
 							GETN(face.v[1],face.n[1],v);
@@ -1288,7 +1288,7 @@ namespace DeltaWorks
 						setProgress((float)index/(float)total);
 					if (face.v[3]!=0)
 					{
-						TPoolQuad&q = quad_buffer.append();
+						TPoolQuad&q = quad_buffer.Append();
 						for (BYTE k = 0; k < 4; k++)
 						{
 							count_t	vi = face.v[k]<0?vertices-face.v[k]:face.v[k]-1;
@@ -1301,7 +1301,7 @@ namespace DeltaWorks
 					}
 					else
 					{
-						TPoolTriangle&q = triangle_buffer.append();
+						TPoolTriangle&q = triangle_buffer.Append();
 						for (BYTE k = 0; k < 3; k++)
 						{
 							index_t	vi = face.v[k]<0?vertexBuffer.Count()-face.v[k]:face.v[k]-1;

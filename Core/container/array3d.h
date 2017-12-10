@@ -280,7 +280,7 @@ namespace DeltaWorks
 				using Super::SetSize;
 				using Super::ResizePreserveContent;
 				using Super::erase;
-				using Super::append;
+				using Super::Append;
 
 			};
 	}

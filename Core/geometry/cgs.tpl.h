@@ -3325,7 +3325,7 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 			riff.Enter();
 				if (riff.FindFirst("MATR"))
 				{
-					MaterialA<Def>&material = mbuffer.append();
+					MaterialA<Def>&material = mbuffer.Append();
 					
 					riff.OpenStream();
 					UINT32 flags;
@@ -3378,7 +3378,7 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 							}
 							riff.CloseStream();
 							
-							TLayer&layer = lbuffer.append();
+							TLayer&layer = lbuffer.Append();
 							layer.source_name = layr.sname;
 							layer.cube_map = false;
 							layer.mirror_map = !!(layr.flags&MirrorFlag);
@@ -3503,7 +3503,7 @@ template <class Def> void Geometry<Def>::loadMaterials(Riff::File&riff)//, bool 
 									{
 										if (riff.GetSize() == rinf.vcnt*VSIZE(material.data.coord_layers,rinf.vflags)*sizeof(typename Def::FloatType))
 										{
-											object = &obuffer.append();
+											object = &obuffer.Append();
 											object->tname = rinf.tname;
 											object->detail = rinf.detail;
 											object->vpool.SetSize(rinf.vcnt,material.data.coord_layers,rinf.vflags);

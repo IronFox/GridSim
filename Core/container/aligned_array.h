@@ -362,7 +362,7 @@ namespace DeltaWorks
 						data[i] = origin.data[i];
 				}
 			
-			inline C&	append()	//!< Appends a singular element to the end of the array and returns a reference to it. append() has to allocate a new array, copy the contents of the old array and delete the old array. Copying is performed via the = operator @return Reference to the appended element
+			inline C&	Append()	//!< Appends a singular element to the end of the array and returns a reference to it. Append() has to allocate a new array, copy the contents of the old array and delete the old array. Copying is performed via the = operator @return Reference to the appended element
 			{
 				resizeCopy(elements+1);
 				return data[elements-1];

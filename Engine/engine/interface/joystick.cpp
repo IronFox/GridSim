@@ -24,7 +24,7 @@ namespace Engine
 				bool isThere = joyGetPos(i,&dummy) == JOYERR_NOERROR;
 				if (!isThere)
 					continue;
-				State&st = active.append();
+				State&st = active.Append();
 				memset(&st.info,0,sizeof(st.info));
 				st.info.dwSize = sizeof(st.info);
 				st.info.dwFlags = JOY_RETURNALL;

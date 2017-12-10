@@ -1256,23 +1256,23 @@ namespace DeltaWorks
 							}
 				
 						template <class T>
-							inline void	resizeAndCopy(const T*origin, count_t length) //! Copies all elements from \b origin via the = operator overwriting any existing local elements \param origin Array to copy from (may be of a different entry type) \param count Number of elements to copy
+							inline void	ResizeAndCopy(const T*origin, count_t length) //! Copies all elements from \b origin via the = operator overwriting any existing local elements \param origin Array to copy from (may be of a different entry type) \param count Number of elements to copy
 							{
 								Super::SetSize(length);
 								MyStrategy::copyElements(origin,data,length);
 							}
 
 				
-						template <class T, class OtherStrategy>
-							inline void	resizeAndCopy(const Array<T,OtherStrategy>&origin, count_t max=Undefined) //! Copies all elements from \b origin via the = operator overwriting any existing local elements \param origin Array to copy from (may be of a different entry type) \param max Maximum number of elements to read
+						template <class T>
+							inline void	ResizeAndCopy(const ArrayRef<T>&origin, count_t max=Undefined) //! Copies all elements from \b origin via the = operator overwriting any existing local elements \param origin Array to copy from (may be of a different entry type) \param max Maximum number of elements to read
 							{
 								if (max > origin.Count())
 									max = origin.Count();
 								Super::SetSize(max);
-								HybridStrategy<MyStrategy,OtherStrategy>::copyElements(origin.pointer(),data,max);
+								MyStrategy::copyElements(origin.pointer(),data,max);
 							}
 			
-							inline C&	append()	//!< Appends a singular element to the end of the array and returns a reference to it. append() has to allocate a new array, copy the contents of the old array and delete the old array. Copying is performed via the = operator @return Reference to the appended element
+							inline C&	Append()	//!< Appends a singular element to the end of the array and returns a reference to it. Append() has to allocate a new array, copy the contents of the old array and delete the old array. Copying is performed via the = operator @return Reference to the appended element
 							{
 								ResizePreserveContent(elements+1);
 								return data[elements-1];
@@ -1282,7 +1282,7 @@ namespace DeltaWorks
 							inline C&	Insert(index_t beforeIndex)
 							{
 								if (beforeIndex >= elements)
-									return append();
+									return Append();
 
 								C	*new_field = alloc<C>(elements+1),
 									*at = new_field;

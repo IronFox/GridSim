@@ -341,7 +341,7 @@ namespace DeltaWorks
 						if (stream.IsEmpty() || stream.Last().state != ctarget->name)
 						{
 							stream.sequence_map.Set(ctarget->name).append(stream.GetLength());
-							stream.append().setState(ctarget->name).setRange(token - tokens.pointer(),token - tokens.pointer() + 1);
+							stream.Append().setState(ctarget->name).setRange(token - tokens.pointer(),token - tokens.pointer() + 1);
 						}
 						else
 							stream.Last().setEnd(token - tokens.pointer() + 1 );
@@ -371,7 +371,7 @@ namespace DeltaWorks
 								}
 								PARSE_STEP(8);
 							#endif
-							result.append().adoptData(stream);
+							result.Append().adoptData(stream);
 							stream.reset();	//should be implied by adoptData()
 							token_offset = minor-1;
 							abort = true;

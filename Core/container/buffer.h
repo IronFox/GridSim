@@ -95,17 +95,17 @@ namespace DeltaWorks
 				template <typename T2>
 					Self&				append(const T2*data, count_t elements);	//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified number of elements. The buffer will automatically be resized if necessary.
 				template <typename T2>
-					inline Self&		Append(const T2*data, count_t elements)		/**@copydoc append()*/ {return append(data,elements);}
+					inline Self&		Append(const T2*data, count_t elements)		/**@copydoc Append()*/ {return append(data,elements);}
 				template <typename T2>
 					Self&				Append(std::initializer_list<T2> items);
 				template <typename T2>
 					Self&				append(const Ctr::ArrayData<T2>&array);				//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified array's contained of elements. The buffer will automatically be resized if necessary.
 				template <typename T2>
-					inline Self&		Append(const Ctr::ArrayData<T2>&array)			/**@copydoc append()*/ {return append(array);}
+					inline Self&		Append(const Ctr::ArrayData<T2>&array)			/**@copydoc Append()*/ {return append(array);}
 				template <typename T2, typename Strategy2>
 					Self&				append(const BasicBuffer<T2,Strategy2>&buffer);	//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified array's contained of elements. The buffer will automatically be resized if necessary.
 				template <typename T2, typename Strategy2>
-					inline Self&		Append(const BasicBuffer<T2,Strategy2>&buffer)	/**@copydoc append()*/ {return append(buffer);}
+					inline Self&		Append(const BasicBuffer<T2,Strategy2>&buffer)	/**@copydoc Append()*/ {return append(buffer);}
 				template <typename T2>
 					Self&				appendAddresses(T2*data, count_t elements);	//!< Appends the addresses of the specified elements to the end of the buffer (assuming T is a pointer type fo T2). The buffer will automatically be resized if necessary.
 				template <typename T2>
@@ -134,17 +134,16 @@ namespace DeltaWorks
 				inline T*				AppendRow(count_t length)			/**@copydoc appendRow()*/ {return appendRow(length);}
 				inline T*				appendRow(count_t length, const T&pattern);			//!< Appends a number of elements and returns a pointer to the first element. The method returns NULL, if length is 0 @param length Number of elements to append. Must be greater 0 @param pattern Data to Fill newly appended elements with @return Pointer to the first of the appended elements or NULL, if an error occured
 				inline T*				AppendRow(count_t length, const T&pattern)			/**@copydoc appendRow()*/ {return appendRow(length,pattern);}
-				inline T&				append();							//!< Appends a single element and returns a reference to it
-				inline T&				Append()							/**@copydoc append()*/	{return append();}
+				inline T&				Append();							//!< Appends a single element and returns a reference to it
 				inline T&				append(const T&);					//!< Appends a single element via copy, and returns a reference to it in buffer storage
-				inline T&				Append(const T&element)				/**@copydoc append()*/	{return append(element);}
+				inline T&				Append(const T&element)				/**@copydoc Append()*/	{return append(element);}
 				inline index_t			appendIfNotFound(const T&);			//!< Appends a single element via copy, assuming an equal element does not already exist in the local buffer (compared via == operator) @return Index of the first found or the newly appended element
 				inline index_t			AppendIfNotFound(const T&element)	/**@copydoc appendIfNotFound()*/	{return appendIfNotFound(element);}
 				inline T&				moveAppend(T&);						//!< Appends a single element via move, and returns a reference to it in buffer storage
 				inline T&				MoveAppend(T&element)				/**@copydoc moveAppend()*/	{return moveAppend(element);}
 				#if __BUFFER_RVALUE_REFERENCES__
 					inline T&			append(T&&);						//!< Appends a single element via move, and returns a reference to it in buffer storage
-					inline T&			Append(T&&element)					/**@copydoc append()*/ {return append(std::move(element));}
+					inline T&			Append(T&&element)					/**@copydoc Append()*/ {return append(std::move(element));}
 					inline T&			MoveAppend(T&&element)				/**@copydoc moveAppend()*/ { return append(std::remove(element)); }
 				#endif
 

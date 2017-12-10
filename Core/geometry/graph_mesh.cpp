@@ -52,7 +52,7 @@ namespace DeltaWorks
 		for (index_t i = 0; i < xnodes->children.Count(); i++)
 		{
 			const XML::Node&xnode = xnodes->children[i];
-			Node&node = nodes.append();
+			Node&node = nodes.Append();
 			node.reset();
 		
 			parse(xnode,"position",node.position);
@@ -63,7 +63,7 @@ namespace DeltaWorks
 		for (index_t i = 0; i < xedges->children.Count(); i++)
 		{
 			const XML::Node&xedge = xedges->children[i];
-			Edge&edge = edges.append();
+			Edge&edge = edges.Append();
 			edge.reset();
 		
 			parse(xedge,"nodes",M::Vec::ref2(edge.node));
@@ -168,7 +168,7 @@ namespace DeltaWorks
 		bool simplify = true;
 		while (simplify)
 		{
-			ObjectMath::Object<TDef<float> >&cap = caps.append();
+			ObjectMath::Object<TDef<float> >&cap = caps.Append();
 		
 			shapes.reset();
 		
@@ -317,7 +317,7 @@ namespace DeltaWorks
 					{
 						float fc = (float)j/(resolution-1);
 						float p[2];
-						Shape::Node&sn = shape.nodes.append();
+						Shape::Node&sn = shape.nodes.Append();
 					
 						M::Vec::resolveNURBS2(n0.position,edge.control[0],edge.control[1],n1.position,fc,sn.position);
 						M::Vec::resolveNURBSaxis2(n0.position,edge.control[0],edge.control[1],n1.position,fc,sn.normal);
@@ -463,7 +463,7 @@ namespace DeltaWorks
 		for (unsigned i = 0; i < res_x; i++)
 		{
 			float fc = (float)i/(res_x-1);
-			Node&node = profile.append();
+			Node&node = profile.Append();
 			M::Vec::resolveBezierCurvePoint(n0.position,control[0],control[1],n1.position,fc,node.position);
 			M::Vec::resolveBezierCurveAxis(n0.position,control[0],control[1],n1.position,fc,node.direction);
 			if ((!i && !edge.control_dist[0]) || (i+1 == res_x && !edge.control_dist[1]))
@@ -488,7 +488,7 @@ namespace DeltaWorks
 			{
 				float fx = (float)x/(res_x-1);
 				const Node&node = profile[x];
-				SurfaceDescription::TVertex&vtx = desc.vertices.append();
+				SurfaceDescription::TVertex&vtx = desc.vertices.Append();
 				vtx.position.z = p.x;
 			
 				M::TVec2<> n = node.direction;
@@ -614,7 +614,7 @@ namespace DeltaWorks
 		for (unsigned i = 0; i < res_x; i++)
 		{
 			float fc = (float)i/(res_x-1);
-			Node&node = profile.append();
+			Node&node = profile.Append();
 			M::Vec::resolveBezierCurvePoint(n0.position,control[0],control[1],n1.position,fc,node.position);
 			M::Vec::resolveBezierCurveAxis(n0.position,control[0],control[1],n1.position,fc,node.direction);
 			if ((!i && !edge.control_dist[0]) || (i+1 == res_x && !edge.control_dist[1]))
@@ -640,7 +640,7 @@ namespace DeltaWorks
 			{
 				float fx = (float)x/(res_x-1);
 				const Node&node = profile[x];
-				TVertex&vtx = vout.append();
+				TVertex&vtx = vout.Append();
 				vtx.position.z = fz;
 			
 				M::TVec2<> n = node.direction;
@@ -715,7 +715,7 @@ namespace DeltaWorks
 	/*static*/		UINT32	Graph::insertInterpolatedVertex(Container::Buffer<SurfaceDescription::TVertex,0,POD>&vout,UINT32 v0_i,UINT32 v1_i,float factor)
 	{
 		UINT32 result = (UINT32)vout.Count();
-		SurfaceDescription::TVertex&new_vtx = vout.append();
+		SurfaceDescription::TVertex&new_vtx = vout.Append();
 
 		const SurfaceDescription::TVertex&v0 = vout[v0_i],
 							&v1 = vout[v1_i];
@@ -838,7 +838,7 @@ namespace DeltaWorks
 			count_t duplicate_to = desc_out.vertices.Count();
 			for (index_t i = 0; i < duplicate_to; i++)
 			{
-				SurfaceDescription::TVertex&duplicate = desc_out.vertices.append();
+				SurfaceDescription::TVertex&duplicate = desc_out.vertices.Append();
 				const SurfaceDescription::TVertex&original = desc_out.vertices[i];
 
 				duplicate.position.x = -original.position.x;
@@ -1115,11 +1115,11 @@ namespace DeltaWorks
 		bool can_reduce = true;
 		while (can_reduce)
 		{
-			CGS::RenderObjectA<>&robj = robjs.append();
+			CGS::RenderObjectA<>&robj = robjs.Append();
 			robj.target = target.object_field.pointer();
 			robj.tname = target.object_field.pointer()->name;
 
-			SurfaceDescription&visual_hull = visual_hulls.append();
+			SurfaceDescription&visual_hull = visual_hulls.Append();
 			visual_hull.Clear();
 		
 			can_reduce = false;
@@ -1334,7 +1334,7 @@ namespace DeltaWorks
 		for (index_t i = 0; i < xnodes->children.Count(); i++)
 		{
 			const XML::Node	&xnode = xnodes->children[i];
-			Graph::Node&node = nodes.append();
+			Graph::Node&node = nodes.Append();
 			node.reset();
 		
 			parse(xnode,"position",node.position);
@@ -1345,7 +1345,7 @@ namespace DeltaWorks
 		for (index_t i = 0; i < xedges->children.Count(); i++)
 		{
 			const XML::Node	&xedge = xedges->children[i];
-			Graph::Edge&edge = edges.append();
+			Graph::Edge&edge = edges.Append();
 			edge.reset();
 		
 			parse(xedge,"nodes",M::Vec::ref2(edge.node));
@@ -1377,7 +1377,7 @@ namespace DeltaWorks
 		for (index_t i = 0; i < xprofile->children.Count(); i++)
 		{
 			const XML::Node	&xnode = xprofile->children[i];
-			Profile::Node&node = nodes.append();
+			Profile::Node&node = nodes.Append();
 			node.reset();
 		
 			parse(xnode,"position",node.position);
@@ -1433,8 +1433,8 @@ namespace DeltaWorks
 
 		if (physical_profile.nodes.IsEmpty())
 		{
-			physical_profile.nodes.append().reset().moveTo(-1,0);
-			physical_profile.nodes.append().reset().moveTo(1,0);
+			physical_profile.nodes.Append().reset().moveTo(-1,0);
+			physical_profile.nodes.Append().reset().moveTo(1,0);
 		}
 	}
 
@@ -1684,7 +1684,7 @@ namespace DeltaWorks
 		arc_out.reset();
 		for (index_t i = 0; i < steps; i++)
 		{
-			TVertex&vtx = arc_out.append();
+			TVertex&vtx = arc_out.Append();
 			float fi = float(i) / float(steps-1);
 			slice.MakeVertex(fi,vtx);
 		}
@@ -1754,7 +1754,7 @@ namespace DeltaWorks
 			for (index_t i = 0; i < next_resolution; i++)
 			{
 				endEdges[0] << (UINT32)(next_resolution - i -1);
-				TVertex&vtx = this->vertices.append();
+				TVertex&vtx = this->vertices.Append();
 				float fi = float(i) / float(next_resolution-1);
 				next.MakeVertex(fi,vtx);
 			}
@@ -1779,7 +1779,7 @@ namespace DeltaWorks
 			M::Vec::cross(next.direction,next.up,right);
 			for (index_t j = 0; j < next_resolution; j++)
 			{
-				TVertex&vtx = this->vertices.append();
+				TVertex&vtx = this->vertices.Append();
 				float fi = float(j) / float(next_resolution-1);
 				next.MakeVertex(fi,vtx);
 				if (i+2 == steps.Count())
@@ -3167,7 +3167,7 @@ namespace DeltaWorks
 
 			//forward upper:
 			{
-				TVertex&vtx = vertices.append();
+				TVertex&vtx = vertices.Append();
 				M::Vec::mad(v.position,binormal,extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-near_distance);
 				vtx.normal = v.normal;
@@ -3178,7 +3178,7 @@ namespace DeltaWorks
 			}
 			//backward upper:
 			{
-				TVertex&vtx = vertices.append();
+				TVertex&vtx = vertices.Append();
 				M::Vec::mad(v.position,binormal,-extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-near_distance);
 				vtx.normal = v.normal;
@@ -3190,7 +3190,7 @@ namespace DeltaWorks
 
 			//forward lower:
 			{
-				TVertex&vtx = vertices.append();
+				TVertex&vtx = vertices.Append();
 				M::Vec::mad(v.position,binormal,extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-far_distance);
 				M::Vec::mult(v.normal,-1.f,vtx.normal);
@@ -3201,7 +3201,7 @@ namespace DeltaWorks
 			}
 			//backward lower:
 			{
-				TVertex&vtx = vertices.append();
+				TVertex&vtx = vertices.Append();
 				M::Vec::mad(v.position,binormal,-extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-far_distance);
 				M::Vec::mult(v.normal,-1.f,vtx.normal);
@@ -3223,7 +3223,7 @@ namespace DeltaWorks
 
 			//forward upper (front):
 			{
-				TVertex&vtx = vertices.append();
+				TVertex&vtx = vertices.Append();
 				M::Vec::mad(v.position,binormal,extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-near_distance);
 				vtx.normal = binormal;
@@ -3234,7 +3234,7 @@ namespace DeltaWorks
 			}
 			//forward lower (front):
 			{
-				TVertex&vtx = vertices.append();
+				TVertex&vtx = vertices.Append();
 				M::Vec::mad(v.position,binormal,extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-far_distance);
 				vtx.normal = binormal;
@@ -3246,7 +3246,7 @@ namespace DeltaWorks
 
 			//backward upper (back):
 			{
-				TVertex&vtx = vertices.append();
+				TVertex&vtx = vertices.Append();
 				M::Vec::mad(v.position,binormal,-extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-near_distance);
 				M::Vec::mult(binormal,-1.f,vtx.normal);
@@ -3258,7 +3258,7 @@ namespace DeltaWorks
 
 			//backward lower (back):
 			{
-				TVertex&vtx = vertices.append();
+				TVertex&vtx = vertices.Append();
 				M::Vec::mad(v.position,binormal,-extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-far_distance);
 				M::Vec::mult(binormal,-1.f,vtx.normal);
@@ -3276,7 +3276,7 @@ namespace DeltaWorks
 
 			//forward upper (front):
 			{
-				TVertex&vtx = vertices.append();
+				TVertex&vtx = vertices.Append();
 				M::Vec::mad(v.position,binormal,extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-near_distance);
 				vtx.normal = -float3::reinterpret(v.tangent);
@@ -3287,7 +3287,7 @@ namespace DeltaWorks
 			}
 			//forward lower (front):
 			{
-				TVertex&vtx = vertices.append();
+				TVertex&vtx = vertices.Append();
 				M::Vec::mad(v.position,binormal,extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-far_distance);
 				vtx.normal = -float3::reinterpret(v.tangent);
@@ -3299,7 +3299,7 @@ namespace DeltaWorks
 
 			//backward lower (back):
 			{
-				TVertex&vtx = vertices.append();
+				TVertex&vtx = vertices.Append();
 				M::Vec::mad(v.position,binormal,-extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-far_distance);
 				vtx.normal = -float3::reinterpret(v.tangent);
@@ -3310,7 +3310,7 @@ namespace DeltaWorks
 			}
 			//backward upper (back):
 			{
-				TVertex&vtx = vertices.append();
+				TVertex&vtx = vertices.Append();
 				M::Vec::mad(v.position,binormal,-extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-near_distance);
 				vtx.normal = -float3::reinterpret(v.tangent);
@@ -3330,7 +3330,7 @@ namespace DeltaWorks
 
 			//forward upper (front):
 			{
-				TVertex&vtx = vertices.append();
+				TVertex&vtx = vertices.Append();
 				M::Vec::mad(v.position,binormal,extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-near_distance);
 				vtx.normal = float3::reinterpret(v.tangent);
@@ -3341,7 +3341,7 @@ namespace DeltaWorks
 			}
 			//forward lower (front):
 			{
-				TVertex&vtx = vertices.append();
+				TVertex&vtx = vertices.Append();
 				M::Vec::mad(v.position,binormal,extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-far_distance);
 				vtx.normal = float3::reinterpret(v.tangent);
@@ -3355,7 +3355,7 @@ namespace DeltaWorks
 
 			//backward lower (back):
 			{
-				TVertex&vtx = vertices.append();
+				TVertex&vtx = vertices.Append();
 				M::Vec::mad(v.position,binormal,-extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-far_distance);
 				vtx.normal = float3::reinterpret(v.tangent);
@@ -3366,7 +3366,7 @@ namespace DeltaWorks
 			}
 			//backward upper (back):
 			{
-				TVertex&vtx = vertices.append();
+				TVertex&vtx = vertices.Append();
 				M::Vec::mad(v.position,binormal,-extend_along_track, vtx.position);
 				M::Vec::mad(vtx.position,v.normal,-near_distance);
 				vtx.normal = float3::reinterpret(v.tangent);
@@ -3601,7 +3601,7 @@ namespace DeltaWorks
 
 		for (index_t i = 0; i < lods.Count(); i++)
 		{
-			CGS::RenderObjectA<>&robj = robjs.append();
+			CGS::RenderObjectA<>&robj = robjs.Append();
 			robj.target = target.object_field.pointer();
 			robj.tname = target.object_field.pointer()->name;
 			robj.detail = (unsigned)i;
@@ -3732,7 +3732,7 @@ namespace DeltaWorks
 
 		for (index_t i = 0; i < lods.Count(); i++)
 		{
-			CGS::RenderObjectA<>&robj = robjs.append();
+			CGS::RenderObjectA<>&robj = robjs.Append();
 			robj.target = target.object_field.pointer();
 			robj.tname = target.object_field.pointer()->name;
 			robj.detail = (unsigned)i;

@@ -1518,7 +1518,7 @@ namespace DeltaWorks
 											normalsFromVertex = 0;
 										}
 				public:
-					/**/				Object():voffset(0),normalsFromVertex(0),normalsFromTriangle(0),normalsFromQuad(0), system(M::Matrix<typename Def::SystemType>::eye4)	{currentLOD = &lods.append();}
+					/**/				Object():voffset(0),normalsFromVertex(0),normalsFromTriangle(0),normalsFromQuad(0), system(M::Matrix<typename Def::SystemType>::eye4)	{currentLOD = &lods.Append();}
 					void				Clear()
 										{
 											lods.Truncate(1);
@@ -1562,7 +1562,7 @@ namespace DeltaWorks
 					void				AppendAndActivateNewLOD()
 										{
 											index_t result = lods.Count();
-											currentLOD = &lods.append();
+											currentLOD = &lods.Append();
 											_OnActiveLODChange();
 										}
 					/**
@@ -2246,7 +2246,7 @@ namespace DeltaWorks
 				#undef GetObject
 				Object&			GetObject(index_t index)		{return objects[index];}
 				const Object&	GetObject(index_t index)const	{return objects[index];}
-				Object&			AppendObject()	{Object&result = objects.append(); result.config = config; return result;}
+				Object&			AppendObject()	{Object&result = objects.Append(); result.config = config; return result;}
 				void			Clear()			{objects.reset();}
 				void			VerifyIntegrity(bool verifyAllVerticesAreUsed)	const;
 			};

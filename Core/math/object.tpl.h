@@ -698,7 +698,7 @@ template <class Def, class IndexType>
 			
 		for (index_t i = 0; i < max-min+1; i++)
 		{
-			Vtx&v = *object.vertices.append();
+			Vtx&v = *object.vertices.Append();
 			v.index = i+min;
 			v.marked = false;
 		}
@@ -706,7 +706,7 @@ template <class Def, class IndexType>
 		IndexType*p = triangle_index_field;
 		for (index_t i = 0; i < triangle_index_field.GetLength()/3; i++)
 		{
-			Tri&t = *object.triangles.append();
+			Tri&t = *object.triangles.Append();
 			t.v0 = object.vertices[(*p++)-min];
 			t.v1 = object.vertices[(*p++)-min];
 			t.v2 = object.vertices[(*p++)-min];
@@ -726,7 +726,7 @@ template <class Def, class IndexType>
 		p = quad_index_field;
 		for (index_t i = 0; i < quad_index_field.GetLength()/4; i++)
 		{
-			Quad&q = *object.quads.append();
+			Quad&q = *object.quads.Append();
 			q.v0 = object.vertices[(*p++)-min];
 			q.v1 = object.vertices[(*p++)-min];
 			q.v2 = object.vertices[(*p++)-min];
@@ -803,7 +803,7 @@ template <class Def, class IndexType> MF_DECLARE (void) _oMakeTriangleGraph(Mesh
 			}
 			if (!edge)
 			{
-				edge = edge_buffer.append();
+				edge = edge_buffer.Append();
 				edge->v0 = object.triangle_field[i].vertex[k];
 				edge->v1 = object.triangle_field[i].vertex[(k+1)%3];
 				edge->n[0].triangle = &object.triangle_field[i];
@@ -1153,7 +1153,7 @@ template <class Def, class IndexType>
 			
 		for (index_t i = 0; i < max-min+1; i++)
 		{
-			MeshVertex<TFaceGraphDef<Def> >*vtx = object.vertices.append();
+			MeshVertex<TFaceGraphDef<Def> >*vtx = object.vertices.Append();
 			vtx->index = i+min;
 			vtx->marked = false;
 		}
@@ -1163,7 +1163,7 @@ template <class Def, class IndexType>
 		{
 			for (index_t i = 0; i < tsegment_field[0]/3; i++)
 			{
-				Tri*t = object.triangles.append();
+				Tri*t = object.triangles.Append();
 				t->v0 = object.vertices.GetChar((*index++)-min);
 				t->v1 = object.vertices.GetChar((*index++)-min);
 				t->v2 = object.vertices.GetChar((*index++)-min);
@@ -1187,7 +1187,7 @@ template <class Def, class IndexType>
 				bool invert(false);
 				for (index_t i = 2; i < tsegment_field[j]; i++)
 				{
-					Tri*t = object.triangles.append();
+					Tri*t = object.triangles.Append();
 					IndexType i2 = (*index++);
 					if (!invert)
 					{
@@ -1225,7 +1225,7 @@ template <class Def, class IndexType>
 
 			for (index_t i = 0; i < qsegment_field[0]/4; i++)
 			{
-				Quad*q = object.quads.append();
+				Quad*q = object.quads.Append();
 				q->v0 = object.vertices.GetChar((*index++)-min);
 				q->v1 = object.vertices.GetChar((*index++)-min);
 				q->v2 = object.vertices.GetChar((*index++)-min);
@@ -1254,7 +1254,7 @@ template <class Def, class IndexType>
 				{
 					IndexType	i2 = (*index++),
 								i3 = (*index++);
-					Quad*q = object.quads.append();
+					Quad*q = object.quads.Append();
 					q->v0 = object.vertices.GetChar(i0-min);
 					q->v1 = object.vertices.GetChar(i1-min);
 					q->v2 = object.vertices.GetChar(i2-min);
@@ -2533,7 +2533,7 @@ template <class Def>
 						
 					BYTE me = q->requireIndexOf((Vertex*)this);
 					pivot = q->vertex[(me+1)%4];
-					Triangle*t = object.triangles.append();
+					Triangle*t = object.triangles.Append();
 					t->index = object.triangles-1;
 					t->marked = false;
 					t->attrib = 0;
@@ -2640,7 +2640,7 @@ template <class Def>
 // 						cout << q->ToString()<<" processed in "<<__LINE__<<endl;
 					BYTE me = q->requireIndexOf((Vertex*)this);
 					pivot = q->vertex[(me+1)%4];
-					Triangle*t = object.triangles.append();
+					Triangle*t = object.triangles.Append();
 					t->index = object.triangles-1;
 					t->marked = false;
 					t->attrib = 0;
@@ -2704,7 +2704,7 @@ template <class Def>
 					Quad*q = fbuffer[end].quad;
 // 						cout << q->ToString()<<" processed in "<<__LINE__<<endl;
 					BYTE me = q->requireIndexOf((Vertex*)this);
-					Triangle*t = object.triangles.append();
+					Triangle*t = object.triangles.Append();
 					t->index = object.triangles-1;
 					t->marked = false;
 					t->attrib = 0;
@@ -4216,7 +4216,7 @@ template <class Def>
 				if (!found)
 				{
 					index_t new_edge_i = edge_buffer.GetLength();
-					MeshEdge<Def>&edge = edge_buffer.append();
+					MeshEdge<Def>&edge = edge_buffer.Append();
 					edge.index = new_edge_i;
 					edge.v0 = vtx0;
 					edge.v1 = vtx1;
@@ -4280,7 +4280,7 @@ template <class Def>
 				if (!found)
 				{
 					index_t new_edge_i = edge_buffer.GetLength();
-					MeshEdge<Def>&edge = edge_buffer.append();
+					MeshEdge<Def>&edge = edge_buffer.Append();
 					edge.index = new_edge_i;
 					edge.v0 = vtx0;
 					edge.v1 = vtx1;
@@ -4480,7 +4480,7 @@ template <class Def>
 			
 		for (index_t i = 0; i < vertex_field.GetLength(); i++)
 		{
-			Vtx*v = object.vertices.append();
+			Vtx*v = object.vertices.Append();
 			v->index = i;
 			v->marked = false;
 			_c3(vertex_field[i].position,v->position);
@@ -4488,7 +4488,7 @@ template <class Def>
 		}
 		for (index_t i = 0; i < triangle_field.GetLength(); i++)
 		{
-			Tri*t = object.triangles.append();
+			Tri*t = object.triangles.Append();
 			const MeshTriangle<Def>&source = triangle_field[i];
 			t->v0 = object.vertices[source.v0-vertex_field];
 			t->v1 = object.vertices[source.v1-vertex_field];
@@ -4509,7 +4509,7 @@ template <class Def>
 		}
 		for (index_t i = 0; i < quad_field.GetLength(); i++)
 		{
-			Quad&q = *object.quads.append();
+			Quad&q = *object.quads.Append();
 			const MeshQuad<Def>&source = quad_field[i];
 			q.v0 = object.vertices.GetChar(source.v0-vertex_field);
 			q.v1 = object.vertices.GetChar(source.v1-vertex_field);
@@ -4535,7 +4535,7 @@ template <class Def>
 		if (include_edges)
 			for (index_t i = 0; i < edge_field.GetLength(); i++)
 			{
-				Edg&e = *object.edges.append();
+				Edg&e = *object.edges.Append();
 				const MeshEdge<Def>&source = edge_field[i];
 				e.v0 = object.vertices.GetChar(source.v0-vertex_field);
 				e.v1 = object.vertices.GetChar(source.v1-vertex_field);
@@ -4786,7 +4786,7 @@ template <class Def>
 			
 		for (index_t i = 0; i < vertex_field.GetLength(); i++)
 		{
-			Vtx*v = object.vertices.append();
+			Vtx*v = object.vertices.Append();
 			v->index = i;
 			v->marked = false;
 			_c3(vertex_field[i].position,v->position);
@@ -4794,7 +4794,7 @@ template <class Def>
 		}
 		for (index_t i = 0; i < triangle_field.GetLength(); i++)
 		{
-			Tri*t = object.triangles.append();
+			Tri*t = object.triangles.Append();
 			const MeshTriangle<Def>&source = triangle_field[i];
 			t->v0 = object.vertices[(source.v0-vertex_field)];
 			t->v1 = object.vertices[(source.v1-vertex_field)];
@@ -4812,7 +4812,7 @@ template <class Def>
 		}
 		for (index_t i = 0; i < quad_field.GetLength(); i++)
 		{
-			Quad*q = object.quads.append();
+			Quad*q = object.quads.Append();
 			const MeshQuad<Def>&source = quad_field[i];
 			q->v0 = object.vertices[source.v0-vertex_field];
 			q->v1 = object.vertices[source.v1-vertex_field];
@@ -4834,7 +4834,7 @@ template <class Def>
 			
 		for (index_t i = 0; i < edge_field.GetLength(); i++)
 		{
-			Edg*e = object.edges.append();
+			Edg*e = object.edges.Append();
 			const MeshEdge<Def>&source = edge_field[i];
 			e->v0 = object.vertices[source.v0-vertex_field];
 			e->v1 = object.vertices[source.v1-vertex_field];
@@ -7732,17 +7732,17 @@ template <typename Float>
 					buffer.Erase(index_t(0));
 					if (vol > 0)
 					{
-						updateNormal(triangles.append().Set(0,1,2,1,2,3));
-						updateNormal(triangles.append().Set(1,0,3,0,3,2));
-						updateNormal(triangles.append().Set(2,1,3,0,1,3));
-						updateNormal(triangles.append().Set(0,2,3,0,2,1));
+						updateNormal(triangles.Append().Set(0,1,2,1,2,3));
+						updateNormal(triangles.Append().Set(1,0,3,0,3,2));
+						updateNormal(triangles.Append().Set(2,1,3,0,1,3));
+						updateNormal(triangles.Append().Set(0,2,3,0,2,1));
 					}
 					else
 					{
-						updateNormal(triangles.append().Set(0,2,1,3,2,1));
-						updateNormal(triangles.append().Set(1,3,0,2,3,0));
-						updateNormal(triangles.append().Set(2,3,1,3,1,0));
-						updateNormal(triangles.append().Set(0,3,2,1,2,0));
+						updateNormal(triangles.Append().Set(0,2,1,3,2,1));
+						updateNormal(triangles.Append().Set(1,3,0,2,3,0));
+						updateNormal(triangles.Append().Set(2,3,1,3,1,0));
+						updateNormal(triangles.Append().Set(0,3,2,1,2,0));
 					}
 					return true;
 				}
@@ -7756,7 +7756,7 @@ template <typename Float> template <typename T>
 		ASSERT2__((triangles.Count()>0)==(vertices.Count()>0),triangles.Count(),vertices.Count());
 		if (!vertices.Count())
 		{
-			buffer.append().Set(point,0,0);
+			buffer.Append().Set(point,0,0);
 			if (!DetectTedrahedron())
 			{
 				return;
@@ -7887,7 +7887,7 @@ template <typename Float> template <typename T>
 					if (M::Vec::dot(axis,n.normal)<=0)	//got shadow edge
 					{
 						//logfile<< " shadow edge found"<<nl;
-						TEdge&edge = edges.append();
+						TEdge&edge = edges.Append();
 						edge.v0 = t.v[k];
 						edge.v1 = t.v[(k+1)%3];
 						edge.t0 = face;
@@ -7925,7 +7925,7 @@ template <typename Float> template <typename T>
 				
 				
 			UINT32 new_index = vertices.Count();
-			vertices.append().Set(point,0,0);
+			vertices.Append().Set(point,0,0);
 			//logfile<< "new point inserted to a total of "<<vertices.Count()<<" points"<<nl;
 				
 			/*for (unsigned i = 0; i < vertices.Count(); i++)
@@ -7937,7 +7937,7 @@ template <typename Float> template <typename T>
 				//logfile<< " inserting new face for edge "<<i<<"/"<<edges.Count()<<nl;
 				//logfile<< "  "<<edge.v0<<"-"<<edge.v1<<nl;
 				//ASSERT__(!triangles[edge.t1].flagged);
-				updateNormal(new_triangles.append().Set(edge.v0,edge.v1,new_index,edge.t1,UNSIGNED_UNDEF,UNSIGNED_UNDEF));
+				updateNormal(new_triangles.Append().Set(edge.v0,edge.v1,new_index,edge.t1,UNSIGNED_UNDEF,UNSIGNED_UNDEF));
 					
 				triangles[edge.t0].link.v[edge.index] = new_triangles.Count()-1;
 					

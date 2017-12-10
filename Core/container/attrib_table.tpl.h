@@ -60,10 +60,10 @@ namespace Attrib
 		{
 			finalized = false;
 			bool copyable = (flags&Copyable)!=0;
-			StaticTable<T>::configuration[copyable].attributes.append().length = 1;
-			StaticTable<T>::configuration[copyable].attribute_names.append().Set(name,flags);
-			StaticTable<T>::configuration[copyable].values.append()= initial_value;
-			TAttribute	&attrib = index_map.append();
+			StaticTable<T>::configuration[copyable].attributes.Append().length = 1;
+			StaticTable<T>::configuration[copyable].attribute_names.Append().Set(name,flags);
+			StaticTable<T>::configuration[copyable].values.Append()= initial_value;
+			TAttribute	&attrib = index_map.Append();
 			attrib.type = typeOf<T>();
 			attrib.field_index = StaticTable<T>::configuration[copyable].attributes.Count()-1;
 			attrib.global_id = index_map.Count()-1;
@@ -79,11 +79,11 @@ namespace Attrib
 		{
 			finalized = false;
 			bool copyable = (flags&Copyable)!=0;
-			StaticTable<T>::configuration[copyable].attributes.append().length = 2;
-			StaticTable<T>::configuration[copyable].attribute_names.append().Set(name,flags);
-			StaticTable<T>::configuration[copyable].values.append()= initial_value0;
-			StaticTable<T>::configuration[copyable].values.append()= initial_value1;
-			TAttribute	&attrib = index_map.append();
+			StaticTable<T>::configuration[copyable].attributes.Append().length = 2;
+			StaticTable<T>::configuration[copyable].attribute_names.Append().Set(name,flags);
+			StaticTable<T>::configuration[copyable].values.Append()= initial_value0;
+			StaticTable<T>::configuration[copyable].values.Append()= initial_value1;
+			TAttribute	&attrib = index_map.Append();
 			attrib.type = typeOf<T>();
 			attrib.field_index = StaticTable<T>::configuration[copyable].attributes.Count()-1;
 			attrib.global_id = index_map.Count()-1;
@@ -99,12 +99,12 @@ namespace Attrib
 		{
 			finalized = false;
 			bool copyable = (flags&Copyable)!=0;
-			StaticTable<T>::configuration[copyable].attributes.append().length = 3;
-			StaticTable<T>::configuration[copyable].attribute_names.append().Set(name,flags);
-			StaticTable<T>::configuration[copyable].values.append()= initial_value0;
-			StaticTable<T>::configuration[copyable].values.append()= initial_value1;
-			StaticTable<T>::configuration[copyable].values.append()= initial_value2;
-			TAttribute	&attrib = index_map.append();
+			StaticTable<T>::configuration[copyable].attributes.Append().length = 3;
+			StaticTable<T>::configuration[copyable].attribute_names.Append().Set(name,flags);
+			StaticTable<T>::configuration[copyable].values.Append()= initial_value0;
+			StaticTable<T>::configuration[copyable].values.Append()= initial_value1;
+			StaticTable<T>::configuration[copyable].values.Append()= initial_value2;
+			TAttribute	&attrib = index_map.Append();
 			attrib.type = typeOf<T>();
 			attrib.field_index = StaticTable<T>::configuration[copyable].attributes.Count()-1;
 			attrib.global_id = index_map.Count()-1;
@@ -120,11 +120,11 @@ namespace Attrib
 		{
 			finalized = false;
 			bool copyable = (flags&Copyable)!=0;
-			StaticTable<T>::configuration[copyable].attributes.append().length = length;
-			StaticTable<T>::configuration[copyable].attribute_names.append().Set(name,flags);
+			StaticTable<T>::configuration[copyable].attributes.Append().length = length;
+			StaticTable<T>::configuration[copyable].attribute_names.Append().Set(name,flags);
 			for (unsigned i = 0; i < length; i++)
-				StaticTable<T>::configuration[copyable].values.append()= initial_values[i];
-			TAttribute	&attrib = index_map.append();
+				StaticTable<T>::configuration[copyable].values.Append()= initial_values[i];
+			TAttribute	&attrib = index_map.Append();
 			attrib.type = typeOf<T>();
 			attrib.field_index = StaticTable<T>::configuration[copyable].attributes.Count()-1;
 			attrib.global_id = index_map.Count()-1;

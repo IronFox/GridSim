@@ -57,7 +57,7 @@ namespace DeltaWorks
 
 	void StringTokenizer::finish(char*root,const Pattern&p, TokenList&out)
 	{
-		TToken&t = out.append();
+		TToken&t = out.Append();
 		char old = root[p.length];
 		root[p.length] = 0;
 		t.ident = p.ident;
@@ -71,7 +71,7 @@ namespace DeltaWorks
 		char old = *current;
 		*current = 0;
 
-		TToken&t = out.append();
+		TToken&t = out.Append();
 		t.index = out.GetLength()-1;
 		t.ident = string_ident;
 		t.content = root;

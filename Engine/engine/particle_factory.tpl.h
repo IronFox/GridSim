@@ -167,7 +167,7 @@ namespace Engine
 	template <class GL, class Particle>
 		Particle& Particles<GL,Particle>::add(const M::TVec3<>&position, float size)
 		{
-			Particle&particle = Super::append();
+			Particle&particle = Super::Append();
 			M::Vec::copy(position,particle.xyz);
 			particle.size = size;
 			return particle;

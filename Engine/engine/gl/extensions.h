@@ -507,7 +507,7 @@
 
 					void					PredefineSampler(const char*samplerName, GLint samplerLevel)
 											{
-												SamplerAssignment&a = samplerAssignments.append();
+												SamplerAssignment&a = samplerAssignments.Append();
 												a.samplerName = samplerName;
 												a.samplerLevel = samplerLevel;
 											}

@@ -1097,7 +1097,7 @@ namespace DeltaWorks
 			{
 				std::cout << "processing child #"<<i<<" '"<<node->children[i].name<<"'"<<std::endl;
 				const XML::Node&xchild = node->children[i];
-				CXContext*child = pre_finalize_children.append();
+				CXContext*child = pre_finalize_children.Append();
 				child->parent = this;
 				child->LoadStacked(&xchild);
 		

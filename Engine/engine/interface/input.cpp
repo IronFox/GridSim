@@ -268,7 +268,7 @@ namespace Engine
 
 	void InputMap::regKey(const String&name, const std::function<void()>& cmd, Key::Name kname)
 	{
-		TKeyPreparation&p = preparation.append();
+		TKeyPreparation&p = preparation.Append();
 		p.name = name;
 		p.function_pointer = cmd;
 		p.snd_pointer = std::function<void()>();
@@ -279,7 +279,7 @@ namespace Engine
 
 	void InputMap::regKey(const String&name, const std::function<void()>& cmd, const std::function<void()>& ucmd, Key::Name kname)
 	{
-		TKeyPreparation&p = preparation.append();
+		TKeyPreparation&p = preparation.Append();
 		p.name = name;
 		p.function_pointer = cmd;
 		p.snd_pointer = ucmd;

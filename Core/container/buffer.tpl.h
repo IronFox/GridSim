@@ -460,7 +460,7 @@ template <typename T, typename MyStrategy>
 
 
 template <typename T, typename MyStrategy>
-	inline T&				BasicBuffer<T, MyStrategy>::append()
+	inline T&				BasicBuffer<T, MyStrategy>::Append()
 	{
 		ensureHasSpace();
 

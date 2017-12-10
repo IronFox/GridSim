@@ -338,7 +338,7 @@ namespace DeltaWorks
 
 	XML::Node&		XML::Node::NewChild(const String&name)
 	{
-		Node&rs = children.append();
+		Node&rs = children.Append();
 		rs.name = name;
 		return rs;
 	}
@@ -557,7 +557,7 @@ namespace DeltaWorks
 			}
 			else
 			{
-				Node		*sub = active_entry?&active_entry->children.append():&root_node;
+				Node		*sub = active_entry?&active_entry->children.Append():&root_node;
 				//sub->parent = active_entry;
 				parse_stack << active_entry;
 				active_entry = sub;
@@ -955,14 +955,14 @@ namespace DeltaWorks
 
 			if (next == InvalidIndex)
 			{
-				context = &context->children.append();
+				context = &context->children.Append();
 				context->name = components[i];
 			}
 			else
 				context = &context->children[next];
 		}
 		ASSERT_NOT_NULL__(context);
-		context = &context->children.append();
+		context = &context->children.Append();
 		context->name = components.Last();
 		context->inner_content = inner_content;
 		return *context;
@@ -1185,7 +1185,7 @@ namespace DeltaWorks
 	
 		Vector0<TScannerNode>	stack;
 		{
-			TScannerNode&current = stack.append();
+			TScannerNode&current = stack.Append();
 			current.rule = root;
 		}
 		PScannerRule rule = root;

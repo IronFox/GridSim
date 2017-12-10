@@ -1196,7 +1196,7 @@ namespace Engine
 				while (begin > str && (CharFunctions::isalnum(*begin) || *begin == '_'))
 					begin--;
 				begin++;
-				Initializer&init = initializers.append();
+				Initializer&init = initializers.Append();
 				init.variableName = String(begin,nameEnd-begin);
 
 				while (*valueBegin && IsWhitespace( *valueBegin ))
@@ -3194,7 +3194,7 @@ namespace Engine
 	
 			Template&				Template::PredefineUniformInt(const String&name, int value)
 			{
-				TUniformInit&init = uniformInit.append();
+				TUniformInit&init = uniformInit.Append();
 				init.name = name;
 				init.type = TUniformInit::Int;
 				init.ival = value;
@@ -3203,7 +3203,7 @@ namespace Engine
 	
 			Template&				Template::PredefineUniformFloat(const String&name, float value)
 			{
-				TUniformInit&init = uniformInit.append();
+				TUniformInit&init = uniformInit.Append();
 				init.name = name;
 				init.type = TUniformInit::Float;
 				init.fval = value;
@@ -3212,7 +3212,7 @@ namespace Engine
 
 			Template&				Template::PredefineUniformVec(const String&name, const M::TVec3<>&value)
 			{
-				TUniformInit&init = uniformInit.append();
+				TUniformInit&init = uniformInit.Append();
 				init.name = name;
 				init.type = TUniformInit::Float3;
 				init.f3val = value;
@@ -3465,7 +3465,7 @@ namespace Engine
 		}
 		{
 			index = depthBufferList.GetLength();
-			DepthBuffer&buffer = depthBufferList.append();
+			DepthBuffer&buffer = depthBufferList.Append();
 			buffer.resolution = res;
 			buffer.referenceCount = 1;
 			glGenRenderbuffers( 1, &buffer.handle );
