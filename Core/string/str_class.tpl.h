@@ -818,7 +818,7 @@ namespace StringType
 			}	
 		
 	template <typename T>
-			Template<T>::Template(const ConstArrayRef<T>&array)
+			Template<T>::Template(const ArrayRef<T>&array)
 			{
 				size_t len = array.Length();
 				while (len > 0 && array[len-1] == (T)0)
@@ -2553,7 +2553,7 @@ namespace StringType
 	
 
 	template <typename T>
-		Template<T>&	Template<T>::operator=(const ConstArrayRef<T>&string)
+		Template<T>&	Template<T>::operator=(const ArrayRef<T>&string)
 		{
 			//ASSERT_NOT_NULL__(Super::data);
 			STRING_METHOD_BEGIN("(const Ctr::ArrayData<T>&string)",string.pointer());

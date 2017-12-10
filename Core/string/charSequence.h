@@ -88,7 +88,7 @@ namespace DeltaWorks
 
 
 		template <typename T>
-			class Sequence : public ConstArrayRef<T>
+			class Sequence : public ArrayRef<T>
 			{
 			protected:
 				/**/			Sequence() {}
@@ -99,7 +99,7 @@ namespace DeltaWorks
 				typedef const T*const_iterator;
 				typedef Sequence<T>		Self;
 				typedef Sequence<const typename std::remove_const<T>::type> ConstSelf;
-				typedef ConstArrayRef<T>	Super;
+				typedef ArrayRef<T>	Super;
 
 				/**/			Sequence(T*str):Super(str,CharFunctions::strlen(str)) {}
 
@@ -115,7 +115,7 @@ namespace DeltaWorks
 				template <typename T2>
 					bool		EndsWith(const T2*str) const {return EndsWith(Sequence<const T2>(str));}
 				template <typename T2>
-					bool		EndsWith(const ConstArrayRef<T2>&string)	const;		//!< Returns true if the local string ends with the specified string, false otherwise
+					bool		EndsWith(const ArrayRef<T2>&string)	const;		//!< Returns true if the local string ends with the specified string, false otherwise
 				bool			EndsWith(T c) const
 								{
 									if (!Super::elements)
@@ -128,7 +128,7 @@ namespace DeltaWorks
 				template <typename T2>
 					bool		BeginsWith(const T2*str) const {return BeginsWith(Sequence<const T2>(str));}
 				template <typename T2>
-					bool		BeginsWith(const ConstArrayRef<T2>&string)	const;		//!< Returns true if the local string begins with the specified string, false otherwise
+					bool		BeginsWith(const ArrayRef<T2>&string)	const;		//!< Returns true if the local string begins with the specified string, false otherwise
 				bool			BeginsWith(T c) const
 								{
 									if (!Super::elements)
@@ -140,13 +140,13 @@ namespace DeltaWorks
 				*/
 				bool			BeginsWithIgnoreCase(const T*string)		const	{return BeginsWithIgnoreCase(ConstSelf(string));}
 				template <typename T2>
-					bool		BeginsWithIgnoreCase(const ConstArrayRef<T2>&string)	const;		//!< Returns true if the local string begins with the specified string, false otherwise
+					bool		BeginsWithIgnoreCase(const ArrayRef<T2>&string)	const;		//!< Returns true if the local string begins with the specified string, false otherwise
 				/**
 				Returns true if the local string ends with the specified string, false otherwise
 				*/
 				bool			EndsWithIgnoreCase(const T*string)			const	{return EndsWithIgnoreCase(ConstSelf(string));}
 				template <typename T2>
-					bool		EndsWithIgnoreCase(const ConstArrayRef<T2>&string)		const;		//!< Returns true if the local string ends with the specified string, false otherwise
+					bool		EndsWithIgnoreCase(const ArrayRef<T2>&string)		const;		//!< Returns true if the local string ends with the specified string, false otherwise
 
 
 				/**
@@ -180,7 +180,7 @@ namespace DeltaWorks
 				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
 				*/
 				template <typename T2>
-					index_t		FindLast(const ConstArrayRef<T2>&needle, index_t offset = InvalidIndex)	const;
+					index_t		FindLast(const ArrayRef<T2>&needle, index_t offset = InvalidIndex)	const;
 				index_t			FindLast(const T*needle, index_t offset = InvalidIndex)		const	/**@copydoc FindLast()*/	{return FindLast(ConstSelf(needle),offset);}
 				/**
 				Attempts to locate the last occurance of the specified character.
@@ -206,7 +206,7 @@ namespace DeltaWorks
 				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
 				*/
 				template <typename T2>
-					index_t			Find(const ConstArrayRef<T2>&needle, index_t offset = 0)	const;
+					index_t			Find(const ArrayRef<T2>&needle, index_t offset = 0)	const;
 				/**
 				Attempts to locate the first occurance of the specified (zero-terminated) string.
 				Search is case sensitive.
@@ -243,7 +243,7 @@ namespace DeltaWorks
 				@copydoc FindWord()
 				*/
 				template <typename T2>
-					index_t		FindWord(const ConstArrayRef<T2>&needle, index_t offset = 0) const;
+					index_t		FindWord(const ArrayRef<T2>&needle, index_t offset = 0) const;
 
 				/**
 				Attempts to locate the first occurance of the specified string.
@@ -253,7 +253,7 @@ namespace DeltaWorks
 				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
 				*/
 				template <typename T2>
-					index_t		FindIgnoreCase(const ConstArrayRef<T2>&needle, index_t offset = 0)	const;
+					index_t		FindIgnoreCase(const ArrayRef<T2>&needle, index_t offset = 0)	const;
 				/**
 				Attempts to locate the first occurance of the specified (zero-terminated) string.
 				Search ignores case.
@@ -283,7 +283,7 @@ namespace DeltaWorks
 				@copydoc FindWordIgnoreCase()
 				*/
 				template <typename T2>
-					index_t		FindWordIgnoreCase(const ConstArrayRef<T2>&needle, index_t offset = 0) const;
+					index_t		FindWordIgnoreCase(const ArrayRef<T2>&needle, index_t offset = 0) const;
 				/**
 				Searches the local string for the last occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric.
 				Search is case sensitive.
@@ -296,7 +296,7 @@ namespace DeltaWorks
 				@copydoc FindLastWord()
 				*/
 				template <typename T2>
-					index_t		FindLastWord(const ConstArrayRef<T2>&needle, index_t offset = InvalidIndex) const;
+					index_t		FindLastWord(const ArrayRef<T2>&needle, index_t offset = InvalidIndex) const;
 				/**
 				Searches the local string for the last occurance of the specified sub string with neither the succeeding or preceeding characters being alpha-numeric.
 				Search is case sensitive.
@@ -309,7 +309,7 @@ namespace DeltaWorks
 				@copydoc FindLastWordIgnoreCase()
 				*/
 				template <typename T2>
-					index_t		FindLastWordIgnoreCase(const ConstArrayRef<T2>&needle, index_t offset = InvalidIndex) const;
+					index_t		FindLastWordIgnoreCase(const ArrayRef<T2>&needle, index_t offset = InvalidIndex) const;
 				/**
 				Attempts to locate the last occurance of the specified string.
 				Search is case sensitive.
@@ -318,7 +318,7 @@ namespace DeltaWorks
 				@return Start index of the found word (0=first char) or InvalidIndex if no occurance was found
 				*/
 				template <typename T2>
-					index_t		FindLastIgnoreCase(const ConstArrayRef<T2>&needle, index_t offset = InvalidIndex)	const;
+					index_t		FindLastIgnoreCase(const ArrayRef<T2>&needle, index_t offset = InvalidIndex)	const;
 				/**
 				Attempts to locate the last occurance of the specified (zero-terminated) string.
 				Search is case sensitive.
@@ -340,19 +340,19 @@ namespace DeltaWorks
 				Checks if the specified token is part of the local string
 				*/
 				template <typename T2>
-					bool		Contains(const ConstArrayRef<T2>&needle)				const	{return Find(needle) != InvalidIndex;}
+					bool		Contains(const ArrayRef<T2>&needle)				const	{return Find(needle) != InvalidIndex;}
 				bool			Contains(const T*needle)				const	{return Find(needle) != InvalidIndex;}
 				bool			Contains(T c)							const	{return Find(c) != InvalidIndex;}
 				bool			ContainsWord(const T*word)				const	{return FindWord(word) != InvalidIndex;}
 				template <typename T2>
-					bool		ContainsWord(const ConstArrayRef<T2>&word)			const	{return FindWord(word) != InvalidIndex;}
+					bool		ContainsWord(const ArrayRef<T2>&word)			const	{return FindWord(word) != InvalidIndex;}
 				template <typename T2>
-					bool		ContainsIgnoreCase(const ConstArrayRef<T2>&needle)	const	{return FindIgnoreCase(needle) != InvalidIndex;}
+					bool		ContainsIgnoreCase(const ArrayRef<T2>&needle)	const	{return FindIgnoreCase(needle) != InvalidIndex;}
 				bool			ContainsIgnoreCase(const T*needle)		const	{return FindIgnoreCase(needle) != InvalidIndex;}
 				bool			ContainsIgnoreCase(T needle)			const	{return FindIgnoreCase(needle) != InvalidIndex;}
 				bool			ContainsWordIgnoreCase(const T*word)	const	{return FindWordIgnoreCase(word) != InvalidIndex;}
 				template <typename T2>
-					bool		ContainsWordIgnoreCase(const ConstArrayRef<T2>&word) const	{return FindWordIgnoreCase(word) != InvalidIndex;}
+					bool		ContainsWordIgnoreCase(const ArrayRef<T2>&word) const	{return FindWordIgnoreCase(word) != InvalidIndex;}
 
 
 				bool			IsValid(bool validCharacter(T character))	const;					//!< Runs each character of the local string by the specified validation function. Returns true if all characters passed the validation, false otherwise.
@@ -369,12 +369,12 @@ namespace DeltaWorks
 
 
 				template <typename T2>
-					count_t		CountCharacters(const ConstArrayRef<T2>& characters, bool count_matches=true)	const;							//!< Counts how often each of the characters in the specified string is contained in the local string;	@param count_matches Set true to count matching characters, false to count non-matching characters
+					count_t		CountCharacters(const ArrayRef<T2>& characters, bool count_matches=true)	const;							//!< Counts how often each of the characters in the specified string is contained in the local string;	@param count_matches Set true to count matching characters, false to count non-matching characters
 				count_t			CountCharacters(const T* characters, bool count_matches=true)	const;											//!< Counts how often each of the characters in the specified string is contained in the local string;	@param count_matches Set true to count matching characters, false to count non-matching characters
 				count_t			CountCharacters(const T* characters, count_t character_count, bool count_matches=true)	const;							//!< Counts how often each of the characters in the specified string is contained in the local string;	@param count_matches Set true to count matching characters, false to count non-matching characters
 				count_t			CountCharacters(bool isMatch(T character), bool count_matches=true)	const;							//!< Counts how often characters are contained by the local string for which isMatch(c) returns true (or false if @a count_matches is false).	@param count_matches Set true to count matching characters, false to count non-matching characters
 				template <typename T2>
-					count_t		CountCharactersIgnoreCase(const ConstArrayRef<T2>& characters, bool count_matches=true)	const;							//!< Counts how often each of the characters in the specified string is contained in the local string; Case insensitive version	@param count_matches Set true to count matching characters, false to count non-matching characters
+					count_t		CountCharactersIgnoreCase(const ArrayRef<T2>& characters, bool count_matches=true)	const;							//!< Counts how often each of the characters in the specified string is contained in the local string; Case insensitive version	@param count_matches Set true to count matching characters, false to count non-matching characters
 				count_t			CountCharactersIgnoreCase(const T* characters, bool count_matches=true)	const;											//!< Counts how often each of the characters in the specified string is contained in the local string; Case insensitive version	@param count_matches Set true to count matching characters, false to count non-matching characters
 				count_t			CountCharactersIgnoreCase(const T* characters, count_t character_count, bool count_matches=true)	const;							//!< Counts how often each of the characters in the specified string is contained in the local string; Case insensitive version	@param count_matches Set true to count matching characters, false to count non-matching characters
 
@@ -440,7 +440,7 @@ namespace DeltaWorks
 									return result;
 								}
 				template <typename T2>
-					inline int	CompareTo(const ConstArrayRef<T2>&string)	const	//! Orthographic comparison
+					inline int	CompareTo(const ArrayRef<T2>&string)	const	//! Orthographic comparison
 								{
 									return CompareTo(string.GetPointer(),string.Length());
 								}
@@ -477,9 +477,9 @@ namespace DeltaWorks
 									return (const T*)field == Super::data;
 								}
 				template <typename T2>
-					bool		operator==(const ConstArrayRef<T2>&other)	const	{return Super::elements == other.Length() && CharFunctions::strncmp(Super::data,other.pointer(),Super::elements) == 0;}
+					bool		operator==(const ArrayRef<T2>&other)	const	{return Super::elements == other.Length() && CharFunctions::strncmp(Super::data,other.pointer(),Super::elements) == 0;}
 				template <typename T2>
-					bool		operator!=(const ConstArrayRef<T2>&other)	const	{return !operator==(other);}
+					bool		operator!=(const ArrayRef<T2>&other)	const	{return !operator==(other);}
 				bool			operator==(const T*str)	const	{size_t l = CharFunctions::strlen(str); return l == Super::elements && CharFunctions::strncmp(str,Super::data,Super::elements) == 0;}
 				bool			operator!=(const T*str)	const	{return !operator==(str);}
 
@@ -488,7 +488,7 @@ namespace DeltaWorks
 				@return true if the local and the remote string content are identical, false otherwise.
 				*/
 				template <typename T2>
-					bool		EqualsIgnoreCase(const ConstArrayRef<T2>&other)		const	{return Super::elements == other.Length() && CharFunctions::strncmpi(Super::data,other.pointer(),Super::elements) == 0;}
+					bool		EqualsIgnoreCase(const ArrayRef<T2>&other)		const	{return Super::elements == other.Length() && CharFunctions::strncmpi(Super::data,other.pointer(),Super::elements) == 0;}
 				bool			EqualsIgnoreCase(const T*str)			const	/**@copydoc EqualsIgnoreCase()*/ {return EqualsIgnoreCase(ConstSelf(str));}
 				/**
 				Tests for case insensitive equality to a character.

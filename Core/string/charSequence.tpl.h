@@ -5,7 +5,7 @@
 	
 template <typename T>
 	template <typename T2>
-		index_t			Sequence<T>::Find(const ConstArrayRef<T2>&needle, index_t offset /*=0*/)	const
+		index_t			Sequence<T>::Find(const ArrayRef<T2>&needle, index_t offset /*=0*/)	const
 		{
 			if (needle.IsEmpty() || offset+needle.GetLength() > Super::elements)
 				return InvalidIndex;
@@ -17,7 +17,7 @@ template <typename T>
 
 template <typename T>
 	template <typename T2>
-		index_t			Sequence<T>::FindIgnoreCase(const ConstArrayRef<T2>&needle, index_t offset /*=0*/)	const
+		index_t			Sequence<T>::FindIgnoreCase(const ArrayRef<T2>&needle, index_t offset /*=0*/)	const
 		{
 			if (needle.IsEmpty() || offset+needle.GetLength() > Super::elements)
 				return InvalidIndex;
@@ -41,7 +41,7 @@ template <typename T>
 
 template <typename T>
 	template <typename T2>
-		index_t			Sequence<T>::FindWord(const ConstArrayRef<T2>&needle, index_t offset /*=0*/) const
+		index_t			Sequence<T>::FindWord(const ArrayRef<T2>&needle, index_t offset /*=0*/) const
 		{
 			if (needle.IsEmpty() || offset + needle.GetLength() > Super::elements)
 				return InvalidIndex;
@@ -65,7 +65,7 @@ template <typename T>
 
 template <typename T>
 	template <typename T2>
-		index_t			Sequence<T>::FindWordIgnoreCase(const ConstArrayRef<T2>&needle, index_t offset /*=0*/) const
+		index_t			Sequence<T>::FindWordIgnoreCase(const ArrayRef<T2>&needle, index_t offset /*=0*/) const
 		{
 			if (needle.IsEmpty() || offset + needle.GetLength() > Super::elements)
 				return InvalidIndex;
@@ -117,7 +117,7 @@ template <typename T>
 
 template <typename T>
 	template <typename T2>
-		index_t			Sequence<T>::FindLastWord(const ConstArrayRef<T2>&needle, index_t offset_ /*=InvalidIndex*/ ) const
+		index_t			Sequence<T>::FindLastWord(const ArrayRef<T2>&needle, index_t offset_ /*=InvalidIndex*/ ) const
 		{
 			if (needle.GetLength() == 0 || needle.GetLength() > Super::elements)
 				return InvalidIndex;
@@ -141,7 +141,7 @@ template <typename T>
 
 template <typename T>
 	template <typename T2>
-		index_t			Sequence<T>::FindLastWordIgnoreCase(const ConstArrayRef<T2>&needle, index_t offset_ /*=InvalidIndex*/ ) const
+		index_t			Sequence<T>::FindLastWordIgnoreCase(const ArrayRef<T2>&needle, index_t offset_ /*=InvalidIndex*/ ) const
 		{
 			if (needle.GetLength() == 0 || needle.GetLength() > Super::elements)
 				return InvalidIndex;
@@ -164,7 +164,7 @@ template <typename T>
 	
 template <typename T>
 	template <typename T2>
-		index_t			Sequence<T>::FindLastIgnoreCase(const ConstArrayRef<T2>&needle, index_t offset /*=InvalidIndex*/ )	const
+		index_t			Sequence<T>::FindLastIgnoreCase(const ArrayRef<T2>&needle, index_t offset /*=InvalidIndex*/ )	const
 		{
 			if (Super::elements < needle.GetLength() || needle.IsEmpty())
 				return InvalidIndex;
@@ -193,7 +193,7 @@ template <typename T>
 
 template <typename T>
 	template <typename T2>
-		index_t			Sequence<T>::FindLast(const ConstArrayRef<T2>&needle, index_t offset /*=InvalidIndex*/ )	const
+		index_t			Sequence<T>::FindLast(const ArrayRef<T2>&needle, index_t offset /*=InvalidIndex*/ )	const
 		{
 			if (Super::elements < needle.GetLength() || needle.IsEmpty())
 				return InvalidIndex;
@@ -260,7 +260,7 @@ template <typename T>
 
 template <typename T>
 	template <typename T2>
-		bool				Sequence<T>::EndsWith(const ConstArrayRef<T2>&string)		const
+		bool				Sequence<T>::EndsWith(const ArrayRef<T2>&string)		const
 		{
 			if (string.GetLength() > Super::elements)
 				return false;
@@ -269,7 +269,7 @@ template <typename T>
 
 template <typename T>
 	template <typename T2>
-		bool				Sequence<T>::EndsWithIgnoreCase(const ConstArrayRef<T2>&string)		const
+		bool				Sequence<T>::EndsWithIgnoreCase(const ArrayRef<T2>&string)		const
 		{
 			if (string.GetLength() > Super::elements)
 				return false;
@@ -278,7 +278,7 @@ template <typename T>
 
 template <typename T>
 	template <typename T2>
-		bool				Sequence<T>::BeginsWithIgnoreCase(const ConstArrayRef<T2>&string)		const
+		bool				Sequence<T>::BeginsWithIgnoreCase(const ArrayRef<T2>&string)		const
 		{
 			if (string.GetLength() > Super::elements)
 				return false;
@@ -287,7 +287,7 @@ template <typename T>
 
 template <typename T>
 	template <typename T2>
-		bool				Sequence<T>::BeginsWith(const ConstArrayRef<T2>&string)		const
+		bool				Sequence<T>::BeginsWith(const ArrayRef<T2>&string)		const
 		{
 			if (string.GetLength() > Super::elements)
 				return false;
@@ -326,7 +326,7 @@ template <typename T>
 
 template <typename T>
 	template <typename T2>
-		count_t					Sequence<T>::CountCharacters(const ConstArrayRef<T2>& characters, bool countMatches)	const
+		count_t					Sequence<T>::CountCharacters(const ArrayRef<T2>& characters, bool countMatches)	const
 		{
 			if (characters.IsEmpty())
 				return 0;
@@ -362,7 +362,7 @@ template <typename T>
 
 template <typename T>
 	template <typename T2>
-		count_t					Sequence<T>::CountCharactersIgnoreCase(const ConstArrayRef<T2>& characters, bool countMatches)	const
+		count_t					Sequence<T>::CountCharactersIgnoreCase(const ArrayRef<T2>& characters, bool countMatches)	const
 		{
 			if (characters.IsEmpty())
 				return 0;

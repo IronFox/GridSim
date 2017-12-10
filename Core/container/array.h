@@ -66,9 +66,9 @@ namespace DeltaWorks
 	{
 
 		template <typename T>
-			class ArrayRef;
+			class MutableArrayRef;
 		template <typename T>
-			class ConstArrayRef;
+			class ArrayRef;
 
 		/**
 			@brief Array with a fixed number of elements
@@ -167,7 +167,7 @@ namespace DeltaWorks
 					Super::operator=(other);
 				}
 
-				void					operator=(const ConstArrayRef<const T>&other);
+				void					operator=(const ArrayRef<const T>&other);
 
 				bool					operator==(const Self&other) const
 				{
@@ -189,7 +189,7 @@ namespace DeltaWorks
 					return Super::operator[](index);
 				}
 
-				ArrayRef<T>				ToRef();
+				MutableArrayRef<T>				ToRef();
 			};
 
 
@@ -228,23 +228,23 @@ namespace DeltaWorks
 
 
 		template <typename T>
-			class ConstArrayRef
+			class ArrayRef
 			{
 			protected:
 				T*				data;
 				count_t			elements;
 
 			public:
-				typedef ConstArrayRef<T>	Self;
+				typedef ArrayRef<T>	Self;
 				typedef const T*	const_iterator;
 
 
-				/**/				ConstArrayRef():data(nullptr),elements(0)	{}
-				/**/				ConstArrayRef(T*data, count_t elements):data(data),elements(elements)	{}
-				/**/				ConstArrayRef(T&element):data(&element),elements(1)	{}
-				virtual				~ConstArrayRef()	{}
+				/**/				ArrayRef():data(nullptr),elements(0)	{}
+				/**/				ArrayRef(T*data, count_t elements):data(data),elements(elements)	{}
+				/**/				ArrayRef(T&element):data(&element),elements(1)	{}
+				virtual				~ArrayRef()	{}
 
-				operator ConstArrayRef<const T>() const {return ConstArrayRef<const T>(data,elements);}
+				operator ArrayRef<const T>() const {return ArrayRef<const T>(data,elements);}
 
 				template <typename I>
 					const T*		operator+(I rel) const	//! Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
@@ -305,7 +305,7 @@ namespace DeltaWorks
 									}
 
 				template <typename T1>
-					inline int		CompareTo(const ConstArrayRef<T1>&other, int comparer(const T&, const T1&) ) const	//! Compares the local array with the remote array. The objects of the local array must implement a compareTo method that accepts objects of the remote array
+					inline int		CompareTo(const ArrayRef<T1>&other, int comparer(const T&, const T1&) ) const	//! Compares the local array with the remote array. The objects of the local array must implement a compareTo method that accepts objects of the remote array
 									{
 										count_t len = elements < other.GetLength()?elements:other.GetLength();
 										for (count_t i = 0; i < len; i++)
@@ -323,7 +323,7 @@ namespace DeltaWorks
 									}
 
 				template <typename T1>
-					inline int		CompareTo(const ConstArrayRef<T1>&other) const	//! Compares the local array with the remote array. The objects of the local array must implement a compareTo method that accepts objects of the remote array
+					inline int		CompareTo(const ArrayRef<T1>&other) const	//! Compares the local array with the remote array. The objects of the local array must implement a compareTo method that accepts objects of the remote array
 									{
 										count_t len = elements < other.GetLength()?elements:other.GetLength();
 										for (count_t i = 0; i < len; i++)
@@ -341,7 +341,7 @@ namespace DeltaWorks
 									}
 
 				template <typename T1>
-					inline bool		operator==(const ConstArrayRef<T1>&other) const //! Equality query \return true if all elements of the local array are identical to their respective counter parts in \b other. Equality is queried via the = operator.
+					inline bool		operator==(const ArrayRef<T1>&other) const //! Equality query \return true if all elements of the local array are identical to their respective counter parts in \b other. Equality is queried via the = operator.
 									{
 										if (elements != other.GetLength())
 											return false;
@@ -352,7 +352,7 @@ namespace DeltaWorks
 									}
 				
 				template <typename T1>
-					inline bool		operator!=(const ConstArrayRef<T1>&other) const //! Equality query
+					inline bool		operator!=(const ArrayRef<T1>&other) const //! Equality query
 									{
 										if (elements != other.GetLength())
 											return true;
@@ -363,7 +363,7 @@ namespace DeltaWorks
 									}
 
 				template <typename T1>
-					inline bool		operator>(const ConstArrayRef<T1>&other) const //! Dictionary comparison
+					inline bool		operator>(const ArrayRef<T1>&other) const //! Dictionary comparison
 									{
 										count_t len = elements < other.GetLength()?elements:other.GetLength();
 										for (count_t i = 0; i < len; i++)
@@ -376,7 +376,7 @@ namespace DeltaWorks
 									}
 
 				template <typename T1>
-					inline bool		operator<(const ConstArrayRef<T1>&other) const //! Dictionary comparison
+					inline bool		operator<(const ArrayRef<T1>&other) const //! Dictionary comparison
 									{
 										count_t len = elements < other.GetLength()?elements:other.GetLength();
 										for (count_t i = 0; i < len; i++)
@@ -389,7 +389,7 @@ namespace DeltaWorks
 									}
 
 				template <typename T1>
-					inline bool		operator>=(const ConstArrayRef<T1>&other) const //! Dictionary comparison
+					inline bool		operator>=(const ArrayRef<T1>&other) const //! Dictionary comparison
 									{
 										count_t len = elements < other.GetLength()?elements:other.GetLength();
 										for (count_t i = 0; i < len; i++)
@@ -402,7 +402,7 @@ namespace DeltaWorks
 									}
 
 				template <typename T1>
-					inline bool		operator<=(const ConstArrayRef<T1>&other) const //! Dictionary comparison
+					inline bool		operator<=(const ArrayRef<T1>&other) const //! Dictionary comparison
 									{
 										count_t len = elements < other.GetLength()?elements:other.GetLength();
 										for (count_t i = 0; i < len; i++)
@@ -594,21 +594,21 @@ namespace DeltaWorks
 
 
 	template <typename T>
-			class ArrayRef : public ConstArrayRef<T>
+			class MutableArrayRef : public ArrayRef<T>
 			{
 			public:
-				typedef ConstArrayRef<T>	Super;
-				typedef ArrayRef<T>	Self;
+				typedef ArrayRef<T>	Super;
+				typedef MutableArrayRef<T>	Self;
 
 				typedef T*			iterator;
 				typedef const T*	const_iterator;
 
-				ArrayRef()	{}
-				ArrayRef(T*data, count_t elements):Super(data,elements)	{}
-				ArrayRef(T&element):Super(element)	{}
+				MutableArrayRef()	{}
+				MutableArrayRef(T*data, count_t elements):Super(data,elements)	{}
+				MutableArrayRef(T&element):Super(element)	{}
 
 
-				operator ArrayRef<const T>() const {return ArrayRef<const T>(data,elements);}
+				operator MutableArrayRef<const T>() const {return MutableArrayRef<const T>(data,elements);}
 
 				template <typename I>
 					inline	T*		operator+(I rel)	//! Retrieves a pointer to the nth element @param rel Relative index. 0 points to the first element in the array. 	@return Pointer to the requested element for sub array access
@@ -781,7 +781,7 @@ namespace DeltaWorks
 
 
 		template <typename T, size_t Length, class MyStrategy>
-			void FixedArray<T,Length,MyStrategy>::operator=(const ConstArrayRef<const T>&other) 
+			void FixedArray<T,Length,MyStrategy>::operator=(const ArrayRef<const T>&other) 
 			{
 				ASSERT__(Length == other.GetLength());
 				for (index_t i = 0; i < Length; i++)
@@ -789,9 +789,9 @@ namespace DeltaWorks
 			}
 
 		template <typename T, size_t Length, class MyStrategy>
-			ArrayRef<T>				FixedArray<T,Length,MyStrategy>::ToRef()
+			MutableArrayRef<T>				FixedArray<T,Length,MyStrategy>::ToRef()
 			{
-				return ArrayRef<T>(data(),Length);
+				return MutableArrayRef<T>(data(),Length);
 			}
 
 
@@ -802,9 +802,9 @@ namespace DeltaWorks
 		ArrayData provides all non-strategy dependent functionality that array usage requires. Methods or functions that do not require strategy-dependent functionality may accept ArrayData instead.
 		*/
 		template <class C>
-			class ArrayData: public ArrayRef<C>, public Arrays
+			class ArrayData: public MutableArrayRef<C>, public Arrays
 			{
-				typedef ArrayRef<C>	Super;
+				typedef MutableArrayRef<C>	Super;
 				typedef ArrayData<C>	Self;
 			protected:
 				using Super::data;
@@ -835,9 +835,9 @@ namespace DeltaWorks
 			private:
 
 				/**/				ArrayData(const ArrayData<C>&){}
-				/**/				ArrayData(const ArrayRef<C>&){}
+				/**/				ArrayData(const MutableArrayRef<C>&){}
 				void				operator=(const ArrayData<C>&){}
-				void				operator=(const ArrayRef<C>&){}
+				void				operator=(const MutableArrayRef<C>&){}
 			public:
 				#if __ARRAY_RVALUE_REFERENCES__
 					/**/			ArrayData(ArrayData<C>&&rvalue):Super(rvalue.data,rvalue.elements)
@@ -1116,12 +1116,6 @@ namespace DeltaWorks
 						{
 							MyStrategy::copyElements(field,data,elements);
 						}
-				
-					template <class T,class OtherStrategy>
-						inline	Array(const Array<T,OtherStrategy>&other):Data(other.Count())
-						{
-							HybridStrategy<MyStrategy,OtherStrategy>::copyElements(other.GetPointer(),data,elements);
-						}
 
 						inline	Array(const std::initializer_list<C>&other):Data(other.size())
 						{
@@ -1139,12 +1133,12 @@ namespace DeltaWorks
 						}
 
 					template <class T>
-						inline	Array(const ConstArrayRef<T>&other):Data(other.Count())
+						inline	Array(const ArrayRef<T>&other):Data(other.Count())
 						{
 							MyStrategy::copyElements(other.GetPointer(),data,elements);
 						}
 				
-						inline	Array(const ConstArrayRef<C>&other):Data(other.Count())
+						inline	Array(const ArrayRef<C>&other):Data(other.Count())
 						{
 							MyStrategy::copyElements(other.GetPointer(),data,elements);
 						}
@@ -1166,16 +1160,6 @@ namespace DeltaWorks
 				#endif
 
 
-				
-						template <class T, class OtherStrategy>
-							inline Self& operator=(const Array<T,OtherStrategy>&other) //! Assignment operator. Copies each element via the = operator
-							{
-								if ((const Array<C,MyStrategy>*)&other == this)	//this should not happen but anyway
-									return *this;
-								reloc(data,elements,other.Count());
-								HybridStrategy<MyStrategy,OtherStrategy>::copyElements(other.pointer(),data,elements);
-								return *this;
-							}
 
 							inline Self& operator=(const Self&other) //! Assignment operator. Copies each element via the = operator
 							{
@@ -1184,14 +1168,14 @@ namespace DeltaWorks
 				
 				
 						template <class T>
-							inline Self& operator=(const ConstArrayRef<T>&other) //! Assignment operator. Copies each element via the = operator
+							inline Self& operator=(const ArrayRef<T>&other) //! Assignment operator. Copies each element via the = operator
 							{
 								return Copy(other);
 							}
 						template <class T>
-							inline Self& Copy(const ConstArrayRef<T>&other) //! Assignment operator. Copies each element via the = operator
+							inline Self& Copy(const ArrayRef<T>&other) //! Assignment operator. Copies each element via the = operator
 							{
-								if (((const ConstArrayRef<T>*)this) == &other)	//this should not happen but anyway
+								if (((const ArrayRef<T>*)this) == &other)	//this should not happen but anyway
 									return *this;
 								reloc(data,elements,other.Count());
 								MyStrategy::copyElements(other.GetPointer(),data,elements);

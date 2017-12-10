@@ -980,7 +980,7 @@ namespace DeltaWorks
 											Template(long double, unsigned char precision=10, bool force_trailing_zeros=false);
 											Template(long long);
 											Template(unsigned long long);
-											Template(const ConstArrayRef<T>&array);
+											Template(const ArrayRef<T>&array);
 											Template(const void*);
 									
 										#ifdef DSTRING_H
@@ -1190,7 +1190,7 @@ namespace DeltaWorks
 				#if __STR_RVALUE_REFERENCES__
 					Template<T>&		operator=(Template<T>&&);					//!< Overwrites the local string content with the content of the specified Template object. \return Reference to the local string object.
 				#endif
-				Template<T>&			operator=(const ConstArrayRef<T>&array);
+				Template<T>&			operator=(const ArrayRef<T>&array);
 			
 				template <typename T2>
 					Template<T>&		operator=(const T2*);						//!< Overwrites the local string content with the content of the specified const char array. \return Reference to the local string object.
@@ -1278,7 +1278,7 @@ namespace DeltaWorks
 					bool					EqualsIgnoreCase(const AnsiString&)	const;
 				#endif
 				template <class T0>
-					bool					EqualsIgnoreCase(const ConstArrayRef<T0>&str)	const	{return Super::EqualsIgnoreCase(str);}
+					bool					EqualsIgnoreCase(const ArrayRef<T0>&str)	const	{return Super::EqualsIgnoreCase(str);}
 					bool					EqualsIgnoreCase(const T*str)					const	{return Super::EqualsIgnoreCase(str);}
 					bool					EqualsIgnoreCase(T str)							const	{return Super::EqualsIgnoreCase(str);}
 				template <typename T0, typename T1>
