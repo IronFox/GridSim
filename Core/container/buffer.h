@@ -59,11 +59,11 @@ namespace DeltaWorks
 				#endif
 				/**/					BasicBuffer(std::initializer_list<T> items);
 				virtual				   ~BasicBuffer();
-				Ctr::ArrayRef<T>		ToRef() {return Ctr::ArrayRef<T>(pointer(),Count());}
-				Ctr::ArrayRef<const T>	ToRef() const {return Ctr::ArrayRef<const T>(pointer(),Count());}
-				Ctr::ArrayRef<T>		SubRef(index_t start, count_t count=InvalidIndex) {if (start >= Count()) return Ctr::ArrayRef<T>(); return Ctr::ArrayRef<T>(pointer()+start,std::min(count, Count()-start));}
-				Ctr::ArrayRef<const T>	SubRef(index_t start, count_t count=InvalidIndex) const {if (start >= Count()) return Ctr::ArrayRef<const T>(); return Ctr::ArrayRef<const T>(pointer()+start,std::min(count, Count()-start));}
-				Self&					operator=(const Ctr::ArrayData<T>&array);
+				MutableArrayRef<T>		ToRef() {return MutableArrayRef<T>(storage_begin,Count());}
+				ArrayRef<T>				ToRef() const {return ArrayRef<T>(storage_begin,Count());}
+				MutableArrayRef<T>		SubRef(index_t start, count_t count=InvalidIndex) {if (start >= Count()) return MutableArrayRef<T>(); return MutableArrayRef<T>(storage_begin+start,std::min(count, Count()-start));}
+				ArrayRef<T>				SubRef(index_t start, count_t count=InvalidIndex) const {if (start >= Count()) return ArrayRef<T>(); return ArrayRef<T>(storage_begin+start,std::min(count, Count()-start));}
+				Self&					operator=(const ArrayRef<T>&array);
 				Self&					operator=(const Self&other);
 				Self&					operator=(std::initializer_list<T> items);
 				#if __BUFFER_RVALUE_REFERENCES__
@@ -99,9 +99,9 @@ namespace DeltaWorks
 				template <typename T2>
 					Self&				Append(std::initializer_list<T2> items);
 				template <typename T2>
-					Self&				append(const Ctr::ArrayData<T2>&array);				//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified array's contained of elements. The buffer will automatically be resized if necessary.
+					Self&				append(const ArrayRef<T2>&array);				//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified array's contained of elements. The buffer will automatically be resized if necessary.
 				template <typename T2>
-					inline Self&		Append(const Ctr::ArrayData<T2>&array)			/**@copydoc Append()*/ {return append(array);}
+					inline Self&		Append(const ArrayRef<T2>&array)			/**@copydoc Append()*/ {return append(array);}
 				template <typename T2, typename Strategy2>
 					Self&				append(const BasicBuffer<T2,Strategy2>&buffer);	//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified array's contained of elements. The buffer will automatically be resized if necessary.
 				template <typename T2, typename Strategy2>
@@ -111,9 +111,9 @@ namespace DeltaWorks
 				template <typename T2>
 					inline Self&		AppendAddresses(T2*data, count_t elements)	/**@copydoc appendAddresses()*/ {return appendAddresses(data,elements);}
 				template <typename T2>
-					Self&				appendAddresses(Ctr::ArrayData<T2>&array);	//!< Appends the addresses of the specified array's elements to the end of the buffer (assuming T is a pointer type fo T2). The buffer will automatically be resized if necessary.
+					Self&				appendAddresses(MutableArrayRef<T2>&array);	//!< Appends the addresses of the specified array's elements to the end of the buffer (assuming T is a pointer type fo T2). The buffer will automatically be resized if necessary.
 				template <typename T2>
-					inline Self&		AppendAddresses(Ctr::ArrayData<T2>&array)	/**@copydoc appendAddresses()*/ {return appendAddresses(array);}
+					inline Self&		AppendAddresses(MutableArrayRef<T2>&array)	/**@copydoc appendAddresses()*/ {return appendAddresses(array);}
 				template <typename T2>
 					Self&				appendVA(count_t elements, ...);		//!< Appends a number of elements to the buffer
 				inline void				reset();							//!< Resets the buffer cursor to the beginning. Does \b not resize the local buffer.
@@ -252,7 +252,7 @@ namespace DeltaWorks
 					Self&			operator=(Self&&other) { Super::adoptData(other); return *this; }
 					Self&			operator=(Super&&other) { Super::adoptData(other); return *this; }
 				#endif
-				Self&				operator=(const Ctr::ArrayData<T>&array){Super::operator=(array); return *this;}
+				Self&				operator=(const ArrayRef<T>&array){Super::operator=(array); return *this;}
 				Self&				operator=(const Self&other) { Super::operator=(other); return *this; }
 				Self&				operator=(const Super&other) { Super::operator=(other); return *this; }
 
@@ -292,7 +292,7 @@ namespace DeltaWorks
 					Self&			operator=(Self&&other){Super::adoptData(other); return *this;}
 					Self&			operator=(Super&&other){Super::adoptData(other); return *this;}
 				#endif
-				Self&				operator=(const Ctr::ArrayData<T>&array){Super::operator=(array); return *this;}
+				Self&				operator=(const ArrayRef<T>&array){Super::operator=(array); return *this;}
 				Self&				operator=(const Self&other) { Super::operator=(other); return *this; }
 				Self&				operator=(const Super&other) { Super::operator=(other); return *this; }
 

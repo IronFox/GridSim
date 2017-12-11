@@ -332,7 +332,7 @@ template <typename T, typename MyStrategy>
 	}
 
 template <typename T, typename MyStrategy>
-	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::operator=(const Ctr::ArrayData<T>&other)
+	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::operator=(const ArrayRef<T>&other)
 	{
 		Clear();
 		T*field = AppendRow(other.Count());
@@ -949,7 +949,7 @@ template <typename T, typename MyStrategy> template <typename T2, typename Strat
 
 
 template <typename T, typename MyStrategy> template <typename T2>
-	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::append(const Ctr::ArrayData<T2>&data)
+	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::append(const ArrayRef<T2>&data)
 	{
 		return append(data.pointer(),data.Count());
 	}
@@ -962,7 +962,7 @@ template <typename T, typename MyStrategy> template <typename T2, typename Strat
 
 
 template <typename T, typename MyStrategy> template <typename T2>
-	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::appendAddresses(Ctr::ArrayData<T2>&data)
+	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::appendAddresses(MutableArrayRef<T2>&data)
 	{
 		return appendAddresses(data.pointer(),data.Count());
 	}
