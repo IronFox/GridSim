@@ -1352,11 +1352,11 @@ namespace DeltaWorks
 				virtual const T*			ToCString() const override {return Super::data;}	// IString::ToCString()
 
 
-				friend void					SerialSync(IWriteStream&s, const Self&v)
+				friend void					Serialize(IWriteStream&s, const Self&v)
 				{
-					SerialSync(s,(Super&)v);
+					Serialize(s,(Super&)v);
 				}
-				friend void					SerialSync(IReadStream&s, Self&v)
+				friend void					Deserialize(IReadStream&s, Self&v)
 				{
 					v.SetLength(s.ReadSize());
 					s.Read(v.Super::data,(serial_size_t)(v.Super::elements*sizeof(T)));

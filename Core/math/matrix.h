@@ -101,14 +101,14 @@ namespace DeltaWorks
 
 
 		template <typename T>
-			inline void SerialSync(IWriteStream&s, const TMatrix2<T>&v)
+			inline void Serialize(IWriteStream&s, const TMatrix2<T>&v)
 			{
 				using Serialization::SerialSync;
 				SerialSync(s,v.x);
 				SerialSync(s,v.y);
 			}
 		template <typename T>
-			inline void SerialSync(IReadStream&s, TMatrix2<T>&v)
+			inline void Deserialize(IReadStream&s, TMatrix2<T>&v)
 			{
 				using Serialization::SerialSync;
 				SerialSync(s,v.x);
@@ -117,7 +117,7 @@ namespace DeltaWorks
 
 
 		template <typename T>
-			inline void SerialSync(IWriteStream&s, const TMatrix3<T>&v)
+			inline void Serialize(IWriteStream&s, const TMatrix3<T>&v)
 			{
 				using Serialization::SerialSync;
 				SerialSync(s,v.x);
@@ -125,7 +125,7 @@ namespace DeltaWorks
 				SerialSync(s,v.z);
 			}
 		template <typename T>
-			inline void SerialSync(IReadStream&s, TMatrix3<T>&v)
+			inline void Deserialize(IReadStream&s, TMatrix3<T>&v)
 			{
 				using Serialization::SerialSync;
 				SerialSync(s,v.x);
@@ -134,7 +134,7 @@ namespace DeltaWorks
 			}
 
 		template <typename T>
-			inline void SerialSync(IWriteStream&s, const TMatrix4<T>&v)
+			inline void Serialize(IWriteStream&s, const TMatrix4<T>&v)
 			{
 				using Serialization::SerialSync;
 				SerialSync(s,v.x);
@@ -143,7 +143,7 @@ namespace DeltaWorks
 				SerialSync(s,v.w);
 			}
 		template <typename T>
-			inline void SerialSync(IReadStream&s, TMatrix4<T>&v)
+			inline void Deserialize(IReadStream&s, TMatrix4<T>&v)
 			{
 				using Serialization::SerialSync;
 				SerialSync(s,v.x);

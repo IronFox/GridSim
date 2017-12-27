@@ -268,11 +268,11 @@ namespace DeltaWorks
 				return StdMemHash(h.bytes,num_bytes);
 			}
 
-			friend void		SerialSync(IReadStream&s, Self&v)
+			friend void		Deserialize(IReadStream&s, Self&v)
 			{
 				s.Read(v.bytes,num_bytes);
 			}
-			friend void		SerialSync(IWriteStream&s, const Self&v)
+			friend void		Serialize(IWriteStream&s, const Self&v)
 			{
 				s.Write(v.bytes,num_bytes);
 			}

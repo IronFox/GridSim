@@ -258,19 +258,19 @@ namespace DeltaWorks
 					return !operator==(other);
 				}
 
-				friend void			SerialSync(IWriteStream&s, const Self&v)
+				friend void			Serialize(IWriteStream&s, const Self&v)
 				{
-					using Serialization::SerialSync;
+					using Serialization::Serialize;
 					s.WriteSize(v.w);
 					s.WriteSize(v.h);
-					SerialSync(s,(const Super&)v);
+					Serialize(s,(const Super&)v);
 				}
-				friend void			SerialSync(IReadStream&s, Self&v)
+				friend void			Deserialize(IReadStream&s, Self&v)
 				{
-					using Serialization::SerialSync;
+					using Serialization::Deserialize;
 					s.ReadSize(v.w);
 					s.ReadSize(v.h);
-					SerialSync(s,(Super&)v);
+					Deserialize(s,(Super&)v);
 				}
 
 			protected:

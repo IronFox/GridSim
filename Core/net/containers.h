@@ -48,6 +48,7 @@ namespace DeltaWorks
 		template <serial_size_t max_size>
 			class NetString:public String
 			{
+				typedef String Super;
 			public:
 				typedef NetString<max_size>	Self;
 
@@ -69,7 +70,7 @@ namespace DeltaWorks
 										AssertValidity(*this,MaxLength);
 									}
 
-				friend void			SerialSync(IReadStream&s,Self&v)
+				friend void			Deserialize(IReadStream&s,Self&v)
 				{
 					const serial_size_t len=s.ReadSize();
 					if (len > MaxLength)
@@ -78,7 +79,7 @@ namespace DeltaWorks
 					s.Read(v.mutablePointer(),len);
 					CheckValidity(v,MaxLength);
 				}
-				
+
 				void				operator=(const String&other)
 				{
 					String::operator=(other);
@@ -260,28 +261,28 @@ namespace DeltaWorks
 
 
 			
-			friend void SerialSync(IWriteStream&s, const CompressedString&v)
+			friend void Serialize(IWriteStream&s, const CompressedString&v)
 			{
-				using Serialization::SerialSync;
+				using Serialization::Serialize;
 				s.WritePrimitive(v.is_compressed);
 				if (v.is_compressed)
 				{
 					UINT32 decompressed_size = UINT32(v.uncompressed.GetLength());
 					s.WriteSize(v.uncompressed.GetLength());
-					SerialSync(s,v.compressed);
+					Serialize(s,v.compressed);
 				}
 				else
-					SerialSync(s,v.uncompressed);
+					Serialize(s,v.uncompressed);
 			}
 			
-			friend void SerialSync(IReadStream&s, CompressedString&v)
+			friend void Deserialize(IReadStream&s, CompressedString&v)
 			{
-				using Serialization::SerialSync;
+				using Serialization::Deserialize;
 				s.ReadPrimitive(v.is_compressed);
 				if (v.is_compressed)
 				{
 					const serial_size_t	decompressed_size = s.ReadSize();
-					SerialSync(s,v.compressed);
+					Deserialize(s,v.compressed);
 					//cout << "extracted "<<compressed.GetContentSize()<<" compressed byte(s). uncompressed="<<decompressed_size<<endl;
 					v.uncompressed.setLength(decompressed_size);
 					const serial_size_t result = (serial_size_t)BZ2::decompress(v.compressed.pointer(),v.compressed.GetContentSize(),v.uncompressed.mutablePointer(),decompressed_size);
@@ -289,7 +290,7 @@ namespace DeltaWorks
 						throw Except::Memory::SerializationFault(CLOCATION,"Decompression returned "+String(result)+". Expected "+String(decompressed_size)+".ignoring package");
 				}
 				else
-					SerialSync(s,v.uncompressed);
+					Deserialize(s,v.uncompressed);
 
 				if (!IsValid(v.uncompressed,std::numeric_limits<count_t>::max()))
 					throw Except::Memory::SerializationFault(CLOCATION,"Decompression string contains invalid character");

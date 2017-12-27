@@ -366,10 +366,10 @@ namespace DeltaWorks
 			template <typename Serializable>
 				void	Update(const Serializable&s)
 				{
-					using Serialization::SerialSync;
+					using Serialization::Serialize;
 
 					SerialSizeScanner scanner;
-					SerialSync(scanner,s);
+					Serialize(scanner,s);
 
 					dataIncludingHeaderSpace.SetSize(scanner.GetTotalSize()+8);
 					SerializeToCompactMemory(s,dataIncludingHeaderSpace+8,scanner.GetTotalSize());
@@ -1425,8 +1425,8 @@ namespace DeltaWorks
 					PDispatchable result;
 					try
 					{
-						using Serialization::SerialSync;
-						SerialSync(stream,*rsObject);
+						using Serialization::Deserialize;
+						Deserialize(stream,*rsObject);
 						result.reset((Dispatchable*)rsObject,MyDelete);
 					}
 					catch (const std::exception&ex)

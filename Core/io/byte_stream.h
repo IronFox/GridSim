@@ -21,17 +21,17 @@ namespace DeltaWorks
 		template <typename T>
 			Self&		Append(const T*field, count_t numElements)
 			{
-				using Serialization::SerialSync;
+				using Serialization::Serialize;
 				for (index_t i = 0; i < numElements; i++)
-					SerialSync(*this,field[i]);
+					Serialize(*this,field[i]);
 				return *this;
 			}
 
 		template <typename T>
 			Self&		operator<<(const T&data)
 			{
-				using Serialization::SerialSync;
-				SerialSync(*this,data);
+				using Serialization::Serialize;
+				Serialize(*this,data);
 				return *this;
 			}
 
@@ -39,8 +39,8 @@ namespace DeltaWorks
 		template <typename T>
 			Self&		Append(const T&data)
 			{
-				using Serialization::SerialSync;
-				SerialSync(*this,data);
+				using Serialization::Serialize;
+				Serialize(*this,data);
 				return *this;
 			}
 

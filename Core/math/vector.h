@@ -271,55 +271,55 @@ namespace DeltaWorks
 
 
 		template <typename T>
-			inline void SerialSync(IWriteStream&s, const TVec2<T>&v)
+			inline void Serialize(IWriteStream&s, const TVec2<T>&v)
 			{
-				using Serialization::SerialSync;
-				SerialSync(s,v.x);
-				SerialSync(s,v.y);
+				using Serialization::Serialize;
+				Serialize(s,v.x);
+				Serialize(s,v.y);
 			}
 		template <typename T>
-			inline void SerialSync(IReadStream&s, TVec2<T>&v)
+			inline void Deserialize(IReadStream&s, TVec2<T>&v)
 			{
-				using Serialization::SerialSync;
-				SerialSync(s,v.x);
-				SerialSync(s,v.y);
-			}
-
-		template <typename T>
-			inline void SerialSync(IWriteStream&s, const TVec3<T>&v)
-			{
-				using Serialization::SerialSync;
-				SerialSync(s,v.x);
-				SerialSync(s,v.y);
-				SerialSync(s,v.z);
-			}
-		template <typename T>
-			inline void SerialSync(IReadStream&s, TVec3<T>&v)
-			{
-				using Serialization::SerialSync;
-				SerialSync(s,v.x);
-				SerialSync(s,v.y);
-				SerialSync(s,v.z);
+				using Serialization::Deserialize;
+				Deserialize(s,v.x);
+				Deserialize(s,v.y);
 			}
 
-
 		template <typename T>
-			inline void SerialSync(IWriteStream&s, const TVec4<T>&v)
+			inline void Serialize(IWriteStream&s, const TVec3<T>&v)
 			{
-				using Serialization::SerialSync;
-				SerialSync(s,v.x);
-				SerialSync(s,v.y);
-				SerialSync(s,v.z);
-				SerialSync(s,v.w);
+				using Serialization::Serialize;
+				Serialize(s,v.x);
+				Serialize(s,v.y);
+				Serialize(s,v.z);
 			}
 		template <typename T>
-			inline void SerialSync(IReadStream&s, TVec4<T>&v)
+			inline void Deserialize(IReadStream&s, TVec3<T>&v)
 			{
-				using Serialization::SerialSync;
-				SerialSync(s,v.x);
-				SerialSync(s,v.y);
-				SerialSync(s,v.z);
-				SerialSync(s,v.w);
+				using Serialization::Deserialize;
+				Deserialize(s,v.x);
+				Deserialize(s,v.y);
+				Deserialize(s,v.z);
+			}
+
+
+		template <typename T>
+			inline void Serialize(IWriteStream&s, const TVec4<T>&v)
+			{
+				using Serialization::Serialize;
+				Serialize(s,v.x);
+				Serialize(s,v.y);
+				Serialize(s,v.z);
+				Serialize(s,v.w);
+			}
+		template <typename T>
+			inline void Deserialize(IReadStream&s, TVec4<T>&v)
+			{
+				using Serialization::Deserialize;
+				Deserialize(s,v.x);
+				Deserialize(s,v.y);
+				Deserialize(s,v.z);
+				Deserialize(s,v.w);
 			}
 
 
@@ -541,17 +541,17 @@ namespace DeltaWorks
 											return "["+ToString(r.min)+","+ToString(r.max)+"]";
 										}
 
-				friend void SerialSync(IWriteStream&s, const Self&v)
+				friend void Serialize(IWriteStream&s, const Self&v)
 				{
-					using Serialization::SerialSync;
-					SerialSync(s,v.min);
-					SerialSync(s,v.max);
+					using Serialization::Serialize;
+					Serialize(s,v.min);
+					Serialize(s,v.max);
 				}
-				friend void SerialSync(IReadStream&s, Self&v)
+				friend void Deserialize(IReadStream&s, Self&v)
 				{
-					using Serialization::SerialSync;
-					SerialSync(s,v.min);
-					SerialSync(s,v.max);
+					using Serialization::Deserialize;
+					Deserialize(s,v.min);
+					Deserialize(s,v.max);
 				}
 	
 			};
@@ -688,17 +688,17 @@ namespace DeltaWorks
 											using StringConversion::ToString;
 											return "["+ToString(r.start)+","+ToString(r.end)+")";
 										}
-				friend void SerialSync(IWriteStream&s, const Self&v)
+				friend void Serialize(IWriteStream&s, const Self&v)
 				{
-					using Serialization::SerialSync;
-					SerialSync(s,v.start);
-					SerialSync(s,v.end);
+					using Serialization::Serialize;
+					Serialize(s,v.start);
+					Serialize(s,v.end);
 				}
-				friend void SerialSync(IReadStream&s, Self&v)
+				friend void Deserialize(IReadStream&s, Self&v)
 				{
-					using Serialization::SerialSync;
-					SerialSync(s,v.start);
-					SerialSync(s,v.end);
+					using Serialization::Deserialize;
+					Deserialize(s,v.start);
+					Deserialize(s,v.end);
 				}
 
 			};
@@ -1336,17 +1336,17 @@ namespace DeltaWorks
 											y /= factor;
 										}
 
-				friend void SerialSync(IWriteStream&s, const Self&v)
+				friend void Serialize(IWriteStream&s, const Self&v)
 				{
-					using Serialization::SerialSync;
-					SerialSync(s,v.x);
-					SerialSync(s,v.y);
+					using Serialization::Serialize;
+					Serialize(s,v.x);
+					Serialize(s,v.y);
 				}
-				friend void SerialSync(IReadStream&s, Self&v)
+				friend void Deserialize(IReadStream&s, Self&v)
 				{
-					using Serialization::SerialSync;
-					SerialSync(s,v.x);
-					SerialSync(s,v.y);
+					using Serialization::Deserialize;
+					Deserialize(s,v.x);
+					Deserialize(s,v.y);
 				}
 
 			};
@@ -1850,19 +1850,19 @@ namespace DeltaWorks
 											z *= factor;
 										}
 
-				friend void SerialSync(IWriteStream&s, const Self&v)
+				friend void Serialize(IWriteStream&s, const Self&v)
 				{
-					using Serialization::SerialSync;
-					SerialSync(s,v.x);
-					SerialSync(s,v.y);
-					SerialSync(s,v.z);
+					using Serialization::Serialize;
+					Serialize(s,v.x);
+					Serialize(s,v.y);
+					Serialize(s,v.z);
 				}
-				friend void SerialSync(IReadStream&s, Self&v)
+				friend void Deserialize(IReadStream&s, Self&v)
 				{
-					using Serialization::SerialSync;
-					SerialSync(s,v.x);
-					SerialSync(s,v.y);
-					SerialSync(s,v.z);
+					using Serialization::Deserialize;
+					Deserialize(s,v.x);
+					Deserialize(s,v.y);
+					Deserialize(s,v.z);
 				}
 			};
 

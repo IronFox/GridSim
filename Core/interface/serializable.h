@@ -121,10 +121,41 @@ namespace DeltaWorks
 				stream.WritePrimitive(val);
 			}
 
+		template <typename T>
+			inline void SerializeArray(IWriteStream&stream, const T*ar, count_t length)
+			{
+				for (index_t i = 0; i < length; i++)
+					Serialize(stream,ar[i]);
+			}
+
+		template <typename T>
+			inline void SerializePODArray(IWriteStream&stream, const T*ar, count_t length)
+			{
+				stream.WritePrimitives(ar,length);
+			}
+
+		template <typename T>
+			inline void DeserializeArray(IReadStream&stream, T*ar, count_t length)
+			{
+				for (index_t i = 0; i < length; i++)
+					Deserialize(stream,ar[i]);
+			}
+
+		template <typename T>
+			inline void DeserializePODArray(IReadStream&stream, T*ar, count_t length)
+			{
+				stream.ReadPrimitives(ar,length);
+			}
+
 		#undef SERIAL_PRIM
-		#define SERIAL_PRIM(TYPE)	inline void SerialSync(IReadStream&stream, TYPE&val){SerialSyncPOD(stream, val);} inline void SerialSync(IWriteStream&stream, TYPE val){SerialSyncPOD(stream, val);}
+		#define SERIAL_PRIM(TYPE)\
+			inline void Deserialize(IReadStream&stream, TYPE&val){SerialSyncPOD(stream, val);}\
+			inline void Serialize(IWriteStream&stream, TYPE val){SerialSyncPOD(stream, val);}\
+			template <> inline void SerializeArray<TYPE>(IWriteStream&stream, const TYPE*ar, count_t length){SerializePODArray(stream, ar,length);}\
+			template <> inline void DeserializeArray<TYPE>(IReadStream&stream, TYPE*ar, count_t length){DeserializePODArray(stream, ar,length);}
 
 		SERIAL_PRIM(signed char);
+		SERIAL_PRIM(char);
 		SERIAL_PRIM(unsigned char);
 		SERIAL_PRIM(signed short);
 		SERIAL_PRIM(unsigned short);
@@ -139,26 +170,26 @@ namespace DeltaWorks
 		SERIAL_PRIM(double);
 		SERIAL_PRIM(long double);
 
-		inline void SerialSync(IReadStream&stream, ISerializable&serializable)
+		inline void Deserialize(IReadStream&stream, ISerializable&serializable)
 		{
 			serializable.Deserialize(stream);
 		}
-		inline void SerialSync(IWriteStream&stream, const ISerializable&serializable)
+		inline void Serialize(IWriteStream&stream, const ISerializable&serializable)
 		{
 			serializable.Serialize(stream);
 		}
 
 		template <typename A, typename B>
-			inline void SerialSync(IReadStream&stream, std::pair<A,B>&p)
+			inline void Deserialize(IReadStream&stream, std::pair<A,B>&p)
 			{
-				SerialSync(stream,p.first);
-				SerialSync(stream,p.second);
+				Deserialize(stream,p.first);
+				Deserialize(stream,p.second);
 			}
 		template <typename A, typename B>
-			inline void SerialSync(IWriteStream&stream, const std::pair<A,B>&p)
+			inline void Serialize(IWriteStream&stream, const std::pair<A,B>&p)
 			{
-				SerialSync(stream,p.first);
-				SerialSync(stream,p.second);
+				Serialize(stream,p.first);
+				Serialize(stream,p.second);
 			}
 
 	};
@@ -173,9 +204,9 @@ namespace DeltaWorks
 	template <typename Serializable>
 	inline void			SerializeToMemory(const Serializable&serializable, void*targetData, serial_size_t availableSpace, serial_size_t*outUsedSize=nullptr)
 	{
-		using Serialization::SerialSync;
+		using Serialization::Serialize;
 		MemWriteStream	writer(targetData,availableSpace);
-		SerialSync(writer,serializable);
+		Serialize(writer,serializable);
 		if (outUsedSize)
 			(*outUsedSize) = writer.GetCurrent()-(BYTE*)targetData;
 	}
@@ -190,9 +221,9 @@ namespace DeltaWorks
 	template <typename Serializable>
 	inline void			SerializeToCompactMemory(const Serializable&serializable, void*targetData, serial_size_t availableSpace)
 	{
-		using Serialization::SerialSync;
+		using Serialization::Serialize;
 		MemWriteStream	writer(targetData,availableSpace);
-		SerialSync(writer,serializable);
+		Serialize(writer,serializable);
 		if (writer.GetRemainingSpace() != 0)
 			throw Except::Memory::SerializationFault(CLOCATION, "Memory consumed during serialization does not match available memory");
 	}
@@ -206,9 +237,9 @@ namespace DeltaWorks
 	template <typename Serializable>
 	inline void			DeserializeFromMemory(Serializable&serializable, const void*data, serial_size_t dataSize)
 	{
-		using Serialization::SerialSync;
+		using Serialization::Deserialize;
 		MemReadStream	reader(data,dataSize);
-		SerialSync(reader,serializable);
+		Deserialize(reader,serializable);
 
 	}
 
@@ -222,9 +253,9 @@ namespace DeltaWorks
 	template <typename Serializable>
 	inline void			DeserializeFromCompactMemory(Serializable&serializable, const void*data, serial_size_t dataSize)
 	{
-		using Serialization::SerialSync;
+		using Serialization::Deserialize;
 		MemReadStream	reader(data,dataSize);
-		SerialSync(reader,serializable);
+		Deserialize(reader,serializable);
 		if (reader.GetRemainingBytes() != 0)
 			throw Except::Memory::SerializationFault(CLOCATION, "Data consumed during deserialization does not match available data");
 	}

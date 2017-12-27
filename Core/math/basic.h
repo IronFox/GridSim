@@ -226,15 +226,15 @@ namespace DeltaWorks
 			return v.Abs();
 		}
 
-		friend void SerialSync(IWriteStream&s, THalf v)
+		friend void Serialize(IWriteStream&s, THalf v)
 		{
-			using Serialization::SerialSync;
-			SerialSync(s,v.value);
+			using Serialization::Serialize;
+			Serialize(s,v.value);
 		}
-		friend void SerialSync(IReadStream&s, THalf&v)
+		friend void Deserialize(IReadStream&s, THalf&v)
 		{
-			using Serialization::SerialSync;
-			SerialSync(s,v.value);
+			using Serialization::Deserialize;
+			Deserialize(s,v.value);
 		}
 
 	};
@@ -294,15 +294,15 @@ namespace DeltaWorks
 		}
 
 
-		friend void SerialSync(IWriteStream&s, half v)
+		friend void Serialize(IWriteStream&s, half v)
 		{
-			using Serialization::SerialSync;
-			SerialSync(s,v.value);
+			using Serialization::Serialize;
+			Serialize(s,v.value);
 		}
-		friend void SerialSync(IReadStream&s, half&v)
+		friend void Deserialize(IReadStream&s, half&v)
 		{
-			using Serialization::SerialSync;
-			SerialSync(s,v.value);
+			using Serialization::Deserialize;
+			Deserialize(s,v.value);
 		}
 
 	};

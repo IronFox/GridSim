@@ -142,17 +142,17 @@ namespace DeltaWorks
 					Super::fill(pattern);
 				}
 
-				friend void			SerialSync(IWriteStream&s, const Self&v)
+				friend void			Serialize(IWriteStream&s, const Self&v)
 				{
-					using Serialization::SerialSync;
+					using Serialization::Serialize;
 					for (Super::const_iterator i = v.begin(); i != v.end(); ++i)
-						SerialSync(s,*i);
+						Serialize(s,*i);
 				}
-				friend void			SerialSync(IReadStream&s, Self&v)
+				friend void			Deserialize(IReadStream&s, Self&v)
 				{
-					using Serialization::SerialSync;
+					using Serialization::Deserialize;
 					for (Super::iterator i = v.begin(); i != v.end(); ++i)
-						SerialSync(s,*i);
+						Deserialize(s,*i);
 				}
 
 
@@ -583,12 +583,11 @@ namespace DeltaWorks
 					return HashField(data.data,data.elements);
 				}
 
-				friend void			SerialSync(IWriteStream&s, const Self&v)
+				friend void			Serialize(IWriteStream&s, const Self&v)
 				{
-					using Serialization::SerialSync;
+					using Serialization::Serialize;
 					s.WriteSize(v.elements);
-					for (index_t i = 0; i < v.elements; i++)
-						SerialSync(s,v.data[i]);
+					Serialization::SerializeArray(s,v.data,v.elements);
 				}
 			};
 
@@ -943,12 +942,10 @@ namespace DeltaWorks
 
 
 
-				friend void			SerialSync(IReadStream&s, Self&v)
+				friend void			Deserialize(IReadStream&s, Self&v)
 				{
-					using Serialization::SerialSync;
 					v.SetSize(s.ReadSize());
-					for (index_t i = 0; i < v.elements; i++)
-						SerialSync(s,v.data[i]);
+					Serialization::DeserializeArray(s,v.data,v.elements);
 				}
 			};
 
