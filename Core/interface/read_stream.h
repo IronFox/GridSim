@@ -57,7 +57,7 @@ namespace DeltaWorks
 			void					ReadPrimitives(T*elements, count_t num_elements)
 			{
 				#ifdef _M_X64
-					ASSERT_LESS__(sizeof(elements) * num_elements, 0x100000000ULL);
+					ASSERT__(sizeof(elements) * num_elements < 0x100000000ULL);
 				#endif
 				Read(elements, (serial_size_t)(sizeof(T)*num_elements));
 			}
