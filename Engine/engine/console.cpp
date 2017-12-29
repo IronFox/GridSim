@@ -74,21 +74,21 @@ void Console::back()
 
 Console::Console():profile(true,false),selected_input(0),parser(NULL),status(0),is_focused(false),target_open(false)
 {
-    input.pushProfile();
-		input.bindProfile(profile);
-        input.bind(Key::Return,std::bind(&Console::fetchInput,this));
-        input.bind(Key::Back,std::bind(&Console::back,this));
-        input.bind(Key::Up,std::bind(&Console::prevInput,this));
-        input.bind(Key::Down,std::bind(&Console::nextInput,this));
-    input.popProfile();
+    input.PushProfile();
+		input.BindProfile(profile);
+		input.Bind(Key::Return,[this](){fetchInput();});
+		input.Bind(Key::Back,[this](){back();});
+		input.Bind(Key::Up,[this](){prevInput();});
+		input.Bind(Key::Down,[this](){nextInput();});
+    input.PopProfile();
 }
 
 void	Console::bindCloseKey(Key::Name key)
 {
-	input.pushProfile();
-		input.bindProfile(profile);
-		input.bind(key,std::bind(&Console::closeEvent,this));
-	input.popProfile();
+	input.PushProfile();
+		input.BindProfile(profile);
+		input.Bind(key,[this](){closeEvent();});
+	input.PopProfile();
 }
 
 Console::~Console()
@@ -131,8 +131,8 @@ void Console::focus()
         return;
     is_focused = true;
     keyboard.read = true;
-    input.pushProfile();
-        input.chooseProfile(profile);
+    input.PushProfile();
+        input.BindProfile(profile);
 }
 
 void Console::killFocus()
@@ -140,7 +140,7 @@ void Console::killFocus()
     if (!is_focused)
         return;
     is_focused = false;
-    input.popProfile();
+    input.PopProfile();
     keyboard.read = false;
 }
 

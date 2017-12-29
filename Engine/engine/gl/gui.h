@@ -384,8 +384,8 @@ namespace Engine
 			bool								visible;		//!< Indicates that this item is visible. Invisible items are automatically treated as disabled.
 											
 		public:
-			static	void						SignalKeyDown(int key);	//!< Key down event linked to the keyboard interface
-			static	void						SignalKeyUp(int key);		//!< Key up event linked to the keyboard interface
+			static	void						SignalKeyDown(Key::Name key);	//!< Key down event linked to the keyboard interface
+			static	void						SignalKeyUp(Key::Name key);		//!< Key up event linked to the keyboard interface
 		
 		
 			enum eEventResult		//! Generic event result

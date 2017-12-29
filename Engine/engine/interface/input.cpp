@@ -1,11 +1,11 @@
 #include "input.h"
 
 
-static std::ostream& operator<<(std::ostream&str, const std::function<void()> &func)
+static std::ostream& operator<<(std::ostream&str, const Engine::KeyHandler &func)
 {
 	str << "function(";
-	if (func)
-		str << func.target<void(*)()>();
+	if (func.IsNotEmpty())
+		str << func.GetRawPointer();
 	else
 		str << "<empty>";
 	str << ")";
@@ -30,11 +30,11 @@ namespace Engine
 
 
 	
-	void InputMap::cascadeKeyDown(unsigned index)
+	void InputMap::CascadeKeyPressed(Key::Name index)
 	{
 		if (verbose)
 			std::cout << " input: forward down "<<index<<".";
-		if (index >= NumKeys || binding_stack.IsEmpty())
+		if (index < 0 || (index_t)index >= NumKeys || binding_stack.IsEmpty())
 		{
 			if (verbose)
 				std::cout << " index invalid or binding stack empty"<<std::endl;
@@ -54,26 +54,23 @@ namespace Engine
 		if (pressed[VK_CONTROL])
 		{
 			if (verbose)
-				std::cout << " CTRL "<<profile->key[index].ctrl_pntr<<std::endl;
-			
-			if (profile->key[index].ctrl_pntr)
-				profile->key[index].ctrl_pntr();
+				std::cout << " CTRL "<<profile->key[index].onPressedWithCtrl<<std::endl;
+			profile->key[index].onPressedWithCtrl(index);
 		}
 		else
 		{
 			if (verbose)
-				std::cout << " "<<profile->key[index].down_pntr << std::endl;
-			if (profile->key[index].down_pntr)
-				profile->key[index].down_pntr();
+				std::cout << " "<<profile->key[index].onPressed << std::endl;
+			profile->key[index].onPressed(index);
 		}
 		stack_forward_depth--;
 	}
 	
-	void InputMap::cascadeKeyUp(unsigned index)
+	void InputMap::CascadeKeyReleased(Key::Name index)
 	{
 		if (verbose)
 			std::cout << " input: forward up "<<index<<".";
-		if (index >= NumKeys || binding_stack.IsEmpty())
+		if (index < 0 || (index_t)index >= NumKeys || binding_stack.IsEmpty())
 		{
 			if (verbose)
 				std::cout << " index invalid or binding stack empty"<<std::endl;
@@ -92,21 +89,20 @@ namespace Engine
 			return;
 		}
 		if (verbose)
-			std::cout << " "<< profile->key[index].up_pntr << std::endl;
+			std::cout << " "<< profile->key[index].onReleased << std::endl;
 		
-		if (profile->key[index].up_pntr)
-			profile->key[index].up_pntr();
+		profile->key[index].onReleased(index);
 		stack_forward_depth--;
 	}
 	
 	//static void cascadeDown(int key)
 	//{
-	//	input.cascadeKeyDown(key);
+	//	input.CascadeKeyPressed(key);
 	//}
 	//
 	//static void cascadeUp(int key)
 	//{
-	//	input.cascadeKeyUp(key);
+	//	input.CascadeKeyReleased(key);
 	//}
 	
 	bool InputMap::keyDown(unsigned index)
@@ -120,22 +116,14 @@ namespace Engine
 		if (pressed[VK_CONTROL])
 		{
 			if (verbose)
-			{
-				std::cout << " CTRL "<<key[index].ctrl_pntr << std::endl;
-			}
-			result = key[index].ctrl_pntr ? true : false;
-			if (result)
-				key[index].ctrl_pntr();
+				std::cout << " CTRL "<<key[index].onPressedWithCtrl << std::endl;
+			result = key[index].onPressedWithCtrl((Key::Name)index);
 		}
 		else
 		{
 			if (verbose)
-			{
-				std::cout << " "<<key[index].down_pntr << std::endl;
-			}
-			result = key[index].down_pntr ? true : false;
-			if (result)
-				key[index].down_pntr();
+				std::cout << " "<<key[index].onPressed << std::endl;
+			result = key[index].onPressed((Key::Name)index);
 		}
 		pressed[index]=true;
 		return result;
@@ -159,17 +147,14 @@ namespace Engine
 			return false;
 		}
 		if (verbose)
-			std::cout << " "<<key[index].up_pntr << std::endl;
-		if (!key[index].up_pntr)
-			return false;
-		key[index].up_pntr();
-		return true;
+			std::cout << " "<<key[index].onReleased << std::endl;
+		return key[index].onReleased((Key::Name)index);
 	}
 	
 
 	InputMap::InputMap():key(NumKeys),active_profile(&default_profile),stack_forward_depth(0),verbose(false)
 	{
-		resetKeys();
+		ClearAllBindings();
 		
 		empty_source.name = "Undefined";
 		empty_source.min = 0;
@@ -179,111 +164,126 @@ namespace Engine
 	
 	InputMap::~InputMap()
 	{
-		resetKeys();
+		ClearAllBindings();
 	}
 	
 	
 	
 
-	void InputMap::resetKeys()
+	void InputMap::ClearAllBindings()
 	{
 		if (verbose)
 			std::cout << " input: reset keys"<<std::endl;
 		for (unsigned i = 0; i < NumKeys; i++)
 		{
-			key[i].down_pntr = std::function<void()>();
-			key[i].up_pntr = std::function<void()>();
-			key[i].ctrl_pntr = std::function<void()>();
+			key[i].Clear();
 			pressed[i] = false;
 		}
 	}
 	
-	void InputMap::cascadeKeys	()
+	void InputMap::CascadeAllKeys	()
 	{
 		if (verbose)
 			std::cout << " input: cascade keys"<<std::endl;
 		for (unsigned i = 0; i < NumKeys; i++)
 		{
-			key[i].down_pntr = std::bind(&InputMap::cascadeKeyDown,this,i);
-			key[i].up_pntr = std::bind(&InputMap::cascadeKeyUp,this,i);
-			key[i].ctrl_pntr = std::function<void()>();
-			pressed[i] = false;
+			Cascade((Key::Name)i);
 		}
 	}
 
-	void InputMap::bind(Key::Name name, const std::function<void()>& cmd)
+
+	void	InputMap::BindAll(const Handler&downHandler, bool unboundOnly)
+	{
+		for (unsigned k = 0; k < NumKeys; k++)
+			if (!unboundOnly || (key[k].onPressed.IsEmpty() && key[k].onReleased.IsEmpty()))
+			{
+				key[k].onPressed = downHandler;
+			}
+	}
+
+	void	InputMap::BindAll(const Handler&downHandler, const Handler&upHandler, bool unboundOnly)
+	{
+		for (unsigned k = 0; k < NumKeys; k++)
+			if (!unboundOnly || (key[k].onPressed.IsEmpty() && key[k].onReleased.IsEmpty()))
+			{
+				key[k].onPressed = downHandler;
+				key[k].onReleased = upHandler;
+			}
+	}
+
+
+	void InputMap::Bind(Key::Name name, const Handler& cmd)
 	{
 		if (verbose)
 			std::cout << " input: binding "<<resolveKeyName(name)<<"("<<name<<")"<<" to command "<<cmd<<std::endl;
 		unsigned k = ((unsigned)name)%NumKeys;
-		key[k].down_pntr = cmd;
-		key[k].up_pntr = std::function<void()>();
+		key[k].onPressed = cmd;
+		key[k].onReleased = Handler();
 	}
 
 
-	void InputMap::bind(Key::Name name, const std::function<void()>& cmd, const std::function<void()>& ucmd)
+	void InputMap::Bind(Key::Name name, const Handler& cmd, const Handler& ucmd)
 	{
 		if (verbose)
 			std::cout << " input: binding "<<resolveKeyName(name)<<"("<<name<<")"<<" to commands "<<cmd<<"(down) and "<<ucmd<<"(up)"<<std::endl;
 		unsigned k = ((unsigned)name)%NumKeys;
-		key[k].down_pntr = cmd;
-		key[k].up_pntr = ucmd;
+		key[k].onPressed = cmd;
+		key[k].onReleased = ucmd;
 	}
 
 
-	void InputMap::bindCtrl(Key::Name name, const std::function<void()>& cmd)
+	void InputMap::BindCtrl(Key::Name name, const Handler& cmd)
 	{
 		if (verbose)
 			std::cout << " input: binding ctrl+"<<resolveKeyName(name)<<"("<<name<<")"<<" to command "<<cmd<<std::endl;
 		unsigned k = ((unsigned)name)%NumKeys;
-		key[k].ctrl_pntr = cmd;
+		key[k].onPressedWithCtrl = cmd;
 	}
 
 
-	void InputMap::unbind(Key::Name name)
+	void InputMap::Unbind(Key::Name name)
 	{
 		if (verbose)
 			std::cout << " input: unbinding "<<resolveKeyName(name)<<"("<<name<<")"<<std::endl;
 		unsigned k = ((unsigned)name)%NumKeys;
-		key[k].down_pntr = std::function<void()>();
-		key[k].up_pntr = std::function<void()>();
-		key[k].ctrl_pntr = std::function<void()>();
+		key[k].Clear();
 	}
 	
-	void InputMap::cascade(Key::Name name)
+	void InputMap::Cascade(Key::Name name)
 	{
 		if (verbose)
 			std::cout << " input: cascading "<<resolveKeyName(name)<<"("<<name<<")"<<std::endl;
 		unsigned k = ((unsigned)name)%NumKeys;
-		key[k].down_pntr = std::bind(&InputMap::cascadeKeyDown,this,k);
-		key[k].up_pntr = std::bind(&InputMap::cascadeKeyUp,this,k);
-		key[k].ctrl_pntr = std::function<void()>();
+		key[k].onPressed = [this](Key::Name k){CascadeKeyPressed(k);};
+		key[k].onReleased = [this](Key::Name k){CascadeKeyReleased(k);};
+		key[k].onPressedWithCtrl.Clear();
+		pressed[k] = false;
 	}
 
 
-	void InputMap::regInit()
+	void InputMap::RegInit()
 	{
 		preparation.reset();
 	}
 
-	void InputMap::regKey(const String&name, const std::function<void()>& cmd, Key::Name kname)
+	void InputMap::RegKey(const String&name, const Handler& cmd, Key::Name kname)
 	{
 		TKeyPreparation&p = preparation.Append();
 		p.name = name;
-		p.function_pointer = cmd;
-		p.snd_pointer = std::function<void()>();
-		p.key_id = kname;
+		p.onPressed = cmd;
+		//p.onReleased.Clear();
+		p.keyID = kname;
 		p.done = false;
 	}
 
 
-	void InputMap::regKey(const String&name, const std::function<void()>& cmd, const std::function<void()>& ucmd, Key::Name kname)
+	void InputMap::RegKey(const String&name, const Handler& cmd, const Handler& ucmd, Key::Name kname)
 	{
 		TKeyPreparation&p = preparation.Append();
 		p.name = name;
-		p.function_pointer = cmd;
-		p.snd_pointer = ucmd;
-		p.key_id = kname;
+		p.onPressed = cmd;
+		p.onReleased = ucmd;
+		p.keyID = kname;
 		p.done = false;
 	}
 
@@ -308,40 +308,40 @@ namespace Engine
 		}
 	}*/
 
-	void InputMap::linkKey(const String&name, Key::Name kname)
+	void InputMap::LinkKey(const String&name, Key::Name kname)
 	{
 		BYTE k = (BYTE)kname;
 		for (index_t i = 0; i < preparation.Count(); i++)
 			if (preparation[i].name == name)
 			{
-				key[k].down_pntr = preparation[i].function_pointer;
-				key[k].up_pntr = preparation[i].snd_pointer;
+				key[k].onPressed = preparation[i].onPressed;
+				key[k].onReleased = preparation[i].onReleased;
 				preparation[i].done = true;
 				return;
 			}
 		for (index_t i = 0; i < preparation.Count(); i++)
 			if (preparation[i].name.EqualsIgnoreCase(name))
 			{
-				key[k].down_pntr = preparation[i].function_pointer;
-				key[k].up_pntr = preparation[i].snd_pointer;
+				key[k].onPressed = preparation[i].onPressed;
+				key[k].onReleased = preparation[i].onReleased;
 				preparation[i].done = true;
 				return;
 			}
 	}
 
-	void InputMap::linkOthers()
+	void InputMap::LinkOthers()
 	{
 		for (index_t i = 0; i < preparation.Count(); i++)
-			if (!preparation[i].done && !key[preparation[i].key_id].down_pntr)
+			if (!preparation[i].done && key[preparation[i].keyID].onPressed.IsEmpty())
 			{
-				key[preparation[i].key_id].down_pntr = preparation[i].function_pointer;
-				key[preparation[i].key_id].up_pntr = preparation[i].snd_pointer;
+				key[preparation[i].keyID].onPressed = preparation[i].onPressed;
+				key[preparation[i].keyID].onReleased = preparation[i].onReleased;
 			}
 		preparation.reset();
 	}	
 
 
-	InputProfile*	InputMap::currentProfile()
+	InputProfile*	InputMap::GetCurrentProfile()
 	{
 		return active_profile;
 	}
@@ -351,7 +351,7 @@ namespace Engine
 		//memset(key,0,sizeof(key));
 	}
 	
-	void InputProfile::importFrom(InputMap*from)
+	void InputProfile::ImportFrom(InputMap*from)
 	{
 		if (from->verbose)
 			std::cout << " input: importing map "<<from<<" into profile "<<this<<std::endl;
@@ -372,42 +372,42 @@ namespace Engine
 	}
 
 
-	void InputMap::chooseProfile(InputProfile&profile)
+	void InputMap::ChooseProfile(InputProfile&profile)
 	{
 		if (verbose)
 			std::cout << " input: choosing profile "<<&profile<<" over "<<active_profile<<std::endl;
 		if (active_profile == &profile)
 			return;
-		active_profile->importFrom(this);
+		active_profile->ImportFrom(this);
 		active_profile = &profile;
 		active_profile->ExportTo(this);
 	}
 
-	void InputMap::bindProfile(InputProfile& profile)
+	void InputMap::BindProfile(InputProfile& profile)
 	{
-		chooseProfile(profile);
+		ChooseProfile(profile);
 	}
 
-	void InputMap::activateProfile(InputProfile& profile)
+	void InputMap::ActivateProfile(InputProfile& profile)
 	{
-		chooseProfile(profile);
+		ChooseProfile(profile);
 	}
 
-	void InputMap::pushProfile()
+	void InputMap::PushProfile()
 	{
 		if (verbose)
 			std::cout << " input: pushing profile "<<active_profile<<std::endl;
-		active_profile->importFrom(this);
+		active_profile->ImportFrom(this);
 		binding_stack.append(active_profile);
 	}
 
-	void InputMap::popProfile()
+	void InputMap::PopProfile()
 	{
 		if (binding_stack.IsEmpty())
 			return;
 		if (verbose)
 			std::cout << " input: popping profile, thus overwriting "<<active_profile<<std::endl;
-		active_profile->importFrom(this);
+		active_profile->ImportFrom(this);
 		active_profile = binding_stack.Pop();
 		active_profile->ExportTo(this);
 		if (verbose)

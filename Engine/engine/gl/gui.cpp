@@ -547,7 +547,7 @@ namespace Engine
 					wnd->Apply(result);
 				if (!component)
 				{
-					input.popProfile();
+					input.PopProfile();
 					keyboard.reader = oldReader;
 					keyboard.read = oldRead;
 				}
@@ -560,8 +560,8 @@ namespace Engine
 				keyboard.read = true;
 				if (!focused)
 				{
-					input.pushProfile();
-					input.bindProfile(my_profile);
+					input.PushProfile();
+					input.BindProfile(my_profile);
 				}
 			}
 			focused = component;
@@ -2162,7 +2162,7 @@ namespace Engine
 		Component::Component(const String&type_name_):currentRegion(0,0,1,1),offset(0,0,0,0),anchored(false,false,false,false),width(1),height(1),typeName(type_name_),layout(NULL),tickInterval(0.2),enabled(true),visible(true)
 		{}
 		
-		void	Component::SignalKeyDown(int key)
+		void	Component::SignalKeyDown(Key::Name key)
 		{
 			//cout << "caught "<<key<<endl;
 			eEventResult rs = Unsupported;
@@ -2183,11 +2183,11 @@ namespace Engine
 			if (rs == Unsupported)
 			{
 				//cout << "forwarding down"<<endl;
-				input.cascadeKeyDown((Key::Name)key);
+				input.CascadeKeyPressed((Key::Name)key);
 			}
 		}
 		
-		void	Component::SignalKeyUp(int key)
+		void	Component::SignalKeyUp(Key::Name key)
 		{
 			eEventResult rs = Unsupported;
 			if (focused)
@@ -2196,7 +2196,7 @@ namespace Engine
 				focused->windowLink.lock()->Apply(rs);
 			}
 			if (rs == Unsupported)
-				input.cascadeKeyUp((Key::Name)key);
+				input.CascadeKeyReleased((Key::Name)key);
 		}
 		
 		
@@ -3250,19 +3250,19 @@ namespace Engine
 		
 		void Operator::bind(Key::Name key)
 		{
-			input->bind(key,std::bind(Component::SignalKeyDown,key),std::bind(Component::SignalKeyUp,key));
-			input->bindCtrl(key,std::bind(Component::SignalKeyDown,key));
+			input->Bind(key,Component::SignalKeyDown,Component::SignalKeyUp);
+			input->BindCtrl(key,Component::SignalKeyDown);
 		}
 
 		
 		/*static*/	POperator					Operator::create(Display<OpenGL>&display, const Mouse&mouse, InputMap&input, mode_t mode /*=Cylindrical*/)
 		{
 			POperator rs = POperator(new Operator(display,mouse,input,mode));
-			input.pushProfile();
-			input.bindProfile(my_profile);
+			input.PushProfile();
+			input.BindProfile(my_profile);
 				for (Key::Name k = (Key::Name)0; k <= Key::Max; k = (Key::Name)(k+1))
 					rs->bind(k);
-				//input.cascadeKeys();
+				//input.CascadeAllKeys();
 				//for (Key::Name k = (Key::Name)0; k <= Key::Max; k = (Key::Name)(k+1))
 				//{
 				//	if ((k < Key::A || k > Key::Z) && (k < Key::N0 || k > Key::N9) && k != Key::SZ && k != Key::AE && k != Key::UE && k != Key::OE && k != Key::Space && k != Key::Period && k != Key::Comma && k != Key::Minus && k != Key::Mesh)
@@ -3284,7 +3284,7 @@ namespace Engine
 				//rs->bind(Key::X);
 				//rs->bind(Key::V);
 				//rs->bind(Key::Tab);
-			input.popProfile();
+			input.PopProfile();
 		
 
 			bool aspect_was_in_projection = GlobalAspectConfiguration::loadAsProjection;
