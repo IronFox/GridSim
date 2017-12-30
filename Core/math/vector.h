@@ -538,7 +538,7 @@ namespace DeltaWorks
 				friend String			ToString(const Self&r)
 										{
 											using StringConversion::ToString;
-											return "["+ToString(r.min)+","+ToString(r.max)+"]";
+											return "["+ToString(r.min)+","+ToString(r.max)+"]("+ToString(r.GetExtent())+")";
 										}
 
 				friend void Serialize(IWriteStream&s, const Self&v)
