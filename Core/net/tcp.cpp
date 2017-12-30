@@ -312,12 +312,13 @@ namespace DeltaWorks
 								case TCommonEvent::NetworkEvent:
 									if (onEvent)
 									{
-										PPeer p = ev.sender.s.lock();
+										PPeer p = ev.sender.s;
 										Peer*ptr = p ? p.get() : ev.sender.p;
 										if (ptr)
 											onEvent(ev.event,*ptr);
 										else
 										{
+											//this should now be impossible with the use of shared_ptr instead of weak_ptr
 											throw Exception(CLOCATION,"peer reference lost in transit for event "+String(event2str(ev.event)));
 										}
 									}
@@ -325,7 +326,7 @@ namespace DeltaWorks
 								case TCommonEvent::Signal:
 									if (onSignal)
 									{
-										PPeer p = ev.sender.s.lock();
+										PPeer p = ev.sender.s;
 										Peer*ptr = p ? p.get() : ev.sender.p;
 										if (ptr)
 											onSignal(ev.channel,*ptr);

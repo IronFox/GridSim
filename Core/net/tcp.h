@@ -318,7 +318,7 @@ namespace DeltaWorks
 		struct TDualLink
 		{
 			Peer					*p;	//cannot avoid pointer sometimes
-			WPeer					s;
+			PPeer					s;
 
 			/**/					TDualLink():p(NULL){}
 			explicit				TDualLink(Peer*_p):p(_p)	{}
@@ -1400,7 +1400,7 @@ namespace DeltaWorks
 				
 				virtual	void			Handle(const PDispatchable&obj,const TDualLink&sender)	override
 				{
-					PPeer p = sender.s.lock();
+					PPeer p = sender.s;
 					Peer*ptr = p ? p.get() : sender.p;
 					if (ptr && ptr->userLevel >= MinUserLevel)
 					{
