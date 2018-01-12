@@ -82,30 +82,18 @@ namespace DeltaWorks
 				void					ResizePreserveContent(count_t len);		//!< Resizes the local buffer size but preserves the old content and fill level where possible. If the old fill level exceeds the new size then all new elements will be occupied and initialized
 				void					Fill(const T&pattern);					//!< Copies \b pattern to each element of the local buffer
 				template <typename Strategy2>
-					Self&				moveAppend(BasicBuffer<T,Strategy2>&buffer, bool clearSourceOnCompletion=true);	//!< Appends all elements in the specified other buffer to the end of the local buffer. The elements will be moved, leaving the parameter buffer empty upon completion.
-				template <typename Strategy2>
-					inline Self&		MoveAppend(BasicBuffer<T,Strategy2>&buffer, bool clearSourceOnCompletion=true)	/**@copydoc moveAppend()*/ {return moveAppend(buffer,clearSourceOnCompletion);}
-				Self&					moveAppend(Ctr::ArrayData<T>&array, bool clearSourceOnCompletion=true);					//!< Appends all elements in the specified array to the end of the local buffer. The elements will be moved, leaving the parameter array empty upon completion.	
-				inline Self&			MoveAppend(Ctr::ArrayData<T>&array, bool clearSourceOnCompletion=true)	/**@copydoc moveAppend()*/ {return moveAppend(array,clearSourceOnCompletion);}
+					Self&				MoveAppendAll(BasicBuffer<T,Strategy2>&buffer, bool clearSourceOnCompletion=true);	//!< Appends all elements in the specified other buffer to the end of the local buffer. The elements will be moved, leaving the parameter buffer empty upon completion.
+				Self&					MoveAppendAll(Ctr::ArrayData<T>&array, bool clearSourceOnCompletion=true);					//!< Appends all elements in the specified array to the end of the local buffer. The elements will be moved, leaving the parameter array empty upon completion.	
 				Self&					moveAppend(T*data, count_t elements);			//!< Appends all elements in the specified range to the end of the local buffer. The elements will be moved, leaving the individual objects of the parameter field empty upon completion.
 				inline Self&			MoveAppend(T*data, count_t elements)	/**@copydoc moveAppend()*/ {return moveAppend(data,elements);}
 				inline Self&			MoveAppend(std::initializer_list<T> items);
+				template <typename T2>
+					Self&				Append(const T2*data, count_t elements);	//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified number of elements. The buffer will automatically be resized if necessary.
+				template <typename T2>
+					Self&				AppendAll(std::initializer_list<T2> items);
+				Self&					AppendAll(const ArrayRef<T>&array);				//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified array's contained of elements. The buffer will automatically be resized if necessary.
 				template <typename T2, typename Strategy2>
-					Self&				AppendSubList(const BasicBuffer<T2,Strategy2>&other, index_t offset, count_t maxElements);
-				template <typename T2>
-					Self&				append(const T2*data, count_t elements);	//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified number of elements. The buffer will automatically be resized if necessary.
-				template <typename T2>
-					inline Self&		Append(const T2*data, count_t elements)		/**@copydoc Append()*/ {return append(data,elements);}
-				template <typename T2>
-					Self&				Append(std::initializer_list<T2> items);
-				template <typename T2>
-					Self&				append(const ArrayRef<T2>&array);				//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified array's contained of elements. The buffer will automatically be resized if necessary.
-				template <typename T2>
-					inline Self&		Append(const ArrayRef<T2>&array)			/**@copydoc Append()*/ {return append(array);}
-				template <typename T2, typename Strategy2>
-					Self&				append(const BasicBuffer<T2,Strategy2>&buffer);	//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified array's contained of elements. The buffer will automatically be resized if necessary.
-				template <typename T2, typename Strategy2>
-					inline Self&		Append(const BasicBuffer<T2,Strategy2>&buffer)	/**@copydoc Append()*/ {return append(buffer);}
+					Self&				AppendAll(const BasicBuffer<T2,Strategy2>&buffer);	//!< Appends a number of elements to the end of the buffer, advancing the buffer cursor by the specified array's contained of elements. The buffer will automatically be resized if necessary.
 				template <typename T2>
 					Self&				appendAddresses(T2*data, count_t elements);	//!< Appends the addresses of the specified elements to the end of the buffer (assuming T is a pointer type fo T2). The buffer will automatically be resized if necessary.
 				template <typename T2>

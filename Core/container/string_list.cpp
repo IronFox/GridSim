@@ -198,11 +198,11 @@ namespace DeltaWorks
 					{\
 						if (status.buffer.IsNotEmpty())\
 						{\
-							status.buffer.append(token_start,ch-token_start);\
+							status.buffer.Append(token_start,ch-token_start);\
 							TSegment segment = {status.buffer.pointer(),status.buffer.pointer()+status.buffer.Count()-1};\
 							if (trimSegment(segment,config))\
 								ADD_ENTRY(segment);\
-							status.buffer.reset();\
+							status.buffer.Clear();\
 						}\
 						else\
 						{\
@@ -216,11 +216,11 @@ namespace DeltaWorks
 					{\
 						if (status.buffer.IsNotEmpty())\
 						{\
-							status.buffer.append(token_start,ch-token_start-1);\
+							status.buffer.Append(token_start,ch-token_start-1);\
 							TSegment segment = {status.buffer.pointer(),status.buffer.pointer()+status.buffer.Count()-1};\
 							if (trimSegment(segment,config))\
 								ADD_ENTRY(segment);\
-							status.buffer.reset();\
+							status.buffer.Clear();\
 						}\
 						else\
 						{\
@@ -329,7 +329,7 @@ namespace DeltaWorks
 						double_escaped = true;
 			}
 		
-			status.buffer.append(token_start,ch-token_start);
+			status.buffer.Append(token_start,ch-token_start);
 		}
 	
 		void			tokenizeSegment(const char*composition_segment, const Configuration&config, Status&status, Container::StringList&target)
@@ -522,7 +522,7 @@ namespace DeltaWorks
 
 		void StringList::addEntries(const StringList&other)
 		{
-			Super::append(other);
+			Super::AppendAll(other);
 		}
 
 		StringList&  StringList::operator<<(String&&string)
@@ -781,7 +781,7 @@ namespace DeltaWorks
 
 		StringList::StringList(const StringList&other)
 		{
-			Super::append(other);
+			Super::AppendAll(other);
 		}
 
 

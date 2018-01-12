@@ -251,7 +251,7 @@ namespace DeltaWorks
 			{
 				//lock (_allItems)
 				{
-					_allItems.append(entries,numEntries);
+					_allItems.Append(entries,numEntries);
 					if (!_locked)
 						ForceReconstruction();
 					else

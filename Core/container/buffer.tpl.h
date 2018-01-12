@@ -872,7 +872,7 @@ template <typename T, typename MyStrategy> template <typename T2>
 	}
 
 template <typename T, typename MyStrategy> template <typename Strategy2>
-	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::moveAppend(BasicBuffer<T,Strategy2>&buffer, bool clearSourceOnCompletion/*=true*/)
+	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::MoveAppendAll(BasicBuffer<T,Strategy2>&buffer, bool clearSourceOnCompletion/*=true*/)
 	{
 		if (IsEmpty() && clearSourceOnCompletion)
 		{
@@ -887,7 +887,7 @@ template <typename T, typename MyStrategy> template <typename Strategy2>
 	}
 
 template <typename T, typename MyStrategy>
-	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::moveAppend(Ctr::ArrayData<T>&array, bool clearSourceOnCompletion/*=true*/)
+	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::MoveAppendAll(Ctr::ArrayData<T>&array, bool clearSourceOnCompletion/*=true*/)
 	{
 		moveAppend(array.pointer(),array.GetLength());
 		if (clearSourceOnCompletion)
@@ -916,14 +916,14 @@ template <typename T, typename MyStrategy>
 	}
 
 template <typename T, typename MyStrategy> template <typename T2>
-	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::Append(std::initializer_list<T2> items)
+	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::AppendAll(std::initializer_list<T2> items)
 	{
 		return append(items.begin(),items.size());
 	}
 
 
 template <typename T, typename MyStrategy> template <typename T2>
-	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::append(const T2*data, count_t elements)
+	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::Append(const T2*data, count_t elements)
 	{
 		ensureHasSpace(elements);
 		for (index_t i = 0; i < elements; i++)
@@ -936,28 +936,28 @@ template <typename T, typename MyStrategy> template <typename T2>
 		return *this;
 	}
 
-template <typename T, typename MyStrategy> template <typename T2, typename Strategy2>
-	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::AppendSubList(const BasicBuffer<T2,Strategy2>&other, index_t offset, count_t maxElements)
+//template <typename T, typename MyStrategy> template <typename T2, typename Strategy2>
+//	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::AppendSubList(const BasicBuffer<T2,Strategy2>&other, index_t offset, count_t maxElements)
+//	{
+//		if (offset >= other.Count())
+//			return *this;
+//		maxElements = std::min(maxElements,other.Count() - offset);
+//		if (!maxElements)
+//			return *this;
+//		return append(other.pointer()+offset,maxElements);
+//	}
+//
+
+template <typename T, typename MyStrategy> //template <typename T2>
+	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::AppendAll(const ArrayRef<T>&data)
 	{
-		if (offset >= other.Count())
-			return *this;
-		maxElements = std::min(maxElements,other.Count() - offset);
-		if (!maxElements)
-			return *this;
-		return append(other.pointer()+offset,maxElements);
+		return Append(data.pointer(),data.Count());
 	}
 
-
-template <typename T, typename MyStrategy> template <typename T2>
-	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::append(const ArrayRef<T2>&data)
-	{
-		return append(data.pointer(),data.Count());
-	}
-
 template <typename T, typename MyStrategy> template <typename T2, typename Strategy2>
-	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::append(const BasicBuffer<T2,Strategy2>&data)
+	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::AppendAll(const BasicBuffer<T2,Strategy2>&data)
 	{
-		return append(data.pointer(),data.Count());
+		return Append(data.pointer(),data.Count());
 	}
 
 

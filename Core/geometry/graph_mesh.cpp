@@ -762,7 +762,7 @@ namespace DeltaWorks
 				
 				if (v[0].position.x >= -TypeInfo<float>::error && v[1].position.x >= -TypeInfo<float>::error && v[2].position.x >= -TypeInfo<float>::error && v[3].position.x >= -TypeInfo<float>::error)
 				{
-					iout2.append(desc_out.quadIndices+i,4);
+					iout2.Append(desc_out.quadIndices+i,4);
 				}
 				elif (v[0].position.x < 0 && v[1].position.x < 0 && v[2].position.x < 0 && v[3].position.x < 0)
 				{

@@ -49,7 +49,7 @@ namespace DeltaWorks
 
 	static void writeSection(png_structp png, png_bytep data, png_size_t size)
 	{
-		out_buffer.append(data,(unsigned)size);
+		out_buffer.Append(data,size);
 	}
 
 	static void	flushSection(png_structp png)

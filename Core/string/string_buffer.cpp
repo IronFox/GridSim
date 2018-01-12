@@ -179,7 +179,7 @@ namespace DeltaWorks
 		if (!data.Last())	//terminating zero
 			Write(data.pointer(),data.GetLength()-1);
 		else
-			Super::append(data);
+			Super::AppendAll(data);
 		return *this;
 	}
 
@@ -194,7 +194,7 @@ namespace DeltaWorks
 
 	StringBuffer&  StringBuffer::operator<<(const StringBuffer&buffer)
 	{
-		Super::append(buffer);
+		Super::AppendAll(buffer);
 		return *this;
 	}
 
