@@ -762,7 +762,7 @@ namespace DeltaWorks
 				{
 					if (IsEmpty())
 						return Self();
-					start = std::min(start,elements-1);
+					start = std::min(start,elements);
 					count = std::min(count,elements-start);
 					return Self(data+start,count);
 				}
@@ -771,7 +771,7 @@ namespace DeltaWorks
 				{
 					if (IsEmpty())
 						return Self();
-					start = std::min(start,elements-1);
+					start = std::min(start,elements);
 					count_t count = elements-start;
 					return Self(data+start,count);
 				}
