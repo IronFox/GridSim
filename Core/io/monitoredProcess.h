@@ -6,6 +6,7 @@
 #include "../general/timer.h"
 #include "../global_string.h"
 #include "../general/thread_system.h"
+#include <functional>
 
 namespace DeltaWorks
 {
@@ -44,6 +45,13 @@ namespace DeltaWorks
 		virtual void	ThreadMain() override;
 		void			ThreadedStartProcess(const Paths&);
 	public:
+
+		/**
+		Called if the monitored process has ended, and the local object is not configured to automatically restart.
+		Note that the function is called asynchronously from a separate thread
+		*/
+		std::function<void()>	onEndAsync;
+
 		/**/			MonitoredProcess(bool autoRestart):autoRestart(autoRestart)	{}
 
 		virtual			~MonitoredProcess() {QuitThread();}

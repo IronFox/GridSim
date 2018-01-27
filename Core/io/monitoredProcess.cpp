@@ -440,7 +440,11 @@ namespace DeltaWorks
 					if (autoRestart)
 						ThreadedStartProcess(local);
 					else
+					{
+						if (onEndAsync)
+							onEndAsync();
 						return; //already flushed, no point terminating, no exception
+					}
 				}
 				Sleep(1000);
 			}
