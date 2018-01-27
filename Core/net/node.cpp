@@ -97,6 +97,15 @@ namespace DeltaWorks
 			return "undefined message";
 		}
 
+		const char*	GetLastError()
+		{
+			#if SYSTEM==WINDOWS
+				return Net::err2str(WSAGetLastError());
+			#else
+				return Net::err2str(errno);
+			#endif
+		}
+
 		const char*err2str(unsigned code)
 		{
 			#if SYSTEM!=WINDOWS

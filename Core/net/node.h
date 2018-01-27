@@ -161,7 +161,7 @@ namespace DeltaWorks
 		bool		initNet();
 	
 		const char*	err2str(unsigned code);
-
+		const char*	GetLastError();
 
 
 		void sysmessage(Node*node, const String&str);

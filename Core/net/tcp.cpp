@@ -100,11 +100,7 @@ namespace DeltaWorks
 
 		static const char* lastSocketError()
 		{
-			#if SYSTEM==WINDOWS
-				return Net::err2str(WSAGetLastError());
-			#else
-				return Net::err2str(errno);
-			#endif
+			return Net::GetLastError();
 		}
 
 		const char*	event2str(event_t event)
