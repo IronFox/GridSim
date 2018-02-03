@@ -1039,6 +1039,8 @@ namespace DeltaWorks
 				Template<T>&			SetLength(size_t newLength)	{return setLength(newLength);}
 				template <typename IndexType>
 					Template<T>			subString(IndexType index, count_t count=MaxLengthConst) const;	//!< Creates a string copy containing the specified sub string of the local string @param index Index of the sub string to extract with 0 being the first character  Invalid values are clamped to the valid range. @param count Number of characters to extract starting at @a index @return Extracted string
+				template <typename IndexType>
+					Template<T>			SubString(IndexType index, count_t count=MaxLengthConst) const	{return subString(index,count);}
 				ReferenceExpression<T>	subStringRef(sindex_t index, count_t count=MaxLengthConst) const;	//!< Creates a string reference expression pointing to the specified sub string of the local string. The returned object remains valid as long as the local string object is not deleted or modified @param index Index of the sub string to extract with 0 being the first character  Invalid values are clamped to the valid range. @param count Number of characters to extract starting at @a index @return String segment
 				ReferenceExpression<T>	SubStringRefS(sindex_t index, count_t count=MaxLengthConst) const	/**@copydoc subStringRef()*/ {return subStringRef(index,count);}
 				ReferenceExpression<T>	SubStringRef(index_t index, count_t count=MaxLengthConst) const	/**@copydoc subStringRef()*/ {return subStringRef(sindex_t(index),count);}
