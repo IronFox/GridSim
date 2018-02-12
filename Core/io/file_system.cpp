@@ -343,7 +343,7 @@ namespace DeltaWorks
 
 		Folder::Folder(const PathString&folder_string) : absolute_folder(GetWorkingDirectory()), find_handle(NULL)
 		{
-			MoveTo(folder_string);
+			ResolvePath(folder_string,nullptr,absolute_folder);
 		}
 
 		Folder::Folder(const File&file):find_handle(NULL)
