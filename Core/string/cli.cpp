@@ -497,7 +497,12 @@ namespace DeltaWorks
 				}
 				return lookup.variable;
 			}
-		
+			if (!setMayCreateVariables)
+			{
+				error = "Creation of new variables via assignment is not allowed";
+				return PVariable();
+			}
+
 			int	ival;
 			float vval;
 		

@@ -415,7 +415,8 @@ namespace DeltaWorks
 			
 			bool						_EntryLookup(const String&name, bool mayExist);	//!< Attempts to locate an element by the specified name (and path). @param name Path to look for @param may_exist Set false to let the function fail if an element of that name exists @return true on success, false otherwise
 		public:
-			//Sorted<List::M::Vector3<Command>,NameSort>	global_commands;	//!< List of commands that work in all contexts
+			bool						setMayCreateVariables = true;
+
 			ItemTable<Command>			globalCommands;
 			std::function<void(PVariable)>	onVariableCall;	//!< Callback function invoked whenever a variable is executed (NULL by default)
 
