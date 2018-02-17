@@ -162,6 +162,7 @@ namespace DeltaWorks
 			void				terminate();													//!< Terminates thread execution. A thread should rather return than self terminate
 			inline void			Terminate() {terminate();}
 			void				awaitCompletion(DWORD maxWaitMilliseconds=0xFFFFFFFF);												 //!< Waits until thread has returned. Do not call from the thread itself
+			inline void			AwaitCompletion(DWORD maxWaitMilliseconds=0xFFFFFFFF)/**@copydoc awaitCompletion()*/ {awaitCompletion(maxWaitMilliseconds);}
 			bool				CheckAwaitCompletion(DWORD maxWaitMilliseconds=0xFFFFFFFF);
 			bool				isActive()	const;											//!< Query thread status \return true, if the thread is currently running
 			inline bool			IsActive() const {return isActive();}
@@ -186,6 +187,7 @@ namespace DeltaWorks
 				using Thread::isActive;
 				using Thread::IsActive;
 				using Thread::awaitCompletion;
+				using Thread::AwaitCompletion;
 				using Thread::CheckAwaitCompletion;
 				using Thread::terminate;
 				using Thread::Terminate;
