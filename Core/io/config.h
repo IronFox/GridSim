@@ -107,6 +107,15 @@ namespace DeltaWorks
 											
 			virtual						~Context()	{};
 		
+			/**
+			Attempts to update the given attribute to the specified new value.
+			An Except::Program::DataConsistencyFault exception is thrown if the specified path is not found.
+			If missing variables are expected, use Define() instead.
+			@param path Attribute path to look for
+			@param newValue Attribute value to update to
+			@return Reference to the found attribute
+			*/
+			Attribute&					Change(const String&path, const String&newValue);
 			Attribute&					Define(const String&name, const String&value="");
 			Context&					DefineContext(const String&name);	//!< Defines a new context within this one if one of the specified name does not already exist
 			Context&					CreateContext(const String&name);	//!< Defines a new context within this one even if one of the specified name already exists.

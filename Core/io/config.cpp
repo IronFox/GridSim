@@ -57,6 +57,16 @@ namespace DeltaWorks
 			return rs;
 		}
 
+
+		Context::Attribute&		Context::Change(const String&path, const String&newValue)
+		{
+			auto attrib = this->GetAttrib(path);
+			if (attrib == nullptr)
+				throw Except::Program::DataConsistencyFault("Configuration Context: Unable to find '"+path+"' in the local configuration. Unable to update");
+			attrib->value = newValue;
+			return *attrib;
+		}
+
 		Context::Attribute&		Context::Define(const String&name, const String&value)
 		{
 			if (!name.Contains('/'))
