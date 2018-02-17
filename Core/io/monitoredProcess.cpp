@@ -432,8 +432,7 @@ namespace DeltaWorks
 
 			while (!quitThread)
 			{
-				DWORD code;
-				bool running = (GetExitCodeProcess(infoOut.hProcess,&code)!=0 &&  code == STILL_RUNNING);
+				bool running = (GetExitCodeProcess(infoOut.hProcess,&lastExitCode)!=0 && lastExitCode == STILL_RUNNING);
 				if (!running)
 				{
 					Flush();

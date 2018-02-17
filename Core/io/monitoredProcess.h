@@ -33,7 +33,7 @@ namespace DeltaWorks
 		
 		mutable Sys::SpinLock	faultLock;
 		String			lastFault;
-
+		DWORD			lastExitCode=0;
 
 
 
@@ -85,6 +85,9 @@ namespace DeltaWorks
 		bool			IsFaulted() const;
 		String			GetLastFault() const;
 		bool			HasAnyVisibleWindows() const;
+		DWORD			GetLastExitCode() const {return lastExitCode;}
+
+		Sys::ThreadObject::AwaitCompletion;
 	};
 }
 
