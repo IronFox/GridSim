@@ -169,33 +169,48 @@ namespace DeltaWorks
 		}
 
 
+		static bool UpdateComponent(const String&variable, const String&value)
+		{
+			index_t p = variable.Find('.');
+			if (p == InvalidIndex)
+				return false;
+
+			String var = variable.SubString(0,p);
+			StringRef component = variable.SubStringRef(p+1);
+			CLI::PVariable v = main_interpretor->FindVar(var);
+			if (!v)
+			{
+				println("Unknown variable: '"+var+"'. Variable must be set for component access");
+				return true;
+			}
+			if (v->IsWriteProtected())
+			{
+				println("Variable '"+var+"' is write-protected");
+				return true;
+			}
+			if (!v->Set(component,value))
+			{
+				println("Failed to update '"+variable+"'");
+				return true;
+			}
+			if (echoSetOperation)
+				println(v->name+" set to "+v->ConvertToString());
+			return true;
+		}
+		
+
 
 		static void	Set(const String&variable, const String&value)
 		{
+			if (UpdateComponent(variable,value))
+				return;
 			CLI::PVariable v;
-			index_t p = variable.Find('.');
-			if (p != InvalidIndex)
+			if (!(v=main_interpretor->Set(variable,value)))
 			{
-				String var = variable.subString(0,p),
-						component = variable.subString(p+1);
-				v = main_interpretor->FindVar(var);
-				if (!v)
-				{
-					println("Unknown variable: '"+var+"'. Variable must be set for component access");
-					return;
-				}
-				if (!v->Set(component,value))
-				{
-					println("Failed to update '"+variable+"'");
-					return;
-				}
+				println(main_interpretor->GetErrorStr());
+				return;
 			}
-			else
-				if (!(v=main_interpretor->Set(variable,value)))
-				{
-					println(main_interpretor->GetErrorStr());
-					return;
-				}
+
 			if (echoSetOperation)
 				println(v->name+" set to "+v->ConvertToString());
 		}
