@@ -1,5 +1,6 @@
 #include "../global_root.h"
 #include "string_file.h"
+#include "../general/system.h"
 
 /******************************************************************
 
@@ -149,7 +150,7 @@ namespace DeltaWorks
 		Close();
 		f = FOPEN(filename.c_str(),"rb");
 		if (f == nullptr)
-			throw Except::IO::DriveAccess::FileOpenFault(CLOCATION,"Failed to open file "+String(filename)+" for read access");
+			throw Except::IO::DriveAccess::FileOpenFault(CLOCATION,"Failed to open file "+String(filename)+" for read access: "+Sys::GetLastErrorString());
 		active = true;
 		write_mode = false;
 		read_mode = true;
@@ -163,7 +164,7 @@ namespace DeltaWorks
 		Close();
 		f = FOPEN(filename.c_str(),"wb");
 		if (f == nullptr)
-			throw Except::IO::DriveAccess::FileOpenFault(CLOCATION,"Failed to create file "+String(filename));
+			throw Except::IO::DriveAccess::FileOpenFault(CLOCATION,"Failed to create file "+String(filename)+": "+Sys::GetLastErrorString());
 		active = true;
 		write_mode = true;
 		read_mode = false;
@@ -177,7 +178,7 @@ namespace DeltaWorks
 		Close();
 		f = FOPEN(filename.c_str(),"a+b");
 		if (f == nullptr)
-			throw Except::IO::DriveAccess::FileOpenFault(CLOCATION,"Failed to append to file "+String(filename));
+			throw Except::IO::DriveAccess::FileOpenFault(CLOCATION,"Failed to append to file "+String(filename)+": "+Sys::GetLastErrorString());
 		
 		active = true;
 		write_mode = true;
