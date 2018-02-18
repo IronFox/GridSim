@@ -57,11 +57,13 @@ namespace DeltaWorks
 		void	BeginFatal()
 		{
 			static volatile bool doBreak = true;
-			if (IsDebuggerPresent() && doBreak)
-			{
-				doBreak = false;
-				DebugBreak();
-			}
+			#ifdef _DEBUG
+				if (IsDebuggerPresent() && doBreak)
+				{
+					doBreak = false;
+					DebugBreak();
+				}
+			#endif
 
 			fatal_mutex.lock();
 		}
