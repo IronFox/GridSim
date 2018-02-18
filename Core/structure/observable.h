@@ -26,11 +26,16 @@ namespace DeltaWorks
 			void	operator=(const Self &other) = delete;
 
 			/**
-			Drops all observers from the local observable
+			Drops all observers from the local observable.
 			*/
-			void	Clear()	{functions.Clear();}
+			void	Clear()
+			{
+				functions.Clear();
+				keyMap.Clear();
+			}
 			/**
-			Invokes all registered observers using the given parameters
+			Invokes all registered observers using the given parameters.
+			Executed observers may alter the local registration during execution, or trigger observables recursively
 			*/
 			void	operator()(T...p)
 			{
@@ -47,7 +52,7 @@ namespace DeltaWorks
 			}
 			/**
 			Appends the specified observer function to the local registration
-			@param f Observer to append. The same observer may be appended multiple times
+			@param f Observer to append. The same observer may be appended multiple times, causing it to be invoked multiple times on trigger
 			*/
 			void	operator+=(const F&f)
 			{
@@ -56,7 +61,7 @@ namespace DeltaWorks
 			/**
 			Appends the specified observer function to the local registration, 
 			and returns a reference to this for further appends.
-			@param f Observer to append. The same observer may be appended multiple times
+			@param f Observer to append. The same observer may be appended multiple times, causing it to be invoked multiple times on trigger
 			@return *this
 			*/
 			Observable&	operator<<(const F&f)
@@ -80,7 +85,7 @@ namespace DeltaWorks
 			Keys iterate across the local register size (32bit, 64bit), and are not reused
 			until the iteration value space wraps back to 0.
 			The method never returns InvalidIndex or a key to a currently registered observer.
-			@param f Observer to append. The same observer may be appended multiple times
+			@param f Observer to append. The same observer may be appended multiple times, causing it to be invoked multiple times on trigger
 			@return Unique key to the registered observer. 
 					Never InvalidIndex, or the key of a previously registered observer.
 			*/
@@ -158,11 +163,8 @@ namespace DeltaWorks
 			index_t						iterating = 0;
 			Ctr::Buffer0<TFunction,Swap>functions;
 			Ctr::IndexTable<index_t>	keyMap;
-			static index_t				keyCounter;
+			index_t						keyCounter = 0;
 		};
-
-	template <typename...T>
-		index_t Observable<T...>::keyCounter = 0;
 }
 
 #endif
