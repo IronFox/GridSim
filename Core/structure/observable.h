@@ -35,7 +35,7 @@ namespace DeltaWorks
 			}
 			/**
 			Invokes all registered observers using the given parameters.
-			Executed observers may alter the local registration during execution, or trigger observables recursively
+			Executed observers may safely alter the local registration during execution, and/or trigger observables recursively
 			*/
 			void	operator()(T...p)
 			{
