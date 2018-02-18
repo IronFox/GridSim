@@ -32,6 +32,7 @@ namespace DeltaWorks
 			{
 				functions.Clear();
 				keyMap.Clear();
+				dropBuffer.Clear();	//under normal circumstances this would be empty. If this method is invoked during a trigger, any previous keys would be invalid. Better clear
 			}
 			/**
 			Invokes all registered observers using the given parameters.
