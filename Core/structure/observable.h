@@ -10,7 +10,8 @@ namespace DeltaWorks
 {
 	/**
 	General-purpose observer registration to be triggered on specific events.
-	Usage: Observable&lt;int&gt; if the event requires an int parameter
+	The class is generally not thread-safe.
+	Usage: Observable &lt; int &gt; if the event requires an int parameter, or Observable &lt; &gt; if no parameters are required.
 	*/
 	template <typename...T>
 		class Observable
@@ -77,9 +78,11 @@ namespace DeltaWorks
 			Appends the specified observer function to  the local registration,
 			and returns a unique key to it, so that it can be removed individually later.
 			Keys iterate across the local register size (32bit, 64bit), and are not reused
-			until the value space wraps back to 0.
+			until the iteration value space wraps back to 0.
+			The method never returns InvalidIndex or a key to a currently registered observer.
 			@param f Observer to append. The same observer may be appended multiple times
-			@return Unique key to the registered observer
+			@return Unique key to the registered observer. 
+					Never InvalidIndex, or the key of a previously registered observer.
 			*/
 			index_t		Register(const F&f)
 			{
@@ -87,7 +90,7 @@ namespace DeltaWorks
 				TFunction&func = functions.Append();
 				func.function = f;
 				keyCounter++;
-				while (keyMap.IsSet(keyCounter))
+				while (keyCounter == InvalidIndex || keyMap.IsSet(keyCounter))
 					keyCounter++;
 				func.key = keyCounter;
 				keyMap.Set(keyCounter,at);
