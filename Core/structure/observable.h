@@ -36,7 +36,12 @@ namespace DeltaWorks
 			}
 			/**
 			Invokes all registered observers using the given parameters.
-			Executed observers may safely alter the local registration during execution, and/or trigger observables recursively
+			Executed observers may safely alter the local registration during execution, and/or trigger observables recursively.
+			Newly appended observers are triggered after all previously existing observers have been executed.
+			Any observers unregistered during invocation will be executed one last time, regardless of order.
+
+			If Clear() is called during invocation, then iteration usually stops, even if new observers are subsequently registered.
+			Execution or non-execution are not guaranteed in this case, however.
 			*/
 			void	operator()(T...p)
 			{
