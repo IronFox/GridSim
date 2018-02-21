@@ -61,7 +61,7 @@ namespace DeltaWorks
 
 	inline int system(const String&str)
 	{
-		return system(str.c_str());
+		return ::system(str.c_str());
 	}
 }
 
