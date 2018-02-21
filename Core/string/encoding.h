@@ -68,7 +68,7 @@ namespace DeltaWorks
 			#ifdef WIN32
 				static_assert(sizeof(wchar_t)==sizeof(char16_t),"Expected wchar_t to be 16 bit on windows");
 				void		ToUTF32(const StringType::ReferenceExpression<wchar_t>&utf16Source, UTF32String&utf32Dest);
-				void		ToUTF32(const UTF16String&utf16Source, UTF32String&utf32Dest);
+				void		ToUTF32(const StringW&utf16Source, UTF32String&utf32Dest);
 			#endif
 		}
 

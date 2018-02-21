@@ -668,6 +668,17 @@ namespace DeltaWorks
 				Utf8ToUtf16T(utf8Source.ref(),utf16Dest);
 			}
 
+			void	UTF16::ToUTF32(const StringType::ReferenceExpression<wchar_t>&utf16Source, UTF32String&utf32Dest)
+			{
+				VariableLengthToFixedLength<UTF16Code<wchar_t>,UTF32FixedCode>(utf16Source,utf32Dest);
+			}
+
+			void	UTF16::ToUTF32(const StringW&utf16Source, UTF32String&utf32Dest)
+			{
+				UTF16::ToUTF32(utf16Source.ref(),utf32Dest);
+			}
+
+
 		#endif
 
 		void	UTF32::ToUTF16(const UTF32String&utf32Source, StringType::Template<char16_t>&utf16Dest)
