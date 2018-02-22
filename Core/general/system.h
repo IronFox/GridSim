@@ -310,6 +310,16 @@ namespace DeltaWorks
 		bool					getFromClipboardIfText(HWND window, char*buffer, size_t buffer_size);
 	
 		int						getConsoleWidth();		//!< Retrieves the visual width of the console in characters
+
+		/**
+		Effective only on windows, and on Windows versions where QuickEdit is enabled by default.
+		This function disables QuickEdit on the currently active console (if any).
+
+		QuickEdit can freeze the application if the user decides to click anywhere in the window.
+		Unfortunately, it can freeze some console applications permanently.
+		The standard mark feature does the same, but is better hidden.
+		*/
+		void					DisableConsoleQuickEdit();
 	
 		#if SYSTEM==WINDOWS
 			inline void sleep(DWORD milsec)   {::Sleep(milsec);}
@@ -319,6 +329,7 @@ namespace DeltaWorks
 			Formats a windows error code to string
 			*/
 			void				WindowsErrorToString(DWORD lastError, char*outMsg, size_t outSize);
+
 
 		#elif SYSTEM==UNIX
 			inline void sleep(unsigned milsec)   {usleep(milsec*1000);}

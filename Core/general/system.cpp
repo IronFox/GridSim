@@ -686,6 +686,25 @@ namespace DeltaWorks
 				#error not supported
 			#endif
 	   }*/
+
+		void DisableConsoleQuickEdit()
+		{
+			#if SYSTEM==WINDOWS	
+				const HANDLE handle = GetStdHandle(STD_INPUT_HANDLE);
+				if (handle != INVALID_HANDLE_VALUE && handle != NULL)
+				{
+					DWORD current = 0;
+					GetConsoleMode(handle, &current);
+
+					current &= ~ENABLE_QUICK_EDIT_MODE;	//strip flag
+					current &= ~ENABLE_INSERT_MODE;
+					current |= ENABLE_EXTENDED_FLAGS;	//make sure it's not ignored
+
+					SetConsoleMode(handle, current);
+				}
+			#endif
+
+		}
    
 	}
 }
