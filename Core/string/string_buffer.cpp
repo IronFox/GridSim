@@ -25,6 +25,12 @@ namespace DeltaWorks
 		memcpy(Super::AppendRow(string.GetLength()),string.c_str(),string.GetLength());
 	}
 
+	bool				StringBuffer::operator==(const StringRef&other) const
+	{
+		return this->GetLength() == other.GetLength() && !memcmp(pointer(),other.GetPointer(),GetLength());
+	}
+
+
 
 	StringBuffer&	StringBuffer::operator=(const StringBuffer&other)
 	{

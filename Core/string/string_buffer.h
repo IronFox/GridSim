@@ -14,6 +14,12 @@ namespace DeltaWorks
 		/**/				StringBuffer(size_t len=1024);
 		/**/				StringBuffer(const char*string, size_t extra=100);
 		/**/				StringBuffer(const String&string, size_t extra=100);
+		bool				operator==(const StringRef&other) const;
+		bool				operator==(const String&other) const	{return operator==(other.ref());}
+		bool				operator==(const char*other) const		{return operator==(StringRef(other));}
+		bool				operator!=(const StringRef&other) const	{return !operator==(other);}
+		bool				operator!=(const String&other) const	{return !operator==(other);}
+		bool				operator!=(const char*other) const	{return !operator==(other);}
 		StringBuffer&		operator=(const StringBuffer&other);
 		StringBuffer&		operator=(const String&string);
 		StringBuffer&		operator=(const char*string);
