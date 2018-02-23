@@ -85,6 +85,11 @@ namespace DeltaWorks
 		bool			IsFaulted() const;
 		String			GetLastFault() const;
 		bool			HasAnyVisibleWindows() const;
+		/**
+		Gets all windows associated with the monitored process
+		@param[out] outWindows Container to hold all encountered windows. Emptied if no process is currently monitored
+		*/
+		void			GetWindows(Array<HWND>&outWindows) const;
 		DWORD			GetLastExitCode() const {return lastExitCode;}
 
 		Sys::ThreadObject::AwaitCompletion;

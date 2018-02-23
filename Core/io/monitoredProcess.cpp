@@ -523,6 +523,20 @@ namespace DeltaWorks
 		QuitThread();
 	}
 
+	void		MonitoredProcess::GetWindows(Array<HWND>&outWindows) const
+	{
+		const DWORD pid = infoOut.dwProcessId;
+		if (pid)
+		{
+			Vector0<HWND>	windows;
+			MonitorDetails::EnumerateWindows(pid,windows);
+			windows.CopyToArray(outWindows);
+		}
+		else
+			outWindows.SetSize(0);
+	}
+
+
 	bool		MonitoredProcess::HasAnyVisibleWindows() const
 	{
 		const DWORD pid = infoOut.dwProcessId;
