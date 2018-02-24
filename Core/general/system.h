@@ -295,7 +295,14 @@ namespace DeltaWorks
 
 		const char*				getFirstEnv(const char**field, unsigned len, const char*except);	//!< Returns the first non-NULL environment variable or \b except if no such could be found \param field Field containing key-names to check for \param len Number of entries in the name field \param except String to return if no matching key was found \return First non-NULL result of getenv(...) or \b except if none was found
 	
-		unsigned				getProcessorCount();	//!< Queries the number of processors available on the local system \return number of processors
+
+
+		/**
+		Queries the number of logical processors available on the local system 
+		@return number of logical processors
+		*/
+		count_t					QueryLogicalProcessorsCount();
+		inline count_t			getProcessorCount()		/**@copydoc QueryLogicalProcessorsCount()*/ {return QueryLogicalProcessorsCount();}
 		const char*				getSystemName();		//!< Queries the name of the currently used operating system \return System name or 'unknown' if the name was not determinable
 		const char*				getUserName();			//!< Queries the name of the currently logged in user \return User name or 'unknown' if the name was not determinable
 		const char*				getUserDomain();		//!< Queries the domain, the currently logged in user is member of \return User domain name or '' if the domain was not determinable

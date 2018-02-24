@@ -543,41 +543,19 @@ namespace DeltaWorks
 		}
 
 
-		unsigned                getProcessorCount()
+		count_t					QueryLogicalProcessorsCount()
 		{
 			#if SYSTEM==LINUX
-				/*
-				FILE*f = fopen("/proc/cpuinfo","rb");
-				if (!f)
-					return 1;
-				unsigned cnt = 0;
-				char buffer[0x200];
-				while (fgets(buffer,sizeof(buffer),f))
-				{
-					char*at = buffer;
-					while (char*found = strstr(at,"processor"))
-					{
-						cnt++;
-						at = found + 10;
-					}
-				}
-				fclose(f);
-
-				return cnt;*/
-				return (unsigned)sysconf(_SC_NPROCESSORS_CONF);
+				//return (unsigned)sysconf(_SC_NPROCESSORS_CONF);
+				return (count_t)get_nprocs();
 			#elif SYSTEM==WINDOWS
-
 				const char*str = getenv("NUMBER_OF_PROCESSORS");
 				if (!str)
 					return 1;
-				unsigned cnt(0);
-				while (*str)
-				{
-					cnt *= 10;
-					cnt += (*str)-'0';
-					str++;
-				}
-				return cnt;
+				auto rs = strtoul(str,NULL,10);
+				if (rs == 0 || rs == ULONG_MAX)
+					return 1;
+				return (count_t)rs;
 			#else
 				#error not supported
 			#endif
