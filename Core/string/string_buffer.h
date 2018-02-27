@@ -57,7 +57,7 @@ namespace DeltaWorks
 		StringRef			ToStringRef()	const;		//!< Returns a string reference to the local content
 		String				CopyToString()		const;		//!< Copies the local content to a string
 
-		inline void			Write(const T*str, size_t strLen)	{memcpy(Super::appendRow(strLen),str,strLen);}
+		inline void			Write(const T*str, size_t strLen)	{memcpy(Super::AppendRow(strLen),str,strLen*sizeof(T));}
 
 	private:
 		template <typename N, typename UN>
