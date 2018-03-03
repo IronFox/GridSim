@@ -49,54 +49,6 @@ namespace DeltaWorks
 	namespace System //! Translation namespace for common system tasks
 	{
 
-
-		class SharedLibrary	   //! Shared library handler (for DLLs/SOs)
-		{
-		private:
-			#if SYSTEM==WINDOWS
-				HMODULE	 	module_handle;
-			#elif SYSTEM==UNIX
-				void	   *module_handle;
-			#endif
-
-							SharedLibrary(const SharedLibrary&other)	{};
-				void		operator=(const SharedLibrary&other)	{};
-		public:
-							SharedLibrary();
-							SharedLibrary(const char*filename);	//!< Load constructor \param filename Full path to the shared library file (including extension)
-		virtual				~SharedLibrary();
-				bool		load(const char*filename);			//!< Closes if open and loads the specified shared library. Note that especially on unix systems this method may fail to find shared objects if the provided path is not full/absolute (starting with with a slash on unix systems) \param filename Full path to the shared library file (including extension) \return true on success, false otherwise
-				bool		loadFromFile(const char*filename);	//!< Identical to load()
-				bool		open(const char*filename);			//!< Identical to load()
-				void		close();							//!< Closes a loaded shared library
-				bool		loaded();						   //!< Queries load state \return true, if a shared library is currently loaded
-				bool		isActive();						 //!< Identical to loaded() - Queries load state \return true, if a shared library is currently loaded
-				void*	 	locate(const char*funcname);		//!< Locates a symbol in the currently loaded library \param funcname Name of the function that should be located \return Pointer to the function
-				/*!
-					\brief Locates a symbol and automatically casts it to the result type.
-					\param funcname Name of the function that should be located
-					\param target Out pointer target
-					\return true on success
-				*/
-				template <class FuncType>
-				bool		locate(FuncType&target,const char*funcname)
-							{
-								target = (FuncType)locate(funcname);
-								return target!=NULL;
-							}
-				template <class FuncType>
-				bool		locate(const char*funcname, FuncType&target)
-							{
-								target = (FuncType)locate(funcname);
-								return target!=NULL;
-							}
-				const char*	errorStr();
-				const char*	GetError()	{return errorStr();}
-
-				void		adoptData(SharedLibrary&other);
-		};
-
-
 	
 
 
@@ -338,7 +290,7 @@ namespace DeltaWorks
 			void				WindowsErrorToString(DWORD lastError, char*outMsg, size_t outSize);
 
 
-		#elif SYSTEM==UNIX
+		#elif SYSTEM==LINUX
 			inline void sleep(unsigned milsec)   {usleep(milsec*1000);}
 		#endif
 	

@@ -59,88 +59,7 @@ namespace DeltaWorks
 
 
 
-
-		SharedLibrary::SharedLibrary():module_handle(NULL)
-		{}
-
-
-		SharedLibrary::SharedLibrary(const char*filename):module_handle(NULL)
-		{
-			load(filename);
-		}
-
-		SharedLibrary::~SharedLibrary()
-		{
-			if (!application_shutting_down)
-				close();	//this can, apparently, freeze
-		}
-	
-		void SharedLibrary::adoptData(SharedLibrary&other)
-		{
-			close();
-			module_handle = other.module_handle;
-			other.module_handle = NULL;
-		}
-
-		bool SharedLibrary::load(const char*filename)
-		{
-			close();
-			if (!filename)
-				return false;
-			#if SYSTEM==WINDOWS
-				module_handle = LoadLibraryA(filename);
-			#elif SYSTEM==UNIX
-				module_handle = dlopen(filename,RTLD_LAZY);
-			#endif
-			return module_handle!=NULL;
-		}
-
-		bool	SharedLibrary::loadFromFile(const char*filename)
-		{
-			return load(filename);
-		}
-
-		bool	SharedLibrary::open(const char*filename)
-		{
-			return load(filename);
-		}
-
-		bool SharedLibrary::loaded()
-		{
-			return module_handle!=NULL;
-		}
-
-		bool SharedLibrary::isActive()
-		{
-			return module_handle!=NULL;
-		}
-
-
-		void SharedLibrary::close()
-		{
-			if (!module_handle)
-				return;
-			#if SYSTEM==WINDOWS
-				FreeLibrary(module_handle);
-			#elif SYSTEM==UNIX
-				dlclose(module_handle);
-			#endif
-			module_handle = NULL;
-		}
-
-		void* SharedLibrary::locate(const char*funcname)
-		{
-			if (!module_handle)
-				return NULL;
-			#if SYSTEM==WINDOWS
-				return (void*)GetProcAddress(module_handle,funcname);
-			#elif SYSTEM==UNIX
-				return dlsym(module_handle,funcname);
-			#else
-				#error unsupported
-			#endif
-		}
-
+		
 		#if SYSTEM==WINDOWS
 
 			void	WindowsErrorToString(DWORD lastError, char*outMsg, size_t outSize)
@@ -171,18 +90,6 @@ namespace DeltaWorks
 				return error_buffer;
 			}
 		#endif
-	
-		const char*  SharedLibrary::errorStr()
-		{
-			#if SYSTEM==UNIX
-				return dlerror();
-			#elif SYSTEM==WINDOWS
-				return getLastError();
-
-			#else
-				#error unsupported
-			#endif
-		}
 
 
 		Pipe::Pipe(DWORD size)

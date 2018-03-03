@@ -4,6 +4,7 @@
 #include <Windows.h>
 #endif
 #include <algorithm>
+#include "../io/sharedLibrary.h"
 
 namespace DeltaWorks
 {
@@ -37,11 +38,11 @@ namespace DeltaWorks
 			Init()
 			{
 				#if SYSTEM == WINDOWS
-					bool success = kernel_library.load("kernel32.dll");
-					const char*const error = success?"":kernel_library.GetError();
-					ASSERT__(success);
+					bool success = kernel_library.Open("kernel32.dll");
+					const String error = success?"":kernel_library.GetOpenError();
+					ASSERT1__(success,error);
 
-					if (!kernel_library.locate("CancelSynchronousIo",cancelSynchronousIo))
+					if (!kernel_library.FindFunction("CancelSynchronousIo",cancelSynchronousIo))
 						cancelSynchronousIo = NULL;
 
 				
