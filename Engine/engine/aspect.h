@@ -155,8 +155,16 @@ public:
 	MF_DECLARE(String)			ToString()															const;	//!< Creates a string representation of the local aspect. \return String representation.
 	MF_DECLARE(const M::TVec3<C>&)	GetAbsoluteLocation()													const;	//!< Returns the absolute realworld coordinates of the local aspect object
 	MF_DECLARE(void)			LoadIdentity();														//!< Resets all matrices and vectors to identity. New aspects automatically load identity into every matrix.
-	MF_DECLARE(M::TVec3<C>&)		GetViewingDirection();													//!< Retrieves the vector describing the local camera's viewing direction
-	MF_DECLARE(const M::TVec3<C>&)	GetViewingDirection()		const;										//!< \overload
+
+	/**
+	Calculates the normalized looking direction.
+	Points along the central direction the camera is looking.
+	Simple negation of the view invert z axis.
+
+	@return Forward viewing direction (inherently normalized)
+	*/
+	MF_DECLARE(M::TVec3<C>)		GetForwardDirection()		const	{M::TVec3<C> rs = {-viewInvert.z.x,-viewInvert.z.y,-viewInvert.z.z}; return rs;}
+
 };
 
 

@@ -876,17 +876,6 @@ template <class C> MF_DECLARE (void) Camera<C>::UpdateView()
 	M::Mat::invertSystem(view,viewInvert);
 }
 
-template <class C>
-	MF_DECLARE (M::TVec3<C>&)			Aspect<C>::GetViewingDirection()
-	{
-		return viewInvert.z.xyz;
-	}
-	
-template <class C>
-	MF_DECLARE (const M::TVec3<C>&)	Aspect<C>::GetViewingDirection()		const
-	{
-		return viewInvert.z.xyz;
-	}
 
 template <class C>
 MFUNC3 (void) Camera<C>::Translate(const C0&x, const C1&y, const C2&z)
