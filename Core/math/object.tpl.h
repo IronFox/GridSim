@@ -1309,42 +1309,80 @@ template <class Def> MF_DECLARE (String)	_oCheckNeighborIntegrity(const DynamicM
 	return "";
 }
 	
-MFUNC4 (bool)		_oDetectOpticalBoxIntersection(const M::Box<C0>&box, const M::TVec3<C1>&b, const M::TVec3<C2>&d, C3&distance)
+namespace Obj
 {
-	bool result = false;
-	for (BYTE k = 0; k < 3; k++)
-		if (d.v[k])
-		{
-			BYTE	i = (k+1)%3,
-					j = (k+2)%3;
-			C2 f = (box.axis[k].min-b.v[k])/(d.v[k]),x,y;
-			if (f >= -Math::GetError<C2>() && f < distance)
+
+	MFUNC4 (bool)		DetectOpticalBoxIntersection(const M::Box<C0>&box, const M::TVec3<C1>&b, const M::TVec3<C2>&d, C3&distance)
+	{
+		if (distance <= 0)
+			return false;
+		bool result = false;
+		static const C3 error = TypeInfo<C2>::error;
+		for (BYTE k = 0; k < 3; k++)
+			if (d.v[k])
 			{
-				x = b.v[i]+(d.v[i])*f;
-				y = b.v[j]+(d.v[j])*f;
-				if (box.axis[i].Contains(x)
-					&&
-					box.axis[j].Contains(y))
+				const BYTE	i = (k+1)%3,
+							j = (k+2)%3;
+				const C3 minDist = (C3)(box.axis[k].min-b.v[k]);
+				if (minDist > error)
 				{
-					distance = f;
-					result = true;
+					//b is less than minimum on this axis
+					if (d.v[k] < 0)
+						continue;	//nothing to find on this axis
+
+					const C3 f = minDist /(d.v[k]);
+					if (f >= distance)
+						continue;	//cube side is too far awar to intersect
+
+					const C3 x = b.v[i]+(d.v[i])*f;
+					const C3 y = b.v[j]+(d.v[j])*f;
+
+					if (box.axis[i].Contains(x)
+						&&
+						box.axis[j].Contains(y))
+					{
+						distance = f;
+						result = true;
+					}
+					continue;
 				}
-			}
-			f = (box.axis[k].max-b.v[k])/(d.v[k]);
-			if (f >= 0 && f < distance)
-			{
-				x = b.v[i]+(d.v[i])*f;
-				y = b.v[j]+(d.v[j])*f;
-				if (box.axis[i].Contains(x)
-					&&
-					box.axis[j].Contains(y))
+
+
+				const C3 maxDist = (C3)(b.v[k] - box.axis[k].max);
+				if (maxDist > error)
 				{
-					distance = f;
-					result = true;
+					//b is greater than maximum on this axis
+					if (d.v[k] > 0)
+						continue;	//nothing to find on this axis
+
+					const C3 f = maxDist /(-d.v[k]);
+					if (f >= distance)
+						continue;	//cube side is too far awar to intersect
+
+					const C3 x = b.v[i]-(d.v[i])*f;
+					const C3 y = b.v[j]-(d.v[j])*f;
+
+					if (box.axis[i].Contains(x)
+						&&
+						box.axis[j].Contains(y))
+					{
+						distance = f;
+						result = true;
+					}
+					continue;
 				}
+
+				distance = 0;
+				return true;
 			}
-		}
-	return result;
+		return result;
+	}
+
+	MFUNC3	(bool)		DetectSphereEdgeIntersection(const M::Sphere<C0>&sphere, const M::TVec3<C1>&e0, const M::TVec3<C2>&e1)
+	{
+		return DetectSphereEdgeIntersection(sphere.center,sphere.radius,e0,e1);
+	}
+
 }
 	
 MFUNC3 (bool)		_oIntersectsBox(const M::TVec3<C0>&p0, const M::TVec3<C1>&p1, const M::Box<C2>&box)

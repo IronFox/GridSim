@@ -349,23 +349,29 @@ namespace DeltaWorks
 		*/
 		MFUNC5	(C4)			_oIntersectPoint(const C0 base[3], const C1 normal[3], const C2 vbase[3], const C3 vdir[3], C4 out[3]);
 	
-		/*!
-			\brief Checks for a valid closer intersection of the specified box and ray
+		namespace Obj
+		{
+
+			/*!
+			@brief Checks for a valid closer intersection of the specified box and ray
 		
-			_oDetectOpticalBoxIntersection() calculates the intersection distance (if any) of the specified box and ray. If such an intersection occurs and it's closer than the specified
-			distance then the distance variable will be updated and the result be true.
-			A valid intersection occurs if the ray intersects the box with a positive ray factor. An intersection with a negative ray factor - thus behind the ray's base position - will be ignored.
-			Since there are usually two intersection points the smallest positive intersection will be used for the result.
-			Thus, if the ray base point is within the box, there will always be a valid intersection, although maybe not a closer one.
+			Checks for intersections with each box side.
+			The box is considered solid. If the specified base point is found to be located within the box, the result is true and distance set to 0 if the given distance is not already 0.
+			
 		
-			\param box Box coordinates. The first three elements specify the lower corner, the latter three the upper corner of the box
-			\param b Ray base position
-			\param d Normalized ray direction vector
-			\param distance In/out distance scalar. This value will be updated if a closer (positive) intersection was detected.
-			\return true if a positive intersection closer than the specified distance was detected, false otherwise. The specified distance value remains unchanged if the result is false.
-		*/
-		MFUNC4	(bool)		_oDetectOpticalBoxIntersection(const M::Box<C0>&box, const M::TVec3<C1>&b, const M::TVec3<C2>&d, C3&distance );
-	
+			@param box Box declaration. Must be valid
+			@param b Ray base position
+			@param d Normalized ray direction vector
+			@param[inout] distance In/out distance scalar. This value will be updated if a closer (positive) intersection was detected.
+			@return true if a positive intersection closer than the specified distance was detected, false otherwise. The specified distance value remains unchanged if the result is false.
+			*/
+			MFUNC4	(bool)		DetectOpticalBoxIntersection(const M::Box<C0>&box, const M::TVec3<C1>&b, const M::TVec3<C2>&d, C3&distance );
+
+			MFUNC3	(bool)		DetectSphereEdgeIntersection(const M::Sphere<C0>&sphere, const M::TVec3<C1>&e0, const M::TVec3<C2>&e1);
+		}
+
+
+
 		/*!
 			\brief Checks if the specified edge and box intersect
 	
