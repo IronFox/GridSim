@@ -1332,7 +1332,7 @@ namespace Obj
 
 					const C3 f = minDist /(d.v[k]);
 					if (f >= distance)
-						continue;	//cube side is too far awar to intersect
+						continue;	//cube side is too far away to intersect
 
 					const C3 x = b.v[i]+(d.v[i])*f;
 					const C3 y = b.v[j]+(d.v[j])*f;
@@ -1357,10 +1357,10 @@ namespace Obj
 
 					const C3 f = maxDist /(-d.v[k]);
 					if (f >= distance)
-						continue;	//cube side is too far awar to intersect
+						continue;	//cube side is too far away to intersect
 
-					const C3 x = b.v[i]-(d.v[i])*f;
-					const C3 y = b.v[j]-(d.v[j])*f;
+					const C3 x = b.v[i]+(d.v[i])*f;
+					const C3 y = b.v[j]+(d.v[j])*f;
 
 					if (box.axis[i].Contains(x)
 						&&
