@@ -1383,6 +1383,37 @@ namespace Obj
 		return DetectSphereEdgeIntersection(sphere.center,sphere.radius,e0,e1);
 	}
 
+
+	MFUNC4	(bool)		DetectOpticalSphereIntersection(const M::Sphere<C0>&sphere, const M::TVec3<C1>&b, const M::TVec3<C2>&d, C3&distance)
+	{
+		if (distance <= 0)
+			return false;
+		M::TVec3<C0>	delta;
+		Vec::sub(b,sphere.center,delta);
+
+		const C3 dd = (C3)Vec::dot(delta);
+		const C3 r2 = M::sqr((C3)sphere.radius);
+
+		if (dd <= r2)
+		{
+			distance = 0;
+			return true;
+		}
+
+		C3	pa = (C3)1,
+			pb = (C3)2*(C3)Vec::dot(d,delta),
+			pc = dd-r2,
+			rs[2];
+			
+		BYTE num_rs = solveSqrEquation(pa,pb,pc,rs);
+		if (!num_rs)
+			return false;
+		C3	alpha = smallestPositiveResult(rs,num_rs);
+		if (alpha >= distance)
+			return false;
+		distance = alpha;
+		return true;
+	}
 }
 	
 MFUNC3 (bool)		_oIntersectsBox(const M::TVec3<C0>&p0, const M::TVec3<C1>&p1, const M::Box<C2>&box)

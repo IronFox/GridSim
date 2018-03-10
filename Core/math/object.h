@@ -365,7 +365,22 @@ namespace DeltaWorks
 			@param[inout] distance In/out distance scalar. This value will be updated if a closer (positive) intersection was detected.
 			@return true if a positive intersection closer than the specified distance was detected, false otherwise. The specified distance value remains unchanged if the result is false.
 			*/
-			MFUNC4	(bool)		DetectOpticalBoxIntersection(const M::Box<C0>&box, const M::TVec3<C1>&b, const M::TVec3<C2>&d, C3&distance );
+			MFUNC4	(bool)		DetectOpticalBoxIntersection(const M::Box<C0>&box, const M::TVec3<C1>&b, const M::TVec3<C2>&d, C3&distance);
+
+
+			/*!
+			@brief Checks for a valid closer intersection of the specified sphere and ray
+		
+			The sphere is considered solid. If the specified base point is found to be located within the sphere, the result is true and distance set to 0 if the given distance is not already 0.
+		
+		
+			@param sphere Sphere declaration. Must be valid
+			@param b Ray base position
+			@param d Normalized ray direction vector
+			@param[inout] distance In/out distance scalar. This value will be updated if a closer (positive) intersection was detected.
+			@return true if a positive intersection closer than the specified distance was detected, false otherwise. The specified distance value remains unchanged if the result is false.
+			*/
+			MFUNC4	(bool)		DetectOpticalSphereIntersection(const M::Sphere<C0>&box, const M::TVec3<C1>&b, const M::TVec3<C2>&d, C3&distance);
 
 			MFUNC3	(bool)		DetectSphereEdgeIntersection(const M::Sphere<C0>&sphere, const M::TVec3<C1>&e0, const M::TVec3<C2>&e1);
 		}
