@@ -162,6 +162,8 @@ namespace DeltaWorks
 				inline void				Revert()							/**@copydoc revert()*/	{revert();}
 				inline T*				pointer();							//!< Returns a pointer to the beginning of the buffer
 				inline const T*			pointer()					const;	//!< Returns a pointer to the beginning of the buffer
+				inline T*				GetPointer() {return pointer();}
+				inline const T*			GetPointer() const {return pointer();}
 				inline T&				operator[](index_t);
 				inline const T&			operator[](index_t)			const;
 				inline T&				at(index_t);
