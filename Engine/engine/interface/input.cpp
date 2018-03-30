@@ -140,12 +140,12 @@ namespace Engine
 			return false;
 		}
 		pressed[index]=false;
-		if (index == VK_CONTROL)
-		{
-			if (verbose)
-				std::cout << " index is CTRL"<<std::endl;
-			return false;
-		}
+		//if (index == VK_CONTROL)
+		//{
+		//	if (verbose)
+		//		std::cout << " index is CTRL"<<std::endl;
+		//	return false;
+		//}
 		if (verbose)
 			std::cout << " "<<key[index].onReleased << std::endl;
 		return key[index].onReleased((Key::Name)index);
