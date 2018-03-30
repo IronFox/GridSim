@@ -146,9 +146,20 @@ namespace Engine
 		//		std::cout << " index is CTRL"<<std::endl;
 		//	return false;
 		//}
-		if (verbose)
-			std::cout << " "<<key[index].onReleased << std::endl;
-		return key[index].onReleased((Key::Name)index);
+		bool result;
+		if (pressed[VK_CONTROL])
+		{
+			if (verbose)
+				std::cout << " CTRL "<<key[index].onReleasedWithCtrl << std::endl;
+			result = key[index].onReleasedWithCtrl((Key::Name)index);
+		}
+		else
+		{
+			if (verbose)
+				std::cout << " "<<key[index].onReleased << std::endl;
+			result = key[index].onReleased((Key::Name)index);
+		}
+		return result;
 	}
 	
 
@@ -232,12 +243,13 @@ namespace Engine
 	}
 
 
-	void InputMap::BindCtrl(Key::Name name, const Handler& cmd)
+	void InputMap::BindCtrl( Key::Name name, const Handler& cmd, const Handler& ucmd )
 	{
 		if (verbose)
 			std::cout << " input: binding ctrl+"<<resolveKeyName(name)<<"("<<name<<")"<<" to command "<<cmd<<std::endl;
 		unsigned k = ((unsigned)name)%NumKeys;
 		key[k].onPressedWithCtrl = cmd;
+		key[k].onReleasedWithCtrl = ucmd;
 	}
 
 

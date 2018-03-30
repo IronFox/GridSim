@@ -61,13 +61,15 @@ namespace Engine
 	{
 		KeyHandler			onPressed,
 							onReleased,
-							onPressedWithCtrl;
+							onPressedWithCtrl,
+							onReleasedWithCtrl;
 
 		void				Clear()
 		{
 			onPressed.Clear();
 			onReleased.Clear();
 			onPressedWithCtrl.Clear();
+			onReleasedWithCtrl.Clear();
 		}
 
 		void				swap(TKeyLink&other)
@@ -75,6 +77,7 @@ namespace Engine
 			onPressed.swap(other.onPressed);
 			onReleased.swap(other.onReleased);
 			onPressedWithCtrl.swap(other.onPressedWithCtrl);
+			onReleasedWithCtrl.swap(other.onReleasedWithCtrl);
 		}
 
 		friend void			swap(TKeyLink&a, TKeyLink&b)
@@ -208,9 +211,9 @@ namespace Engine
 		@param key Index of the key to bind.
 		@param ctrlHandler Function to execute if the specified key has been pressed in combination with the ctrl key.
 		*/
-		void					BindCtrl(Key::Name key, const Handler& ctrlHandler);
-		void					BindCtrl(Key::Name key, const FKeyHandler& ctrlHandler) {BindCtrl(key,Handler(ctrlHandler));}
-		void					BindCtrl(Key::Name key, const FSimpleKeyHandler& ctrlHandler) {BindCtrl(key,Handler(ctrlHandler));}
+		void					BindCtrl(Key::Name key, const Handler& ctrlHandler, const Handler& upHandler=Handler());
+		void					BindCtrl(Key::Name key, const FKeyHandler& ctrlHandler, const FKeyHandler& upHandler=FKeyHandler()) {BindCtrl(key,Handler(ctrlHandler),Handler(upHandler));}
+		void					BindCtrl(Key::Name key, const FSimpleKeyHandler& ctrlHandler, const FSimpleKeyHandler& upHandler=FSimpleKeyHandler()) {BindCtrl(key,Handler(ctrlHandler),Handler(upHandler));}
 		void					Unbind(Key::Name key);																//!< Removes all bound event handlers from the specified key. \param key Index of the key to unbind.
 		/**
 		Binds all keys to the specified handler, overwriting any currently bound handlers unless @a unboundOnly is set.
