@@ -94,7 +94,7 @@ namespace DeltaWorks
 			The method never returns InvalidIndex or a key to a currently registered observer.
 			@param f Observer to append. The same observer may be appended multiple times, causing it to be invoked multiple times on trigger
 			@return Unique key to the registered observer. 
-					Never InvalidIndex, or the key of a previously registered observer.
+					Never InvalidIndex, or the key of a currently registered observer.
 			*/
 			index_t		Register(const F&f)
 			{
@@ -111,7 +111,7 @@ namespace DeltaWorks
 
 			/**
 			Unregisters the observer associated with the specified key from the local observable.
-			If the specified key is not registers, the method fails silently.
+			If the specified key is not currently registered, the method will fail silently.
 			@param key Unique identifier of the observer to unregister. See Register() for details
 			*/
 			void		Unregister(index_t key)
