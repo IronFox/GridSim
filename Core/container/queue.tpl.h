@@ -806,6 +806,7 @@ template <class Entry, class Priority, class MyStrategy>
 				MyStrategy::move(entry_field[i+1],entry_field[i]);
 				PriorityArray::AppliedStrategy::move(priority_field[i+1],priority_field[i]);
 			}
+			entry_field[section_end].Destruct();
 			return;
 		}
 		if (index < section_end)
@@ -816,6 +817,7 @@ template <class Entry, class Priority, class MyStrategy>
 				MyStrategy::move(entry_field[i+1],entry_field[i]);
 				PriorityArray::AppliedStrategy::move(priority_field[i+1],priority_field[i]);
 			}
+			entry_field[section_end].Destruct();
 			return;
 		}
 		if (index < section_begin)
@@ -832,6 +834,8 @@ template <class Entry, class Priority, class MyStrategy>
 			PriorityArray::AppliedStrategy::move(priority_field[next],priority_field[i]);
 			i = next;
 		}
+		entry_field[section_end].Destruct();
+
 	}
 
 
