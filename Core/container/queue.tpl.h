@@ -843,6 +843,43 @@ template <class Entry, class Priority, class MyStrategy>
 	}
 
 template <class Entry, class Priority, class MyStrategy>
+	count_t				PriorityQueue<Entry,Priority,MyStrategy>::CountCopies( const Entry&data )	const
+	{
+		count_t rs = 0;
+		foreach (*this,el)
+			if (*el == data)
+				rs++;
+		return rs;
+	}
+
+template <class Entry, class Priority, class MyStrategy>
+	bool				PriorityQueue<Entry,Priority,MyStrategy>::Contains( const Entry&data, Priority&outPriority )	const
+	{
+		foreach (*this,el)
+			if (*el == data)
+			{
+				outPriority = priority_field[el.GetAddr()];
+				return true;
+			}
+		return false;
+	}
+
+template <class Entry, class Priority, class MyStrategy>
+	template <typename EntryToBoolFunction>
+		bool			PriorityQueue<Entry,Priority,MyStrategy>::ContainsF(const EntryToBoolFunction&f,Priority&outPriority)	const
+		{
+			foreach (*this,el)
+				if (f(*el) == data)
+				{
+					outPriority = priority_field[el.GetAddr()];
+					return true;
+				}
+			return false;
+		}
+
+
+
+template <class Entry, class Priority, class MyStrategy>
 	bool				PriorityQueue<Entry,Priority,MyStrategy>::Find( const Priority&priority, iterator&it )
 	{
 		size_t len = entry_field.GetLength();

@@ -253,6 +253,11 @@ namespace DeltaWorks
 				iterator			end();
 				const_iterator		begin() const;
 				const_iterator		end() const;
+
+				count_t				CountCopies(const Entry&data)	const;
+				bool				Contains(const Entry&data, Priority&outPriority)	const;
+				template <typename EntryToBoolFunction>
+					bool			ContainsF(const EntryToBoolFunction&f,Priority&outPriority)	const;
 				bool				Find(const Priority&priority, iterator&target);
 				bool				Find(const Entry&data, const Priority&priority, iterator&target);
 				bool				pop(Entry&out, Priority&pout);		//!< Pops the element of greatest priority from the queue and writes it to @b out decreasing the number of stored elements by one. Note that the stored object IS destroyed. @param out Target reference to write to @param pout Priority of the popped element @return true if the queue was not empty and an element was written to @b out , false otherwise
