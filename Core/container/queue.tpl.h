@@ -843,7 +843,7 @@ template <class Entry, class Priority, class MyStrategy>
 	}
 
 template <class Entry, class Priority, class MyStrategy>
-	bool				PriorityQueue<Entry,Priority,MyStrategy>::find(const Priority&priority, iterator&it)
+	bool				PriorityQueue<Entry,Priority,MyStrategy>::Find( const Priority&priority, iterator&it )
 	{
 		size_t len = entry_field.GetLength();
 		size_t end = section_end;
@@ -861,6 +861,11 @@ template <class Entry, class Priority, class MyStrategy>
 				size_t real = el%len;
 				
 		        const Priority&p = priority_field[real];
+				if (p == priority)
+				{
+					it = iterator(entry_field.begin(),entry_field.end(),entry_field+section_begin,entry_field+real);
+					return true;
+				}
 		        if (p < priority)
 		            upper = el;
 		        else
@@ -877,9 +882,9 @@ template <class Entry, class Priority, class MyStrategy>
 	}
 
 template <class Entry, class Priority, class MyStrategy>
-	bool				PriorityQueue<Entry,Priority,MyStrategy>::find(const Entry&data, const Priority&priority, iterator&it)
+	bool				PriorityQueue<Entry,Priority,MyStrategy>::Find( const Entry&data, const Priority&priority, iterator&it )
 	{
-		if (!find(priority,it))
+		if (!Find(priority,it))
 			return false;
 		if (*it == data)
 			return true;
@@ -906,7 +911,7 @@ template <class Entry, class Priority, class MyStrategy>
 	bool				PriorityQueue<Entry,Priority,MyStrategy>::alterPriority(const Entry&data, const Priority&old_priority, const Priority&new_priority)
 	{
 		iterator it;
-		if (!find(data,old_priority,it))
+		if (!Find(data,old_priority,it))
 			return false;
 		Erase(it);
 		Push(data,new_priority);
