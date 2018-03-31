@@ -322,13 +322,13 @@ template <class Entry, class MyStrategy>
 	}
 
 template <class Entry, class MyStrategy>
-	void	Queue<Entry,MyStrategy>::Push(const Ctr::ArrayData<Entry>&entries)
+	void	Queue<Entry,MyStrategy>::Push( const Ctr::ArrayData<Entry>&entries )
 	{
 		Push(entries.pointer(),entries.Count());
 	}
 
 template <class Entry, class MyStrategy>
-	void	Queue<Entry,MyStrategy>::Push(const Entry*data, count_t count)
+	void	Queue<Entry,MyStrategy>::Push( const Entry*data, count_t count )
 	{
 		if (!count)
 			return;
@@ -367,13 +367,13 @@ template <class Entry, class MyStrategy>
 
 
 template <class Entry, class MyStrategy>
-	void	Queue<Entry,MyStrategy>::Push(const Entry&data)
+	void	Queue<Entry,MyStrategy>::Push( const Entry&data )
 	{
 		Push() = data;
 	}
 
 template <class Entry, class MyStrategy>
-	Entry&	Queue<Entry,MyStrategy>::Push()
+	Entry&	Queue<Entry,MyStrategy>::Push( )
 	{
 		Element* newEnd = section_end;
 		WrapInc(newEnd);
@@ -451,13 +451,13 @@ template <class Entry, class MyStrategy>
 //
 
 template <class Entry, class MyStrategy>
-	void	Queue<Entry,MyStrategy>::PushFront(const Entry&data)
+	void	Queue<Entry,MyStrategy>::PushFront( const Entry&data )
 	{
 		PushFront() = data;
 	}
 
 template <class Entry, class MyStrategy>
-	Entry&	Queue<Entry,MyStrategy>::PushFront()
+	Entry&	Queue<Entry,MyStrategy>::PushFront( )
 	{
 		#ifdef _DEBUG
 			count_t cnt0 = Count();
@@ -945,7 +945,7 @@ template <class Entry, class Priority, class MyStrategy>
 	}
 
 template <class Entry, class Priority, class MyStrategy>
-	bool				PriorityQueue<Entry,Priority,MyStrategy>::alterPriority(const Entry&data, const Priority&old_priority, const Priority&new_priority)
+	bool				PriorityQueue<Entry,Priority,MyStrategy>::AlterPriority( const Entry&data, const Priority&old_priority, const Priority&new_priority )
 	{
 		iterator it;
 		if (!Find(data,old_priority,it))
@@ -957,7 +957,7 @@ template <class Entry, class Priority, class MyStrategy>
 
 
 template <class Entry, class Priority, class MyStrategy>
-	void				PriorityQueue<Entry, Priority, MyStrategy>::Push(const Entry&data, const Priority&priority)
+	void				PriorityQueue<Entry, Priority, MyStrategy>::Push( const Entry&data, const Priority&priority )
 	{
 		
 		size_t len = entry_field.GetLength();

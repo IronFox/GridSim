@@ -269,7 +269,7 @@ namespace DeltaWorks
 				Entry				PopLeast();							//!< Pops the element of least priority from the queue decreasing the number of stored elements by one. Note that the stored object IS destroyed
 				void				EraseLeast();						//!< Erases the element of least priority from the queue, decreasing the number of stored elements by one. Identical to PopLeast() but without copy constructors
 				void				Push(const Entry&data, const Priority&priority);		//!< Pushes an element into the queue increasing the number of stored elements by one. The queue automatically increases the size of its data field if appropriate @param data Element to push into the queue @param priority Priority of the newly inserted element
-				bool				alterPriority(const Entry&data, const Priority&old_priority, const Priority&new_priority);
+				bool				AlterPriority(const Entry&data, const Priority&old_priority, const Priority&new_priority);
 				bool				IsEmpty()					const;	//!< Identical to GetLength()==0
 				bool				IsNotEmpty()				const;	//!< Identical to GetLength()!=0
 				count_t				GetLength()					const;	//!< Returns the current number of element stored in the queue
