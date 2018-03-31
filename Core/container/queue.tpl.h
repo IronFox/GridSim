@@ -669,6 +669,19 @@ template <class Entry, class Priority, class MyStrategy>
 		return iterator(entry_field.begin(),entry_field.end(),entry_field+section_begin,entry_field+section_end);
 	}
 
+
+template <class Entry, class Priority, class MyStrategy>
+	typename PriorityQueue<Entry,Priority,MyStrategy>::const_iterator	PriorityQueue<Entry, Priority, MyStrategy>::begin() const
+	{
+		return const_iterator(entry_field.begin(),entry_field.end(),entry_field+section_begin,entry_field+section_begin);
+	}
+		
+template <class Entry, class Priority, class MyStrategy>
+	typename PriorityQueue<Entry,Priority,MyStrategy>::const_iterator	PriorityQueue<Entry, Priority, MyStrategy>::end() const
+	{
+		return const_iterator(entry_field.begin(),entry_field.end(),entry_field+section_begin,entry_field+section_end);
+	}
+
 template <class Entry, class Priority, class MyStrategy>
 	bool	PriorityQueue<Entry, Priority, MyStrategy>::pop(Entry&out, Priority&pout)
 	{

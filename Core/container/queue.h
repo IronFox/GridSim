@@ -244,6 +244,7 @@ namespace DeltaWorks
 
 			public:
 				typedef QueueIterator<Entry,Element,EntryStrategy>	iterator;
+				typedef QueueIterator<const Entry,const Element,EntryStrategy>	const_iterator;
 	
 				/**/				PriorityQueue(size_t size=1024);
 				/**/				~PriorityQueue()	{clear();}
@@ -252,6 +253,8 @@ namespace DeltaWorks
 				iterator			end();
 				bool				find(const Priority&priority, iterator&target);
 				bool				find(const Entry&data, const Priority&priority, iterator&target);
+				const_iterator		begin() const;
+				const_iterator		end() const;
 				bool				pop(Entry&out, Priority&pout);		//!< Pops the element of greatest priority from the queue and writes it to @b out decreasing the number of stored elements by one. Note that the stored object IS destroyed. @param out Target reference to write to @param pout Priority of the popped element @return true if the queue was not empty and an element was written to @b out , false otherwise
 				bool				pop(Entry&out);						//!< Pops the element of greatest priority from the queue and writes it to @b out decreasing the number of stored elements by one. Note that the stored object IS destroyed. @param out Target reference to write to @return true if the queue was not empty and an element was written to @b out , false otherwise
 				Entry				Pop();								//!< Pops the element of greatest priority from the queue, decreasing the number of stored elements by one. Note that the stored object IS destroyed
