@@ -1,5 +1,6 @@
 #include "../global_root.h"
 #include "file_system.h"
+#include "../string/encoding.h"
 #include <algorithm>
 
 /******************************************************************
@@ -35,6 +36,17 @@ namespace DeltaWorks
 		}
 
 
+		#if SYSTEM==WINDOWS
+			String			PathToString(const PathString&path)
+			{
+				String rs;
+				if (path.BeginsWith(ABS_MARKER))
+					StringEncoding::UTF16::ToUTF8(path.SubStringRef(4),rs);
+				else
+					StringEncoding::UTF16::ToUTF8(path,rs);
+				return rs;
+			}
+		#endif
 
 
 		Sys::Mutex	TempFile::mutex;

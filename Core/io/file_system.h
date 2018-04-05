@@ -119,7 +119,12 @@ namespace DeltaWorks
 		const File*		LocateExecutable(const char*name);				//!< Identifies a program executable depending on the global path variables. Also follows symlinks. Windows .lnk files not supported yet. \param name Name of the executable to locate \return Pointer to a global file object pointing to the executable or NULL if the executable could not be located
 		bool			LocateExecutable(const char*name, File&target);	//!< Identifies a program executable depending on the global path variables. Also follows symlinks. Windows .lnk files not supported yet. \param name Name of the executable to locate \param target Target File to store the file target in. \return true on if the executable could be located, false otherwise
 
-	
+
+		#if SYSTEM==WINDOWS
+			String			PathToString(const PathString&path);
+		#else
+			inline const String&	PathToString(const String&path) {return path;}
+		#endif
 
 
 		/**
