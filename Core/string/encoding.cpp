@@ -98,6 +98,16 @@ namespace DeltaWorks
 					return UTF16::ToUTF32(ch);
 				}
 
+				static char32_t		DeserializeUTF32(const CharType*&source, const CharType*const end)
+				{
+					UTF16::TChar ch;
+					ch.numCharsUsed = DecipherVariableLength(*source);
+					if (source + ch.numCharsUsed > end)
+						throw Except::Program::DataConsistencyFault(CLOCATION, GetName()+" decoding error. String incomplete");
+					memcpy(ch.encoded,source,ch.numCharsUsed*sizeof(Base));
+					source += ch.numCharsUsed;
+					return UTF16::ToUTF32(ch);
+				}
 			};
 
 
@@ -133,6 +143,16 @@ namespace DeltaWorks
 				return UTF8::ToUTF32(ch);
 			}
 
+			static char32_t		DeserializeUTF32(const CharType*&source, const CharType*const end)
+			{
+				UTF8::TChar ch;
+				ch.numCharsUsed = DecipherVariableLength(*source);
+				if (source + ch.numCharsUsed > end)
+					throw Except::Program::DataConsistencyFault(CLOCATION, GetName()+" decoding error. String incomplete");
+				memcpy(ch.encoded,source,ch.numCharsUsed);
+				source += ch.numCharsUsed;
+				return UTF8::ToUTF32(ch);
+			}
 		};
 
 
@@ -153,6 +173,39 @@ namespace DeltaWorks
 			static char32_t	ConvertToUTF32(char c) {return CP1252::ToUTF32(c);}
 		};
 
+
+		template <typename Code0, typename Code1>
+			static void	VariableLengthToVariableLength(const StringType::ReferenceExpression<typename Code0::CharType>&variableSource, StringType::Template<typename Code1::CharType>&variableDest)
+			{
+				count_t len = 0;
+				const auto*const end = variableSource.end();
+				{
+					const auto*read = variableSource.pointer();
+					while (read < end)
+					{
+
+						auto ch = Code0::DeserializeUTF32(read,end);
+						len += Code1::UTF32ToEncodedLength(ch);
+					}
+				}
+
+				variableDest.setLength(len);
+				{
+					const auto*read = variableSource.pointer();
+					auto*out = variableDest.mutablePointer();
+					while (read < end)
+					{
+						typename Code1::EncodedType encoded;
+						Code1::UTF32ToEncoded( Code0::DeserializeUTF32(read),encoded);
+						for (BYTE k = 0; k < encoded.numCharsUsed; k++)
+						{
+							*out = encoded.encoded[k];
+							out++;
+						}
+					}
+					ASSERT_EQUAL__(out,variableDest.end());
+				}
+			}
 
 		template <typename FixedCode, typename Code>
 			static void	FixedLengthToVariableLength(const StringType::ReferenceExpression<typename FixedCode::CharType>&fixedSource, StringType::Template<typename Code::CharType>&variableDest)
@@ -624,16 +677,18 @@ namespace DeltaWorks
 		template <typename T>
 		static void	Utf8ToUtf16T(const StringRef&utf8Source, StringType::Template<T>&utf16Dest)
 		{
-			count_t len = 0;
-			const char*utf8 = utf8Source.pointer();
-			char const*const end = utf8 + utf8Source.GetLength();
-
-			StringType::Template<char32_t> utf32;
-			UTF8::ToUTF32(utf8Source,utf32);
-			FixedLengthToVariableLength<UTF32FixedCode, UTF16Code<T> >(utf32.ref(),utf16Dest);
+			VariableLengthToVariableLength<UTF8Code,UTF16Code<T> >(utf8Source,utf16Dest);
 		}
 
+		void	UTF16::ToUTF8(const StringType::ReferenceExpression<char16_t>&utf16Source, String&utf8Dest)
+		{
+			VariableLengthToVariableLength<UTF16Code<char16_t>, UTF8Code>(utf16Source,utf8Dest);
+		}
 
+		void	UTF16::ToUTF8(const StringType::Template<char16_t>&utf16Source, String&utf8Dest)
+		{
+			UTF16::ToUTF8(utf16Source.ref(),utf8Dest);
+		}
 
 		void	UTF16::ToUTF32(const StringType::ReferenceExpression<char16_t>&utf16Source, UTF32String&utf32Dest)
 		{
@@ -678,6 +733,15 @@ namespace DeltaWorks
 				UTF16::ToUTF32(utf16Source.ref(),utf32Dest);
 			}
 
+			void	UTF16::ToUTF8(const StringType::ReferenceExpression<wchar_t>&utf16Source, String&utf8Dest)
+			{
+				VariableLengthToVariableLength<UTF16Code<wchar_t>, UTF8Code>(utf16Source,utf8Dest);
+			}
+
+			void	UTF16::ToUTF8(const StringW&utf16Source, String&utf8Dest)
+			{
+				UTF16::ToUTF8(utf16Source.ref(),utf8Dest);
+			}
 
 		#endif
 
@@ -695,6 +759,12 @@ namespace DeltaWorks
 		{
 			Utf8ToUtf16T(utf8Source,utf16Dest);
 		}
+
+		void	UTF8::ToUTF16(const String&utf8Source, StringType::Template<char16_t>&utf16Dest)
+		{
+			ToUTF16(utf8Source.ToRef(),utf16Dest);
+		}
+
 
 
 

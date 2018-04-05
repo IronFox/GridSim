@@ -41,6 +41,7 @@ namespace DeltaWorks
 			char			ToCP1252(const TChar&ch);
 			void			ToCP1252(const StringRef&utf8Source, String&cp1252Dest);
 			void			ToCP1252(const String&utf8Source, String&cp1252Dest);
+			void			ToUTF16(const String&utf8Source, StringType::Template<char16_t>&utf16Dest);
 			void			ToUTF16(const StringRef&utf8Source, StringType::Template<char16_t>&utf16Dest);
 			#ifdef WIN32
 				void		ToUTF16(const StringRef&utf8Source, StringType::Template<wchar_t>&utf16Dest);
@@ -62,13 +63,18 @@ namespace DeltaWorks
 				BYTE		numCharsUsed=0;	//0, 1 or 2
 			};
 
+
 			char32_t		ToUTF32(const TChar&c);
 			void			ToUTF32(const StringType::ReferenceExpression<char16_t>&utf16Source, UTF32String&utf32Dest);
 			void			ToUTF32(const UTF16String&utf16Source, UTF32String&utf32Dest);
+			void			ToUTF8(const StringType::ReferenceExpression<char16_t>&utf16Source, String&utf8Dest);
+			void			ToUTF8(const UTF16String&utf16Source, String&utf8Dest);
 			#ifdef WIN32
 				static_assert(sizeof(wchar_t)==sizeof(char16_t),"Expected wchar_t to be 16 bit on windows");
 				void		ToUTF32(const StringType::ReferenceExpression<wchar_t>&utf16Source, UTF32String&utf32Dest);
 				void		ToUTF32(const StringW&utf16Source, UTF32String&utf32Dest);
+				void		ToUTF8(const StringType::ReferenceExpression<wchar_t>&utf16Source, String&utf8Dest);
+				void		ToUTF8(const StringW&utf16Source, String&utf8Dest);
 			#endif
 		}
 
