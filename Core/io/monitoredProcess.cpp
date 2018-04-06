@@ -60,7 +60,7 @@ namespace DeltaWorks
 			//attempt the standard paths (Windows dir and system dir) if
 			//CreateFile failed in the first place.
 			if(INVALID_HANDLE_VALUE == hFile)
-				throw Except::IO::DriveAccess::FileOpenFault(CLOCATION,"Unable to open "+String(path));
+				throw Except::IO::DriveAccess::FileOpenFault(CLOCATION,"Unable to open "+FileSystem::PathToString(path));
 
  
 			//succeeded
@@ -212,7 +212,7 @@ namespace DeltaWorks
 								}
 							}
 							else
-								ShowMessage(String(mentry.szExePath));
+								ShowMessage(FileSystem::PathToString(mentry.szExePath));
 						}
 						CloseHandle(msnapshot);
 					}
@@ -310,12 +310,12 @@ namespace DeltaWorks
 		Terminate();
 		FileSystem::Folder f(_workingDirectory);
 		if (!f.IsValidLocation())
-			throw Except::IO::DriveAccess("Process Start: Chosen working directory '"+String(_workingDirectory)+"' is invalid");
+			throw Except::IO::DriveAccess("Process Start: Chosen working directory '"+FileSystem::PathToString(_workingDirectory)+"' is invalid");
 		FileSystem::File found;
 		if (!f.FindFile(_executablePath,found,false))
-			throw Except::IO::DriveAccess("Process Start: Chosen executable '"+String(_executablePath)+"' does not exist");
+			throw Except::IO::DriveAccess("Process Start: Chosen executable '"+FileSystem::PathToString(_executablePath)+"' does not exist");
 		if (!found.DoesExist())
-			throw Except::IO::DriveAccess("Process Start: Chosen executable '"+String(found.GetLocation())+"' does not exist");
+			throw Except::IO::DriveAccess("Process Start: Chosen executable '"+FileSystem::PathToString(found.GetLocation())+"' does not exist");
 		parameters = '"'+FileSystem::ExtractFileNameExt(_executablePath)+"\" "+parametersWithoutExecutableName;
 		paths.executablePath = found.GetLocation();
 		paths.workingDirectory = f.GetLocation();
@@ -390,7 +390,7 @@ namespace DeltaWorks
 			
 			BOOL rs = CreateProcessW(paths.executablePath.c_str(),parameters.mutablePointer(),NULL,NULL,FALSE,flags,NULL,paths.workingDirectory.c_str(),&infoIn,&infoOut);
 			if (rs == FALSE)
-				throw Except::IO::ParameterFault("Process Start: Windows refused to start process '"+String(paths.executablePath)+"': "+System::GetLastErrorString());
+				throw Except::IO::ParameterFault("Process Start: Windows refused to start process '"+FileSystem::PathToString(paths.executablePath)+"': "+System::GetLastErrorString());
 		}
 	}
 

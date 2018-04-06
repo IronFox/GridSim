@@ -1593,12 +1593,12 @@ namespace DeltaWorks
 						char buffer[0x1000];
 						System::WindowsErrorToString(err, buffer, sizeof(buffer));
 
-						throw Except::IO::DriveAccess::GeneralFault(loc,"Failed to create last directory segment of '"+String(path)+"': "+String(buffer));
+						throw Except::IO::DriveAccess::GeneralFault(loc,"Failed to create last directory segment of '"+PathToString(path)+"': "+String(buffer));
 					}
 				}
 			#elif SYSTEM==UNIX || SYSTEM==LINUX
 				if (mkdir(out.location.c_str(), S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) && errno != EEXIST)
-					throw Except::IO::DriveAccess::GeneralFault(loc,"Failed to create last directory segment of '"+String(path)+"'");
+					throw Except::IO::DriveAccess::GeneralFault(loc,"Failed to create last directory segment of '"+PathToString(path)+"'");
 			#else
 				#error not supported
 			#endif
@@ -1644,13 +1644,13 @@ namespace DeltaWorks
 								char buffer[0x1000];
 								System::WindowsErrorToString(GetLastError(), buffer, sizeof(buffer));
 
-								throw Except::IO::DriveAccess::GeneralFault(loc,"Failed to create last directory segment of '"+String(path)+"': File was found with that name but could not be deleted: "+String(buffer));
+								throw Except::IO::DriveAccess::GeneralFault(loc,"Failed to create last directory segment of '"+PathToString(path)+"': File was found with that name but could not be deleted: "+String(buffer));
 							#else
-								throw Except::IO::DriveAccess::GeneralFault(loc,"Failed to create last directory segment of '"+String(path)+"': File was found with that name but could not be deleted");
+								throw Except::IO::DriveAccess::GeneralFault(loc,"Failed to create last directory segment of '"+PathToString(path)+"': File was found with that name but could not be deleted");
 							#endif
 						}
 						else
-							throw Except::IO::DriveAccess::GeneralFault(loc,"Failed to create last directory segment of '"+String(path)+"': File was found with that name");
+							throw Except::IO::DriveAccess::GeneralFault(loc,"Failed to create last directory segment of '"+PathToString(path)+"': File was found with that name");
 					}
 				}
 				_CreateLastDirectorySegment(path,loc);
