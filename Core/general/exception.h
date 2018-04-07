@@ -424,6 +424,8 @@ namespace DeltaWorks
 				 */
 				DEFINE_MEMBER_EXCEPTION(GeneralFault)
 
+				DEFINE_MEMBER_EXCEPTION(DeviceConnectionLost)
+
 				DEFINE_MEMBER_EXCEPTION(ShaderRejected)
 				/**
 					@brief Texture transfer (upload or download) related exceptions
