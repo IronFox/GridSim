@@ -1052,6 +1052,7 @@ namespace DeltaWorks
 						owner->HandleIncomingPackage(channel_index,*this,*this);
 						while (remaining_size > sizeof(dump_buffer))
 							NetRead(dump_buffer,sizeof(dump_buffer));
+						NetRead(dump_buffer,remaining_size);
 					}
 				}
 			}
