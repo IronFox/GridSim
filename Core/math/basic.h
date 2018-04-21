@@ -393,6 +393,8 @@ namespace DeltaWorks
 			String	 floatStr(float f, bool force=false);
 		#endif
 
+		MFUNC	(C)			Interpolate(C lower, C upper, C t)	{return lower * (1-t) + upper * t;}
+
 		MFUNC	(C)			frac(C x);														//!< Returns the fractional component of @a x
 		MFUNC3	(C0)		linearStep(C0 v, C1 lower, C2 upper);		 					//!< Returns linear step \param v Value to examine \param lower Lower boundary \param upper Upper boundary \return 0 for v=lower, 1 for v=upper, and (v-lower)/(upper-lower) for lower<v<upper
 		MFUNC3	(C0)		cosStep(C0 v, C1 lower, C2 upper);								//!< Returns cos smoothed step \param v Value to examin \param lower Lower boundary \param upper Upper boundary \return cosFactor(linearStep(...))
