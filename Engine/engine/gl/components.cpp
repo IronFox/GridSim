@@ -1952,7 +1952,7 @@ namespace Engine
 				{
 					textChanged = false;
 					lastWidth = w;
-					wrapf(caption,w,_CharLen,lines);
+					Wrap(caption,w,_CharLen,lines);
 					//for (index_t i = 0; i < lines.Count(); i++)
 					//	cout << "'"<<lines[i]<<"'"<<endl;
 					height = GetMinHeight(false);
@@ -1996,6 +1996,7 @@ namespace Engine
 		Label*			Label::SetText(const String&text)
 		{
 			caption = text;
+			lines.Clear();
 			textChanged = true;
 			if (!wrapText)
 				width = GetMinWidth(false);

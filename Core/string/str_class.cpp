@@ -107,8 +107,6 @@ char*	strnstr(char *big, const char *little, size_t len)
 
 
 
-
-
 namespace DeltaWorks
 {
 
@@ -135,6 +133,14 @@ namespace DeltaWorks
 	#endif
 		
 
+
+
+	static void	TestWrap()	//let compiler check this
+	{
+		String line = "ldskna kljh nalksj alks j";
+		Array<StringRef> wrapped;
+		Wrap(line,10,wrapped);
+	}
 
 
 

@@ -18,11 +18,11 @@ namespace Engine
 		{
 			typedef Component			Parent;
 			String						caption;	//!< Single line (complete) caption of the label
-			Array<String>				lines;			//!< Split (wrapped) caption
+			Array<StringRef>			lines;			//!< Split (wrapped) caption
 			bool						textChanged;	//!< Indicates that the text changed and the text should be re-wrapped before printing it the next time
-			M::TVec4<GLfloat>				textColor;			//!< Label text color (solid white by default)
+			M::TVec4<GLfloat>			textColor;			//!< Label text color (solid white by default)
 			float						lastWidth;
-			M::Quad<float>					textMargin;	//!< Distance between text and the respective edge. All positive values (even up and right)
+			M::Quad<float>				textMargin;	//!< Distance between text and the respective edge. All positive values (even up and right)
 				
 			void						_Setup();
 			static	float				_CharLen(char c);
@@ -43,7 +43,7 @@ namespace Engine
 			inline Label*				SetTextColor(const M::TVec4<>&color)	{return SetColor(color);}
 			Label*						SetColor(const M::TVec4<>&color);	//!< Updates label text color
 			void						SetTextMargin(const M::Quad<float>&margin);
-			const M::Quad<float>&			GetTextMargin() const	{return textMargin;}
+			const M::Quad<float>&		GetTextMargin() const	{return textMargin;}
 			String						ConvertToString()	const override	{return caption;}	//!< Simple IToString::ConvertToString() override
 			virtual	void				UpdateLayout(const M::Rect<float>&parent_region)	override;
 		};

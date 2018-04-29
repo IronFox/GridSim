@@ -533,155 +533,170 @@ template <typename T0, typename T1>
 		return result;
 	}
 	
-	
 
-template <typename T0, typename T1, typename T2>
-	static void RunTWrap(const T0*string, T1 max_line_length, T1(*lengthFunction)(T0 character),const T2&callback)
+template <typename Char, typename Width>
+	class Wrapper
 	{
-		T1			line_width = 0,
-					word_width = 0;
-		const T0	*at = string,
-					*word_begin=string,
-					*line_begin=string;
-		bool word_ended = false;
-		bool forceNewline = false;
-		//cout << "wrapping '"<<string<<"'"<<endl;
-		while (*at)
-		{
-			T1 len = lengthFunction(*at);
-			line_width += len;
-			word_width += len;
-			if ((forceNewline || line_width >= max_line_length) && word_begin < at)
+	public:
+		typedef Width(*FCharWidth)(Char);
+
+		const FCharWidth	charWidth;
+		const Width			lineWidth;
+
+		/**/		Wrapper(const Width&lineWidth, const FCharWidth&charWidth):charWidth(charWidth),lineWidth(lineWidth)
+		{}
+
+		template <typename CallbackFunctor>
+			void	Scan(const ArrayRef<const Char>&line, const CallbackFunctor&callback)
 			{
-				if (line_width < max_line_length)
+				if (line.IsEmpty())
+					return;
+				Width		lineWidthToCurrent = 0,	//effective width from firstLineChar to current
+							wordWithToCurrent = 0;	//effective width from firstWordChar to current
+				const Char	*current = line.begin(),
+							*firstWordChar = current,
+							*firstLineChar = current;
+				const Char*const end = line.end();
+
+				bool wordEnded = false;
+				bool forceNewlineAtNextChar = false;
+
+				while (current < end)
 				{
-					word_begin = at-1;
-					word_width = len;
-				}
-				//cout << "passed length barrier of "<<max_line_length<<" at "<<(at-string)<<endl;
-				if (word_begin == line_begin)
-				{
-					//ASSERT_EQUAL__(word_width,line_width);
-					T1 current = 0;
-					for(;;)
+					const Width charW = charWidth(*current);
+					lineWidthToCurrent += charW;
+					wordWithToCurrent += charW;
+					if (
+						firstWordChar < current	//have at least one char (otherwise: empty line)
+						&&
+						(
+							forceNewlineAtNextChar //encountered new line
+							|| 
+							lineWidthToCurrent >= lineWidth	//exceeded line width
+						)
+					)	
 					{
-						ASSERT_LESS_OR_EQUAL__(word_begin,at);
-						T1 chrWidth = lengthFunction(*word_begin);
-						if (word_begin < at && (current == 0 || current + chrWidth <= max_line_length))
+						const bool forcedBreak = lineWidthToCurrent < lineWidth;	//ONLY forceNewLineAtNextChar is true
+						if (forcedBreak)
 						{
-							word_begin++;
-							current += chrWidth;
-							word_width -= chrWidth;
+							firstWordChar = current-1;	//last char was newline. we don't pass that to the callback function, so reduce line limit (firstWordChar)
 						}
 						else
-							break;
+						{
+							if (firstWordChar == firstLineChar)	//we are still inside the first word of this line, so we need to split the word
+							{
+								Width currentW = charWidth(*firstWordChar);
+								firstWordChar++;	//always include first char
+
+								for(;;)
+								{
+									ASSERT_LESS_OR_EQUAL__(firstWordChar,current);
+									const Width chrWidth = charWidth(*firstWordChar);
+									if (firstWordChar < current && (currentW + chrWidth <= lineWidth))	//this char still fits
+									{
+										firstWordChar++;
+										currentW += chrWidth;
+										wordWithToCurrent -= chrWidth;
+									}
+									else
+										break;
+								}
+								if (firstWordChar - firstLineChar > 1)
+									ASSERT_LESS__(currentW,lineWidth);	//one char may exceed limit (can't do anything here). but 2+ must never
+							}
+						}
+						callback(StringType::ReferenceExpression<Char>(firstLineChar,firstWordChar-firstLineChar));
+
+						if (forcedBreak)
+						{
+							firstWordChar = current;	//skip newline char
+							wordWithToCurrent = charW;
+						}
+						firstLineChar = firstWordChar;
+						lineWidthToCurrent = wordWithToCurrent;
+						forceNewlineAtNextChar = false;
 					}
-				}
-				callback(StringType::ReferenceExpression<T0>(line_begin,word_begin-line_begin));
-				if (line_width < max_line_length)
-				{
-					word_begin = at;
-					word_width = 0;
-				}
-				line_begin = word_begin;
-				line_width = word_width;
-				//length = len;
-				forceNewline = false;
-			}
 		
 		
-			if (IsWhitespace(*at))
-			{
-				if (IsNewline(*at))
-					forceNewline = true;
-				//*at = ' ';
-				if (line_begin == at && !forceNewline)
-				{
-					line_begin++;
-					word_begin++;
+					if (IsWhitespace(*current))
+					{
+						if (IsNewline(*current))
+							forceNewlineAtNextChar = true;
+
+						if (firstLineChar == current && !forceNewlineAtNextChar)
+						{
+							firstLineChar++;	//auto-trim beginning
+							firstWordChar++;
+						}
+						wordEnded = true;
+					}
+					else
+						if (wordEnded)
+						{
+							wordEnded = false;
+							firstWordChar = current;
+							wordWithToCurrent = charW;
+						}
+					current++;
 				}
-				word_ended = true;
+				if (current > firstLineChar)	//some leftovers?
+				{
+					callback(StringType::ReferenceExpression<Char>(firstLineChar, current - firstLineChar));
+				}
 			}
-			else
-				if (word_ended)
-				{
-					word_ended = false;
-					word_begin = at;
-					word_width = 0;
-				}
-			at++;
-		}
-		if (at > word_begin)
-		{
-			callback(StringType::ReferenceExpression<T0>(line_begin, at - line_begin));
-		}
+	};
+
+template <typename Char, typename Width>
+	static Wrapper<Char,Width> MakeWrapper(const Width&lineWidth, Width(*charWidthFunction)(Char))
+	{
+		return Wrapper<Char,Width>(lineWidth,charWidthFunction);
 	}
 	
-template <typename T0, typename T1, typename T2>
-	static void twrap(const T0*string, T1 max_line_length, T1 (*lengthFunction)(T0 character),Ctr::ArrayData<StringType::Template<T2> >&result)
+template <typename Char, typename Width>
+	void Wrap(const ArrayRef<const Char>&string, const Width&lineWidth, Width (*charWidthFunction)(Char),ArrayData<StringType::ReferenceExpression<Char> >&result)
 	{
-		size_t lines=0;
-		RunTWrap(string,max_line_length,lengthFunction,[&lines](const StringType::ReferenceExpression<T0>&)	{lines++;});
+		auto wrapper = MakeWrapper(lineWidth,charWidthFunction);
 
-		
-		result.SetSize(lines);
+		count_t numLines=0;
+		wrapper.Scan(string,[&numLines](const StringType::ReferenceExpression<Char>&)	{numLines++;});
+
+		result.SetSize(numLines);
 		index_t at = 0;
-		RunTWrap(string,max_line_length,lengthFunction,[&result,&at](const StringType::ReferenceExpression<T0>&exp)
+		wrapper.Scan(string,[&result,&at](const StringType::ReferenceExpression<Char>&exp)
 		{
-			result[at] = StringType::Template<T2>(exp);
-			result[at].FindAndReplace(IsWhitespace<T2>,(T2)' ');
+			result[at] = exp;
 			at++;
 		});
-		ASSERT_EQUAL__(at,lines);
-			
+		ASSERT_EQUAL__(at,numLines);
 	}	
 	
 	
 
 template <typename T>
-	static size_t	constantLengthFunction(T)
+	static count_t	ConstantCharWidthFunction(T)
 	{
 		return 1;
 	}
-	
-template <typename T0, typename T1>
-	void 	wrap(const T0*string, size_t line_length, Ctr::ArrayData<StringType::Template<T1> >&result)
+
+
+template <typename Char>
+	void 	Wrap(const ArrayRef<const Char>&string, count_t lineCharCount, ArrayData<StringType::ReferenceExpression<Char> >&result)
 	{
-		twrap<T0,size_t,T1>(string,line_length,constantLengthFunction<T0>,result);
+		Wrap(string,lineCharCount,ConstantCharWidthFunction,result);
 	}
 
-template <typename T0, typename T1>
-	void 	wrap(const T0*string, size_t line_length, size_t (*lengthFunction)(T0),Ctr::ArrayData<StringType::Template<T1> >&result)
+template <typename Char>
+	void 	Wrap(const ArrayRef<Char>&string, count_t lineCharCount, ArrayData<StringType::ReferenceExpression<Char> >&result)
 	{
-		twrap<T0, size_t, T1>(string,line_length,lengthFunction,result);
+		Wrap(ArrayRef<const Char>(string),lineCharCount,ConstantCharWidthFunction,result);
 	}
 
-template <typename T0, typename T1>
-	void 	wrapf(const T0*string, float line_length, float (*lengthFunction)(T0),Ctr::ArrayData<StringType::Template<T1> >&result)
+template <typename Char, typename Width>
+	void	Wrap(const ArrayRef<Char>&string, const Width&lineWidth, Width (*charWidthFunction)(Char),ArrayData<StringType::ReferenceExpression<Char> >&result)
 	{
-		twrap<T0, float, T1>(string,line_length,lengthFunction,result);
-	}
-	
-	
-template <typename T0, typename T1>
-	void 	wrap(const StringType::Template<T0>&string, size_t line_length, Ctr::ArrayData<StringType::Template<T1> >&result)
-	{
-		twrap<T0,size_t,T1>(string.c_str(),line_length,constantLengthFunction<T0>,result);
+		Wrap(ArrayRef<const Char>(string),lineWidth,charWidthFunction,result);
 	}
 
-template <typename T0, typename T1>
-	void 	wrap(const StringType::Template<T0>&string, size_t line_length, size_t (*lengthFunction)(T0),Ctr::ArrayData<StringType::Template<T1> >&result)
-	{
-		twrap<T0, size_t, T1>(string.c_str(),line_length,lengthFunction,result);
-	}
-
-template <typename T0, typename T1>
-	void 	wrapf(const StringType::Template<T0>&string, float line_length, float (*lengthFunction)(T0),Ctr::ArrayData<StringType::Template<T1> >&result)
-	{
-		twrap<T0, float, T1>(string.c_str(),line_length,lengthFunction,result);
-	}
-	
-	
 
 
 namespace StringType

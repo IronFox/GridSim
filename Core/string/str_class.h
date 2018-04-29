@@ -1551,22 +1551,14 @@ namespace DeltaWorks
 		StringType::Template<T1>		implode(const T0*glue, const StringType::Template<T1>*pieces, count_t numPieces);
 
 
-	template <typename T0, typename T1>
-		void 	wrap(const T0*string, size_t line_length, Ctr::ArrayData<StringType::Template<T1> >&result);
-	template <typename T0, typename T1>
-		void 	wrap(const T0*string, size_t line_length, size_t (*lengthFunction)(T0 character),Ctr::ArrayData<StringType::Template<T1> >&result);
-	template <typename T0, typename T1>
-		void 	wrapf(const T0*string, float line_length, float (*lengthFunction)(T0 character),Ctr::ArrayData<StringType::Template<T1> >&result);
-
-
-	template <typename T0, typename T1>
-		void 	wrap(const StringType::Template<T0>&string, size_t line_length, Ctr::ArrayData<StringType::Template<T1> >&result);
-	template <typename T0, typename T1>
-		void 	wrap(const StringType::Template<T0>&string, size_t line_length, size_t (*lengthFunction)(T0 character),Ctr::ArrayData<StringType::Template<T1> >&result);
-	template <typename T0, typename T1>
-		void 	wrapf(const StringType::Template<T0>&string, float line_length, float (*lengthFunction)(T0 character),Ctr::ArrayData<StringType::Template<T1> >&result);
-
-
+	template <typename Char>
+		void 	Wrap(const ArrayRef<const Char>&string, count_t lineCharCount, ArrayData<StringType::ReferenceExpression<Char> >&result);
+	template <typename Char, typename Width>
+		void	Wrap(const ArrayRef<const Char>&string, const Width&lineWidth, Width (*charWidthFunction)(Char),ArrayData<StringType::ReferenceExpression<Char> >&result);
+	template <typename Char>
+		void 	Wrap(const ArrayRef<Char>&string, count_t lineCharCount, ArrayData<StringType::ReferenceExpression<Char> >&result);
+	template <typename Char, typename Width>
+		void	Wrap(const ArrayRef<Char>&string, const Width&lineWidth, Width (*charWidthFunction)(Char),ArrayData<StringType::ReferenceExpression<Char> >&result);
 
 
 	void			ShowString(const String&line);

@@ -521,8 +521,8 @@ namespace DeltaWorks
 					//	tabs++;
 					//for (index_t i = 0; i <= tabs; i++)
 					//	buffer << '\t';
-					Ctr::Array<String>	lines;
-					wrap(attrib->name+": "+ attrib->comment.TrimRef(),80,lines);
+					Array<StringRef>	lines;
+					Wrap(attrib->name+": "+ attrib->comment.TrimRef(),80,lines);
 					foreach (lines,line)
 						buffer << indent << ";"<<*line<<nl;
 				}
@@ -574,8 +574,8 @@ namespace DeltaWorks
 			{
 				if (child->comment.IsNotEmpty())
 				{
-					Ctr::Array<String>	lines;
-					wrap(child->name+": "+child->comment.TrimRef(),80,lines);
+					Array<StringRef>	lines;
+					Wrap(child->name+": "+child->comment.TrimRef(),80,lines);
 					foreach (lines,line)
 						buffer << indent << ";"<<*line<<nl;
 				}
