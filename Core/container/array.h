@@ -234,6 +234,8 @@ namespace DeltaWorks
 				T*				data;
 				count_t			elements;
 
+				friend class ArrayRef<const T>;
+
 			public:
 				typedef ArrayRef<T>	Self;
 				typedef const T*	const_iterator;
@@ -242,6 +244,7 @@ namespace DeltaWorks
 				/**/				ArrayRef():data(nullptr),elements(0)	{}
 				/**/				ArrayRef(T*data, count_t elements):data(data),elements(elements)	{}
 				/**/				ArrayRef(T&element):data(&element),elements(1)	{}
+				/**/				ArrayRef(const ArrayRef<typename std::remove_const<T>::type>&nonConst):data(nonConst.data),elements(nonConst.elements)	{}
 				virtual				~ArrayRef()	{}
 
 				operator ArrayRef<const T>() const {return ArrayRef<const T>(data,elements);}
