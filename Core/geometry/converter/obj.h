@@ -295,10 +295,10 @@ namespace DeltaWorks
 
 
 		template <typename Vertex>
-			class VertexHashTable : public Container::GenericHashTable<Vertex,UINT32>
+			class VertexHashTable : public Container::HashTable<Vertex,UINT32>
 			{
 			public:
-				typedef Container::GenericHashTable<Vertex,UINT32> Super;
+				typedef Container::HashTable<Vertex,UINT32> Super;
 				/*
 										M::Vec::stretch(q.v[0]->t,m->scale.xy,q.v[0]->t);
 						M::Vec::stretch(q.v[1]->t,m->scale.xy,q.v[1]->t);

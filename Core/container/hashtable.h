@@ -275,7 +275,7 @@ namespace DeltaWorks
 			Instances of GenericHashSet are natively copyable and require no additional copy constructor or assignment operator.
 		*/
 		template <class K, class Hash=StdHash, typename KeyStrategy = typename StrategySelector<K>::Default>
-			class GenericHashSet:public ExtendedHashBase<THashSetCarrier<K,KeyStrategy>,Hash>
+			class HashSet:public ExtendedHashBase<THashSetCarrier<K,KeyStrategy>,Hash>
 			{
 			protected:
 					typedef THashSetCarrier<K,KeyStrategy>		Carrier;
@@ -293,19 +293,19 @@ namespace DeltaWorks
 			};
 
 	
-		typedef GenericHashSet<String>		StringSet;				//!< String based 'Hash' set
-		typedef GenericHashSet<StringW>		StringWSet;				//!< String based 'Hash' set
-		typedef GenericHashSet<index_t>		IndexSet;				//!< Index set
-		typedef GenericHashSet<const void*>	PointerSet;			//!< Pointer set
+		typedef HashSet<String>			StringSet;				//!< String based hash set
+		typedef HashSet<StringW>		StringWSet;				//!< String based hash set
+		typedef HashSet<index_t>		IndexSet;				//!< Index set
+		typedef HashSet<const void*>	PointerSet;				//!< Pointer set
 
 		/*!
 			\brief Root Hashtable
 
 			The generic hashtable is a type-invariant root class of all other tables and containers in this file.
-			Instances of GenericHashTable are natively copyable and require no additional copy constructor or assignment operator.
+			Instances of HashTable are natively copyable and require no additional copy constructor or assignment operator.
 		*/
 		template <class K, class C, class Hash=StdHash, typename KeyStrategy = typename StrategySelector<K>::Default, typename DataStrategy = typename StrategySelector<C>::Default>
-			class GenericHashTable:public ExtendedHashBase<THashTableCarrier<K,C,KeyStrategy,DataStrategy>,Hash>
+			class HashTable:public ExtendedHashBase<THashTableCarrier<K,C,KeyStrategy,DataStrategy>,Hash>
 			{
 			protected:
 		
@@ -383,8 +383,6 @@ namespace DeltaWorks
 				inline	const DataType&				operator[](const K&ident)			const;	//!< Standard const access. If the specified key could not be found then an exception of type Program::MemberNotFound will be triggered. \param ident Key to look for \return Reference to the data associated with the specified key.
 			};
 
-		template <class K, class C, typename KeyStrategy = typename StrategySelector<K>::Default, typename DataStrategy = typename StrategySelector<C>::Default>
-			using HashTable = GenericHashTable<K,C,StdHash,KeyStrategy, DataStrategy>;
 
 		/*!
 		\brief Standard String-mapped Hashtable
@@ -392,7 +390,7 @@ namespace DeltaWorks
 		The hashtable stores copies of inserted objects mapped via strings. Anything that can be cast into a string can be used as a key.
 		*/
 		template <class C, typename DataStrategy = typename StrategySelector<C>::Default>
-			class StringTable:public GenericHashTable<String,C,StdHash,SwapStrategy,DataStrategy>
+			class StringTable:public HashTable<String,C,StdHash,SwapStrategy,DataStrategy>
 			{};
 
 
@@ -402,7 +400,7 @@ namespace DeltaWorks
 			The indextable stores copies of inserted objects mapped via indices. Anything that can be cast into an integer can be used as a key.
 		*/
 		template <class C, typename DataStrategy = typename StrategySelector<C>::Default>
-			class IndexTable:public GenericHashTable<index_t,C,StdHash,PrimitiveStrategy,DataStrategy>
+			class IndexTable:public HashTable<index_t,C,StdHash,PrimitiveStrategy,DataStrategy>
 			{};
 
 
@@ -412,7 +410,7 @@ namespace DeltaWorks
 			The pointertable stores copies of inserted objects mapped via pointers. Anything that can be cast into a pointer can be used as a key.
 		*/
 		template <class C, typename DataStrategy = typename StrategySelector<C>::Default>
-			class PointerTable:public GenericHashTable<const void*,C, StdHash, PrimitiveStrategy, DataStrategy>
+			class PointerTable:public HashTable<const void*,C, StdHash, PrimitiveStrategy, DataStrategy>
 			{};
 
 		/*!
@@ -421,10 +419,10 @@ namespace DeltaWorks
 			The GenericHashContainer class acts as a generic super class to all pointer managing mapped tables.
 		*/
 		template <class K, class C,class Hash=StdHash, typename KeyStrategy = typename StrategySelector<K>::Default>
-			class GenericHashContainer:protected GenericHashTable<K,C*,Hash,KeyStrategy,PrimitiveStrategy>
+			class GenericHashContainer:protected HashTable<K,C*,Hash,KeyStrategy,PrimitiveStrategy>
 			{
 			protected:
-					typedef GenericHashTable<K,C*,Hash,KeyStrategy,PrimitiveStrategy>	Root;
+					typedef HashTable<K,C*,Hash,KeyStrategy,PrimitiveStrategy>	Root;
 					typedef typename Root::Carrier								Carrier;
 			
 

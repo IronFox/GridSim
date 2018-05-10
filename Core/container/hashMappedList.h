@@ -102,7 +102,7 @@ namespace DeltaWorks
 	
 			private:
 				List									list;
-				GenericHashTable<K,index_t,StdHash, KStrategy>	map;
+				HashTable<K,index_t,StdHash, KStrategy>	map;
 			};
 	
 	}	

@@ -148,7 +148,7 @@ namespace DeltaWorks
 
 
 
-		GenericHashTable<PathString,bool>	managedMap;
+		HashTable<PathString,bool>	managedMap;
 		Sys::Mutex	managedMutex;
 
 		static bool IsManaged(const PathString&path)

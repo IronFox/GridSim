@@ -4,8 +4,8 @@ namespace DeltaWorks
 {
 	namespace Container
 	{
-		template class GenericHashTable<int,int>;
-		template class GenericHashSet<int>;
+		template class HashTable<int,int>;
+		template class HashSet<int>;
 	}
 }
 

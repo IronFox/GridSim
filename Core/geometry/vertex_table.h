@@ -31,14 +31,14 @@ namespace DeltaWorks
 	
 	Vertices are converted to integer coordinates and mapped via a hashtable.
 	*/
-	class VertexTable:protected Container::GenericHashTable<TVertexIntPosition,index_t>
+	class VertexTable:protected Container::HashTable<TVertexIntPosition,index_t>
 	{
 	public:
 		typedef M::TVec3<>	TPosition;
 
 
 	protected:
-		typedef GenericHashTable<TVertexIntPosition,index_t>	Table;
+		typedef HashTable<TVertexIntPosition,index_t>	Table;
 		
 		Container::Buffer<TPosition>					position_map;
 		float											tolerance;

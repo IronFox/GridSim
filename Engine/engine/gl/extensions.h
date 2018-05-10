@@ -1065,7 +1065,7 @@
 				Resolution						resolution;
 			};
 			CONSTRUCT_ENUMERATION3(VRAMQueryMethod,None, NVIDIA,ATI);
-			typedef Ctr::GenericHashTable<Resolution,index_t>	ResolutionTable;
+			typedef Ctr::HashTable<Resolution,index_t>	ResolutionTable;
 			
 
 			static ResolutionTable				depthBufferTable;
