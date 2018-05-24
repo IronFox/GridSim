@@ -2,6 +2,7 @@
 #include "file_system.h"
 #include "../string/encoding.h"
 #include <algorithm>
+#include "../container/buffer.h"
 
 /******************************************************************
 
@@ -36,17 +37,44 @@ namespace DeltaWorks
 		}
 
 
-		#if SYSTEM==WINDOWS
-			String			PathToString(const PathString&path)
+		Ctr::Buffer0<std::pair<PathString,String> > prefixRules;
+
+		void			SetPathPrefix(const PathString&prefix, const String&replaceWithCaption)
+		{
+			prefixRules << std::make_pair(prefix,replaceWithCaption);
+		}
+
+		void			ClearPathPrefixes()
+		{
+			prefixRules.Clear();
+		}
+
+		String			PathToString(const PathString&path)
+		{
+			String*caption = nullptr;
+			auto ref = path.ref();
+			String rs;
+			foreach (prefixRules,r)
+				if (ref.BeginsWith(r->first))
+				{
+					caption = &r->second;
+					ref = ref.SubStringRef(r->first.GetLength());
+					break;
+				}
+			#if SYSTEM==WINDOWS
+				if (ref.BeginsWith(ABS_MARKER))
+					ref = ref.SubStringRef(4);
+			#endif
+			if (sizeof(PathString::char_t) != 1)
 			{
-				String rs;
-				if (path.BeginsWith(ABS_MARKER))
-					StringEncoding::UTF16::ToUTF8(path.SubStringRef(4),rs);
-				else
-					StringEncoding::UTF16::ToUTF8(path,rs);
-				return rs;
+				StringEncoding::UTF16::ToUTF8(ref,rs);
 			}
-		#endif
+			else
+				rs = ref;
+			if (caption)
+				rs = "["+*caption+"]"+rs;
+			return rs;
+		}
 
 
 		Sys::Mutex	TempFile::mutex;

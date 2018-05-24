@@ -120,11 +120,23 @@ namespace DeltaWorks
 		bool			LocateExecutable(const char*name, File&target);	//!< Identifies a program executable depending on the global path variables. Also follows symlinks. Windows .lnk files not supported yet. \param name Name of the executable to locate \param target Target File to store the file target in. \return true on if the executable could be located, false otherwise
 
 
-		#if SYSTEM==WINDOWS
-			String			PathToString(const PathString&path);
-		#else
-			inline const String&	PathToString(const String&path) {return path;}
-		#endif
+		/**
+		Replaces or adds a new prefix replacement rule to be used by PathToString().
+		Example:
+		SetPathPrefix("C:","Root");
+		would modify all paths starting with C: such that they start with [Root] instead:
+		C:\yolo.txt -> [Root]\yolo.txt
+
+		@param prefix Path prefix to replace in PathToString()
+		@param replaceWithCaption Name to put in brackets before path
+		*/
+		void			SetPathPrefix(const PathString&prefix, const String&replaceWithCaption);
+		/**
+		Clears all registered path prefixes
+		*/
+		void			ClearPathPrefixes();
+
+		String			PathToString(const PathString&path);
 
 
 		/**
