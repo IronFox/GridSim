@@ -6,7 +6,7 @@
 #undef min
 
 #if defined(_DEBUG) && __BUFFER_DBG_COUNT__
-	#define CHK_FILL_LEVEL	if (fillLevel != usage_end - storage_begin) FATAL__("Invalid buffer state");
+	#define CHK_FILL_LEVEL	if (fillLevel != usageEnd - storageBegin) FATAL__("Invalid buffer state");
 #else
 	#define CHK_FILL_LEVEL
 #endif
@@ -18,7 +18,7 @@
 	#else
 		#define BUFFER_CHECK_RANGE(_INDEX_)	if ((_INDEX_) >= Count()) FATAL__("Index out of range for buffer access");
 	#endif
-	#define BUFFER_ASSERT_NOT_EMPTY()	if (usage_end == storage_begin)	FATAL__("Cannot access element: buffer is empty");
+	#define BUFFER_ASSERT_NOT_EMPTY()	if (usageEnd == storageBegin)	FATAL__("Cannot access element: buffer is empty");
 #else
 	#define BUFFER_CHECK_RANGE(_INDEX_)
 	#define BUFFER_ASSERT_NOT_EMPTY()
@@ -29,15 +29,15 @@
 
 
 template <typename T, typename MyStrategy>
-	inline void		BasicBuffer<T, MyStrategy>::destructAndFree(T*range_begin, T*range_end)
+	inline void		BasicBuffer<T, MyStrategy>::DestructAndFree(T*range_begin, T*range_end)
 	{
 		MyStrategy::destructRange(range_begin,range_end);
 		free(range_begin);
 	}
 
 
-template <typename T, typename MyStrategy>
-	inline T*	BasicBuffer<T, MyStrategy>::allocate(count_t len)
+template <typename T>
+	inline T*	BufferStorage<T>::Allocate(count_t len)
 	{
 		if (!len)
 			return NULL;
@@ -48,8 +48,8 @@ template <typename T, typename MyStrategy>
 	}
 
 
-template <typename T, typename MyStrategy>
-	inline T*	BasicBuffer<T, MyStrategy>::allocateNotEmpty(count_t len)
+template <typename T>
+	inline T*	BufferStorage<T>::AllocateNotEmpty(count_t len)
 	{
 		T*rs = (T*)malloc(sizeof(T)*len);
 		if (!rs)
@@ -59,12 +59,13 @@ template <typename T, typename MyStrategy>
 
 
 template <typename T, typename MyStrategy>
-	inline void BasicBuffer<T, MyStrategy>::ensureHasSpace(count_t elements)
+	inline void BasicBuffer<T, MyStrategy>::EnsureHasSpace(count_t elements)
 	{
-		count_t	current_size = storage_end-storage_begin,
-				target_size = current_size,
-				Fill = usage_end-storage_begin,
-				want_size = Fill+elements;
+		const count_t	current_size = storageEnd-storageBegin,
+						fill = usageEnd-storageBegin,
+						want_size = fill+elements;
+		count_t target_size = current_size;
+
 		if (!target_size)
 			target_size = 4;
 
@@ -80,20 +81,20 @@ template <typename T, typename MyStrategy>
 		{
 			try
 			{
-				T	*new_field = allocateNotEmpty(target_size);
+				T	*new_field = AllocateNotEmpty(target_size);
 
-				MyStrategy::constructRangeFromFleetingData(new_field,new_field+current_size,storage_begin);
-				destructAndFree(storage_begin,usage_end);
+				MyStrategy::constructRangeFromFleetingData(new_field,new_field+current_size,storageBegin);
+				DestructAndFree(storageBegin,usageEnd);
 
-				storage_begin = new_field;
-				storage_end = storage_begin+target_size;
-				usage_end = storage_begin+Fill;
+				storageBegin = new_field;
+				storageEnd = storageBegin+target_size;
+				usageEnd = storageBegin+fill;
 				CHK_FILL_LEVEL
 
 			}
 			catch (std::bad_alloc& exception)
 			{
-				storage_begin = storage_end = usage_end = NULL;
+				storageBegin = storageEnd = usageEnd = NULL;
 				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel = 0;
 					CHK_FILL_LEVEL
@@ -105,34 +106,34 @@ template <typename T, typename MyStrategy>
 	}
 
 template <typename T, typename MyStrategy>
-	inline void BasicBuffer<T, MyStrategy>::ensureHasSpace()
+	inline void BasicBuffer<T, MyStrategy>::EnsureHasSpace()
 	{
-		if (usage_end == storage_end)
+		if (usageEnd == storageEnd)
 		{
-			index_t	current_index = usage_end-storage_begin;
-			count_t	len = (storage_end-storage_begin)*2;
+			index_t	current_index = usageEnd-storageBegin;
+			count_t	len = (storageEnd-storageBegin)*2;
 
-			if (len < (count_t)(storage_end-storage_begin))
+			if (len < (count_t)(storageEnd-storageBegin))
 				throw std::bad_alloc(/*"Unable to resize buffer instance: Size overflow"*/);
 
 			if (!len)
 				len = 4;
 			try
 			{
-				T	*new_field = allocateNotEmpty(len);//alloc<T>(len);
+				T	*new_field = AllocateNotEmpty(len);//alloc<T>(len);
 
-				MyStrategy::constructRangeFromFleetingData(new_field,new_field+current_index,storage_begin);
-				destructAndFree(storage_begin,usage_end);
+				MyStrategy::constructRangeFromFleetingData(new_field,new_field+current_index,storageBegin);
+				DestructAndFree(storageBegin,usageEnd);
 
-				storage_begin = new_field;
-				storage_end = storage_begin+len;
-				usage_end = storage_begin+current_index;
+				storageBegin = new_field;
+				storageEnd = storageBegin+len;
+				usageEnd = storageBegin+current_index;
 				CHK_FILL_LEVEL
 			}
 			catch (std::bad_alloc& exception)
 			{
-			/*	unnecessary since exception would be thrown in allocateNotEmpty(), which leaves list intact
-				storage_begin = storage_end = usage_end = NULL;
+			/*	unnecessary since exception would be thrown in AllocateNotEmpty(), which leaves list intact
+				storageBegin = storageEnd = usageEnd = NULL;
 				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel = 0;
 					CHK_FILL_LEVEL
@@ -142,13 +143,13 @@ template <typename T, typename MyStrategy>
 		}
 	}
 
-template <typename T, typename MyStrategy>
-	BasicBuffer<T, MyStrategy>::BasicBuffer(count_t len)
+template <typename T>
+	BufferStorage<T>::BufferStorage(count_t len)
 	{
 		try
 		{
-			usage_end = storage_begin = allocate(len);
-			storage_end = storage_begin+len;
+			usageEnd = storageBegin = Allocate(len);
+			storageEnd = storageBegin+len;
 			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				fillLevel = 0;
 				CHK_FILL_LEVEL
@@ -156,7 +157,7 @@ template <typename T, typename MyStrategy>
 		}
 		catch (std::bad_alloc& exception)
 		{
-			usage_end = storage_begin = storage_end = NULL;
+			usageEnd = storageBegin = storageEnd = NULL;
 			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				fillLevel = 0;
 				CHK_FILL_LEVEL
@@ -164,57 +165,61 @@ template <typename T, typename MyStrategy>
 			throw;
 		}
 	}
+
+
+template <typename T, typename MyStrategy>
+	BasicBuffer<T, MyStrategy>::BasicBuffer(count_t len):Super(len)
+	{}
 
 
 
 template <typename T, typename MyStrategy>
 	BasicBuffer<T, MyStrategy>::~BasicBuffer()
 	{
-		//deloc(storage_begin);
-		destructAndFree(storage_begin,usage_end);
+		DestructAndFree(storageBegin,usageEnd);
 	}
 
 template <typename T, typename MyStrategy>
 	void	BasicBuffer<T, MyStrategy>::clear(count_t len)
 	{
-		//deloc(storage_begin);
-		MyStrategy::destructRange(storage_begin,usage_end);
+		//deloc(storageBegin);
+		MyStrategy::destructRange(storageBegin,usageEnd);
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel = 0;
 		#endif
 
-		if (storage_end-storage_begin != len)
+		if (storageEnd-storageBegin != len)
 		{
-			free(storage_begin);
+			free(storageBegin);
 			try
 			{
-				usage_end = storage_begin = allocate(len);
-				storage_end = storage_begin+len;
+				usageEnd = storageBegin = Allocate(len);
+				storageEnd = storageBegin+len;
 			}
 			catch (std::bad_alloc& exception)
 			{
-				usage_end = storage_begin = storage_end = NULL;
+				usageEnd = storageBegin = storageEnd = NULL;
 				throw;
 			}
 		}
 		else
-			usage_end = storage_begin;
+			usageEnd = storageBegin;
 		CHK_FILL_LEVEL
 			//alloc<T>(len);
 	}
 
-template <typename T, typename MyStrategy>
-	BasicBuffer<T, MyStrategy>::BasicBuffer(std::initializer_list<T> items)
+template <typename T>
+	BufferStorage<T>::BufferStorage(std::initializer_list<T> items)
 	{
 		count_t	Fill = items.size();
-		//alloc(storage_begin,Fill);
+		//alloc(storageBegin,Fill);
 		try
 		{
-			storage_begin = allocate(Fill);
+			storageBegin = Allocate(Fill);
 		}
 		catch (std::bad_alloc& exception)
 		{
-			storage_begin = storage_end = usage_end = NULL;
+			storageBegin = storageEnd = usageEnd = NULL;
 			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				fillLevel = 0;
 				CHK_FILL_LEVEL
@@ -223,7 +228,7 @@ template <typename T, typename MyStrategy>
 			throw;
 		}
 
-		storage_end = usage_end = storage_begin+Fill;
+		storageEnd = usageEnd = storageBegin+Fill;
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel = Fill;
 			CHK_FILL_LEVEL
@@ -233,23 +238,28 @@ template <typename T, typename MyStrategy>
 		std::initializer_list<T>::const_iterator it = items.begin();
 		for (index_t i = 0; i < Fill; i++, ++it)
 		{
-			new ((storage_begin+i)) T(*it);
+			new ((storageBegin+i)) T(*it);
 		}
 	}
 
-
 template <typename T, typename MyStrategy>
-	BasicBuffer<T, MyStrategy>::BasicBuffer(const BasicBuffer<T, MyStrategy>&other)
+	BasicBuffer<T, MyStrategy>::BasicBuffer(std::initializer_list<T> items):Super(items)
+	{}
+
+
+
+template <typename T>
+	BufferStorage<T>::BufferStorage(const Self&other)
 	{
-		count_t	Fill = other.usage_end-other.storage_begin;
-		//alloc(storage_begin,Fill);
+		const count_t	fill = other.usageEnd-other.storageBegin;
+		//alloc(storageBegin,Fill);
 		try
 		{
-			storage_begin = allocate(Fill);
+			storageBegin = Allocate(fill);
 		}
 		catch (std::bad_alloc& exception)
 		{
-			storage_begin = storage_end = usage_end = NULL;
+			storageBegin = storageEnd = usageEnd = NULL;
 			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				fillLevel = 0;
 				CHK_FILL_LEVEL
@@ -258,23 +268,27 @@ template <typename T, typename MyStrategy>
 			throw;
 		}
 
-		storage_end = usage_end = storage_begin+Fill;
+		storageEnd = usageEnd = storageBegin+fill;
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
-			fillLevel = Fill;
+			fillLevel = fill;
 			CHK_FILL_LEVEL
 		#endif
 
-		for (index_t i = 0; i < Fill; i++)
+		for (index_t i = 0; i < fill; i++)
 		{
-			new ((storage_begin+i)) T(other.storage_begin[i]);
-			//storage_begin[i] = other.storage_begin[i];
+			new ((storageBegin+i)) T(other.storageBegin[i]);
+			//storageBegin[i] = other.storageBegin[i];
 		}
 	}
 
+template <typename T, typename MyStrategy>
+	BasicBuffer<T, MyStrategy>::BasicBuffer(const Self&other):Super(other)
+	{}
+
 
 #if __BUFFER_RVALUE_REFERENCES__
-template <typename T, typename MyStrategy>
-	BasicBuffer<T, MyStrategy>::BasicBuffer(BasicBuffer<T, MyStrategy>&&other):storage_begin(other.storage_begin),storage_end(other.storage_end),usage_end(other.usage_end)
+template <typename T>
+	BufferStorage<T>::BufferStorage(Self&&other):storageBegin(other.storageBegin),storageEnd(other.storageEnd),usageEnd(other.usageEnd)
 	{
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel = other.fillLevel;
@@ -282,11 +296,16 @@ template <typename T, typename MyStrategy>
 			CHK_FILL_LEVEL
 		#endif
 
-		other.storage_begin = other.storage_end = other.usage_end = NULL;
+		other.storageBegin = other.storageEnd = other.usageEnd = NULL;
 	}
 
+
 template <typename T, typename MyStrategy>
-	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::operator=(BasicBuffer<T, MyStrategy>&&other)
+	BasicBuffer<T, MyStrategy>::BasicBuffer(Self&&other):Super(other)
+	{}
+
+template <typename T, typename MyStrategy>
+	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::operator=(Self&&other)
 	{
 		adoptData(other);
 		return *this;
@@ -296,38 +315,38 @@ template <typename T, typename MyStrategy>
 template <typename T, typename MyStrategy>
 	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::operator=(const BasicBuffer<T, MyStrategy>&other)
 	{
-		MyStrategy::destructRange(storage_begin,usage_end);
-		count_t	Fill = other.usage_end-other.storage_begin;
-		if (count_t(storage_end-storage_begin) < Fill)
+		MyStrategy::destructRange(storageBegin,usageEnd);
+		const count_t	fill = other.usageEnd-other.storageBegin;
+		if (count_t(storageEnd-storageBegin) < fill)
 		{
-			free(storage_begin);
+			free(storageBegin);
 			try
 			{
-				storage_begin = allocate(Fill);
+				storageBegin = Allocate(fill);
 			}
 			catch (std::bad_alloc& exception)
 			{
-				storage_begin = storage_end = usage_end = NULL;
+				storageBegin = storageEnd = usageEnd = NULL;
 				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel = 0;
 					CHK_FILL_LEVEL
 				#endif
 				throw;
 			}
-			storage_end = usage_end = storage_begin+Fill;
+			storageEnd = usageEnd = storageBegin+fill;
 		}
 		else
-			usage_end = storage_begin+Fill;
+			usageEnd = storageBegin+fill;
 
-		//	deloc(storage_begin);
-			//alloc(storage_begin,Fill);
+		//	deloc(storageBegin);
+			//alloc(storageBegin,Fill);
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
-			fillLevel = Fill;
+			fillLevel = fill;
 			CHK_FILL_LEVEL
 		#endif
 
-		for (index_t i = 0; i < Fill; i++)
-			new ((storage_begin+i)) T(other.storage_begin[i]);
+		for (index_t i = 0; i < fill; i++)
+			new ((storageBegin+i)) T(other.storageBegin[i]);
 		return *this;
 	}
 
@@ -351,31 +370,31 @@ template <typename T, typename MyStrategy>
 
 	
 template <typename T, typename MyStrategy>
-	void	BasicBuffer<T, MyStrategy>::revert()
+	void	BasicBuffer<T, MyStrategy>::Revert()
 	{
-		MyStrategy::revert(storage_begin,usage_end);
+		MyStrategy::revert(storageBegin,usageEnd);
 	}
 
 
 template <typename T, typename MyStrategy>
 	void	BasicBuffer<T, MyStrategy>::ResizePreserveContent(count_t new_len)
 	{
-		if ((count_t)(storage_end-storage_begin) == new_len)
+		if ((count_t)(storageEnd-storageBegin) == new_len)
 			return;
 
-		count_t preserve = std::min<count_t>(new_len,usage_end-storage_begin);
+		count_t preserve = std::min<count_t>(new_len,usageEnd-storageBegin);
 
 		try
 		{
-			//count_t len = usage_end-storage_begin;
-			T	*new_field = allocate(new_len);
+			//count_t len = usageEnd-storageBegin;
+			T	*new_field = Allocate(new_len);
 
-			MyStrategy::constructRangeFromFleetingData(new_field,new_field+preserve,storage_begin);
-			destructAndFree(storage_begin,usage_end);
+			MyStrategy::constructRangeFromFleetingData(new_field,new_field+preserve,storageBegin);
+			DestructAndFree(storageBegin,usageEnd);
 
-			storage_begin = new_field;
-			storage_end = storage_begin+new_len;
-			usage_end = storage_begin+preserve;
+			storageBegin = new_field;
+			storageEnd = storageBegin+new_len;
+			usageEnd = storageBegin+preserve;
 			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				fillLevel = preserve;
 				CHK_FILL_LEVEL
@@ -384,7 +403,7 @@ template <typename T, typename MyStrategy>
 		}
 		catch (std::bad_alloc& exception)
 		{
-			storage_begin = usage_end = storage_end = NULL;
+			storageBegin = usageEnd = storageEnd = NULL;
 			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				fillLevel = 0;
 				CHK_FILL_LEVEL
@@ -394,24 +413,21 @@ template <typename T, typename MyStrategy>
 	}
 
 
-template <typename T, typename MyStrategy>
-	void	BasicBuffer<T, MyStrategy>::Fill(const T&pattern)
+template <typename T>
+	void	BufferStorage<T>::Fill(const T&pattern)
 	{
-		for (T*c = storage_begin; c < usage_end; c++)
+		for (T*c = storageBegin; c < usageEnd; c++)
 			(*c) = pattern;
-
-		/*for (register T*c = usage_end; c < storage_end; c++)
-			new (c) T(pattern);*/
 	}
 
 template <typename T, typename MyStrategy>
 	inline T*				BasicBuffer<T, MyStrategy>::appendRow(count_t elements, const T&init_pattern)
 	{
-		ensureHasSpace(elements);
+		EnsureHasSpace(elements);
 
-		T*result = usage_end;
-		usage_end += elements;
-		MyStrategy::constructRange(result,usage_end,init_pattern);
+		T*result = usageEnd;
+		usageEnd += elements;
+		MyStrategy::constructRange(result,usageEnd,init_pattern);
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel+=elements;
 			CHK_FILL_LEVEL
@@ -423,11 +439,11 @@ template <typename T, typename MyStrategy>
 template <typename T, typename MyStrategy>
 	inline T*				BasicBuffer<T, MyStrategy>::appendRow(count_t elements)
 	{
-		ensureHasSpace(elements);
+		EnsureHasSpace(elements);
 
-		T*result = usage_end;
-		usage_end += elements;
-		MyStrategy::constructRange(result,usage_end);
+		T*result = usageEnd;
+		usageEnd += elements;
+		MyStrategy::constructRange(result,usageEnd);
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel+=elements;
 			CHK_FILL_LEVEL
@@ -442,12 +458,12 @@ template <typename T, typename MyStrategy>
 		if (!elements)
 			return *this;
 
-		ensureHasSpace(elements);
+		EnsureHasSpace(elements);
 		va_list vl;
 		va_start(vl,elements);
 		for (index_t i=0; i<elements; i++)
 		{
-			new (usage_end++) T(va_arg(vl,T2));
+			new (usageEnd++) T(va_arg(vl,T2));
 		}
 		va_end(vl);
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
@@ -462,10 +478,10 @@ template <typename T, typename MyStrategy>
 template <typename T, typename MyStrategy>
 	inline T&				BasicBuffer<T, MyStrategy>::Append()
 	{
-		ensureHasSpace();
+		EnsureHasSpace();
 
-		new (usage_end) T;
-		T&rs = (*usage_end++);
+		new (usageEnd) T;
+		T&rs = (*usageEnd++);
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel++;
 			CHK_FILL_LEVEL
@@ -478,21 +494,21 @@ template <typename T, typename MyStrategy>
 template <typename T, typename MyStrategy>
 	inline T&				BasicBuffer<T, MyStrategy>::Insert(index_t before)
 	{
-		if (usage_end == storage_end)
+		if (usageEnd == storageEnd)
 		{
-			index_t	current_index = usage_end-storage_begin;
-			count_t	len = (storage_end-storage_begin)*2;
+			index_t	current_index = usageEnd-storageBegin;
+			count_t	len = (storageEnd-storageBegin)*2;
 			if (!len)
 				len = 4;
 			try
 			{
-				T	*new_field = allocateNotEmpty(len),//alloc<T>(len),
+				T	*new_field = AllocateNotEmpty(len),//alloc<T>(len),
 					*write = new_field,
-					*read = storage_begin;
+					*read = storageBegin;
 
 				count_t construct_before = std::min(before,current_index),	//elements to construct before the inserted element
 						construct_after = current_index - construct_before;	//elements to construct after the inserted element
-					//*barrier = vmin(storage_begin+before,usage_end);
+					//*barrier = vmin(storageBegin+before,usageEnd);
 
 				MyStrategy::constructRangeFromFleetingData(write, write+construct_before, read); write+= construct_before; read+= construct_before;
 				T*result = write;
@@ -500,24 +516,24 @@ template <typename T, typename MyStrategy>
 				MyStrategy::constructRangeFromFleetingData(write, write+construct_after, read);
 
 					//(*write++) = (*read++);
-				//deloc(storage_begin);
-				destructAndFree(storage_begin,usage_end);
+				//deloc(storageBegin);
+				DestructAndFree(storageBegin,usageEnd);
 
-				storage_begin = new_field;
-				storage_end = storage_begin+len;
-				usage_end = storage_begin+current_index+1;
+				storageBegin = new_field;
+				storageEnd = storageBegin+len;
+				usageEnd = storageBegin+current_index+1;
 				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel++;
 					CHK_FILL_LEVEL
 				#endif
 
 				return *result;
-				//return std::min(storage_begin+before,usage_end-1);	//logically correct, but 'min' may fail for very large 'before' values (e.g. -1)
-					//*(storage_begin+before);
+				//return std::min(storageBegin+before,usageEnd-1);	//logically correct, but 'min' may fail for very large 'before' values (e.g. -1)
+					//*(storageBegin+before);
 			}
 			catch (std::bad_alloc& exception)
 			{
-				storage_begin = storage_end = usage_end = NULL;
+				storageBegin = storageEnd = usageEnd = NULL;
 				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel = 0;
 					CHK_FILL_LEVEL
@@ -527,12 +543,12 @@ template <typename T, typename MyStrategy>
 		}
 		else
 		{
-			new (usage_end) T;
-			//T*el = std::min(storage_begin+before,usage_end);	//logically correct, but 'min' may fail for very large 'before' values (e.g. -1)
-			T*el = storage_begin+std::min(before,Count());
-			for (T*c = usage_end; c > el; c--)
+			new (usageEnd) T;
+			//T*el = std::min(storageBegin+before,usageEnd);	//logically correct, but 'min' may fail for very large 'before' values (e.g. -1)
+			T*el = storageBegin+std::min(before,Count());
+			for (T*c = usageEnd; c > el; c--)
 				MyStrategy::move(*(c-1),*c);
-			usage_end++;
+			usageEnd++;
 			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				fillLevel++;
 				CHK_FILL_LEVEL
@@ -545,10 +561,10 @@ template <typename T, typename MyStrategy>
 template <typename T, typename MyStrategy>
 	inline T*				BasicBuffer<T, MyStrategy>::insertRow(index_t before, count_t length)
 	{
-		if (usage_end+length > storage_end)
+		if (usageEnd+length > storageEnd)
 		{
-			count_t	current_fill_level = usage_end-storage_begin;
-			count_t	len = (storage_end-storage_begin);
+			count_t	current_fill_level = usageEnd-storageBegin;
+			count_t	len = (storageEnd-storageBegin);
 			if (!len)
 				len = 4;
 			while (len < current_fill_level + length)
@@ -560,34 +576,34 @@ template <typename T, typename MyStrategy>
 
 			try
 			{
-				T	*new_field = allocateNotEmpty(len),//alloc<T>(len),
+				T	*new_field = AllocateNotEmpty(len),//alloc<T>(len),
 					*write = new_field,
-					*read = storage_begin;
+					*read = storageBegin;
 
 				count_t construct_before = std::min(before,current_fill_level),	//elements to construct before the inserted elements
 						construct_after = current_fill_level - construct_before;	//elements to construct after the inserted elements
-					//*barrier = vmin(storage_begin+before,usage_end);
+					//*barrier = vmin(storageBegin+before,usageEnd);
 
 				MyStrategy::constructRangeFromFleetingData(write, write+construct_before, read); write+= construct_before; read+= construct_before;
 				MyStrategy::constructRange(write,write+length);	 write+= length;
 				MyStrategy::constructRangeFromFleetingData(write, write+construct_after, read);
 
-				destructAndFree(storage_begin,usage_end);
+				DestructAndFree(storageBegin,usageEnd);
 
-				storage_begin = new_field;
-				storage_end = storage_begin+len;
-				usage_end = storage_begin+current_fill_level+length;
+				storageBegin = new_field;
+				storageEnd = storageBegin+len;
+				usageEnd = storageBegin+current_fill_level+length;
 				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel+=length;
 					CHK_FILL_LEVEL
 				#endif
 
-				return std::min(storage_begin+before,usage_end-length);
-					//*(storage_begin+before);
+				return std::min(storageBegin+before,usageEnd-length);
+					//*(storageBegin+before);
 			}
 			catch (std::bad_alloc& exception)
 			{
-				storage_begin = storage_end = usage_end = NULL;
+				storageBegin = storageEnd = usageEnd = NULL;
 				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel = 0;
 					CHK_FILL_LEVEL
@@ -597,11 +613,11 @@ template <typename T, typename MyStrategy>
 		}
 		else
 		{
-			MyStrategy::constructRange(usage_end,usage_end + length);
-			T*el = std::min(storage_begin+before,usage_end);
-			for (T*c = usage_end+length-1; c >= el+length; c--)
+			MyStrategy::constructRange(usageEnd,usageEnd + length);
+			T*el = std::min(storageBegin+before,usageEnd);
+			for (T*c = usageEnd+length-1; c >= el+length; c--)
 				MyStrategy::move(*(c-length),*c);
-			usage_end+=length;
+			usageEnd+=length;
 			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				fillLevel+=length;
 				CHK_FILL_LEVEL
@@ -618,45 +634,45 @@ template <typename T, typename MyStrategy>
 template <typename T2>
 	inline	T&				BasicBuffer<T, MyStrategy>::Insert(index_t before, const T2&data)
 	{
-		if (usage_end == storage_end)
+		if (usageEnd == storageEnd)
 		{
-			index_t	current_index = usage_end-storage_begin;
-			count_t	len = (storage_end-storage_begin)*2;
+			index_t	current_index = usageEnd-storageBegin;
+			count_t	len = (storageEnd-storageBegin)*2;
 			if (!len)
 				len = 4;
 			try
 			{
-				T	*new_field = allocateNotEmpty(len),//alloc<T>(len),
+				T	*new_field = AllocateNotEmpty(len),//alloc<T>(len),
 					*write = new_field,
-					*read = storage_begin;
+					*read = storageBegin;
 
 				count_t construct_before = std::min(before,current_index),	//elements to construct before the inserted element
 						construct_after = current_index - construct_before;	//elements to construct after the inserted element
-					//*barrier = vmin(storage_begin+before,usage_end);
+					//*barrier = vmin(storageBegin+before,usageEnd);
 
 				MyStrategy::constructRangeFromFleetingData(write, write+construct_before, read); write+= construct_before; read+= construct_before;
 				new (write++) T(data);
 				MyStrategy::constructRangeFromFleetingData(write, write+construct_after, read);
 
 					//(*write++) = (*read++);
-				//deloc(storage_begin);
-				destructAndFree(storage_begin,usage_end);
+				//deloc(storageBegin);
+				DestructAndFree(storageBegin,usageEnd);
 
-				storage_begin = new_field;
-				storage_end = storage_begin+len;
-				usage_end = storage_begin+current_index+1;
+				storageBegin = new_field;
+				storageEnd = storageBegin+len;
+				usageEnd = storageBegin+current_index+1;
 				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel++;
 					CHK_FILL_LEVEL
 				#endif
 
 
-				return *std::min(storage_begin+before,usage_end-1);
-					//*(storage_begin+before);
+				return *std::min(storageBegin+before,usageEnd-1);
+					//*(storageBegin+before);
 			}
 			catch (std::bad_alloc& exception)
 			{
-				storage_begin = storage_end = usage_end = NULL;
+				storageBegin = storageEnd = usageEnd = NULL;
 				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel = 0;
 					CHK_FILL_LEVEL
@@ -666,13 +682,13 @@ template <typename T2>
 		}
 		else
 		{
-			new (usage_end) T;
-			T*el = std::min(storage_begin+before,usage_end);
-			for (T*c = usage_end; c > el; c--)
+			new (usageEnd) T;
+			T*el = std::min(storageBegin+before,usageEnd);
+			for (T*c = usageEnd; c > el; c--)
 				MyStrategy::move(*(c-1),*c);
 			(*el) = data;
 			//el->operator=(data);
-			usage_end++;
+			usageEnd++;
 			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				fillLevel++;
 				CHK_FILL_LEVEL
@@ -685,8 +701,8 @@ template <typename T, typename MyStrategy>
 	inline void				BasicBuffer<T, MyStrategy>::eraseLast()
 	{
 		BUFFER_ASSERT_NOT_EMPTY();
-		usage_end--;
-		usage_end->~T();
+		usageEnd--;
+		usageEnd->~T();
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel--;
 			CHK_FILL_LEVEL
@@ -697,10 +713,10 @@ template <typename T, typename MyStrategy>
 	inline T				BasicBuffer<T, MyStrategy>::pop()
 	{
 		BUFFER_ASSERT_NOT_EMPTY();
-		usage_end--;
+		usageEnd--;
 		T data;
-		MyStrategy::move(*usage_end,data);
-		usage_end->~T();
+		MyStrategy::move(*usageEnd,data);
+		usageEnd->~T();
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel--;
 			CHK_FILL_LEVEL
@@ -713,54 +729,54 @@ template <typename T, typename MyStrategy>
 template <typename T>
 	inline T				BasicBuffer<T, CopyStrategy>::pop()
 	{
-		usage_end--;
-		T data(*usage_end);
-		usage_end->~T();
+		usageEnd--;
+		T data(*usageEnd);
+		usageEnd->~T();
 		return data;
 	}
 
 template <typename T>
 	inline T				BasicBuffer<T, PrimitiveStrategy>::pop()
 	{
-		usage_end--;
-		return *usage_end;
+		usageEnd--;
+		return *usageEnd;
 	}
 	*/
 
-template <typename T, typename MyStrategy>
-	inline	T&				BasicBuffer<T, MyStrategy>::Last()
+template <typename T>
+	inline	T&				BufferStorage<T>::Last()
 	{
 		BUFFER_ASSERT_NOT_EMPTY();
-		return *(usage_end-1);
+		return *(usageEnd-1);
 	}
 	
-template <typename T, typename MyStrategy>
-	inline	const T&		BasicBuffer<T, MyStrategy>::Last()	const
+template <typename T>
+	inline	const T&		BufferStorage<T>::Last()	const
 	{
 		BUFFER_ASSERT_NOT_EMPTY();
-		return *(usage_end-1);
+		return *(usageEnd-1);
 	}
 
-template <typename T, typename MyStrategy>
-	inline	T&				BasicBuffer<T, MyStrategy>::First()
+template <typename T>
+	inline	T&				BufferStorage<T>::First()
 	{
 		BUFFER_ASSERT_NOT_EMPTY();
-		return *storage_begin;
+		return *storageBegin;
 	}
 	
-template <typename T, typename MyStrategy>
-	inline	const T&		BasicBuffer<T, MyStrategy>::First()	const
+template <typename T>
+	inline	const T&		BufferStorage<T>::First()	const
 	{
 		BUFFER_ASSERT_NOT_EMPTY();
-		return *storage_begin;
+		return *storageBegin;
 	}
 
 template <typename T, typename MyStrategy>
 	inline BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::operator<<(const T&el)
 	{
-		ensureHasSpace();
+		EnsureHasSpace();
 
-		new (usage_end++) T(el);
+		new (usageEnd++) T(el);
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel++;
 			CHK_FILL_LEVEL
@@ -773,9 +789,9 @@ template <typename T, typename MyStrategy>
 		template <typename T, typename MyStrategy>
 			inline BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::operator<<(T&&el)
 			{
-				ensureHasSpace();
+				EnsureHasSpace();
 
-				MyStrategy::constructSingleFromFleetingData(usage_end++, el);
+				MyStrategy::constructSingleFromFleetingData(usageEnd++, el);
 				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel++;
 					CHK_FILL_LEVEL
@@ -787,21 +803,21 @@ template <typename T, typename MyStrategy>
 template <typename T, typename MyStrategy>
 	inline T&		BasicBuffer<T, MyStrategy>::append(const T&el)
 	{
-		ensureHasSpace();
+		EnsureHasSpace();
 
-		new (usage_end++) T(el);
+		new (usageEnd++) T(el);
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel++;
 			CHK_FILL_LEVEL
 		#endif
 
-		return *(usage_end-1);
+		return *(usageEnd-1);
 	}
 
 template <typename T, typename MyStrategy>
 	inline	index_t			BasicBuffer<T,MyStrategy>::appendIfNotFound(const T&el)
 	{
-		index_t index = GetIndexOf(el);
+		index_t index = Super::GetIndexOf(el);
 		if (index == InvalidIndex)
 		{
 			index = Count();
@@ -814,15 +830,15 @@ template <typename T, typename MyStrategy>
 template <typename T, typename MyStrategy>
 	inline T&		BasicBuffer<T, MyStrategy>::moveAppend(T&el)
 	{
-		ensureHasSpace();
+		EnsureHasSpace();
 
-		MyStrategy::constructSingleFromFleetingData(usage_end++, el);
+		MyStrategy::constructSingleFromFleetingData(usageEnd++, el);
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel++;
 			CHK_FILL_LEVEL
 		#endif
 
-		return *(usage_end-1);
+		return *(usageEnd-1);
 	}
 
 
@@ -830,15 +846,15 @@ template <typename T, typename MyStrategy>
 		template <typename T, typename MyStrategy>
 			inline T&		BasicBuffer<T, MyStrategy>::append(T&&el)
 			{
-				ensureHasSpace();
+				EnsureHasSpace();
 
-				new (usage_end++) T(std::move(el));
+				new (usageEnd++) T(std::move(el));
 				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					fillLevel++;
 					CHK_FILL_LEVEL
 				#endif
 
-				return *(usage_end-1);
+				return *(usageEnd-1);
 			}
 	#endif
 
@@ -846,9 +862,9 @@ template <typename T, typename MyStrategy>
 template <typename T, typename MyStrategy>
 	inline index_t		BasicBuffer<T, MyStrategy>::push_back(const T&el)
 	{
-		ensureHasSpace();
+		EnsureHasSpace();
 
-		new (usage_end++) T(el);
+		new (usageEnd++) T(el);
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel++;
 			CHK_FILL_LEVEL
@@ -860,9 +876,9 @@ template <typename T, typename MyStrategy>
 template <typename T, typename MyStrategy> template <typename T2>
 	inline BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::appendAddresses(T2*data, count_t elements)
 	{
-		ensureHasSpace(elements);
+		EnsureHasSpace(elements);
 		for (index_t i = 0; i < elements; i++)
-			new (usage_end++) T(data+i);
+			new (usageEnd++) T(data+i);
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel+=elements;
 			CHK_FILL_LEVEL
@@ -898,9 +914,9 @@ template <typename T, typename MyStrategy>
 template <typename T, typename MyStrategy>
 	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::moveAppend(T*data, count_t elements)
 	{
-		ensureHasSpace(elements);
-		MyStrategy::constructRangeFromFleetingData(usage_end,usage_end+elements,data);
-		usage_end += elements;
+		EnsureHasSpace(elements);
+		MyStrategy::constructRangeFromFleetingData(usageEnd,usageEnd+elements,data);
+		usageEnd += elements;
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel+=elements;
 			CHK_FILL_LEVEL
@@ -925,9 +941,9 @@ template <typename T, typename MyStrategy> template <typename T2>
 template <typename T, typename MyStrategy> template <typename T2>
 	BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::Append(const T2*data, count_t elements)
 	{
-		ensureHasSpace(elements);
+		EnsureHasSpace(elements);
 		for (index_t i = 0; i < elements; i++)
-			new (usage_end++) T(data[i]);
+			new (usageEnd++) T(data[i]);
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel+=elements;
 			CHK_FILL_LEVEL
@@ -971,23 +987,23 @@ template <typename T, typename MyStrategy> template <typename T2>
 template <typename T, typename MyStrategy>
 	void		BasicBuffer<T, MyStrategy>::compact()
 	{
-		if (usage_end == storage_end)	// already compacted
+		if (usageEnd == storageEnd)	// already compacted
 			return;
 		try
 		{
-			count_t len = usage_end-storage_begin;
-			T	*new_field = allocate(len);
+			count_t len = usageEnd-storageBegin;
+			T	*new_field = Allocate(len);
 
-			MyStrategy::constructRangeFromFleetingData(new_field, new_field+len, storage_begin);
-			destructAndFree(storage_begin,usage_end);
+			MyStrategy::constructRangeFromFleetingData(new_field, new_field+len, storageBegin);
+			DestructAndFree(storageBegin,usageEnd);
 
-			storage_begin = new_field;
-			storage_end = usage_end = storage_begin+len;
+			storageBegin = new_field;
+			storageEnd = usageEnd = storageBegin+len;
 			CHK_FILL_LEVEL
 		}
 		catch (std::bad_alloc& exception)
 		{
-			usage_end = storage_begin = storage_end = NULL;
+			usageEnd = storageBegin = storageEnd = NULL;
 			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				fillLevel = 0;
 				CHK_FILL_LEVEL
@@ -1002,8 +1018,8 @@ template <typename T, typename MyStrategy>
 template <typename T, typename MyStrategy>
 	inline void		BasicBuffer<T, MyStrategy>::reset()
 	{
-		MyStrategy::destructRange(storage_begin,usage_end);
-		usage_end = storage_begin;
+		MyStrategy::destructRange(storageBegin,usageEnd);
+		usageEnd = storageBegin;
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel = 0;
 			CHK_FILL_LEVEL
@@ -1016,122 +1032,122 @@ template <typename T, typename MyStrategy>
 		reset();
 	}
 
-template <typename T, typename MyStrategy>
-	inline	bool			BasicBuffer<T, MyStrategy>::empty()						const
+template <typename T>
+	inline	bool			BufferStorage<T>::empty()						const
 	{
-		return usage_end==storage_begin;
+		return usageEnd==storageBegin;
 	}
-template <typename T, typename MyStrategy>
-	inline bool	BasicBuffer<T, MyStrategy>::IsEmpty()					const
+template <typename T>
+	inline bool	BufferStorage<T>::IsEmpty()					const
 	{
-		return usage_end==storage_begin;
-	}
-
-template <typename T, typename MyStrategy>
-	inline bool	BasicBuffer<T, MyStrategy>::IsNotEmpty()					const
-	{
-		return usage_end!=storage_begin;
+		return usageEnd==storageBegin;
 	}
 
-template <typename T, typename MyStrategy>
-	inline count_t	BasicBuffer<T, MyStrategy>::GetLength()					const
+template <typename T>
+	inline bool	BufferStorage<T>::IsNotEmpty()					const
 	{
-		return usage_end-storage_begin;
+		return usageEnd!=storageBegin;
 	}
 
-template <typename T, typename MyStrategy>
-	inline	count_t		BasicBuffer<T, MyStrategy>::storageSize()				const
+template <typename T>
+	inline count_t	BufferStorage<T>::GetLength()					const
 	{
-		return storage_end-storage_begin;
+		return usageEnd-storageBegin;
+	}
+
+template <typename T>
+	inline	count_t		BufferStorage<T>::GetStorageSize()				const
+	{
+		return storageEnd-storageBegin;
 	}
 
 
 	
 
-template <typename T, typename MyStrategy>
-	inline T&			BasicBuffer<T, MyStrategy>::operator[](index_t index)
+template <typename T>
+	inline T&			BufferStorage<T>::operator[](index_t index)
 	{
 		BUFFER_CHECK_RANGE(index);
-		return storage_begin[index];
+		return storageBegin[index];
 	}
 
-template <typename T, typename MyStrategy>
-	inline const T&	BasicBuffer<T, MyStrategy>::operator[](index_t index)	const
+template <typename T>
+	inline const T&	BufferStorage<T>::operator[](index_t index)	const
 	{
 		BUFFER_CHECK_RANGE(index);
-		return storage_begin[index];
+		return storageBegin[index];
 	}
 
-template <typename T, typename MyStrategy>
-	inline bool	BasicBuffer<T, MyStrategy>::Owns(const T*element)	const
+template <typename T>
+	inline bool	BufferStorage<T>::Owns(const T*element)	const
 	{
-		return element >= storage_begin && element < usage_end;
+		return element >= storageBegin && element < usageEnd;
 	}
 
-template <typename T, typename MyStrategy>
-	inline T&			BasicBuffer<T, MyStrategy>::at(index_t index)
-	{
-		BUFFER_CHECK_RANGE(index);
-		return storage_begin[index];
-	}
-
-template <typename T, typename MyStrategy>
-	inline const T&	BasicBuffer<T, MyStrategy>::at(index_t index)	const
+template <typename T>
+	inline T&			BufferStorage<T>::at(index_t index)
 	{
 		BUFFER_CHECK_RANGE(index);
-		return storage_begin[index];
+		return storageBegin[index];
 	}
 
-template <typename T, typename MyStrategy>
-	inline T&			BasicBuffer<T, MyStrategy>::GetFromEnd(index_t index)
+template <typename T>
+	inline const T&	BufferStorage<T>::at(index_t index)	const
 	{
 		BUFFER_CHECK_RANGE(index);
-		return *(usage_end-index-1);
+		return storageBegin[index];
 	}
 
-template <typename T, typename MyStrategy>
-	inline const T&	BasicBuffer<T, MyStrategy>::GetFromEnd(index_t index)	const
+template <typename T>
+	inline T&			BufferStorage<T>::GetFromEnd(index_t index)
 	{
 		BUFFER_CHECK_RANGE(index);
-		return *(usage_end-index-1);
+		return *(usageEnd-index-1);
 	}
 
-template <typename T, typename MyStrategy>
-	inline T*				BasicBuffer<T, MyStrategy>::pointer()
+template <typename T>
+	inline const T&	BufferStorage<T>::GetFromEnd(index_t index)	const
 	{
-		return storage_begin;
+		BUFFER_CHECK_RANGE(index);
+		return *(usageEnd-index-1);
 	}
 
-template <typename T, typename MyStrategy>
-	inline const T*		BasicBuffer<T, MyStrategy>::pointer()			const
+template <typename T>
+	inline T*				BufferStorage<T>::pointer()
 	{
-		return storage_begin;
+		return storageBegin;
 	}
 
-template <typename T, typename MyStrategy>
+template <typename T>
+	inline const T*		BufferStorage<T>::pointer()			const
+	{
+		return storageBegin;
+	}
+
+template <typename T>
 	template <typename IndexType>
-		inline T*				BasicBuffer<T, MyStrategy>::operator+(IndexType delta)
+		inline T*				BufferStorage<T>::operator+(IndexType delta)
 		{
 			BUFFER_CHECK_RANGE((index_t)delta);
-			return storage_begin+delta;
+			return storageBegin+delta;
 		}
 
-template <typename T, typename MyStrategy>
+template <typename T>
 	template <typename IndexType>
-		inline const T*		BasicBuffer<T, MyStrategy>::operator+(IndexType delta)		const
+		inline const T*		BufferStorage<T>::operator+(IndexType delta)		const
 		{
 			BUFFER_CHECK_RANGE((index_t)delta);
-			return storage_begin+delta;
+			return storageBegin+delta;
 		}
 
 template <typename T, typename MyStrategy>
 	bool			BasicBuffer<T, MyStrategy>::Truncate(count_t fillLevel)
 	{
-		count_t cfill = usage_end-storage_begin;
+		count_t cfill = usageEnd-storageBegin;
 		if (fillLevel < cfill)
 		{
-			MyStrategy::destructRange(storage_begin+fillLevel,usage_end);
-			usage_end = storage_begin+fillLevel;
+			MyStrategy::destructRange(storageBegin+fillLevel,usageEnd);
+			usageEnd = storageBegin+fillLevel;
 			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 				this->fillLevel = fillLevel;
 				CHK_FILL_LEVEL
@@ -1147,41 +1163,40 @@ template <typename T, typename MyStrategy>
 	{
 		if (&other == this)
 			return;
-		destructAndFree(storage_begin,usage_end);
+		DestructAndFree(storageBegin,usageEnd);
 
-		storage_begin = other.storage_begin;
-		usage_end = other.usage_end;
-		storage_end = other.storage_end;
+		storageBegin = other.storageBegin;
+		usageEnd = other.usageEnd;
+		storageEnd = other.storageEnd;
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel = other.fillLevel;
 			other.fillLevel = 0;
 			CHK_FILL_LEVEL
 		#endif
 
-		other.storage_begin = other.usage_end = other.storage_end = NULL;
+		other.storageBegin = other.usageEnd = other.storageEnd = NULL;
 	}
 
-template <typename T, typename MyStrategy>
-	template <typename S2>
-		void			BasicBuffer<T, MyStrategy>::swap(BasicBuffer<T,S2>&other)
-		{
-			swp(storage_begin,other.storage_begin);
-			swp(usage_end,other.usage_end);
-			swp(storage_end,other.storage_end);
-			#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
-				swp(fillLevel,other.fillLevel);
-				CHK_FILL_LEVEL
-			#endif
-		}
+template <typename T>
+	void			BufferStorage<T>::swap(Self&other)
+	{
+		swp(storageBegin,other.storageBegin);
+		swp(usageEnd,other.usageEnd);
+		swp(storageEnd,other.storageEnd);
+		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
+			swp(fillLevel,other.fillLevel);
+			CHK_FILL_LEVEL
+		#endif
+	}
 
 template <typename T, typename MyStrategy>
 	void			BasicBuffer<T, MyStrategy>::copyToArray(Ctr::ArrayData<T>&target)	const
 	{
-		target.SetSize(usage_end-storage_begin);
-		const T*from = storage_begin;
+		target.SetSize(usageEnd-storageBegin);
+		const T*from = storageBegin;
 		T*to = target.pointer();
-		MyStrategy::template copyRange<const T,T>(from,usage_end,to);
-		/*while (from != usage_end)
+		MyStrategy::template copyRange<const T,T>(from,usageEnd,to);
+		/*while (from != usageEnd)
 			(*to++) = (*from++);
 		ASSERT_CONCLUSION(target,to);*/
 	}
@@ -1189,48 +1204,49 @@ template <typename T, typename MyStrategy>
 template <typename T, typename MyStrategy>
 	Ctr::Array<T,MyStrategy>			BasicBuffer<T, MyStrategy>::copyToArray()	const
 	{
-		return Ctr::Array<T,MyStrategy>(storage_begin,usage_end-storage_begin);
+		return Ctr::Array<T,MyStrategy>(storageBegin,usageEnd-storageBegin);
 	}
 
 
 template <typename T, typename MyStrategy>
 	void			BasicBuffer<T, MyStrategy>::moveToArray(Ctr::ArrayData<T>&target, bool reset_buffer)
 	{
-		target.SetSize(usage_end-storage_begin);
-		T*from = storage_begin;
+		target.SetSize(usageEnd-storageBegin);
+		T*from = storageBegin;
 		T*to = target.pointer();
-		MyStrategy::moveRange(from,usage_end,to);
-		/*while (from != usage_end)
+		MyStrategy::moveRange(from,usageEnd,to);
+		/*while (from != usageEnd)
 			Strategy::move(*from++,*to++);
 		ASSERT_CONCLUSION(target,to);*/
 		if (reset_buffer)
 			reset();
 	}
 
-template <typename T, typename MyStrategy>
-	inline bool				BasicBuffer<T, MyStrategy>::operator==(const BasicBuffer<T,MyStrategy>&other) const
+template <typename T>
+	inline bool				BufferStorage<T>::operator==(const Self&other) const
 	{
-		count_t len = usage_end - storage_begin;
-		if (len != other.usage_end - other.storage_begin)
+		count_t len = usageEnd - storageBegin;
+		if (len != other.usageEnd - other.storageBegin)
 			return false;
 		for (index_t i = 0; i < len; i++)
-			if (storage_begin[i] != other.storage_begin[i])
+			if (storageBegin[i] != other.storageBegin[i])
 				return false;
 		return true;
 	}
-template <typename T, typename MyStrategy>
-	inline bool				BasicBuffer<T, MyStrategy>::operator!=(const BasicBuffer<T,MyStrategy>&other) const
+
+template <typename T>
+	inline bool				BufferStorage<T>::operator!=(const Self&other) const
 	{
 		return !operator==(other);
 	}
 
 	
-template <typename T, typename MyStrategy>
+template <typename T>
 	template <typename T2>
-		inline	bool		BasicBuffer<T, MyStrategy>::Contains(const T2&element)	const
+		inline	bool		BufferStorage<T>::Contains(const T2&element)	const
 		{
-			const T*at = storage_begin;
-			while (at != usage_end)
+			const T*at = storageBegin;
+			while (at != usageEnd)
 			{
 				if (*at == element)
 					return true;
@@ -1239,15 +1255,15 @@ template <typename T, typename MyStrategy>
 			return false;
 		}
 
-template <typename T, typename MyStrategy>
+template <typename T>
 	template <typename T2>
-		inline	index_t		BasicBuffer<T, MyStrategy>::GetIndexOf(const T2&element)	const
+		inline	index_t		BufferStorage<T>::GetIndexOf(const T2&element)	const
 		{
-			const T*at = storage_begin;
-			while (at != usage_end)
+			const T*at = storageBegin;
+			while (at != usageEnd)
 			{
 				if (*at == element)
-					return at-storage_begin;
+					return at-storageBegin;
 				at++;
 			}
 			return InvalidIndex;
@@ -1257,7 +1273,7 @@ template <typename T, typename MyStrategy>
 	template <typename T2>
 			bool			BasicBuffer<T, MyStrategy>::findAndErase(const T2&element)
 			{
-				index_t index = GetIndexOf(element);
+				index_t index = Super::GetIndexOf(element);
 				if (index == InvalidIndex)
 					return false;
 				Erase(index);
@@ -1267,27 +1283,27 @@ template <typename T, typename MyStrategy>
 template <typename T, typename MyStrategy>
 	inline	typename BasicBuffer<T,MyStrategy>::iterator		BasicBuffer<T, MyStrategy>::erase(iterator it)
 	{
-		index_t index = it - storage_begin;
-		if (index >= (count_t)(usage_end-storage_begin))
+		index_t index = it - storageBegin;
+		if (index >= (count_t)(usageEnd-storageBegin))
 			return end();
 		Erase(index);
-		return storage_begin + index;
+		return storageBegin + index;
 	}
 
 
 template <typename T, typename MyStrategy>
 	inline	void			BasicBuffer<T, MyStrategy>::Erase(index_t index)
 	{
-		if (index >= (count_t)(usage_end-storage_begin))
+		if (index >= (count_t)(usageEnd-storageBegin))
 			return;
-		T*c = storage_begin+index;
-		while (c+1 != usage_end)
+		T*c = storageBegin+index;
+		while (c+1 != usageEnd)
 		{
 			MyStrategy::move(*(c+1),*c);
 			c++;
 		}
-		usage_end--;
-		usage_end->~T();
+		usageEnd--;
+		usageEnd->~T();
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel--;
 			CHK_FILL_LEVEL
@@ -1299,20 +1315,20 @@ template <typename T, typename MyStrategy>
 template <typename T, typename MyStrategy>
 	inline	void			BasicBuffer<T, MyStrategy>::Erase(index_t index, index_t elements)
 	{
-		if (index >= (count_t)(usage_end-storage_begin) || !elements)
+		if (index >= (count_t)(usageEnd-storageBegin) || !elements)
 			return;
-		if (index+elements > (count_t)(usage_end-storage_begin))
-			elements = (count_t)(usage_end-storage_begin) - index;
+		if (index+elements > (count_t)(usageEnd-storageBegin))
+			elements = (count_t)(usageEnd-storageBegin) - index;
 
-		T*c = storage_begin+index;
-		while (c+elements != usage_end)
+		T*c = storageBegin+index;
+		while (c+elements != usageEnd)
 		{
 			MyStrategy::move(*(c+elements),*c);
 			c++;
 		}
 
-		MyStrategy::destructRange(c,usage_end);
-		usage_end-=elements;
+		MyStrategy::destructRange(c,usageEnd);
+		usageEnd-=elements;
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel-=elements;
 			CHK_FILL_LEVEL

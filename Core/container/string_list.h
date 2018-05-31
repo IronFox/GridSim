@@ -446,7 +446,7 @@ namespace DeltaWorks
 			using Super::Clear;
 			using Super::Count;
 			using Super::size;
-			using Super::revert;
+			using Super::Revert;
 			using Super::IsEmpty;
 			using Super::IsNotEmpty;
 			using Super::erase;

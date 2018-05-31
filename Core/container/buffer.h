@@ -20,49 +20,119 @@ namespace DeltaWorks
 
 	namespace Container
 	{
-
-
-		template <typename T, typename MyStrategy=typename StrategySelector<T>::Default>
-			class BasicBuffer
+		template <typename T>
+			class BufferStorage
 			{
 			protected:
-				T						*storage_begin,		//!< Pointer to the first element of the storage area. May be NULL indicating an empty buffer
-										*storage_end,		//!< Pointer one past the last valid element of the storage area. May be NULL indicating an empty buffer. (storage_end-storage_begin) stays valid even if the buffer is empty
-										*usage_end;			//!< Pointer one past the last allocated element of the storage area. May be NULL indicating an empty buffer. (usage_end-storage_begin) stays valid even if the buffer is empty
+				T						*storageBegin,		//!< Pointer to the first element of the storage area. May be NULL indicating an empty buffer
+										*storageEnd,		//!< Pointer one past the last valid element of the storage area. May be NULL indicating an empty buffer. (storage_end-storageBegin) stays valid even if the buffer is empty
+										*usageEnd;			//!< Pointer one past the last allocated element of the storage area. May be NULL indicating an empty buffer. (usage_end-storageBegin) stays valid even if the buffer is empty
 				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 					count_t				fillLevel;			//!< Current fill level in elements. Maintained in debug mode only
 				#endif
 
 
-				inline static	T*		allocate(count_t len);		//!< Allocates the specified number of elements via malloc. No constructors are called. The function returns NULL if len is 0. std::bad_alloc may be thrown if allocation fails
-				inline static	T*		allocateNotEmpty(count_t len);	//!< Identical to the above but without length check. @a len must not be 0. passing 0 causes undefined behavior
+				inline static	T*		Allocate(count_t len);		//!< Allocates the specified number of elements via malloc. No constructors are called. The function returns NULL if len is 0. std::bad_alloc may be thrown if allocation fails
+				inline static	T*		AllocateNotEmpty(count_t len);	//!< Identical to the above but without length check. @a len must not be 0. passing 0 causes undefined behavior
+
+			public:
+				typedef BufferStorage<T>	Self;
+				typedef T*					iterator;
+				typedef const T*			const_iterator;
+
+				explicit				BufferStorage(count_t len);			//!< Constructor \param len Initial buffer size in elements.
+				/**/					BufferStorage(const Self&other);
+				#if __BUFFER_RVALUE_REFERENCES__
+					/**/				BufferStorage(Self&&other);
+				#endif
+				/**/					BufferStorage(std::initializer_list<T> items);
+				virtual				   ~BufferStorage() {FATAL__("Pure BufferStorage destructor call");}
 
 
-				inline void				ensureHasSpace(count_t elements);	//!< Ensures that at least the specified number of non-allocated elements is available from @a usage_end to @a storage_end . The local storage may be resized/allocated if necessary. Element movement behavior is described by the passed @a Strategy struct. The requested elements are not constructed. std::bad_alloc may be thrown
-				inline void				ensureHasSpace();					//!< Similar to the above. Ensures that at least one more non-allocated element is available.
+				MutableArrayRef<T>		ToRef() {return MutableArrayRef<T>(storageBegin,Count());}
+				ArrayRef<T>				ToRef() const {return ArrayRef<T>(storageBegin,Count());}
+				MutableArrayRef<T>		SubRef(index_t start, count_t count=InvalidIndex) {if (start >= Count()) return MutableArrayRef<T>(); return MutableArrayRef<T>(storageBegin+start,std::min(count, Count()-start));}
+				ArrayRef<T>				SubRef(index_t start, count_t count=InvalidIndex) const {if (start >= Count()) return ArrayRef<T>(); return ArrayRef<T>(storageBegin+start,std::min(count, Count()-start));}
+				void					Fill(const T&pattern);					//!< Copies \b pattern to each element of the local buffer
+
+				inline count_t			GetLength()					const;	//!< Returns the number of elements currently constructed in the local container. Reserved (non-constructed) objects are not counted
+				inline count_t			GetCount()					const	/**@copydoc GetLength()*/ {return GetLength();}
+				inline count_t			size()						const	/**@copydoc GetLength()*/ {return GetLength();}
+				inline count_t			Count()						const	/**@copydoc GetLength()*/ {return GetLength();}
+				inline count_t			operator()()				const	/**@copydoc GetLength()*/ {return GetLength();}
+				inline count_t			GetStorageSize()			const;	//!< Queries the number of elements held in total. This also includes unconstructed incremental storage
+				inline size_t			GetContentSize()			const {return Count() * sizeof(T);}
+				inline bool				empty()						const;	//!< @copydoc IsEmpty()
+				inline bool				IsEmpty()					const;	//!< Returns true if the buffer holds no elements
+				inline bool				IsNotEmpty()				const;	//!< Returns true if the buffer holds at least one element
+				inline T&				First();							//!< Retrieves a reference to the first element in the buffer. The behavior of this method is undefined if the local buffer is empty
+				inline const T&			First()	const;						//!< @overload
+				inline T&				Last();								//!< Retrieves a reference to the last element in the buffer. The behavior of this method is undefined if the local buffer is empty
+				inline const T&			Last()	const;						//!< @overload
+				template <typename T2>
+					inline bool			Contains(const T2&element)	const;	//!< Determines whether or not an equivalent to the specified element is currently stored in the active region of the buffer. Comparison is done via the ==operator.
+				template <typename T2>
+					inline index_t		GetIndexOf(const T2&element)	const;	//!< Determines the index of the specified element via == operator. If no match was found then index_t(-1)/InvalidIndex is returned
+				inline iterator			begin()	{return storageBegin;}
+				inline const_iterator	begin()	const {return storageBegin;}
+				inline iterator			end()	{return usageEnd;}
+				inline const_iterator	end() const {return usageEnd;}
+				inline T*				pointer();							//!< Returns a pointer to the beginning of the buffer
+				inline const T*			pointer()					const;	//!< Returns a pointer to the beginning of the buffer
+				inline T*				GetPointer() {return pointer();}
+				inline const T*			GetPointer() const {return pointer();}
+				inline T&				operator[](index_t);
+				inline const T&			operator[](index_t)			const;
+				inline T&				at(index_t);
+				inline const T&			at(index_t)			const;
+
+				inline bool				Owns(const T*element)	const;	//! Queries if the specified entry pointer was taken from the local buffer. Actual pointer address is checked, not what it points to.
+
+				inline bool				operator==(const BufferStorage<T>&other) const;
+				inline bool				operator!=(const BufferStorage<T>&other) const;
+
+				inline T&				GetFromEnd(index_t);					//!< Retrieves the nth element from the end of the consumed buffer space. GetFromEnd(0) is identical to Last()
+				inline const T&			GetFromEnd(index_t)			const;	//!< @copydoc GetFromEnd()
+
+				void					swap(BufferStorage<T>&other);			//!< Swaps data with the other buffer
+				template <typename IndexType>
+					inline T*			operator+(IndexType delta);				//!< Returns a pointer to the beginning of the buffer plus the specified delta
+				template <typename IndexType>
+					inline const T*		operator+(IndexType delta)		const;	//!< Returns a pointer to the beginning of the buffer plus the specified delta
+
+
+				friend void swap(Self& a, Self& b)
+				{
+					a.swap(b);
+				}
+			};
+
+
+
+		template <typename T, typename MyStrategy=typename StrategySelector<T>::Default>
+			class BasicBuffer : public BufferStorage<T>
+			{
+				typedef BufferStorage<T>	Super;
+			protected:
+
+
+				inline void				EnsureHasSpace(count_t elements);	//!< Ensures that at least the specified number of non-allocated elements is available from @a usage_end to @a storage_end . The local storage may be resized/allocated if necessary. Element movement behavior is described by the passed @a Strategy struct. The requested elements are not constructed. std::bad_alloc may be thrown
+				inline void				EnsureHasSpace();					//!< Similar to the above. Ensures that at least one more non-allocated element is available.
 
 	
-				inline void				genericCompactify();				//!< Reduces storage size to the number of currently allocated elements. If the storage must be reallocated then elements are moved as described in the specified @a Strategy struct. std::bad_alloc may be thrown
-	
-				static inline void		destructAndFree(T*range_begin, T*range_end);	//!< Invokes destructors for all elements from @a range_begin to @a range_end excluding @a range_end . Then invokes free(@a range_begin ). @a range_begin may be NULL if @a range_end is too.
+				inline void				GenericCompactify();				//!< Reduces storage size to the number of currently allocated elements. If the storage must be reallocated then elements are moved as described in the specified @a Strategy struct. std::bad_alloc may be thrown
+				static inline void		DestructAndFree(T*range_begin, T*range_end);	//!< Invokes destructors for all elements from @a range_begin to @a range_end excluding @a range_end . Then invokes free(@a range_begin ). @a range_begin may be NULL if @a range_end is too.
 
 			public:
 				typedef BasicBuffer<T,MyStrategy>		Self;
-				typedef	MyStrategy						AppliedStrategy;
-				typedef T*								iterator;
-				typedef const T*						const_iterator;
 
 				explicit				BasicBuffer(count_t len);			//!< Constructor \param len Initial buffer size in elements.
-				/**/					BasicBuffer(const BasicBuffer<T,MyStrategy>&other);
+				/**/					BasicBuffer(const Self&other);
 				#if __BUFFER_RVALUE_REFERENCES__
-					/**/				BasicBuffer(BasicBuffer<T,MyStrategy>&&other);
+					/**/				BasicBuffer(Self&&other);
 				#endif
 				/**/					BasicBuffer(std::initializer_list<T> items);
 				virtual				   ~BasicBuffer();
-				MutableArrayRef<T>		ToRef() {return MutableArrayRef<T>(storage_begin,Count());}
-				ArrayRef<T>				ToRef() const {return ArrayRef<T>(storage_begin,Count());}
-				MutableArrayRef<T>		SubRef(index_t start, count_t count=InvalidIndex) {if (start >= Count()) return MutableArrayRef<T>(); return MutableArrayRef<T>(storage_begin+start,std::min(count, Count()-start));}
-				ArrayRef<T>				SubRef(index_t start, count_t count=InvalidIndex) const {if (start >= Count()) return ArrayRef<T>(); return ArrayRef<T>(storage_begin+start,std::min(count, Count()-start));}
 				Self&					operator=(const ArrayRef<T>&array);
 				Self&					operator=(const Self&other);
 				Self&					operator=(std::initializer_list<T> items);
@@ -80,7 +150,6 @@ namespace DeltaWorks
 				inline void				Clear(count_t len)	/**@copydoc clear(count_t len)*/ {clear(len);}
 				inline void				Clear()				/**@copydoc clear()*/ {clear();}
 				void					ResizePreserveContent(count_t len);		//!< Resizes the local buffer size but preserves the old content and fill level where possible. If the old fill level exceeds the new size then all new elements will be occupied and initialized
-				void					Fill(const T&pattern);					//!< Copies \b pattern to each element of the local buffer
 				template <typename Strategy2>
 					Self&				MoveAppendAll(BasicBuffer<T,Strategy2>&buffer, bool clearSourceOnCompletion=true);	//!< Appends all elements in the specified other buffer to the end of the local buffer. The elements will be moved, leaving the parameter buffer empty upon completion.
 				Self&					MoveAppendAll(Ctr::ArrayData<T>&array, bool clearSourceOnCompletion=true);					//!< Appends all elements in the specified array to the end of the local buffer. The elements will be moved, leaving the parameter array empty upon completion.	
@@ -106,17 +175,6 @@ namespace DeltaWorks
 					Self&				appendVA(count_t elements, ...);		//!< Appends a number of elements to the buffer
 				inline void				reset();							//!< Resets the buffer cursor to the beginning. Does \b not resize the local buffer.
 				inline void				Reset()								/**@copydoc reset()*/	{reset();}
-				inline count_t			GetLength()					const;	//!< Returns the number of elements currently constructed in the local container. Reserved (non-constructed) objects are not counted
-				inline count_t			GetCount()					const	/**@copydoc GetLength()*/ {return GetLength();}
-				inline count_t			size()						const	/**@copydoc GetLength()*/ {return GetLength();}
-				inline count_t			Count()						const	/**@copydoc GetLength()*/ {return GetLength();}
-				inline count_t			operator()()				const	/**@copydoc GetLength()*/ {return GetLength();}
-				inline count_t			storageSize()				const;	//!< Queries the number of elements held in total. This also includes unconstructed incremental storage
-				inline count_t			GetStorageSize()			const	/**@copydoc storageSize()*/ {return storageSize();}
-				inline size_t			GetContentSize()			const {return Count() * sizeof(T);}
-				inline bool				empty()						const;	//!< @copydoc IsEmpty()
-				inline bool				IsEmpty()					const;	//!< Returns true if the buffer holds no elements
-				inline bool				IsNotEmpty()				const;	//!< Returns true if the buffer holds at least one element
 				bool					Truncate(count_t count);			//!< Decrements the local buffer counter to the specified count. The method fails if the local buffer count is less or equal the specified count. The actually allocated buffer size remains unchanged.
 				inline T*				appendRow(count_t length);			//!< Appends a number of elements and returns a pointer to the first element. The method returns NULL, if length is 0 @param length Number of elements to append. Must be greater 0 @return Pointer to the first of the appended elements or NULL, if an error occured
 				inline T*				AppendRow(count_t length)			/**@copydoc appendRow()*/ {return appendRow(length);}
@@ -145,37 +203,12 @@ namespace DeltaWorks
 				inline T				Pop()								/**@copydoc pop()*/ {return pop();}
 				inline void				eraseLast();						//!< Simplified void-version of pop(). Can be more efficient if the contained type is complex and the returned object not used anyway. The method behavior is undefined if the buffer is empty.
 				inline void				EraseLast()							/**@copydoc eraseLast()*/ {eraseLast();}
-				inline T&				First();							//!< Retrieves a reference to the first element in the buffer. The behavior of this method is undefined if the local buffer is empty
-				inline const T&			First()	const;						//!< @overload
-				inline T&				Last();								//!< Retrieves a reference to the last element in the buffer. The behavior of this method is undefined if the local buffer is empty
-				inline const T&			Last()	const;						//!< @overload
 				inline void				Erase(index_t index);				//!< Removes the specified element from the buffer. The buffer's contained element count decreases by one if the specified index is valid.
 				inline void				Erase(index_t index, index_t elements);		//!< Removes a range of elements from the buffer. The buffer's contained element count decreases by one if the specified index is valid. @a elements may be reduced if the range surpasses the end of the consumed buffer space
 
 				inline iterator			erase(iterator it);
 
-				inline iterator			begin()	{return storage_begin;}
-				inline const_iterator	begin()	const {return storage_begin;}
-				inline iterator			end()	{return usage_end;}
-				inline const_iterator	end() const {return usage_end;}
-				inline void				revert();
-				inline void				Revert()							/**@copydoc revert()*/	{revert();}
-				inline T*				pointer();							//!< Returns a pointer to the beginning of the buffer
-				inline const T*			pointer()					const;	//!< Returns a pointer to the beginning of the buffer
-				inline T*				GetPointer() {return pointer();}
-				inline const T*			GetPointer() const {return pointer();}
-				inline T&				operator[](index_t);
-				inline const T&			operator[](index_t)			const;
-				inline T&				at(index_t);
-				inline const T&			at(index_t)			const;
-
-				inline bool				Owns(const T*element)	const;	//! Queries if the specified entry pointer was taken from the local buffer. Actual pointer address is checked, not what it points to.
-
-				inline bool				operator==(const BasicBuffer<T,MyStrategy>&other) const;
-				inline bool				operator!=(const BasicBuffer<T,MyStrategy>&other) const;
-
-				inline T&				GetFromEnd(index_t);					//!< Retrieves the nth element from the end of the consumed buffer space. GetFromEnd(0) is identical to Last()
-				inline const T&			GetFromEnd(index_t)			const;	//!< @copydoc GetFromEnd()
+				inline void				Revert();							//!< Flips the order of local elements. Uses local strategy to swap elements
 				void					compact();							//!< Reduces the local buffer size to the exact fill level and copies all contained elements. Any succeeding push operation will automatically increase buffer size again. The method returns if the stack is already of compact size
 				inline void				Compact()							/**@copydoc compact()*/	{compact();}
 				Ctr::Array<T,MyStrategy>		copyToArray()						const;	//!< Exports the local data up to the current fill level to the returned array.
@@ -185,34 +218,13 @@ namespace DeltaWorks
 				void					moveToArray(Ctr::ArrayData<T>&target, bool clearBuffer=true);		//!< Moves local data up to the current fill level to the specified array. Move behavior is defined by the used Strategy class. @param reset_buffer Set true to automatically reset the buffer once element movement is completed
 				inline void				MoveToArray(Ctr::ArrayData<T>&target, bool clearBuffer=true)	/**@copydoc moveToArray()*/	{moveToArray(target,clearBuffer);}
 				template <typename T2>
-					inline bool			Contains(const T2&element)	const;	//!< Determines whether or not an equivalent to the specified element is currently stored in the active region of the buffer. Comparison is done via the ==operator.
-				template <typename T2>
-					inline index_t		GetIndexOf(const T2&element)	const;	//!< Determines the index of the specified element via == operator. If no match was found then index_t(-1)/InvalidIndex is returned
-				template <typename T2>
 					bool				findAndErase(const T2&element);		//!< Attempts to find and erase the specified element @return true if the specified element could be found (via ==operator), false otherwise
 				template <typename T2>
 					inline bool			FindAndErase(const T2&element)		/**@copydoc findAndErase()*/	{return findAndErase(element);}
 
 				void					adoptData(BasicBuffer<T,MyStrategy>&other);	//!< Adopts all attributes of the specified other buffer leaving it empty. Any existing local data is deleted.
-				template <typename S2>
-					void				swap(BasicBuffer<T,S2>&other);			//!< Swaps data with the other buffer
-				template <typename IndexType>
-					inline T*			operator+(IndexType delta);				//!< Returns a pointer to the beginning of the buffer plus the specified delta
-				template <typename IndexType>
-					inline const T*		operator+(IndexType delta)		const;	//!< Returns a pointer to the beginning of the buffer plus the specified delta
-
-
-				friend void swap(Self& a, Self& b)
-				{
-					a.swap(b);
-				}
 			};
 
-		template <typename T, typename S0, typename S1>
-			inline void swap(BasicBuffer<T, S0>&a, BasicBuffer<T, S1>&b)
-			{
-				a.swap(b);
-			}
 
 
 			//! General buffer structure. Stores object copies rather than pointers making it extremely fast for primitive types

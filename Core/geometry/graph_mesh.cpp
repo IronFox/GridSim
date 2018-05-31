@@ -1814,7 +1814,7 @@ namespace DeltaWorks
 		}
 
 		if (edges)
-			edges[0].revert();
+			edges[0].Revert();
 
 	}
 
