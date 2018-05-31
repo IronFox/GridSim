@@ -50,6 +50,20 @@ template <typename T,typename MyStrategy>
 	}
 #endif
 
+
+template <typename T,typename MyStrategy>
+	template <typename Strategy>
+		count_t						WorkPipe<T,MyStrategy>::FlushContentTo(BasicBuffer<T,Strategy>&destination)
+		{
+			SignalRead();
+				destination.MoveAppendAll(*this);
+				count_t rs = Super::Count();
+				Super::Clear();
+			ExitRead();
+			return rs;
+		}
+
+
 template <typename T,typename MyStrategy>
 	inline WorkPipe<T,MyStrategy>&    WorkPipe<T,MyStrategy>::operator<<(const T&pntr)
 	{

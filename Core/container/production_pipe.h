@@ -16,7 +16,10 @@ namespace DeltaWorks
 	namespace Container
 	{
 
-
+		/**
+		Thread-safe production queue designed for many threads writing and one thread reading.
+		Copies objects as they are using the provided strategy
+		*/
 		template <typename T, typename MyStrategy=typename StrategySelector<T>::Default>
 			class WorkPipe : protected Buffer<T,0,MyStrategy>
 			{
@@ -55,6 +58,16 @@ namespace DeltaWorks
 				inline count_t				Count() const {return Super::Count();}
 				inline count_t				size() const {return Super::size();}
 				inline bool					IsEmpty() const {return Super::IsEmpty();}
+				/**
+				Moves all local items to the end of the specified destination buffer in local order.
+				Uses destination strategy to move elements.
+				The local queue will be left empty as a result.
+				Thread safe. DO NOT call SignalRead() and ExitRead(), or else the system will enter deadlock
+				@param[in,out] destination List to append to. NOT CLEARED ahead of operation
+				@return The number of appended elements
+				*/
+				template <typename Strategy>
+					count_t					FlushContentTo(BasicBuffer<T,Strategy>&destination);
 
 				//the following operations are provided for convenience. They are _not_ mutex protected and (except for Count() maybe) should be invoked only from inside a signalRead()/exitRead() block.
 				//Super::IsEmpty;
