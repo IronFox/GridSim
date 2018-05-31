@@ -46,7 +46,7 @@ namespace DeltaWorks
 					/**/				BufferStorage(Self&&other);
 				#endif
 				/**/					BufferStorage(std::initializer_list<T> items);
-				virtual				   ~BufferStorage() {FATAL__("Pure BufferStorage destructor call");}
+				virtual				   ~BufferStorage() {};
 
 
 				MutableArrayRef<T>		ToRef() {return MutableArrayRef<T>(storageBegin,Count());}
