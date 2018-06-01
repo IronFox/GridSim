@@ -125,8 +125,8 @@ namespace DeltaWorks
 		template <typename T, typename MyStrategy=typename StrategySelector<T>::Default>
 			class BasicBuffer : public CommonBufferStorage<T>
 			{
-				typedef CommonBufferStorage<T>	Super;
 			protected:
+				typedef CommonBufferStorage<T>	Super;
 
 
 				inline void				EnsureHasSpace(count_t elements);	//!< Ensures that at least the specified number of non-allocated elements is available from @a usage_end to @a storage_end . The local storage may be resized/allocated if necessary. Element movement behavior is described by the passed @a Strategy struct. The requested elements are not constructed. std::bad_alloc may be thrown
@@ -143,6 +143,7 @@ namespace DeltaWorks
 				/**/					BasicBuffer(const Self&other);
 				#if __BUFFER_RVALUE_REFERENCES__
 					/**/				BasicBuffer(Self&&other);
+					/**/				BasicBuffer(Super&&other):Super(std::move(other)){}
 				#endif
 				/**/					BasicBuffer(std::initializer_list<T> items);
 				virtual				   ~BasicBuffer();
@@ -274,6 +275,8 @@ namespace DeltaWorks
 									{}
 									Buffer(Super&&other) :Super(std::move(other))
 									{}
+									Buffer(typename Super::Super&&other):Super(std::move(other))
+									{}
 					Self&			operator=(Self&&other) { Super::adoptData(other); return *this; }
 					Self&			operator=(Super&&other) { Super::adoptData(other); return *this; }
 				#endif
@@ -324,8 +327,13 @@ namespace DeltaWorks
 									{}
 									Buffer0(Super&&other):Super(std::move(other))
 									{}
+									Buffer0(typename Super::Super&&other):Super(std::move(other))
+									{}
+									Buffer0(typename Super::Super::Super&&other):Super(std::move(other))
+									{}
 					Self&			operator=(Self&&other){Super::adoptData(other); return *this;}
 					Self&			operator=(Super&&other){Super::adoptData(other); return *this;}
+					Self&			operator=(typename Super::Super&&other) { Super::adoptData(other); return *this; }
 				#endif
 				Self&				operator=(const ArrayRef<T>&array){Super::operator=(array); return *this;}
 				Self&				operator=(const Self&other) { Super::operator=(other); return *this; }

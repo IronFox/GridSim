@@ -313,7 +313,7 @@ template <typename T>
 
 
 template <typename T, typename MyStrategy>
-	BasicBuffer<T, MyStrategy>::BasicBuffer(Self&&other):Super(other)
+	BasicBuffer<T, MyStrategy>::BasicBuffer(Self&&other):Super(std::move(other))
 	{}
 
 template <typename T, typename MyStrategy>
@@ -801,13 +801,7 @@ template <typename T, typename MyStrategy>
 		template <typename T, typename MyStrategy>
 			inline BasicBuffer<T, MyStrategy>&		BasicBuffer<T, MyStrategy>::operator<<(T&&el)
 			{
-				EnsureHasSpace();
-
-				MyStrategy::constructSingleFromFleetingData(usageEnd++, el);
-				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
-					fillLevel++;
-					CHK_FILL_LEVEL
-				#endif
+				moveAppend(el);
 				return *this;
 			}
 	#endif
@@ -858,15 +852,7 @@ template <typename T, typename MyStrategy>
 		template <typename T, typename MyStrategy>
 			inline T&		BasicBuffer<T, MyStrategy>::append(T&&el)
 			{
-				EnsureHasSpace();
-
-				new (usageEnd++) T(std::move(el));
-				#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
-					fillLevel++;
-					CHK_FILL_LEVEL
-				#endif
-
-				return *(usageEnd-1);
+				return moveAppend(el);
 			}
 	#endif
 
