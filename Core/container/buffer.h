@@ -151,6 +151,7 @@ namespace DeltaWorks
 				Self&					operator=(std::initializer_list<T> items);
 				#if __BUFFER_RVALUE_REFERENCES__
 					Self&				operator=(Self&&other);
+					Self&				operator=(Super&&other) { Super::adoptData(other); return *this; }
 				#endif
 
 				inline Self&			operator<<(const T&element);			//!< Appends \b element to the end of the buffer, advancing the buffer cursor by one. The buffer will automatically be doubled in size if it is full at the time this operator is invoked.
