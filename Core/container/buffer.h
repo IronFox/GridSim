@@ -20,9 +20,15 @@ namespace DeltaWorks
 
 	namespace Container
 	{
+		/**
+		Base buffer storage type that holds all pointers and allows some operations.
+		It does not know any used memory strategy and hence cannot destroy the referenced data on its own.
+		NEVER USE ON ITS OWN
+		*/
 		template <typename T>
-			class BufferStorage
+			class CommonBufferStorage
 			{
+				typedef CommonBufferStorage<T>	Self;
 			protected:
 				T						*storageBegin,		//!< Pointer to the first element of the storage area. May be NULL indicating an empty buffer
 										*storageEnd,		//!< Pointer one past the last valid element of the storage area. May be NULL indicating an empty buffer. (storage_end-storageBegin) stays valid even if the buffer is empty
@@ -34,21 +40,20 @@ namespace DeltaWorks
 
 				inline static	T*		Allocate(count_t len);		//!< Allocates the specified number of elements via malloc. No constructors are called. The function returns NULL if len is 0. std::bad_alloc may be thrown if allocation fails
 				inline static	T*		AllocateNotEmpty(count_t len);	//!< Identical to the above but without length check. @a len must not be 0. passing 0 causes undefined behavior
+				
+				explicit				CommonBufferStorage(count_t len);			//!< Constructor \param len Initial buffer size in elements.
+				/**/					CommonBufferStorage(const Self&other);
+				#if __BUFFER_RVALUE_REFERENCES__
+					/**/				CommonBufferStorage(Self&&other);
+				#endif
+				/**/					CommonBufferStorage(std::initializer_list<T> items);
 
 			public:
-				typedef BufferStorage<T>	Self;
-				typedef T*					iterator;
-				typedef const T*			const_iterator;
-
-				explicit				BufferStorage(count_t len);			//!< Constructor \param len Initial buffer size in elements.
-				/**/					BufferStorage(const Self&other);
-				#if __BUFFER_RVALUE_REFERENCES__
-					/**/				BufferStorage(Self&&other);
-				#endif
-				/**/					BufferStorage(std::initializer_list<T> items);
-				virtual				   ~BufferStorage() {};
+				typedef T*				iterator;
+				typedef const T*		const_iterator;
 
 
+				virtual					~CommonBufferStorage() {DBG_ASSERT_IS_NULL__(storageBegin);DBG_ASSERT_IS_NULL__(storageEnd);DBG_ASSERT_IS_NULL__(usageEnd);DBG_ASSERT__(fillLevel == 0);};
 				MutableArrayRef<T>		ToRef() {return MutableArrayRef<T>(storageBegin,Count());}
 				ArrayRef<T>				ToRef() const {return ArrayRef<T>(storageBegin,Count());}
 				MutableArrayRef<T>		SubRef(index_t start, count_t count=InvalidIndex) {if (start >= Count()) return MutableArrayRef<T>(); return MutableArrayRef<T>(storageBegin+start,std::min(count, Count()-start));}
@@ -88,13 +93,13 @@ namespace DeltaWorks
 
 				inline bool				Owns(const T*element)	const;	//! Queries if the specified entry pointer was taken from the local buffer. Actual pointer address is checked, not what it points to.
 
-				inline bool				operator==(const BufferStorage<T>&other) const;
-				inline bool				operator!=(const BufferStorage<T>&other) const;
+				inline bool				operator==(const CommonBufferStorage<T>&other) const;
+				inline bool				operator!=(const CommonBufferStorage<T>&other) const;
 
 				inline T&				GetFromEnd(index_t);					//!< Retrieves the nth element from the end of the consumed buffer space. GetFromEnd(0) is identical to Last()
 				inline const T&			GetFromEnd(index_t)			const;	//!< @copydoc GetFromEnd()
 
-				void					swap(BufferStorage<T>&other);			//!< Swaps data with the other buffer
+				void					swap(CommonBufferStorage<T>&other);			//!< Swaps data with the other buffer
 				template <typename IndexType>
 					inline T*			operator+(IndexType delta);				//!< Returns a pointer to the beginning of the buffer plus the specified delta
 				template <typename IndexType>
@@ -108,11 +113,19 @@ namespace DeltaWorks
 			};
 
 
-
+		/**
+		Basic dynamic list structure using the vector allocation principle (double allocated memory each time allocated space is full).
+		@param T Contained type. Must support empty construction, operator=, and operator==. Depending on the used memory strategy, other methods may be required
+		@param MyStrategy Memory strategy plugin. May accelerate certain operations if the contained object supports them.
+			E.g. using the Swap or Adopt strategies makes memory relocations faster for objects with dynamic content, where swap() or adoptData() methods exist.
+			Except for special circumstances, it is suggested to not change the default strategy but instead define rvalue constructors and operator=(),
+			as the default (Copy) strategy will use them where appropriate. Only heavily dynamic objects may benefit from explicitly using the Swap
+			strategy due to the otherwise added overhead of needlessly destroying local dynamic content in rvalue operator=() implementations.
+		*/
 		template <typename T, typename MyStrategy=typename StrategySelector<T>::Default>
-			class BasicBuffer : public BufferStorage<T>
+			class BasicBuffer : public CommonBufferStorage<T>
 			{
-				typedef BufferStorage<T>	Super;
+				typedef CommonBufferStorage<T>	Super;
 			protected:
 
 
@@ -227,7 +240,16 @@ namespace DeltaWorks
 
 
 
-			//! General buffer structure. Stores object copies rather than pointers making it extremely fast for primitive types
+		/**
+		General dynamic list structure using the vector allocation principle (double allocated memory each time allocated space is full).
+		@param T Contained type. Must support empty construction, operator=, and operator==. Depending on the used memory strategy, other methods may be required
+		@param InitialLength Number of elements allocated in the local buffer prior to adding the first element. Only the space for these objects is allocated. No actual object allocation is performed
+		@param MyStrategy Memory strategy plugin. May accelerate certain operations if the contained object supports them.
+			E.g. using the Swap or Adopt strategies makes memory relocations faster for objects with dynamic content, where swap() or adoptData() methods exist.
+			Except for special circumstances, it is suggested to not change the default strategy but instead define rvalue constructors and operator=(),
+			as the default (Copy) strategy will use them where appropriate. Only heavily dynamic objects may benefit from explicitly using the Swap
+			strategy due to the otherwise added overhead of needlessly destroying local dynamic content in rvalue operator=() implementations.
+		*/
 		template <typename T, count_t InitialLength=16, typename MyStrategy=typename StrategySelector<T>::Default>
 			class Buffer:public BasicBuffer<T,MyStrategy>
 			{
@@ -268,6 +290,16 @@ namespace DeltaWorks
 				using Super::operator+;
 			};
 
+		/**
+		General dynamic list structure using the vector allocation principle (double allocated memory each time allocated space is full).
+		Allocates NO elements in advance, making the constructor fast, and the memory footprint low. Good for large data types, or lists in lists.
+		@param T Contained type. Must support empty construction, operator=, and operator==. Depending on the used memory strategy, other methods may be required
+		@param MyStrategy Memory strategy plugin. May accelerate certain operations if the contained object supports them.
+			E.g. using the Swap or Adopt strategies makes memory relocations faster for objects with dynamic content, where swap() or adoptData() methods exist.
+			Except for special circumstances, it is suggested to not change the default strategy but instead define rvalue constructors and operator=(),
+			as the default (Copy) strategy will use them where appropriate. Only heavily dynamic objects may benefit from explicitly using the Swap
+			strategy due to the otherwise added overhead of needlessly destroying local dynamic content in rvalue operator=() implementations.
+		*/
 		template <typename T, typename MyStrategy=typename StrategySelector<T>::Default>
 			class Buffer0:public Buffer<T,0,MyStrategy>
 			{

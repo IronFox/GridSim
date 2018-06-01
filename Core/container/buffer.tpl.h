@@ -37,7 +37,7 @@ template <typename T, typename MyStrategy>
 
 
 template <typename T>
-	inline T*	BufferStorage<T>::Allocate(count_t len)
+	inline T*	CommonBufferStorage<T>::Allocate(count_t len)
 	{
 		if (!len)
 			return NULL;
@@ -49,7 +49,7 @@ template <typename T>
 
 
 template <typename T>
-	inline T*	BufferStorage<T>::AllocateNotEmpty(count_t len)
+	inline T*	CommonBufferStorage<T>::AllocateNotEmpty(count_t len)
 	{
 		T*rs = (T*)malloc(sizeof(T)*len);
 		if (!rs)
@@ -144,7 +144,7 @@ template <typename T, typename MyStrategy>
 	}
 
 template <typename T>
-	BufferStorage<T>::BufferStorage(count_t len)
+	CommonBufferStorage<T>::CommonBufferStorage(count_t len)
 	{
 		try
 		{
@@ -177,6 +177,18 @@ template <typename T, typename MyStrategy>
 	BasicBuffer<T, MyStrategy>::~BasicBuffer()
 	{
 		DestructAndFree(storageBegin,usageEnd);
+		#ifdef _DEBUG
+			/*
+			In debug mode the destructor of CommonBufferStorage checks that these are properly unset,
+			such that CommonBufferStorage never has to delete things on its own, or is left with 
+			non-freed pointers.
+			The basic problem is that the buffer releases memory by invoking the used strategy
+			which CommonBufferStorage cannot do.
+			In release we don't check anything because it shouldn't ever happen
+			*/
+			storageBegin = usageEnd = storageEnd = nullptr;
+			fillLevel = 0;
+		#endif
 	}
 
 template <typename T, typename MyStrategy>
@@ -209,7 +221,7 @@ template <typename T, typename MyStrategy>
 	}
 
 template <typename T>
-	BufferStorage<T>::BufferStorage(std::initializer_list<T> items)
+	CommonBufferStorage<T>::CommonBufferStorage(std::initializer_list<T> items)
 	{
 		count_t	Fill = items.size();
 		//alloc(storageBegin,Fill);
@@ -249,7 +261,7 @@ template <typename T, typename MyStrategy>
 
 
 template <typename T>
-	BufferStorage<T>::BufferStorage(const Self&other)
+	CommonBufferStorage<T>::CommonBufferStorage(const Self&other)
 	{
 		const count_t	fill = other.usageEnd-other.storageBegin;
 		//alloc(storageBegin,Fill);
@@ -288,7 +300,7 @@ template <typename T, typename MyStrategy>
 
 #if __BUFFER_RVALUE_REFERENCES__
 template <typename T>
-	BufferStorage<T>::BufferStorage(Self&&other):storageBegin(other.storageBegin),storageEnd(other.storageEnd),usageEnd(other.usageEnd)
+	CommonBufferStorage<T>::CommonBufferStorage(Self&&other):storageBegin(other.storageBegin),storageEnd(other.storageEnd),usageEnd(other.usageEnd)
 	{
 		#if defined(_DEBUG) && __BUFFER_DBG_COUNT__
 			fillLevel = other.fillLevel;
@@ -414,7 +426,7 @@ template <typename T, typename MyStrategy>
 
 
 template <typename T>
-	void	BufferStorage<T>::Fill(const T&pattern)
+	void	CommonBufferStorage<T>::Fill(const T&pattern)
 	{
 		for (T*c = storageBegin; c < usageEnd; c++)
 			(*c) = pattern;
@@ -744,28 +756,28 @@ template <typename T>
 	*/
 
 template <typename T>
-	inline	T&				BufferStorage<T>::Last()
+	inline	T&				CommonBufferStorage<T>::Last()
 	{
 		BUFFER_ASSERT_NOT_EMPTY();
 		return *(usageEnd-1);
 	}
 	
 template <typename T>
-	inline	const T&		BufferStorage<T>::Last()	const
+	inline	const T&		CommonBufferStorage<T>::Last()	const
 	{
 		BUFFER_ASSERT_NOT_EMPTY();
 		return *(usageEnd-1);
 	}
 
 template <typename T>
-	inline	T&				BufferStorage<T>::First()
+	inline	T&				CommonBufferStorage<T>::First()
 	{
 		BUFFER_ASSERT_NOT_EMPTY();
 		return *storageBegin;
 	}
 	
 template <typename T>
-	inline	const T&		BufferStorage<T>::First()	const
+	inline	const T&		CommonBufferStorage<T>::First()	const
 	{
 		BUFFER_ASSERT_NOT_EMPTY();
 		return *storageBegin;
@@ -1033,30 +1045,30 @@ template <typename T, typename MyStrategy>
 	}
 
 template <typename T>
-	inline	bool			BufferStorage<T>::empty()						const
+	inline	bool			CommonBufferStorage<T>::empty()						const
 	{
 		return usageEnd==storageBegin;
 	}
 template <typename T>
-	inline bool	BufferStorage<T>::IsEmpty()					const
+	inline bool	CommonBufferStorage<T>::IsEmpty()					const
 	{
 		return usageEnd==storageBegin;
 	}
 
 template <typename T>
-	inline bool	BufferStorage<T>::IsNotEmpty()					const
+	inline bool	CommonBufferStorage<T>::IsNotEmpty()					const
 	{
 		return usageEnd!=storageBegin;
 	}
 
 template <typename T>
-	inline count_t	BufferStorage<T>::GetLength()					const
+	inline count_t	CommonBufferStorage<T>::GetLength()					const
 	{
 		return usageEnd-storageBegin;
 	}
 
 template <typename T>
-	inline	count_t		BufferStorage<T>::GetStorageSize()				const
+	inline	count_t		CommonBufferStorage<T>::GetStorageSize()				const
 	{
 		return storageEnd-storageBegin;
 	}
@@ -1065,68 +1077,68 @@ template <typename T>
 	
 
 template <typename T>
-	inline T&			BufferStorage<T>::operator[](index_t index)
+	inline T&			CommonBufferStorage<T>::operator[](index_t index)
 	{
 		BUFFER_CHECK_RANGE(index);
 		return storageBegin[index];
 	}
 
 template <typename T>
-	inline const T&	BufferStorage<T>::operator[](index_t index)	const
+	inline const T&	CommonBufferStorage<T>::operator[](index_t index)	const
 	{
 		BUFFER_CHECK_RANGE(index);
 		return storageBegin[index];
 	}
 
 template <typename T>
-	inline bool	BufferStorage<T>::Owns(const T*element)	const
+	inline bool	CommonBufferStorage<T>::Owns(const T*element)	const
 	{
 		return element >= storageBegin && element < usageEnd;
 	}
 
 template <typename T>
-	inline T&			BufferStorage<T>::at(index_t index)
+	inline T&			CommonBufferStorage<T>::at(index_t index)
 	{
 		BUFFER_CHECK_RANGE(index);
 		return storageBegin[index];
 	}
 
 template <typename T>
-	inline const T&	BufferStorage<T>::at(index_t index)	const
+	inline const T&	CommonBufferStorage<T>::at(index_t index)	const
 	{
 		BUFFER_CHECK_RANGE(index);
 		return storageBegin[index];
 	}
 
 template <typename T>
-	inline T&			BufferStorage<T>::GetFromEnd(index_t index)
+	inline T&			CommonBufferStorage<T>::GetFromEnd(index_t index)
 	{
 		BUFFER_CHECK_RANGE(index);
 		return *(usageEnd-index-1);
 	}
 
 template <typename T>
-	inline const T&	BufferStorage<T>::GetFromEnd(index_t index)	const
+	inline const T&	CommonBufferStorage<T>::GetFromEnd(index_t index)	const
 	{
 		BUFFER_CHECK_RANGE(index);
 		return *(usageEnd-index-1);
 	}
 
 template <typename T>
-	inline T*				BufferStorage<T>::pointer()
+	inline T*				CommonBufferStorage<T>::pointer()
 	{
 		return storageBegin;
 	}
 
 template <typename T>
-	inline const T*		BufferStorage<T>::pointer()			const
+	inline const T*		CommonBufferStorage<T>::pointer()			const
 	{
 		return storageBegin;
 	}
 
 template <typename T>
 	template <typename IndexType>
-		inline T*				BufferStorage<T>::operator+(IndexType delta)
+		inline T*				CommonBufferStorage<T>::operator+(IndexType delta)
 		{
 			BUFFER_CHECK_RANGE((index_t)delta);
 			return storageBegin+delta;
@@ -1134,7 +1146,7 @@ template <typename T>
 
 template <typename T>
 	template <typename IndexType>
-		inline const T*		BufferStorage<T>::operator+(IndexType delta)		const
+		inline const T*		CommonBufferStorage<T>::operator+(IndexType delta)		const
 		{
 			BUFFER_CHECK_RANGE((index_t)delta);
 			return storageBegin+delta;
@@ -1178,7 +1190,7 @@ template <typename T, typename MyStrategy>
 	}
 
 template <typename T>
-	void			BufferStorage<T>::swap(Self&other)
+	void			CommonBufferStorage<T>::swap(Self&other)
 	{
 		swp(storageBegin,other.storageBegin);
 		swp(usageEnd,other.usageEnd);
@@ -1223,7 +1235,7 @@ template <typename T, typename MyStrategy>
 	}
 
 template <typename T>
-	inline bool				BufferStorage<T>::operator==(const Self&other) const
+	inline bool				CommonBufferStorage<T>::operator==(const Self&other) const
 	{
 		count_t len = usageEnd - storageBegin;
 		if (len != other.usageEnd - other.storageBegin)
@@ -1235,7 +1247,7 @@ template <typename T>
 	}
 
 template <typename T>
-	inline bool				BufferStorage<T>::operator!=(const Self&other) const
+	inline bool				CommonBufferStorage<T>::operator!=(const Self&other) const
 	{
 		return !operator==(other);
 	}
@@ -1243,7 +1255,7 @@ template <typename T>
 	
 template <typename T>
 	template <typename T2>
-		inline	bool		BufferStorage<T>::Contains(const T2&element)	const
+		inline	bool		CommonBufferStorage<T>::Contains(const T2&element)	const
 		{
 			const T*at = storageBegin;
 			while (at != usageEnd)
@@ -1257,7 +1269,7 @@ template <typename T>
 
 template <typename T>
 	template <typename T2>
-		inline	index_t		BufferStorage<T>::GetIndexOf(const T2&element)	const
+		inline	index_t		CommonBufferStorage<T>::GetIndexOf(const T2&element)	const
 		{
 			const T*at = storageBegin;
 			while (at != usageEnd)
