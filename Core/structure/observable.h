@@ -110,6 +110,16 @@ namespace DeltaWorks
 			}
 
 			/**
+			Simple but common shortcut for unsetting a key and directly setting it to InvalidIndex.
+			Has no effect if the key already is invalid
+			*/
+			void		UnregisterAndSetInvalid(index_t&key)
+			{
+				Unregister(key);
+				key = InvalidIndex;
+			}
+
+			/**
 			Unregisters the observer associated with the specified key from the local observable.
 			If the specified key is not currently registered, the method will fail silently.
 			@param key Unique identifier of the observer to unregister. See Register() for details
