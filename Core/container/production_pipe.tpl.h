@@ -56,9 +56,8 @@ template <typename T,typename MyStrategy>
 		count_t						WorkPipe<T,MyStrategy>::FlushContentTo(BasicBuffer<T,Strategy>&destination)
 		{
 			SignalRead();
-				destination.MoveAppendAll(*this);
 				count_t rs = Super::Count();
-				Super::Clear();
+				destination.MoveAppendAll(*this);
 			ExitRead();
 			return rs;
 		}
