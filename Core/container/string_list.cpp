@@ -68,6 +68,8 @@ namespace DeltaWorks
 			const char	*const end = composition+length;
 
 			TemporaryStatus	status;
+
+			const size_t maxOperatorLen = config.operators.maxLength();
 		
 			bool escaped = false;
 			bool double_escaped = false;
@@ -127,13 +129,14 @@ namespace DeltaWorks
 					{
 						if (config.operators.itemBeginsWith(c))
 						{
-							size_t max = size_t(end-ch) >= config.operators.maxLength() ? config.operators.maxLength() : (end-ch);
+							const size_t remaining = size_t(end-ch)+1;	//ch has been incremented, but we include the first operator character
+							const size_t max = std::min(remaining,maxOperatorLen);
 							bool found = false;
 							for (size_t j = max; j > 0; j--)
-								if (config.operators.IsSet(StringRef(ch-1,j)))
+								if (config.operators.IsSet(StringRef(ch-1,j)))	//same thing here
 								{
 									END_EXCLUSIVE
-									ch += j-1;
+									ch += j-1;			//and here
 									END_INCLUSIVE
 									found = true;
 									break;
