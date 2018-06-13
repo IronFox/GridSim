@@ -145,7 +145,7 @@ public:
 
 	/**
 	'userMessages' are a serious problem.
-	the way it stands, they may be lost of the shard dies.
+	the way it stands, they may be lost if the shard dies.
 	worse yet, their non-existence is not detectable at this point.
 
 	theoretical solution:

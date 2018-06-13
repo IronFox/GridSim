@@ -23,7 +23,9 @@ using namespace DeltaWorks;
 #endif
 
 
-#define D3	//3d-grid
+#define NO_SENSORY	//completely disables all entity sensory functionality
+
+//#define D3	//3d-grid
 
 #ifdef D3
 	static const constexpr count_t Dimensions=3;

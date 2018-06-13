@@ -59,14 +59,14 @@ struct EntityID
 		hash.AppendPOD(guid);
 	}
 
-	int				compareTo(const EntityID&other)	const
+	int				CompareTo(const EntityID&other)	const
 	{
 		return memcmp(&guid,&other.guid,sizeof(guid));
 	}
 
 	bool			operator<(const EntityID&other) const
 	{
-		return compareTo(other) < 0;
+		return CompareTo(other) < 0;
 	}
 };
 
@@ -156,7 +156,10 @@ struct EntityAppearance : public EntityID, public EntityShape, public Collider, 
 	}
 
 };
-typedef Buffer0<EntityAppearance>	EntityNeighborhood;
+
+#ifndef NO_SENSORY
+	typedef Buffer0<EntityAppearance>	EntityNeighborhood;
+#endif
 
 void	LogUnexpected(const String&message,const EntityID&p0, const EntityID*p1=nullptr);
 
@@ -166,6 +169,7 @@ typedef Array<BYTE>	MessageData;
 
 
 
+#ifndef NO_SENSORY
 class NeighborhoodCollider : public Collider
 {
 public:
@@ -197,6 +201,7 @@ public:
 		return rs;
 	}
 };
+#endif
 
 
 class MessageReceiver;
@@ -210,12 +215,14 @@ struct Message
 	EntityID		sender;
 	LogicProcess	senderProcess=nullptr;
 	MessageData		data;
+	bool			isBroadcast = false;
 
 	void			adoptData(Message&msg)
 	{
 		sender = msg.sender;
 		senderProcess = msg.senderProcess;
 		data.adoptData(msg.data);
+		isBroadcast = msg.isBroadcast;
 	}
 
 
@@ -228,6 +235,8 @@ struct Message
 			return -1;
 		if (senderProcess > other.senderProcess)
 			return 1;
+		if (isBroadcast != other.isBroadcast)
+			return isBroadcast ? 1 : -1;
 		return data.CompareTo(other.data,Compare::Primitives<BYTE>);
 	}
 
@@ -244,6 +253,7 @@ struct Message
 	{
 		hash.AppendPOD(sender);
 		hash.AppendPOD(senderProcess);
+		hash.AppendPOD(isBroadcast);
 		hash.Append(data);
 	}
 };
@@ -325,15 +335,21 @@ struct Entity : public EntityAppearance
 {
 	typedef EntityAppearance	Super;
 	static const float	MaxInfluenceRadius,	//!< Maximum possible distance at which one entity can affect another in any way from one generation to the next
+					#ifndef NO_SENSORY
 						MaxAdvertisementRadius,	//!< Maximum visibility distance between two entities
+					#endif
 						MaxMotionDistance;		//!< Maximum motion of an entity per generation
-	EntityNeighborhood	neighborhood;	//accumulated during CS/RCS evaluation
+	#ifndef NO_SENSORY
+		EntityNeighborhood	neighborhood;	//accumulated during CS/RCS evaluation
+	#endif
 	LogicCluster				logic;
 
 	void			swap(Entity&other)
 	{
 		swp((Super&)*this, (Super&)other);
-		neighborhood.swap(other.neighborhood);
+		#ifndef NO_SENSORY
+			neighborhood.swap(other.neighborhood);
+		#endif
 		logic.swap(other.logic);
 	}
 
@@ -364,9 +380,11 @@ struct Entity : public EntityAppearance
 	void			Hash(Hasher&hash)	const
 	{
 		Super::Hash(hash);
-		hash.AppendPOD(neighborhood.Count());
-		foreach (neighborhood,n)
-			n->Hash(hash);
+		#ifndef NO_SENSORY
+			hash.AppendPOD(neighborhood.Count());
+			foreach (neighborhood,n)
+				n->Hash(hash);
+		#endif
 		foreach (logic,l)
 			l->Hash(hash);
 	}
@@ -375,7 +393,12 @@ struct Entity : public EntityAppearance
 
 	bool			operator==(const Entity&other) const
 	{
-		return Vec::equal(this->coordinates,other.coordinates) && neighborhood == other.neighborhood && logic == other.logic && EntityShape::operator==(other);
+		return Vec::equal(this->coordinates,other.coordinates) 
+		#ifndef NO_SENSORY
+			&& neighborhood == other.neighborhood 
+		#endif
+			&& logic == other.logic 
+			&& EntityShape::operator==(other);
 	}
 
 	bool			operator!=(const Entity&other) const
@@ -410,6 +433,7 @@ namespace Op
 		void				swap(Base&other)
 		{
 			origin.swap(other.origin);
+			swp(originSector,other.originSector);
 		}
 
 		void				SetOrigin(const EntityID&es)
@@ -484,24 +508,26 @@ namespace Op
 		bool				operator!=(const Broadcast&other) const {return !operator==(other);}
 	};
 
-	class StateAdvertisement : public Base
-	{
-	public:
-		static const float	MaxRange;
-		typedef TTrue		DispatchRadially;
-		EntityShape			shape;
-
-		/**/				StateAdvertisement(){}
-		/**/				StateAdvertisement(const EntityShape&shape):shape(shape){}
-		void				swap(StateAdvertisement&other)	{Base::swap(other);swp(shape,other.shape);}
-		bool				operator==(const StateAdvertisement&other) const {return Base::operator==(other) && shape == other.shape;}
-		bool				operator!=(const StateAdvertisement&other) const {return !operator==(other);}
-		void				SetOrigin(const EntityID&es)
+	#ifndef NO_SENSORY
+		class StateAdvertisement : public Base
 		{
-			Base::SetOrigin(es);
-			origin.coordinates += shape.velocity;
-		}
-	};
+		public:
+			static const float	MaxRange;
+			typedef TTrue		DispatchRadially;
+			EntityShape			shape;
+
+			/**/				StateAdvertisement(){}
+			/**/				StateAdvertisement(const EntityShape&shape):shape(shape){}
+			void				swap(StateAdvertisement&other)	{Base::swap(other);swp(shape,other.shape);}
+			bool				operator==(const StateAdvertisement&other) const {return Base::operator==(other) && shape == other.shape;}
+			bool				operator!=(const StateAdvertisement&other) const {return !operator==(other);}
+			void				SetOrigin(const EntityID&es)
+			{
+				Base::SetOrigin(es);
+				origin.coordinates += shape.velocity;
+			}
+		};
+	#endif
 }
 
 DECLARE_DEFAULT_STRATEGY(Op::Base,Swap)
@@ -509,12 +535,15 @@ DECLARE_DEFAULT_STRATEGY(Op::Removal,Swap)
 DECLARE_DEFAULT_STRATEGY(Op::Instantiation,Swap)
 DECLARE_DEFAULT_STRATEGY(Op::Message,Swap)
 DECLARE_DEFAULT_STRATEGY(Op::Broadcast,Swap)
-DECLARE_DEFAULT_STRATEGY(Op::StateAdvertisement,Swap)
+#ifndef NO_SENSORY
+	DECLARE_DEFAULT_STRATEGY(Op::StateAdvertisement,Swap)
+#endif
 
 class MessageDispatcher
 {
 public:
 	Buffer0<Op::Message>	messages;
+	Buffer0<Op::Broadcast>	broadcasts;
 
 	LogicProcess			fromProcess;
 
@@ -553,6 +582,34 @@ public:
 		m.target = targetEntity;
 		m.targetProcess = targetProcess;
 	};
+
+	template <typename T>
+	void	BroadcastPOD(LogicProcess targetProcess, const T&msg)
+	{
+		auto&m = broadcasts.Append();
+		
+		m.sourceProcess = fromProcess;
+		m.targetProcess = targetProcess;
+		m.message.SetSize(sizeof(T));
+		memcpy(m.message.pointer(),&msg,sizeof(T));
+	}
+
+	void	BroadcastFleeting(LogicProcess targetProcess, MessageData&&msg)
+	{
+		auto&m = broadcasts.Append();
+		m.message.adoptData(msg);
+		m.sourceProcess = fromProcess;
+		m.targetProcess = targetProcess;
+	};
+
+	void	BroadcastCopy(LogicProcess targetProcess, const MessageData&msg)
+	{
+		auto&m = broadcasts.Append();
+		m.message = msg;
+		m.sourceProcess = fromProcess;
+		m.targetProcess = targetProcess;
+	};
+
 };
 
 
@@ -564,7 +621,9 @@ public:
 	Buffer0<Op::Motion>				motionOps;
 	Buffer0<Op::Message>			messageOps;
 	Buffer0<Op::Broadcast>			broadcastOps;
-	Buffer0<Op::StateAdvertisement>	stateAdvertisementOps;
+	#ifndef NO_SENSORY
+		Buffer0<Op::StateAdvertisement>	stateAdvertisementOps;
+	#endif
 	
 
 	void	swap(ChangeSet&other)
@@ -574,7 +633,9 @@ public:
 		motionOps.swap(other.motionOps);
 		messageOps.swap(other.messageOps);
 		broadcastOps.swap(other.broadcastOps);
-		stateAdvertisementOps.swap(other.stateAdvertisementOps);
+		#ifndef NO_SENSORY
+			stateAdvertisementOps.swap(other.stateAdvertisementOps);
+		#endif
 	}
 	void	Clear()
 	{
@@ -583,7 +644,9 @@ public:
 		motionOps.Clear();
 		messageOps.Clear();
 		broadcastOps.Clear();
-		stateAdvertisementOps.Clear();
+		#ifndef NO_SENSORY
+			stateAdvertisementOps.Clear();
+		#endif
 	}
 	count_t	CountInstructions()	const
 	{
@@ -592,14 +655,19 @@ public:
 				+motionOps.Count()
 				+messageOps.Count()
 				+broadcastOps.Count()
-				+stateAdvertisementOps.Count();
+			#ifndef NO_SENSORY
+				+stateAdvertisementOps.Count()
+			#endif
+			;
 	}
-	void	Add(const Entity&e, MessageDispatcher&dispatcher)	{foreach (dispatcher.messages,msg) messageOps.MoveAppend(*msg).SetOrigin(e); }
+	void	Add(const Entity&e, MessageDispatcher&dispatcher);
 	void	Add(const Entity&e, const Op::Instantiation&op)	{instantiationOps.Append(op).SetOrigin(e);}
 	void	Add(const Entity&e, const Op::Removal&op)		{removalOps.Append(op).SetOrigin(e);}
 	void	Add(const Entity&e, const Op::Motion&op)		{motionOps.Append(op).SetOrigin(e);}
 	void	Add(const Entity&e, const Op::Message&op)	{messageOps.Append(op).SetOrigin(e);}
-	void	Add(const Entity&e, const Op::StateAdvertisement&op)	{stateAdvertisementOps.Append(op).SetOrigin(e);}
+	#ifndef NO_SENSORY
+		void	Add(const Entity&e, const Op::StateAdvertisement&op)	{stateAdvertisementOps.Append(op).SetOrigin(e);}
+	#endif
 	void	AddSelfMotion(const Entity&e, const TEntityCoords&newCoordinates);
 
 	void	AssertEqual(const ChangeSet&other)	const;

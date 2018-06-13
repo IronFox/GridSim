@@ -742,9 +742,12 @@ void FullShardDomainState::ExecuteLogic(CS & outLocal, index_t generation, const
 		//float2 motion = e->coordinates - originPosition;
 		//e->coordinates = originPosition;
 		outLocal.Add(*e,dispatcher);
-		Op::StateAdvertisement&ad = outLocal.stateAdvertisementOps.Append();
-		ad.origin = *e;
-		ad.shape = *e;
+
+		#ifndef NO_SENSORY
+			Op::StateAdvertisement&ad = outLocal.stateAdvertisementOps.Append();
+			ad.origin = *e;
+			ad.shape = *e;
+		#endif
 
 		if (!Vec::zero(shape.velocity))
 		{
@@ -758,8 +761,10 @@ void FullShardDomainState::ExecuteLogic(CS & outLocal, index_t generation, const
 				shape.velocity *= Entity::MaxMotionDistance / *len*0.99f;
 
 			outLocal.AddSelfMotion(*e,e->coordinates + shape.velocity);
-			ad.shape.velocity = shape.velocity;
-			ad.origin.coordinates += shape.velocity;
+			#ifndef NO_SENSORY
+				ad.shape.velocity = shape.velocity;
+				ad.origin.coordinates += shape.velocity;
+			#endif
 			//Add(*e,Op::StateAdvertisement(motion));
 		}
 		else

@@ -814,12 +814,16 @@ namespace Build
 				Scene::SetColor(color);
 			else
 				Scene::SetColor(0.5f,0.5f,0,0.25f*color.a);
-			Scene::PutCircle(Entity::MaxAdvertisementRadius);
-			if (Entity::MaxAdvertisementRadius != Entity::MaxMotionDistance)
-			{
-				Scene::SetColor(0,0.5f,0,0.25f);
-				Scene::PutCircle(Entity::MaxMotionDistance);
-			}
+			#ifdef NO_SENSORY
+				Scene::PutCircle(Entity::MaxInfluenceRadius);
+			#else
+				Scene::PutCircle(Entity::MaxAdvertisementRadius);
+				if (Entity::MaxAdvertisementRadius != Entity::MaxMotionDistance)
+				{
+					Scene::SetColor(0,0.5f,0,0.25f);
+					Scene::PutCircle(Entity::MaxMotionDistance);
+				}
+			#endif
 		}
 		Scene::SetColor(color);
 		switch (app.shape)

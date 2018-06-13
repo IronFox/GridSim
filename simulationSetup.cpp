@@ -37,6 +37,11 @@ namespace EntityFlags
 
 namespace Logic
 {
+	struct TBroadcastData
+	{
+		UINT32 seed;
+		EntityID sender;
+	};
 
 
 	void RandomMotion(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape,Random&random, const MessageReceiver&, MessageDispatcher&)
@@ -46,21 +51,34 @@ namespace Logic
 		inOutShape.velocity *= r;
 	}
 
-	void AggressiveRandomMotion(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape,Random&, const MessageReceiver&, MessageDispatcher&)
+	void AggressiveRandomMotion(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape,Random&, const MessageReceiver&recv, MessageDispatcher&disp)
 	{
 		CRC32::Sequence seq;
-		foreach (e.neighborhood,n)
+
+		foreach (recv,m)
 		{
-			seq.AppendPOD(n->guid);
-			seq.AppendPOD(n->coordinates);
+			seq.AppendPOD(m->sender);
+			seq.AppendPOD(m->isBroadcast);
+			seq.AppendPOD(m->senderProcess);
+			seq.Append(m->data.GetPointer(),m->data.Length());
 		}
+
+		#ifndef NO_SENSORY
+			foreach (e.neighborhood,n)
+			{
+				seq.AppendPOD(n->guid);
+				seq.AppendPOD(n->coordinates);
+			}
+		#endif
+
 		seq.AppendPOD(e.guid);
 		seq.AppendPOD(e.coordinates);
 		if (serialState.GetLength()	== 4)
 		{
 			seq.AppendPOD(*(const UINT32*)serialState.GetPointer());
 		}
-		Random random(seq.Finish());
+		const auto seed = seq.Finish();
+		Random random(seed);
 
 		float r = Entity::MaxMotionDistance;
 	//	random.getFloat(0.f,Entity::MaxOperationalRadius);
@@ -72,23 +90,42 @@ namespace Logic
 		(*(UINT32*)serialState.GetPointer()) = random.NextSeed();
 
 		inOutShape.velocity += motion;
+
+		#ifdef NO_SENSORY
+			TBroadcastData broadcast;
+			broadcast.seed = seed;
+			broadcast.sender = e;
+			disp.BroadcastPOD(AggressiveRandomMotion,broadcast);
+		#endif
 	}
 
-	void AggressiveRandomMotionX(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape, Random&, const MessageReceiver&, MessageDispatcher&)
+	void AggressiveRandomMotionX(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape, Random&, const MessageReceiver&recv, MessageDispatcher&disp)
 	{
 		CRC32::Sequence seq;
-		foreach(e.neighborhood, n)
+		foreach (recv,m)
 		{
-			seq.AppendPOD(n->guid);
-			seq.AppendPOD(n->coordinates);
+			seq.AppendPOD(m->sender);
+			seq.AppendPOD(m->isBroadcast);
+			seq.AppendPOD(m->senderProcess);
+			seq.Append(m->data.GetPointer(),m->data.Length());
 		}
+
+		#ifndef NO_SENSORY
+			foreach (e.neighborhood,n)
+			{
+				seq.AppendPOD(n->guid);
+				seq.AppendPOD(n->coordinates);
+			}
+		#endif
+
 		seq.AppendPOD(e.guid);
 		seq.AppendPOD(e.coordinates);
 		if (serialState.GetLength() == 4)
 		{
 			seq.AppendPOD(*(const UINT32*)serialState.GetPointer());
 		}
-		Random random(seq.Finish());
+		const auto seed = seq.Finish();
+		Random random(seed);
 
 		float r = Entity::MaxMotionDistance;
 		//	random.getFloat(0.f,Entity::MaxOperationalRadius);
@@ -101,329 +138,340 @@ namespace Logic
 		(*(UINT32*)serialState.GetPointer()) = random.NextSeed();
 
 		inOutShape.velocity += motion;
+
+
+		#ifdef NO_SENSORY
+			TBroadcastData broadcast;
+			broadcast.seed = seed;
+			broadcast.sender = e;
+			disp.BroadcastPOD(AggressiveRandomMotionX,broadcast);
+		#endif
+
 	}
 
-	void MinDistance(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape,Random&random, const MessageReceiver&, MessageDispatcher&)
-	{
-		TEntityCoords delta;
-		foreach (e.neighborhood,n)
+	#ifndef NO_SENSORY
+		void MinDistance(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape,Random&random, const MessageReceiver&, MessageDispatcher&)
 		{
-			TEntityCoords dn = e.coordinates - n->coordinates;
-			Metric::Distance d2(dn);
-			static const float minDist = 0.1f;
-			if (d2 < minDist)
-			{
-				if (M::nearingZero(*d2))
-				{
-					float moveBy = (minDist) / 2;
-					TEntityCoords pdelta;
-					Metric::Direction(random).ToVector(pdelta);
-					pdelta *= moveBy;
-					delta += pdelta;
-				}
-				else
-				{
-					float d = *d2;
-					float moveBy = (minDist - d) / 2;
-					delta += dn / d * moveBy;
-				}
-			}
-		}
-		inOutShape.velocity +=  delta;
-	}
-
-	void HorizontalMinDistance(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape, Random&random, const MessageReceiver&, MessageDispatcher&)
-	{
-		TEntityCoords delta;
-		foreach(e.neighborhood, n)
-		{
-			TEntityCoords dn = e.coordinates - n->coordinates;
-			Metric::Distance d2(dn);
-			static const float minDist = 0.1f;
-			if (d2 < minDist)
-			{
-				if (M::nearingZero(*d2))
-				{
-					float moveBy = (minDist) / 2;
-					float pdelta = random.NextBool() ? -moveBy : moveBy;
-					delta.x += pdelta;
-				}
-				else
-				{
-					float d = *d2;
-					float moveBy = (minDist - d) / 2;
-					delta.x += dn.x / d * moveBy;
-				}
-			}
-		}
-		inOutShape.velocity += delta;
-	}
-
-	namespace Flock
-	{
-		namespace Helper
-		{
-			float AngularDistance (const Metric::Direction2D& a0, const Metric::Direction2D& a1)
-			{
-				return a0.MinimalDifferenceTo(a1);
-			}
-
-			float AngularDistance (const Metric::Direction3D& a0, const Metric::Direction3D& a1)
-			{
-				M::TVec3<> v0,v1;
-				a0.ToVector(v0);
-				a1.ToVector(v1);
-				return Vec::quadraticDistance(v0,v1);
-			}
-		}
-		static const float MinSpeed = Entity::MaxMotionDistance * 0.2f * 0.05f;
-		static const float MaxSpeed = Entity::MaxMotionDistance * 0.4f * 0.05f;
-
-		void MaintainVelocity(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape,Random&random, const MessageReceiver&, MessageDispatcher&)
-		{
-			inOutShape.velocity = e.velocity;
-			float speed = e.velocity.GetLength();
-			float wantSpeed = random.NextFloat(MinSpeed,MaxSpeed);
-			TEntityCoords wantDirection;
-			e.GetDirection(wantDirection);
-			wantDirection *= wantSpeed;
-			Vec::interpolate(inOutShape.velocity,wantDirection,0.5f,inOutShape.velocity);
-		}
-
-		void Focus(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape,Random&random, const MessageReceiver&recv, MessageDispatcher&disp)
-		{
-			struct TFocusLocation
-			{
-				TEntityCoords loc,velocity;
-				count_t gen;
-			};
-			if (serialState.size() != sizeof(TFocusLocation))
-			{
-				serialState.SetSize(sizeof(TFocusLocation));
-				TFocusLocation init = {TEntityCoords(),TEntityCoords(),0};
-				(*(TFocusLocation*)serialState.pointer()) = init;
-			}
-
-			TFocusLocation&best = (*(TFocusLocation*)serialState.pointer());
-
+			TEntityCoords delta;
 			foreach (e.neighborhood,n)
-				if (n->userFlags & EntityFlags::IsFocus)
-				{
-					best.loc = n->coordinates;
-					best.velocity = n->velocity;
-					best.gen = generation;
-					break;
-				}
-			if (best.gen != generation)
 			{
-				foreach (recv,msg)
+				TEntityCoords dn = e.coordinates - n->coordinates;
+				Metric::Distance d2(dn);
+				static const float minDist = 0.1f;
+				if (d2 < minDist)
 				{
-					if (msg->senderProcess == &Focus && msg->data.size() == sizeof(TFocusLocation))
+					if (M::nearingZero(*d2))
 					{
-						const TFocusLocation&f = *(const TFocusLocation*)msg->data.pointer();
-						if (f.gen > best.gen)
-						{
-							best = f;
-						}
+						float moveBy = (minDist) / 2;
+						TEntityCoords pdelta;
+						Metric::Direction(random).ToVector(pdelta);
+						pdelta *= moveBy;
+						delta += pdelta;
 					}
 					else
 					{
-						bool brk = true;
+						float d = *d2;
+						float moveBy = (minDist - d) / 2;
+						delta += dn / d * moveBy;
 					}
 				}
 			}
-
-			if (best.gen > 0)
-			{
-				if (e.neighborhood.IsNotEmpty())
-				{
-					index_t a = random.NextIndex(e.neighborhood.Count()-1);
-					{
-						MessageData dat(sizeof(TFocusLocation));
-						memcpy(dat.pointer(),&best,sizeof(best));
-						disp.DispatchFleeting(e.neighborhood[a],&Focus,std::move(dat));
-					}
-					//if (e.neighborhood.Count() > 1)
-					//{
-					//	index_t b = a;
-					//	while (b == a)
-					//		b = random.getIndex(e.neighborhood.Count()-1);
-					//	{
-					//		MessageData dat(sizeof(TFocusLocation));
-					//		memcpy(dat.pointer(),&best,sizeof(best));
-					//		disp.DispatchFleeting(e.neighborhood[b],&Focus,std::move(dat));
-					//	}
-					//}
-					
-
-				}
-	/*			foreach (e.neighborhood,n)
-				{
-					MessageData dat(sizeof(TFocusLocation));
-					memcpy(dat.pointer(),&best,sizeof(best));
-					disp.DispatchFleeting(*n,&Focus,std::move(dat));
-				}
-*/
-				TEntityCoords delta = best.loc + best.velocity * (generation - best.gen) - e.coordinates;
-				float pull = *Metric::Distance(delta);
-				float finalPull = M::Min(pull,MinSpeed/10.f);
-				delta *= finalPull / pull;
-				inOutShape.velocity += delta;
-				inOutShape.orientation = Metric::Direction(inOutShape.velocity);
-			}
+			inOutShape.velocity +=  delta;
 		}
 
-
-		void AvoidCollision(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape, Random&random, const MessageReceiver&, MessageDispatcher&)
+		void HorizontalMinDistance(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape, Random&random, const MessageReceiver&, MessageDispatcher&)
 		{
-			TEntityCoords motion = inOutShape.velocity;
-			const float orginalSpeed = Vec::length(motion);
-			float desiredSpeed = orginalSpeed;
-			const float lookahead = 20.f;
-			if (orginalSpeed > 0)
+			TEntityCoords delta;
+			foreach(e.neighborhood, n)
 			{
-//				NeighborhoodCollider collider( e.neighborhood);
-				NeighborhoodCollider wallCollider( e.neighborhood,[](const EntityAppearance&app){return (app.userFlags & EntityFlags::IsWall) != 0;} );
-				if (wallCollider.TestEdge(e.coordinates,e.coordinates+motion*lookahead,true))
+				TEntityCoords dn = e.coordinates - n->coordinates;
+				Metric::Distance d2(dn);
+				static const float minDist = 0.1f;
+				if (d2 < minDist)
 				{
-					float bestDistance = 0;
-					float bestAngleDifference = std::numeric_limits<float>::max();
-					Metric::Direction bestAngle;
-					bool any = false;
-					NeighborhoodCollider wallCollider( e.neighborhood,[](const EntityAppearance&app){return (app.userFlags & EntityFlags::IsWall) != 0;} );
-
-					for (int i = 0; i < 128; i++)
+					if (M::nearingZero(*d2))
 					{
-						Metric::Direction a (random);
-						TEntityCoords dir;
-						a.ToVector(dir);
-						float d;
-						//if (wallCollider.TestEdge(e.coordinates,e.coordinates+dir*orginalSpeed*2.f,false))
-						//	continue;
-						wallCollider.TestEdge(e.coordinates,e.coordinates+dir*orginalSpeed*lookahead,true,&d);
+						float moveBy = (minDist) / 2;
+						float pdelta = random.NextBool() ? -moveBy : moveBy;
+						delta.x += pdelta;
+					}
+					else
+					{
+						float d = *d2;
+						float moveBy = (minDist - d) / 2;
+						delta.x += dn.x / d * moveBy;
+					}
+				}
+			}
+			inOutShape.velocity += delta;
+		}
 
-						float angleDifference = Helper::AngularDistance(a,e.orientation);
-						if (d > bestDistance || (d == bestDistance && angleDifference < bestAngleDifference))
+		namespace Flock
+		{
+			namespace Helper
+			{
+				float AngularDistance (const Metric::Direction2D& a0, const Metric::Direction2D& a1)
+				{
+					return a0.MinimalDifferenceTo(a1);
+				}
+
+				float AngularDistance (const Metric::Direction3D& a0, const Metric::Direction3D& a1)
+				{
+					M::TVec3<> v0,v1;
+					a0.ToVector(v0);
+					a1.ToVector(v1);
+					return Vec::quadraticDistance(v0,v1);
+				}
+			}
+			static const float MinSpeed = Entity::MaxMotionDistance * 0.2f * 0.05f;
+			static const float MaxSpeed = Entity::MaxMotionDistance * 0.4f * 0.05f;
+
+			void MaintainVelocity(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape,Random&random, const MessageReceiver&, MessageDispatcher&)
+			{
+				inOutShape.velocity = e.velocity;
+				float speed = e.velocity.GetLength();
+				float wantSpeed = random.NextFloat(MinSpeed,MaxSpeed);
+				TEntityCoords wantDirection;
+				e.GetDirection(wantDirection);
+				wantDirection *= wantSpeed;
+				Vec::interpolate(inOutShape.velocity,wantDirection,0.5f,inOutShape.velocity);
+			}
+
+			void Focus(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape,Random&random, const MessageReceiver&recv, MessageDispatcher&disp)
+			{
+				struct TFocusLocation
+				{
+					TEntityCoords loc,velocity;
+					count_t gen;
+				};
+				if (serialState.size() != sizeof(TFocusLocation))
+				{
+					serialState.SetSize(sizeof(TFocusLocation));
+					TFocusLocation init = {TEntityCoords(),TEntityCoords(),0};
+					(*(TFocusLocation*)serialState.pointer()) = init;
+				}
+
+				TFocusLocation&best = (*(TFocusLocation*)serialState.pointer());
+
+				foreach (e.neighborhood,n)
+					if (n->userFlags & EntityFlags::IsFocus)
+					{
+						best.loc = n->coordinates;
+						best.velocity = n->velocity;
+						best.gen = generation;
+						break;
+					}
+				if (best.gen != generation)
+				{
+					foreach (recv,msg)
+					{
+						if (msg->senderProcess == &Focus && msg->data.size() == sizeof(TFocusLocation))
 						{
-							bestDistance = d;
-							bestAngleDifference = angleDifference;
-							any = true;
-							bestAngle = a;
+							const TFocusLocation&f = *(const TFocusLocation*)msg->data.pointer();
+							if (f.gen > best.gen)
+							{
+								best = f;
+							}
 						}
 						else
 						{
-							if (!any)
-							bool b= true;
+							bool brk = true;
 						}
 					}
-					ASSERT__ (any);
+				}
 
-					if (bestDistance*0.5f < desiredSpeed)
+				if (best.gen > 0)
+				{
+					if (e.neighborhood.IsNotEmpty())
 					{
-						desiredSpeed = bestDistance *0.5f;
-					}
-					inOutShape.orientation = bestAngle;
-					TEntityCoords newDirection;
-					inOutShape.orientation.ToVector(newDirection);
-					motion = desiredSpeed * newDirection;
+						index_t a = random.NextIndex(e.neighborhood.Count()-1);
+						{
+							MessageData dat(sizeof(TFocusLocation));
+							memcpy(dat.pointer(),&best,sizeof(best));
+							disp.DispatchFleeting(e.neighborhood[a],&Focus,std::move(dat));
+						}
+						//if (e.neighborhood.Count() > 1)
+						//{
+						//	index_t b = a;
+						//	while (b == a)
+						//		b = random.getIndex(e.neighborhood.Count()-1);
+						//	{
+						//		MessageData dat(sizeof(TFocusLocation));
+						//		memcpy(dat.pointer(),&best,sizeof(best));
+						//		disp.DispatchFleeting(e.neighborhood[b],&Focus,std::move(dat));
+						//	}
+						//}
 					
+
+					}
+		/*			foreach (e.neighborhood,n)
+					{
+						MessageData dat(sizeof(TFocusLocation));
+						memcpy(dat.pointer(),&best,sizeof(best));
+						disp.DispatchFleeting(*n,&Focus,std::move(dat));
+					}
+	*/
+					TEntityCoords delta = best.loc + best.velocity * (generation - best.gen) - e.coordinates;
+					float pull = *Metric::Distance(delta);
+					float finalPull = M::Min(pull,MinSpeed/10.f);
+					delta *= finalPull / pull;
+					inOutShape.velocity += delta;
+					inOutShape.orientation = Metric::Direction(inOutShape.velocity);
 				}
 			}
-			inOutShape.velocity = motion;
-		}
 
-		void Align(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape,Random&random, const MessageReceiver&, MessageDispatcher&)
-		{
 
-			constexpr float DistanceCutOff = 0.05f;
+			void AvoidCollision(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape, Random&random, const MessageReceiver&, MessageDispatcher&)
+			{
+				TEntityCoords motion = inOutShape.velocity;
+				const float orginalSpeed = Vec::length(motion);
+				float desiredSpeed = orginalSpeed;
+				const float lookahead = 20.f;
+				if (orginalSpeed > 0)
+				{
+	//				NeighborhoodCollider collider( e.neighborhood);
+					NeighborhoodCollider wallCollider( e.neighborhood,[](const EntityAppearance&app){return (app.userFlags & EntityFlags::IsWall) != 0;} );
+					if (wallCollider.TestEdge(e.coordinates,e.coordinates+motion*lookahead,true))
+					{
+						float bestDistance = 0;
+						float bestAngleDifference = std::numeric_limits<float>::max();
+						Metric::Direction bestAngle;
+						bool any = false;
+						NeighborhoodCollider wallCollider( e.neighborhood,[](const EntityAppearance&app){return (app.userFlags & EntityFlags::IsWall) != 0;} );
+
+						for (int i = 0; i < 128; i++)
+						{
+							Metric::Direction a (random);
+							TEntityCoords dir;
+							a.ToVector(dir);
+							float d;
+							//if (wallCollider.TestEdge(e.coordinates,e.coordinates+dir*orginalSpeed*2.f,false))
+							//	continue;
+							wallCollider.TestEdge(e.coordinates,e.coordinates+dir*orginalSpeed*lookahead,true,&d);
+
+							float angleDifference = Helper::AngularDistance(a,e.orientation);
+							if (d > bestDistance || (d == bestDistance && angleDifference < bestAngleDifference))
+							{
+								bestDistance = d;
+								bestAngleDifference = angleDifference;
+								any = true;
+								bestAngle = a;
+							}
+							else
+							{
+								if (!any)
+								bool b= true;
+							}
+						}
+						ASSERT__ (any);
+
+						if (bestDistance*0.5f < desiredSpeed)
+						{
+							desiredSpeed = bestDistance *0.5f;
+						}
+						inOutShape.orientation = bestAngle;
+						TEntityCoords newDirection;
+						inOutShape.orientation.ToVector(newDirection);
+						motion = desiredSpeed * newDirection;
+					
+					}
+				}
+				inOutShape.velocity = motion;
+			}
+
+			void Align(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape,Random&random, const MessageReceiver&, MessageDispatcher&)
+			{
+
+				constexpr float DistanceCutOff = 0.05f;
+				constexpr float DistanceCutOff2 = DistanceCutOff*DistanceCutOff;
+
+				float load = 2;
+				TEntityCoords speed = inOutShape.velocity * load;
+
+				foreach (e.neighborhood,n)
+				{
+					{
+						speed += n->velocity;
+						load++;
+					}
+				}
+				inOutShape.velocity = speed / load;
+				inOutShape.orientation = Metric::Direction(inOutShape.velocity);
+			}
+
+			constexpr float DistanceCutOff = 0.025f;
 			constexpr float DistanceCutOff2 = DistanceCutOff*DistanceCutOff;
 
-			float load = 2;
-			TEntityCoords speed = inOutShape.velocity * load;
-
-			foreach (e.neighborhood,n)
+			void Center(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape,Random&random, const MessageReceiver&, MessageDispatcher&)
 			{
+				if (e.neighborhood.IsEmpty())
+					return;
+				TEntityCoords motion = inOutShape.velocity;
+				const float orginalSpeed = Vec::length(motion);
+				float desiredSpeed = orginalSpeed;
+
+				TEntityCoords center = e.coordinates;
+				count_t cnt = 1;
+				foreach (e.neighborhood,n)
 				{
-					speed += n->velocity;
-					load++;
-				}
-			}
-			inOutShape.velocity = speed / load;
-			inOutShape.orientation = Metric::Direction(inOutShape.velocity);
-		}
-
-		constexpr float DistanceCutOff = 0.025f;
-		constexpr float DistanceCutOff2 = DistanceCutOff*DistanceCutOff;
-
-		void Center(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape,Random&random, const MessageReceiver&, MessageDispatcher&)
-		{
-			if (e.neighborhood.IsEmpty())
-				return;
-			TEntityCoords motion = inOutShape.velocity;
-			const float orginalSpeed = Vec::length(motion);
-			float desiredSpeed = orginalSpeed;
-
-			TEntityCoords center = e.coordinates;
-			count_t cnt = 1;
-			foreach (e.neighborhood,n)
-			{
-				if (n->shape != Entity::Shape::None)
-					continue;
-				float w = Vec::intensity(n->coordinates - e.coordinates,e.velocity)*0.5f + 0.5f;
-				if (w > 0.35f)
-				{
-					center += n->coordinates;// + n->velocity;
-					cnt ++;
-				}
-			}
-			if (!cnt)
-				return;
-			center /= cnt;
-			TEntityCoords wantOutTo = center - e.coordinates;
-			float total = wantOutTo.GetLength();
-			//if (total < DistanceCutOff*0.5f)
-				//return;
-			static const float Max = MaxSpeed/10.f;
-			if (total > Max)
-				wantOutTo *= Max / total;
-			inOutShape.velocity += wantOutTo;
-			inOutShape.orientation = Metric::Direction(inOutShape.velocity);
-		}
-
-		void MaintainMinimumDistance(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape,Random&random, const MessageReceiver&, MessageDispatcher&)
-		{
-			TEntityCoords motion = inOutShape.velocity;
-			const float orginalSpeed = Vec::length(motion);
-			float desiredSpeed = orginalSpeed;
-
-			static const constexpr Metric::Distance CutOff = Metric::Distance(DistanceCutOff);
-			TEntityCoords wantOutTo;
-
-			foreach (e.neighborhood,n)
-			{
-				float w = Vec::intensity(n->coordinates - e.coordinates,e.velocity)*0.5f + 0.5f;
-				if (w > 0.35f)
-				{
-
-					//float d2 = Vec::quadraticDistance(e.coordinates,n->coordinates);
-					//if (d2 < DistanceCutOff2)
-					Metric::Distance	d(e.coordinates,n->coordinates);
-					if (d < CutOff)
+					if (n->shape != Entity::Shape::None)
+						continue;
+					float w = Vec::intensity(n->coordinates - e.coordinates,e.velocity)*0.5f + 0.5f;
+					if (w > 0.35f)
 					{
-						float dist =*d;
-						float wantOut =  (CutOff.Squared() / d.Squared()  - 1.f);
-						TEntityCoords to = wantOut * (e.coordinates - n->coordinates) / dist;
-						wantOutTo += to;
+						center += n->coordinates;// + n->velocity;
+						cnt ++;
 					}
 				}
+				if (!cnt)
+					return;
+				center /= cnt;
+				TEntityCoords wantOutTo = center - e.coordinates;
+				float total = wantOutTo.GetLength();
+				//if (total < DistanceCutOff*0.5f)
+					//return;
+				static const float Max = MaxSpeed/10.f;
+				if (total > Max)
+					wantOutTo *= Max / total;
+				inOutShape.velocity += wantOutTo;
+				inOutShape.orientation = Metric::Direction(inOutShape.velocity);
 			}
-			Metric::Distance total(wantOutTo);
-			static const float Max = MaxSpeed/5.f;
-			if (total > Max)
-				wantOutTo *= Max / *total;
-			inOutShape.velocity += wantOutTo;
-			inOutShape.orientation = Metric::Direction(inOutShape.velocity);
-		}
+
+			void MaintainMinimumDistance(Array<BYTE>&serialState, count_t generation, const Entity&e, EntityShape&inOutShape,Random&random, const MessageReceiver&, MessageDispatcher&)
+			{
+				TEntityCoords motion = inOutShape.velocity;
+				const float orginalSpeed = Vec::length(motion);
+				float desiredSpeed = orginalSpeed;
+
+				static const constexpr Metric::Distance CutOff = Metric::Distance(DistanceCutOff);
+				TEntityCoords wantOutTo;
+
+				foreach (e.neighborhood,n)
+				{
+					float w = Vec::intensity(n->coordinates - e.coordinates,e.velocity)*0.5f + 0.5f;
+					if (w > 0.35f)
+					{
+
+						//float d2 = Vec::quadraticDistance(e.coordinates,n->coordinates);
+						//if (d2 < DistanceCutOff2)
+						Metric::Distance	d(e.coordinates,n->coordinates);
+						if (d < CutOff)
+						{
+							float dist =*d;
+							float wantOut =  (CutOff.Squared() / d.Squared()  - 1.f);
+							TEntityCoords to = wantOut * (e.coordinates - n->coordinates) / dist;
+							wantOutTo += to;
+						}
+					}
+				}
+				Metric::Distance total(wantOutTo);
+				static const float Max = MaxSpeed/5.f;
+				if (total > Max)
+					wantOutTo *= Max / *total;
+				inOutShape.velocity += wantOutTo;
+				inOutShape.orientation = Metric::Direction(inOutShape.velocity);
+			}
+	#endif
 	}
 
 	#if 0
@@ -462,6 +510,8 @@ namespace Logic
 		Aspect::scene.UpdateView();
 	}
 	#endif /*0*/
+
+	#ifndef NO_SENSORY
 
 	static const float WaveSpacing = Entity::MaxAdvertisementRadius * 0.9f;
 	static const float WavePlaneHeight = 20.f;
@@ -641,8 +691,7 @@ namespace Logic
 
 
 }
-
-
+#endif
 
 void Evolve()
 {

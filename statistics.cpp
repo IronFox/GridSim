@@ -818,18 +818,19 @@ double		Statistics::GetEntityDensityPerRCube(const TExperiment&ex)
 	return double(ex.numEntities) / (16*16)/ M::Sqr(1.0 / (Entity::MaxInfluenceRadius));
 }
 
-double		Statistics::GetEntityVisitionDensity()
-{
-	if (!HasCurrentExperiment())
-		return 0;
-	return GetEntityVisitionDensity(GetCurrentExperiment());
-}
+#ifndef NO_SENSORY
+	double		Statistics::GetEntityVisitionDensity()
+	{
+		if (!HasCurrentExperiment())
+			return 0;
+		return GetEntityVisitionDensity(GetCurrentExperiment());
+	}
 
-double		Statistics::GetEntityVisitionDensity(const TExperiment&ex)
-{
-	return double(ex.numEntities) / (16*16)/ M::Sqr(1.0 / (2*Entity::MaxAdvertisementRadius));
-}
-
+	double		Statistics::GetEntityVisitionDensity(const TExperiment&ex)
+	{
+		return double(ex.numEntities) / (16*16)/ M::Sqr(1.0 / (2*Entity::MaxAdvertisementRadius));
+	}
+#endif
 
 TExperiment Statistics::Begin()
 {
@@ -1159,7 +1160,11 @@ namespace Statistics
 	public:
 		/**/	TexPlot(const TExperiment&ex)
 		{
-			eDensity = GetEntityVisitionDensity(ex);
+			#ifndef NO_SENSORY
+				eDensity = GetEntityVisitionDensity(ex);
+			#else
+				eDensity = GetEntityDensityPerRCube(ex);
+			#endif
 			tex.Create(Filename(ex,"graph","tex"));
 			tex << "\\begin{axis}[width=0.8\\linewidth,xlabel=\\emph{Sensitivity},cycle list name=plotcolorlist,xmin=0,xmax=1,legend style={at={(0.01,0.2)},anchor=west},ylabel=\\emph{Specificity}]"<<nl;
 		}
@@ -1842,10 +1847,18 @@ namespace Statistics
 				}
 				table.Get(0,2) = ex.numEntities;
 				table.Get(2,1) = "consistentPercentage";
-				table.Get(1,1) = "can see";
+				#ifndef NO_SENSORY
+					table.Get(1,1) = "can see";
+				#else
+					table.Get(1,1) = "can influence";
+				#endif
 				if (values.IsNotEmpty())
 					table.Get(2,2) = values.First().actuallyConsistent.Get() / values.First().totalGuesses.Get();
-				table.Get(1,2) = GetEntityVisitionDensity(ex);
+				#ifndef NO_SENSORY
+					table.Get(1,2) = GetEntityVisitionDensity(ex);
+				#else
+					table.Get(1,2) = GetEntityDensityPerRCube(ex);
+				#endif
 
 				foreach (values,val)
 				{

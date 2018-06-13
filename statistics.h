@@ -30,8 +30,10 @@ namespace Statistics
 	TExperiment	GetCurrentExperiment();
 	double		GetEntityDensityPerRCube();
 	double		GetEntityDensityPerRCube(const TExperiment&);
-	double		GetEntityVisitionDensity();
-	double		GetEntityVisitionDensity(const TExperiment&);
+	#ifndef NO_SENSORY
+		double	GetEntityVisitionDensity();
+		double	GetEntityVisitionDensity(const TExperiment&);
+	#endif
 	count_t		GetECStep(const TExperiment&ex);
 
 	template <typename T>

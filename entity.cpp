@@ -4,14 +4,20 @@
 #include "metric.h"
 
 /*static*/ const float Entity::MaxInfluenceRadius = 0.125f,
+			#ifndef NO_SENSORY
 				Entity::MaxAdvertisementRadius = Entity::MaxInfluenceRadius/2,
 				Entity::MaxMotionDistance = Entity::MaxInfluenceRadius/2,
+			#else
+				Entity::MaxMotionDistance = Entity::MaxInfluenceRadius,
+			#endif
 				Op::Removal::MaxRange = Entity::MaxInfluenceRadius,
 				Op::Instantiation::MaxRange = Entity::MaxMotionDistance,
 				Op::Message::MaxRange = Entity::MaxInfluenceRadius,
 				Op::Broadcast::MaxRange = Entity::MaxInfluenceRadius,
-				Op::Motion::MaxRange = Entity::MaxMotionDistance,
-				Op::StateAdvertisement::MaxRange = Entity::MaxAdvertisementRadius
+				Op::Motion::MaxRange = Entity::MaxMotionDistance
+		#ifndef NO_SENSORY
+				,Op::StateAdvertisement::MaxRange = Entity::MaxAdvertisementRadius
+		#endif
 				
 				
 				;
@@ -140,7 +146,9 @@ void ChangeSet::ExportEdge(const TGridCoords&relative, const TGridCoords&originS
 	::CopyEdge(removalOps,target.removalOps,relative,originSectorCoordinates);
 	::CopyEdge(instantiationOps,target.instantiationOps,relative,originSectorCoordinates);
 	::CopyEdge(motionOps,target.motionOps,relative,originSectorCoordinates);
-	::CopyEdge(stateAdvertisementOps,target.stateAdvertisementOps,relative,originSectorCoordinates);
+	#ifndef NO_SENSORY
+		::CopyEdge(stateAdvertisementOps,target.stateAdvertisementOps,relative,originSectorCoordinates);
+	#endif
 }
 
 
@@ -152,7 +160,9 @@ void ChangeSet::Merge(const ChangeSet & other)
 	::Merge(removalOps,other.removalOps);
 	::Merge(instantiationOps,other.instantiationOps);
 	::Merge(motionOps,other.motionOps);
-	::Merge(stateAdvertisementOps,other.stateAdvertisementOps);
+	#ifndef NO_SENSORY
+		::Merge(stateAdvertisementOps,other.stateAdvertisementOps);
+	#endif
 }
 
 void	ChangeSet::AssertEqual(const ChangeSet&other)	const
@@ -162,7 +172,9 @@ void	ChangeSet::AssertEqual(const ChangeSet&other)	const
 	::AssertEqual(removalOps,other.removalOps);
 	::AssertEqual(instantiationOps,other.instantiationOps);
 	::AssertEqual(motionOps,other.motionOps);
-	::AssertEqual(stateAdvertisementOps,other.stateAdvertisementOps);
+	#ifndef NO_SENSORY
+		::AssertEqual(stateAdvertisementOps,other.stateAdvertisementOps);
+	#endif
 }
 
 bool	ChangeSet::operator==(const ChangeSet&other)	const
@@ -172,7 +184,9 @@ bool	ChangeSet::operator==(const ChangeSet&other)	const
 		&&	::IsEqual(removalOps,other.removalOps)
 		&&	::IsEqual(instantiationOps,other.instantiationOps)
 		&&	::IsEqual(motionOps,other.motionOps)
-		&&	::IsEqual(stateAdvertisementOps,other.stateAdvertisementOps)
+		#ifndef NO_SENSORY
+			&&	::IsEqual(stateAdvertisementOps,other.stateAdvertisementOps)
+		#endif
 		;
 
 }
@@ -186,7 +200,9 @@ void ChangeSet::Apply(const TGridCoords&shardCoords,CoreShardDomainState &target
 {
 	const auto i2 = M::Sqr(Entity::MaxInfluenceRadius);
 	const auto m2 = M::Sqr(Entity::MaxMotionDistance);
-	const auto a2 = M::Sqr(Entity::MaxAdvertisementRadius);
+	#ifndef NO_SENSORY
+		const auto a2 = M::Sqr(Entity::MaxAdvertisementRadius);
+	#endif
 
 	foreach (target.entities,e)
 		foreach (e->logic,l)
@@ -209,9 +225,11 @@ void ChangeSet::Apply(const TGridCoords&shardCoords,CoreShardDomainState &target
 		auto*p = e->FindLogic(op->targetProcess);
 		if (p)
 		{
-			p->receiver.Append().data = op->message;
-			p->receiver.Last().sender = op->origin;
-			p->receiver.Last().senderProcess = op->sourceProcess;
+			auto&m = p->receiver.Append();
+			m.data = op->message;
+			m.sender = op->origin;
+			m.senderProcess = op->sourceProcess;
+			m.isBroadcast = false;
 		}
 		else
 		{
@@ -228,9 +246,11 @@ void ChangeSet::Apply(const TGridCoords&shardCoords,CoreShardDomainState &target
 			auto*p = e->FindLogic(op->targetProcess);
 			if (p)
 			{
-				p->receiver.Append().data = op->message;
-				p->receiver.Last().sender = op->origin;
-				p->receiver.Last().senderProcess = op->sourceProcess;
+				auto&m = p->receiver.Append();
+				m.data = op->message;
+				m.sender = op->origin;
+				m.senderProcess = op->sourceProcess;
+				m.isBroadcast = true;
 			}
 			else
 			{
@@ -366,26 +386,37 @@ void ChangeSet::Apply(const TGridCoords&shardCoords,CoreShardDomainState &target
 			((LogicState&)e->logic.Append()) = *l;
 	}
 
-	foreach (target.entities,e)
-	{
-		e->neighborhood.Clear();
-		foreach (stateAdvertisementOps,op)
+	#ifndef NO_SENSORY
+		foreach (target.entities,e)
 		{
-			if (e->guid != op->origin.guid && Metric::Distance(e->coordinates,op->origin.coordinates) <= Entity::MaxAdvertisementRadius)
+			e->neighborhood.Clear();
+			foreach (stateAdvertisementOps,op)
 			{
-				EntityAppearance&app = e->neighborhood.Append();
-				((EntityID&)app) = op->origin;
-				((EntityShape&)app) = op->shape;
+				if (e->guid != op->origin.guid && Metric::Distance(e->coordinates,op->origin.coordinates) <= Entity::MaxAdvertisementRadius)
+				{
+					EntityAppearance&app = e->neighborhood.Append();
+					((EntityID&)app) = op->origin;
+					((EntityShape&)app) = op->shape;
+				}
 			}
 		}
-	}
 
-	foreach (target.entities,e)
-	{
-		std::sort(e->neighborhood.begin(),e->neighborhood.end());
-		//ByMethod::QuickSort(e->neighborhood);
-	}
+		foreach (target.entities,e)
+		{
+			std::sort(e->neighborhood.begin(),e->neighborhood.end());
+			//ByMethod::QuickSort(e->neighborhood);
+		}
+	#endif
 }
+
+void	ChangeSet::Add(const Entity&e, MessageDispatcher&dispatcher)
+{
+	foreach (dispatcher.messages,msg)
+		messageOps.MoveAppend(*msg).SetOrigin(e); 
+	foreach (dispatcher.broadcasts,msg)
+		broadcastOps.MoveAppend(*msg).SetOrigin(e); 
+}
+
 
 void	ChangeSet::AddSelfMotion(const Entity&e, const TEntityCoords&newCoordinates)
 {
@@ -423,7 +454,9 @@ void	ChangeSet::Filter(const GUID&entityID, ChangeSet&addTo)	const
 	::Filter(entityID,motionOps,addTo.motionOps);
 	::Filter(entityID,messageOps,addTo.messageOps);
 	::Filter(entityID,broadcastOps,addTo.broadcastOps);
-	::Filter(entityID,stateAdvertisementOps,addTo.stateAdvertisementOps);
+	#ifndef NO_SENSORY
+		::Filter(entityID,stateAdvertisementOps,addTo.stateAdvertisementOps);
+	#endif
 }
 
 void LogUnexpected(const String & message, const EntityID & p0, const EntityID * p1)
