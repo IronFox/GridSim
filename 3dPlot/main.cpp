@@ -343,7 +343,7 @@ void Convert(StringRef&_str, float&result)
 {
 	String str = _str;
 	str.FindAndReplace(',','.');
-	ASSERT1__(convert(str.c_str(),str.length(),result),str);
+	ASSERT1__(convert(str.c_str(),str.GetLength(),result),str);
 }
 
 void LoadParameters(const FileSystem::File&f)

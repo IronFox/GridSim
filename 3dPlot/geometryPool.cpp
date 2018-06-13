@@ -52,8 +52,8 @@ index_t				Geometry::Embed(const CGS::Constructor<>::Object&cgs)
 	TSection&section = sectionMap.Set(idx);
 	section.iRange.start = indexData.Count();
 	section.vRange.start = vertexData.Count() / this->vertexBinding.floats_per_vertex;
-	vertexData.Append(lod.vertexData);
-	indexData.Append(lod.triangleIndices);
+	vertexData.AppendAll(lod.vertexData);
+	indexData.AppendAll(lod.triangleIndices);
 	count_t numQuads = lod.quadIndices.Count()/4;
 	for (index_t i = 0; i < numQuads; i++)
 	{
