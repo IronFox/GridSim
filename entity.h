@@ -219,7 +219,7 @@ struct Message
 	}
 
 
-	int			compareTo(const Message&other) const
+	int			CompareTo(const Message&other) const
 	{
 		int cmp = memcmp(&sender,&other.sender,sizeof(sender));
 		if (cmp != 0)
@@ -233,11 +233,11 @@ struct Message
 
 	bool operator==(const Message&other) const
 	{
-		return compareTo(other) == 0;
+		return CompareTo(other) == 0;
 	}
 	bool operator!=(const Message&other) const
 	{
-		return compareTo(other) != 0;
+		return CompareTo(other) != 0;
 	}
 
 	void			Hash(Hasher&hash)	const

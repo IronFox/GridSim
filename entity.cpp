@@ -104,7 +104,7 @@ template <typename Op>
 template <typename Op>
 	static void Merge(Buffer0<Op>&local, const Buffer0<Op>&remote)
 	{
-		local.Append(remote);
+		local.AppendAll(remote);
 	}
 
 template <typename Op>
@@ -210,8 +210,8 @@ void ChangeSet::Apply(const TGridCoords&shardCoords,CoreShardDomainState &target
 		if (p)
 		{
 			p->receiver.Append().data = op->message;
-			p->receiver.last().sender = op->origin;
-			p->receiver.last().senderProcess = op->sourceProcess;
+			p->receiver.Last().sender = op->origin;
+			p->receiver.Last().senderProcess = op->sourceProcess;
 		}
 		else
 		{
@@ -229,8 +229,8 @@ void ChangeSet::Apply(const TGridCoords&shardCoords,CoreShardDomainState &target
 			if (p)
 			{
 				p->receiver.Append().data = op->message;
-				p->receiver.last().sender = op->origin;
-				p->receiver.last().senderProcess = op->sourceProcess;
+				p->receiver.Last().sender = op->origin;
+				p->receiver.Last().senderProcess = op->sourceProcess;
 			}
 			else
 			{

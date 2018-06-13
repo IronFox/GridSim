@@ -592,14 +592,14 @@ bool Simulation::RunIteration(const TExperiment&exp, bool correctionIterationsAf
 	bool brk = false;
 	simulated.ShardParallel([&brk](Grid::Layer&, Shard&s)
 	{
-		if (s.IsFullyAvailable() && s.sds.last().GetOutput()->ic.GetHighestInconsistency() == IC::MaxDepth)
+		if (s.IsFullyAvailable() && s.sds.Last().GetOutput()->ic.GetHighestInconsistency() == IC::MaxDepth)
 			brk = true;
 	});
 
 	count_t inconsistent=0;
 	simulated.ShardIterative([&inconsistent](Grid::Layer&, Shard&s)
 	{
-		if (!s.IsFullyAvailable() || !s.sds.last().GetOutput()->IsFullyConsistent())
+		if (!s.IsFullyAvailable() || !s.sds.Last().GetOutput()->IsFullyConsistent())
 			inconsistent++;
 		else
 		{
@@ -613,9 +613,9 @@ bool Simulation::RunIteration(const TExperiment&exp, bool correctionIterationsAf
 	{
 		simulated.ShardParallel([](Grid::Layer&, Shard&s)
 		{
-			if (!s.IsFullyAvailable() || s.sds.last().GetOutput()->ic.GetHighestInconsistency() == 255)
+			if (!s.IsFullyAvailable() || s.sds.Last().GetOutput()->ic.GetHighestInconsistency() == 255)
 				s.faultFree = true;
-			elif (s.sds.last().GetOutput()->ic.GetHighestInconsistency() == 0)
+			elif (s.sds.Last().GetOutput()->ic.GetHighestInconsistency() == 0)
 				s.faultFree = false;
 		});
 	}

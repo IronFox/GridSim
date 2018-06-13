@@ -47,7 +47,7 @@ namespace Database
 	class CoordGenMap
 	{
 	protected:
-		GenericHashTable<TGridCoords,index_t>	newestSDS;
+		HashTable<TGridCoords,index_t>	newestSDS;
 
 	public:
 		index_t		NewestKnownSDSGeneration(const TGridCoords&coords) const;
@@ -71,7 +71,7 @@ namespace Database
 		{
 			T		entry;
 			index_t	creationTimestep;
-			GenericHashTable<Client*,index_t> requestedByFor;
+			HashTable<Client*,index_t> requestedByFor;
 
 
 
@@ -96,7 +96,7 @@ namespace Database
 	template <typename ID, typename T>
 		struct ClientChannel
 		{
-			GenericHashTable<ID, CacheEntry<T>>	cache;
+			HashTable<ID, CacheEntry<T>>	cache;
 
 			struct TUpload
 			{

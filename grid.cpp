@@ -537,12 +537,12 @@ void Grid::VerifyIntegrity() const
 
 	foreach (layers,l)
 	{
-		GenericHashTable<GUID,TGridCoords>	map;
+		HashTable<GUID,TGridCoords>	map;
 
 		foreach (l->shardGrid,s)
 		{
-			if (s->IsFullyAvailable() && s->sds.last().GetOutput()->IsFullyConsistent())
-				foreach (s->sds.last().GetOutput()->entities,e)
+			if (s->IsFullyAvailable() && s->sds.Last().GetOutput()->IsFullyConsistent())
+				foreach (s->sds.Last().GetOutput()->entities,e)
 					if (!map.SetNew(e->guid,s->gridCoords))
 					{
 						FATAL__("Trying to double-register entity "+ToString(e->guid)+" in "+map.Require(e->guid).ToString()+" and "+s->gridCoords.ToString());
@@ -573,19 +573,19 @@ void Grid::VerifyIntegrity() const
 
 		//foreach (l->shardGrid,s)
 		//{
-		//	foreach (s->sds.last().entities,e)
+		//	foreach (s->sds.Last().entities,e)
 		//		lostEntities.Unset(e->guid);
 		//}
 		//Array<GUID>	ar;
 		//lostEntities.exportKeys(ar);
 		//if (ar.IsNotEmpty())
 		//{
-		//	GUID track = ar.first();
+		//	GUID track = ar.First();
 
 		//	ChangeSet set;
 		//	foreach (l->shardGrid,s)
 		//	{
-		//		s->sds.last().cs.Filter(track,set);
+		//		s->sds.Last().cs.Filter(track,set);
 		//	}
 		//	bool b = true;
 		//}			
@@ -602,7 +602,7 @@ void	Grid::FlagInconsistent(const TEntityCoords&coords)
 	{
 		Shard*s = l->GetShard(c);
 		if (s)
-			s->sds.last().GetOutput()->ic.FlagInconsistent(fc);
+			s->sds.Last().GetOutput()->ic.FlagInconsistent(fc);
 	}
 
 }
@@ -696,7 +696,7 @@ void Grid::FinalizeAll(index_t gen)
 		SDS*other = neighbor->FindGeneration(sds.GetGeneration());
 		if (!other)
 		{
-			if (neighbor->sds.IsEmpty() ||  sds.GetGeneration() < neighbor->sds.first().GetGeneration())
+			if (neighbor->sds.IsEmpty() ||  sds.GetGeneration() < neighbor->sds.First().GetGeneration())
 			{
 				/**
 				This happens if a neighbor has trimmed away fully consistent SDS.
@@ -951,9 +951,9 @@ void		Grid::DispatchUserMessage(const GUID&target, LogicProcess targetProcess, c
 	{
 		foreach (l->shardGrid,s)
 		{
-			s->userMessages.Append().message.resizeAndCopy((const BYTE*)payload,payloadSize);
-			s->userMessages.last().target.guid = target;
-			s->userMessages.last().targetProcess = targetProcess;
+			s->userMessages.Append().message.ResizeAndCopy((const BYTE*)payload,payloadSize);
+			s->userMessages.Last().target.guid = target;
+			s->userMessages.Last().targetProcess = targetProcess;
 		}
 	}
 }
@@ -987,7 +987,7 @@ void Grid::EvolveTop()
 	//	//Rect<> boundaries (0,0,l->shardGrid.GetWidth()-0.001f,l->shardGrid.GetHeight()-0.001f);
 	//	foreach (l->shardGrid,s)
 	//	{
-	//		if (s->sds.last().GetGeneration() == topGeneration)
+	//		if (s->sds.Last().GetGeneration() == topGeneration)
 	//		{
 	//			SDS&newState = s->sds.Append();
 	//			newState.userMessages.adoptData(s->userMessages);
@@ -1001,7 +1001,7 @@ void Grid::EvolveTop()
 			if (!s.IsFullyAvailable())
 				return;
 			s.VerifyIntegrity();
-			if (s.sds.last().GetGeneration() == topGeneration)
+			if (s.sds.Last().GetGeneration() == topGeneration)
 			{
 				SDS&newState = s.sds.Append();
 				newState.userMessages.adoptData(s.userMessages);
@@ -1020,9 +1020,9 @@ void Grid::EvolveTop()
 		{
 			if (!s.IsFullyAvailable())
 				return;
-			if (s.sds.last().GetGeneration() == topGeneration+1)
+			if (s.sds.Last().GetGeneration() == topGeneration+1)
 			{
-				SDS&newState = s.sds.last();
+				SDS&newState = s.sds.Last();
 
 				const index_t gen = topGeneration+1;
 				newState.FinalizeComputation(s,CLOCATION);
@@ -1057,7 +1057,7 @@ void		Grid::Trim()
 	ShardIterative([this](Layer&l, Shard&s)
 	{
 		if (s.IsFullyAvailable())
-			oldestLivingGeneration = M::Min(oldestLivingGeneration,s.sds.first().GetGeneration());
+			oldestLivingGeneration = M::Min(oldestLivingGeneration,s.sds.First().GetGeneration());
 	});
 
 	VerifyIntegrity();

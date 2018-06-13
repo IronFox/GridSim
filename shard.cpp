@@ -292,7 +292,7 @@ void Shard::UpdateOldestRecoverableGeneration()
 	if (IsDead())
 		return;
 
-	oldestRecoverableGeneration = sds.last().GetGeneration();
+	oldestRecoverableGeneration = sds.Last().GetGeneration();
 	foreach (neighbors,n)
 		if (n->shard && !n->shard->IsDead())
 			oldestRecoverableGeneration = M::Min(oldestRecoverableGeneration,n->shard->oldestNonIsolatedInconsistentGeneration);
@@ -311,42 +311,42 @@ SDS * Shard::FindGeneration(index_t gen)
 {
 	if (sds.IsEmpty())
 		return nullptr;
-	if (gen < sds.first().GetGeneration())
+	if (gen < sds.First().GetGeneration())
 	{
 		//FATAL__("System fault");
 		return nullptr;
 	}
-	if (gen > sds.last().GetGeneration())
+	if (gen > sds.Last().GetGeneration())
 		return nullptr;
-	return sds + (gen - sds.first().GetGeneration());
+	return sds + (gen - sds.First().GetGeneration());
 }
 
 const SDS * Shard::FindGeneration(index_t gen) const
 {
 	if (sds.IsEmpty())
 		return nullptr;
-	if (gen < sds.first().GetGeneration())
+	if (gen < sds.First().GetGeneration())
 	{
 		//FATAL__("System fault");
 		return nullptr;
 	}
-	if (gen > sds.last().GetGeneration())
+	if (gen > sds.Last().GetGeneration())
 		return nullptr;
-	return sds + (gen - sds.first().GetGeneration());
+	return sds + (gen - sds.First().GetGeneration());
 }
 
 index_t Shard::FindGenerationIndex(index_t gen) const
 {
 	if (sds.IsEmpty())
 		return InvalidIndex;
-	if (gen < sds.first().GetGeneration())
+	if (gen < sds.First().GetGeneration())
 	{
 		//FATAL__("System fault");
 		return InvalidIndex;
 	}
-	if (gen > sds.last().GetGeneration())
+	if (gen > sds.Last().GetGeneration())
 		return InvalidIndex;
-	return (gen - sds.first().GetGeneration());
+	return (gen - sds.First().GetGeneration());
 }
 
 bool	Shard::CorrectIsolatedSDS(const TBoundaries&boundaries, index_t opIndex, index_t currentTimestep)
@@ -373,15 +373,15 @@ void Shard::CorrectSome(count_t extra, const TBoundaries&boundaries, index_t opI
 	if (sds.Count() > 1)
 	{
 		//RecomputeSDS(1,boundaries,opIndex);
-		rrAt = std::max(sds.first().GetGeneration()+1,rrAt);
+		rrAt = std::max(sds.First().GetGeneration()+1,rrAt);
 		index_t at = FindGenerationIndex(rrAt);
 
 		for (index_t i = 0; i < extra; i++)
 			RecomputeSDS(at + i, boundaries,opIndex,currentTimestep);
 
 		rrAt += extra;
-		if (rrAt > sds.last().GetGeneration())
-			rrAt = sds.first().GetGeneration()+1;
+		if (rrAt > sds.Last().GetGeneration())
+			rrAt = sds.First().GetGeneration()+1;
 	}
 
 }

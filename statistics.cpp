@@ -453,7 +453,7 @@ namespace Statistics
 			};
 
 			StringTable<TMergeCapture>	mergeCaptures;
-			GenericHashTable<TICReductionConfig,TProbabilisticICReduction>	icReductionCaptures;
+			HashTable<TICReductionConfig,TProbabilisticICReduction>	icReductionCaptures;
 		}
 		TExperiment Next()
 		{

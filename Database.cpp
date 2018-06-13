@@ -61,7 +61,7 @@ namespace Database
 						requestedAt=0,
 						clientGeneration=0;
 			};
-			GenericHashTable<Client*,TRequest> requestedByFor;
+			HashTable<Client*,TRequest> requestedByFor;
 
 		public:
 			/**/	Requestable()	{}
