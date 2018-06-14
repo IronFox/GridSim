@@ -9,6 +9,7 @@
 #include <io/cryptographic_hash.h>
 #include <math/object.h>
 #include "metric.h"
+#include <container/sorter.h>
 
 
 inline float2 Frac(const M::TVec2<>&v)	{return float2(M::Frac(v.x),M::Frac(v.y));}
@@ -260,12 +261,44 @@ struct Message
 
 DECLARE_DEFAULT_STRATEGY(Message,Adopt)
 
-class MessageReceiver : public Buffer0<Message>	
+
+/**
+Per-logic receiver container
+*/
+class MessageReceiver
 {
+	typedef Buffer0<Message> List;
+	List			messages;
+	bool			isSorted = true;	//empty is sorted
+
 public:
-	
+	void			swap(MessageReceiver&other)
+	{
+		messages.swap(other.messages);
+		swp(isSorted,other.isSorted);
+	}
+
+	void			Sort();
+	bool			IsSorted() const {return isSorted;}
+	void			Clear() {messages.Clear(); isSorted = true;}
+	Message&		Append() {isSorted = false; return messages.Append();}
+	void			Append(const Message&m) {Append() = m;}
+	void			AppendMove(Message&m) {Append().adoptData(m);}
+	void			Append(Message&&m) {AppendMove(m);}
+	count_t			GetLength() const {return messages.GetLength();}
+
+	bool			operator==(const MessageReceiver&other) const;
+
+	typedef List::const_iterator const_iterator;
+	const_iterator	begin() const {DBG_ASSERT__(isSorted); return messages.begin();}
+	const_iterator	end() const {return messages.end();}
+
 };
 
+/**
+LP and function associated with one entity.
+Each entity can have multiple ones of these
+*/
 class LogicState
 {
 public:
@@ -295,6 +328,9 @@ public:
 	}
 };
 
+/**
+The logic function, state, and incoming messages associated with one logic of one entity
+*/
 class LogicWorkspace : public LogicState
 {
 	typedef LogicState	Super;
@@ -324,6 +360,9 @@ public:
 	}
 };
 
+/**
+Stack of logics assignable to one entity
+*/
 typedef Buffer0<LogicWorkspace,Swap>	LogicCluster;
 
 

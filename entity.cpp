@@ -260,6 +260,9 @@ void ChangeSet::Apply(const TGridCoords&shardCoords,CoreShardDomainState &target
 		}
 
 	}
+	foreach (target.entities,e)
+		foreach (e->logic,l)
+			l->receiver.Sort();
 
 	foreach (motionOps,op)
 	{
@@ -469,4 +472,21 @@ void LogUnexpected(const String & message, const EntityID & p0, const EntityID *
 	messageLog.Truncate(5);
 	messageLogLock.unlock();
 }
+
+
+void			MessageReceiver::Sort()
+{
+	if (isSorted)
+		return;
+	isSorted = true;
+	Sorting::ByMethod::QuickSort(messages);
+}
+
+bool			MessageReceiver::operator==(const MessageReceiver&other) const
+{
+	ASSERT__(isSorted);
+	ASSERT__(other.isSorted);
+	return messages == other.messages;
+}
+
 

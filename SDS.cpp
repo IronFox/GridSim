@@ -734,7 +734,6 @@ void FullShardDomainState::ExecuteLogic(CS & outLocal, index_t generation, const
 			seq3.AppendPOD(l->process);
 			
 			Random rnd(seq3.Finish());
-			Sorting::ByMethod::QuickSort(l->receiver);
 			dispatcher.fromProcess = l->process;
 			l->process(l->state,generation,*e,shape,rnd,l->receiver,dispatcher);
 		}
