@@ -1649,7 +1649,7 @@ void				FullShardDomainState::SynchronizeWithSibling(Shard&myShard,  Shard&sibli
 			CompareMerge(a,b,IC::DepthComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard);
 			CompareMerge(a,b,IC::ExtentComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard);
 			CompareMerge(a,b,IC::PlaneComparator(float3(-0.00575048150,0.00748061994,0.0350000001)),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard);
-			#ifdef MERGE_PROFILE_IS_COMPARATOR_SOURCE
+			#ifdef IC_PROFILE_IS_MERGE_COMPARATOR_SOURCE
 				CompareMerge(a,b,Statistics::ProfileComparator(),s,currentTimestep,*layer,consistentOutput,merged->ic,myShard);
 			#endif
 		}
