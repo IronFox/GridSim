@@ -117,11 +117,15 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 			LogUnexpected("User Message: Unable to find target entity",msg->target);
 		else
 		{
-			auto ws = e->FindLogic(msg->targetProcess);
-			if (!ws)
-				LogUnexpected("User Message: Unable to find target logic process",msg->target);
-			else
-				ws->receiver.Append().data=msg->message;
+			#ifndef ONE_LOGIC_PER_ENTITY
+				auto ws = e->FindLogic(msg->targetProcess);
+				if (!ws)
+					LogUnexpected("User Message: Unable to find target logic process",msg->target);
+				else
+					ws->receiver.Append().data=msg->message;
+			#else
+				e->logic.receiver.Append().data = msg->message;
+			#endif
 		}
 	}
 
@@ -726,8 +730,11 @@ void FullShardDomainState::ExecuteLogic(CS & outLocal, index_t generation, const
 		{
 			bool brk = true;
 		}
-		foreach (e->logic,l)
-		//e->logic.VisitAllEntries([&motion,e,&dispatcher,gridCoords,this,seq2](const void*p, LogicState&state)
+		#ifndef ONE_LOGIC_PER_ENTITY
+			foreach (e->logic,l)
+		#else
+			auto l = &e->logic;
+		#endif
 		{
 			//LogicProcess f = (LogicProcess)p;
 			CRC32::Sequence seq3 = seq2;

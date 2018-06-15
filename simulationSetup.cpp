@@ -59,8 +59,10 @@ namespace Logic
 		{
 			seq.AppendPOD(m->sender);
 			seq.AppendPOD(m->isBroadcast);
-			seq.AppendPOD(m->senderProcess);
-			seq.Append(m->data.GetPointer(),m->data.Length());
+			#ifndef ONE_LOGIC_PER_ENTITY
+				seq.AppendPOD(m->senderProcess);
+			#endif
+			seq.Append(m->data->GetPointer(),m->data->Length());
 		}
 
 		#ifndef NO_SENSORY
@@ -106,8 +108,10 @@ namespace Logic
 		{
 			seq.AppendPOD(m->sender);
 			seq.AppendPOD(m->isBroadcast);
-			seq.AppendPOD(m->senderProcess);
-			seq.Append(m->data.GetPointer(),m->data.Length());
+			#ifndef ONE_LOGIC_PER_ENTITY
+				seq.AppendPOD(m->senderProcess);
+			#endif
+			seq.Append(m->data->GetPointer(),m->data->Length());
 		}
 
 		#ifndef NO_SENSORY

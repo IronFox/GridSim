@@ -260,9 +260,13 @@ void ChangeSet::Apply(const TGridCoords&shardCoords,CoreShardDomainState &target
 				((EntityID&)*e) = op->target;
 				((EntityShape&)*e) = op->shape;
 				e->velocity = op->target.coordinates - op->origin.coordinates;
-				e->logic.Clear();
-				foreach (op->logic,l)
-					((LogicState&)e->logic.Append()) = *l;
+				#ifndef ONE_LOGIC_PER_ENTITY
+					e->logic.Clear();
+					foreach (op->logic,l)
+						((LogicState&)e->logic.Append()) = *l;
+				#else
+					((LogicState&)e->logic) = op->logic;
+				#endif
 
 				//e->coordinates = op->target.coordinates;
 				//e->velocity = op->target.coordinates - op->origin.coordinates;
@@ -301,8 +305,13 @@ void ChangeSet::Apply(const TGridCoords&shardCoords,CoreShardDomainState &target
 			((EntityID&)*e) = op->target;
 			((EntityShape&)*e) = op->shape;
 			e->velocity = op->target.coordinates - op->origin.coordinates;
-			foreach (op->logic,l)
-				((LogicState&)e->logic.Append()) = *l;
+			#ifndef ONE_LOGIC_PER_ENTITY
+				e->logic.Clear();
+				foreach (op->logic,l)
+					((LogicState&)e->logic.Append()) = *l;
+			#else
+				((LogicState&)e->logic) = op->logic;
+			#endif
 		}
 
 	}
@@ -348,13 +357,21 @@ void ChangeSet::Apply(const TGridCoords&shardCoords,CoreShardDomainState &target
 		((EntityID&)*e) = op->target;
 		((EntityShape&)*e) = op->shape;
 
-		foreach (op->logic,l)
-			((LogicState&)e->logic.Append()) = *l;
+		#ifndef ONE_LOGIC_PER_ENTITY
+			foreach (op->logic,l)
+				((LogicState&)e->logic.Append()) = *l;
+		#else
+			((LogicState&)e->logic) = op->logic;
+		#endif
 	}
 
 	foreach (target.entities,e)
-		foreach (e->logic,l)
-			l->receiver.Clear();
+		#ifndef ONE_LOGIC_PER_ENTITY
+			foreach (e->logic,l)
+				l->receiver.Clear();
+		#else
+			e->logic.receiver.Clear();
+		#endif
 	foreach (messageOps,op)
 	{
 		Entity*e = target.entities.FindEntity(op->target.guid);
@@ -370,13 +387,16 @@ void ChangeSet::Apply(const TGridCoords&shardCoords,CoreShardDomainState &target
 		}
 		if (!Metric::CheckDistance("Message",*e,op->origin,Op::Message::MaxRange))
 			continue;
+		#ifndef ONE_LOGIC_PER_ENTITY
 		auto*p = e->FindLogic(op->targetProcess);
 		if (p)
 		{
 			auto&m = p->receiver.Append();
 			m.data = op->message;
 			m.sender = op->origin;
-			m.senderProcess = op->sourceProcess;
+			#ifndef ONE_LOGIC_PER_ENTITY
+				m.senderProcess = op->sourceProcess;
+			#endif
 			m.isBroadcast = false;
 		}
 		else
@@ -384,6 +404,16 @@ void ChangeSet::Apply(const TGridCoords&shardCoords,CoreShardDomainState &target
 			LogUnexpected("Message: Target LP not found: "+String(op->targetProcess),op->target);
 			continue;
 		}
+		#else
+
+			{
+				auto&m = e->logic.receiver.Append();
+				m.data = op->message;
+				m.sender = op->origin;
+				m.isBroadcast = false;
+			}
+
+		#endif
 	}
 	foreach (broadcastOps,op)
 	{
@@ -391,6 +421,7 @@ void ChangeSet::Apply(const TGridCoords&shardCoords,CoreShardDomainState &target
 		{
 			if (Metric::Distance(e->coordinates,op->origin.coordinates) > Op::Broadcast::MaxRange)
 				continue;
+			#ifndef ONE_LOGIC_PER_ENTITY
 			auto*p = e->FindLogic(op->targetProcess);
 			if (p)
 			{
@@ -405,12 +436,26 @@ void ChangeSet::Apply(const TGridCoords&shardCoords,CoreShardDomainState &target
 				//LogUnexpected("Message: Target LP not found: "+String(op->targetProcess),op->target);
 				continue;
 			}
+			#else
+
+			{
+				auto&m = e->logic.receiver.Append();
+				m.data = op->message;
+				m.sender = op->origin;
+				m.isBroadcast = true;
+			}
+
+			#endif
 		}
 
 	}
 	foreach (target.entities,e)
-		foreach (e->logic,l)
-			l->receiver.Sort();
+		#ifndef ONE_LOGIC_PER_ENTITY
+			foreach (e->logic,l)
+				l->receiver.Sort();
+		#else
+			e->logic.receiver.Sort();
+		#endif
 
 
 
@@ -455,14 +500,18 @@ void	ChangeSet::AddSelfMotion(const Entity&e, const TEntityCoords&newCoordinates
 	move.target.coordinates = newCoordinates;
 	if (move.origin.GetShardCoords() != move.target.GetShardCoords())
 	{
-		move.logic.SetSize(e.logic.Count());
-		auto*at = move.logic.pointer();
-		foreach (e.logic,l)
-		{
-			*at = *l;
-			at++;
-		};
-		ASSERT_CONCLUSION(move.logic,at);
+		#ifndef ONE_LOGIC_PER_ENTITY
+			move.logic.SetSize(e.logic.Count());
+			auto*at = move.logic.pointer();
+			foreach (e.logic,l)
+			{
+				*at = *l;
+				at++;
+			};
+			ASSERT_CONCLUSION(move.logic,at);
+		#else
+			move.logic = e.logic;
+		#endif
 	}
 	Add(e,move);
 }

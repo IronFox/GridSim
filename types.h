@@ -22,6 +22,10 @@ using namespace DeltaWorks;
 Replaces MessageData with a custom class to accumulate contained data
 */
 //#define CAPTURE_MESSAGE_VOLUME
+
+#define ONE_LOGIC_PER_ENTITY
+
+
 #if defined PERFORMANCE_TEST_TIMESTEPS && !defined RECOVERY_TEST
 	#define RECOVERY_TEST
 #endif

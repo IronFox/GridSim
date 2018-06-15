@@ -315,14 +315,18 @@ typedef void (*LogicProcess)(Array<BYTE>&serialState, count_t generation, const 
 struct Message
 {
 	EntityID		sender;
+	#ifndef ONE_LOGIC_PER_ENTITY
 	LogicProcess	senderProcess=nullptr;
+	#endif
 	PMessageData	data;
 	bool			isBroadcast = false;
 
 	void			adoptData(Message&msg)
 	{
 		sender = msg.sender;
-		senderProcess = msg.senderProcess;
+		#ifndef ONE_LOGIC_PER_ENTITY
+			senderProcess = msg.senderProcess;
+		#endif
 		data.swap(msg.data);
 		isBroadcast = msg.isBroadcast;
 	}
@@ -333,10 +337,12 @@ struct Message
 		int cmp = memcmp(&sender,&other.sender,sizeof(sender));
 		if (cmp != 0)
 			return cmp;
-		if (senderProcess < other.senderProcess)
-			return -1;
-		if (senderProcess > other.senderProcess)
-			return 1;
+		#ifndef ONE_LOGIC_PER_ENTITY
+			if (senderProcess < other.senderProcess)
+				return -1;
+			if (senderProcess > other.senderProcess)
+				return 1;
+		#endif
 		if (isBroadcast != other.isBroadcast)
 			return isBroadcast ? 1 : -1;
 		if (data == other.data)
@@ -356,9 +362,11 @@ struct Message
 	void			Hash(Hasher&hash)	const
 	{
 		hash.AppendPOD(sender);
-		hash.AppendPOD(senderProcess);
+		#ifndef ONE_LOGIC_PER_ENTITY
+			hash.AppendPOD(senderProcess);
+		#endif
 		hash.AppendPOD(isBroadcast);
-		hash.Append(data);
+		hash.Append(*data);
 	}
 };
 
@@ -463,10 +471,12 @@ public:
 	}
 };
 
-/**
-Stack of logics assignable to one entity
-*/
-typedef Buffer0<LogicWorkspace,Swap>	LogicCluster;
+#ifndef ONE_LOGIC_PER_ENTITY
+	/**
+	Stack of logics assignable to one entity
+	*/
+	typedef Buffer0<LogicWorkspace,Swap>	LogicCluster;
+#endif
 
 
 /**
@@ -484,7 +494,11 @@ struct Entity : public EntityAppearance
 	#ifndef NO_SENSORY
 		EntityNeighborhood	neighborhood;	//accumulated during CS/RCS evaluation
 	#endif
-	LogicCluster				logic;
+	#ifndef ONE_LOGIC_PER_ENTITY
+		LogicCluster				logic;
+	#else
+		LogicWorkspace				logic;
+	#endif
 
 	void			swap(Entity&other)
 	{
@@ -498,25 +512,39 @@ struct Entity : public EntityAppearance
 
 	LogicWorkspace*				FindLogic(LogicProcess p)
 	{
-		foreach (logic,l)
-			if (l->process == p)
-				return l;
+		#ifndef ONE_LOGIC_PER_ENTITY
+			foreach (logic,l)
+				if (l->process == p)
+					return l;
+		#else
+			if (logic.process == p)
+				return &logic;
+		#endif
 		return nullptr;
 	}
 
 	const LogicWorkspace*		FindLogic(LogicProcess p) const
 	{
-		foreach (logic,l)
-			if (l->process == p)
-				return l;
+		#ifndef ONE_LOGIC_PER_ENTITY
+			foreach (logic,l)
+				if (l->process == p)
+					return l;
+		#else
+			if (logic.process == p)
+				return &logic;
+		#endif
 		return nullptr;
 	}
 
 	void						AddLogic(LogicProcess p)
 	{
-		if (FindLogic(p))
-			return;
-		logic.Append().process = p;
+		#ifndef ONE_LOGIC_PER_ENTITY
+			if (FindLogic(p))
+				return;
+			logic.Append().process = p;
+		#else
+			logic.process = p;
+		#endif
 	}
 
 	void			Hash(Hasher&hash)	const
@@ -527,8 +555,12 @@ struct Entity : public EntityAppearance
 			foreach (neighborhood,n)
 				n->Hash(hash);
 		#endif
-		foreach (logic,l)
-			l->Hash(hash);
+		#ifndef ONE_LOGIC_PER_ENTITY
+			foreach (logic,l)
+				l->Hash(hash);
+		#else
+			logic.Hash(hash);
+		#endif
 	}
 
 
@@ -600,7 +632,11 @@ namespace Op
 	{
 	public:
 		static const float	MaxRange;
-		Array<LogicState>	logic;
+		#ifndef ONE_LOGIC_PER_ENTITY
+			Array<LogicState>	logic;
+		#else
+			LogicState		logic;
+		#endif
 		EntityShape			shape;
 
 		void				swap(Instantiation&other)	{Base::swap(other); Targeted::swap(other); logic.swap(other.logic); swp(shape,other.shape);}
@@ -617,39 +653,62 @@ namespace Op
 
 	inline bool MessagesEqual(const PMessageData&a, const PMessageData&b) {return a == b || (*a) == (*b);}
 
-	class Message : public Base, public Targeted
+
+	class BaseMessage : public Base
+	{
+	public:
+		#ifndef ONE_LOGIC_PER_ENTITY
+			LogicProcess	targetProcess,sourceProcess;
+		#endif
+		PMessageData		message;
+
+		void				swap(BaseMessage&other)
+							{
+									Base::swap(other); 
+									#ifndef ONE_LOGIC_PER_ENTITY
+										swp(targetProcess,other.targetProcess);
+										swp(sourceProcess,other.sourceProcess);
+									#endif
+									message.swap(other.message);
+							}
+		bool				operator==(const BaseMessage&other) const
+		{
+			return Base::operator==(other) 
+				#ifndef ONE_LOGIC_PER_ENTITY
+					&& targetProcess == other.targetProcess 
+					&& sourceProcess == other.sourceProcess 
+				#endif
+				&& MessagesEqual(message, other.message);
+		}
+		bool				operator!=(const BaseMessage&other) const {return !operator==(other);}
+
+	};
+
+	class Message : public BaseMessage, public Targeted
 	{
 	public:
 		static const float	MaxRange;
-		LogicProcess		targetProcess,sourceProcess;
-		PMessageData		message;
 
-		void				swap(Message&other)	{Base::swap(other); 
+		void				swap(Message&other)
+							{
+									BaseMessage::swap(other); 
 									Targeted::swap(other);
-									swp(targetProcess,other.targetProcess);
-									swp(sourceProcess,other.sourceProcess);
-									message.swap(other.message);}
-		bool				operator==(const Message&other) const {return Base::operator==(other) && Targeted::operator==(other) && targetProcess == other.targetProcess && sourceProcess == other.sourceProcess && MessagesEqual(message, other.message);}
+							}
+
+		bool				operator==(const Message&other) const
+		{
+			return BaseMessage::operator==(other) 
+				&& Targeted::operator==(other);
+		}
 		bool				operator!=(const Message&other) const {return !operator==(other);}
 	};
 
-	class Broadcast : public Base
+	class Broadcast : public BaseMessage
 	{
 	public:
 		static const float	MaxRange;
 		typedef TTrue		DispatchRadially;
-		LogicProcess		targetProcess,sourceProcess;
-		PMessageData		message;
-		
-		void				swap(Broadcast&other)
-							{
-								Base::swap(other); 
-								swp(targetProcess,other.targetProcess);
-								swp(sourceProcess,other.sourceProcess);
-								message.swap(other.message);
-							}
-		bool				operator==(const Broadcast&other) const {return Base::operator==(other) && targetProcess == other.targetProcess && sourceProcess == other.sourceProcess && MessagesEqual(message, other.message);}
-		bool				operator!=(const Broadcast&other) const {return !operator==(other);}
+	
 	};
 
 	#ifndef NO_SENSORY
@@ -713,18 +772,22 @@ public:
 	{
 		Op::Message&m = messages.Append();
 		m.message = std::move(msg);
-		m.sourceProcess = fromProcess;
+		#ifndef ONE_LOGIC_PER_ENTITY
+			m.sourceProcess = fromProcess;
+			m.targetProcess = targetProcess;
+		#endif
 		m.target = targetEntity;
-		m.targetProcess = targetProcess;
 	};
 
 	void	DispatchCopy(const EntityID&targetEntity, LogicProcess targetProcess, const PMessageData&msg)
 	{
 		Op::Message&m = messages.Append();
 		m.message = msg;
-		m.sourceProcess = fromProcess;
+		#ifndef ONE_LOGIC_PER_ENTITY
+			m.sourceProcess = fromProcess;
+			m.targetProcess = targetProcess;
+		#endif
 		m.target = targetEntity;
-		m.targetProcess = targetProcess;
 	};
 
 	template <typename T>
@@ -732,26 +795,31 @@ public:
 	{
 		auto&m = broadcasts.Append();
 		
-		m.sourceProcess = fromProcess;
-		m.targetProcess = targetProcess;
-		m.message.SetSize(sizeof(T));
-		memcpy(m.message.pointer(),&msg,sizeof(T));
+		#ifndef ONE_LOGIC_PER_ENTITY
+			m.sourceProcess = fromProcess;
+			m.targetProcess = targetProcess;
+		#endif
+		m.message.reset(new MessageData((const BYTE*)&msg,sizeof(msg)));
 	}
 
-	void	BroadcastFleeting(LogicProcess targetProcess, MessageData&&msg)
+	void	BroadcastFleeting(LogicProcess targetProcess, PMessageData&&msg)
 	{
 		auto&m = broadcasts.Append();
-		m.message.adoptData(msg);
-		m.sourceProcess = fromProcess;
-		m.targetProcess = targetProcess;
+		m.message = std::move(msg);
+		#ifndef ONE_LOGIC_PER_ENTITY
+			m.sourceProcess = fromProcess;
+			m.targetProcess = targetProcess;
+		#endif
 	};
 
-	void	BroadcastCopy(LogicProcess targetProcess, const MessageData&msg)
+	void	BroadcastCopy(LogicProcess targetProcess, const PMessageData&msg)
 	{
 		auto&m = broadcasts.Append();
 		m.message = msg;
-		m.sourceProcess = fromProcess;
-		m.targetProcess = targetProcess;
+		#ifndef ONE_LOGIC_PER_ENTITY
+			m.sourceProcess = fromProcess;
+			m.targetProcess = targetProcess;
+		#endif
 	};
 
 };
