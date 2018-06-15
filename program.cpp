@@ -579,6 +579,9 @@ bool	Loop()
 			<< "SyncOps "<<currentSetup.maxSiblingSyncOperations << nl
 			<< "SyncDelay "<<currentSetup.siblingSyncDelay << nl
 			<< "Memory allocated (MB): "<<	System::getMemoryConsumption()/1024/1024<<"/"<<(System::getPhysicalMemory()>>20)<<nl
+			#ifdef CAPTURE_MESSAGE_VOLUME
+				<< "In messages (MB): "<< MessageData::totalMessageVolume/1024/1024<<" reachable "<< testSimulation.GetReachableMessageVolume()/1024/1024 <<nl 
+			#endif
 
 			#if 0
 			<< /*testSimulation.CountCurrentEntities()*/accumulation<<"/"<< simAt << nl 
