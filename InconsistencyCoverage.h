@@ -4,6 +4,7 @@
 #include "types.h"
 #include <math/vclasses.h>
 #include "BitArray.h"
+#include "EntityStorage.h"
 
 class InconsistencyCoverage
 {
@@ -376,12 +377,40 @@ public:
 	struct TCell
 	{
 		Hasher::HashContainer		prev,next;
-		count_t						numEntities = 0;
+		#ifdef ENTITIES_IN_IC_GRID
+			EntityStorage			entities;
+		#else
+			count_t					numEntities = 0;
+		#endif
 		TGridCoords					originShard;
 		GridIndex					originCell;
+
+		count_t						CountEntities() const
+		{
+			#ifdef ENTITIES_IN_IC_GRID
+				return entities.Count();
+			#else
+				return numEntities;
+			#endif
+		}
+
+		bool			EntitiesMatch(const TCell&other) const
+		{
+			#ifdef ENTITIES_IN_IC_GRID
+				return entities == other.entities;
+			#else
+				return numEntities == other.numEntities;
+			#endif
+
+		}
+
 	};
 
-	typedef GridArray<TCell,POD>	TGrid;
+	#ifdef ENTITIES_IN_IC_GRID
+		typedef GridArray<TCell>		TGrid;
+	#else
+		typedef GridArray<TCell,POD>	TGrid;
+	#endif
 
 	static const count_t			Resolution=IC::Resolution;	//must match, unfortunately, so that merges can reconstruct a consistent state if ICs do not overlap
 	TGrid		grid;
@@ -454,7 +483,30 @@ public:
 	public:
 		Hasher			hasher;
 		Hasher::HashContainer	prev;
-		count_t			numEntities=0;
+		#ifdef ENTITIES_IN_IC_GRID
+			EntityStorage		entities;
+		#else
+			count_t				numEntities=0;
+		#endif
+
+		void		CopyTo(HGrid::TCell&target) const
+		{
+			#ifdef ENTITIES_IN_IC_GRID
+				target.entities = entities;
+			#else
+				target.numEntities = numEntities;
+			#endif
+			target.prev = prev;
+		}
+		void						IncludeEntity(const Entity&e)
+		{
+			#ifdef ENTITIES_IN_IC_GRID
+				entities.CreateEntity(e);
+			#else
+				numEntities++;
+			#endif
+			e.Hash(hasher);
+		}
 	};
 	typedef GridArray<Cell>	TGrid;
 

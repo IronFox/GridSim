@@ -101,11 +101,10 @@ void		HashProcessGrid::Finish(HGrid&h)
 	{
 		auto&in = grid[i];
 		auto&out = h.grid[i];
-		out.prev = in.prev;
 		in.hasher.Finish(out.next);
 		out.originShard = this->localOffset;
 		out.originCell = grid.ToVectorIndex(i);
-		out.numEntities = in.numEntities;
+		in.CopyTo(out);
 	});
 
 }
@@ -115,8 +114,7 @@ void		HashProcessGrid::Include(const EntityStorage&store)
 	foreach (store, e)
 	{
 		auto&cell = GetCellOfW(e->coordinates);
-		e->Hash(cell.hasher);
-		cell.numEntities++;
+		cell.IncludeEntity(*e);
 	}
 }
 
@@ -946,10 +944,11 @@ InconsistencyCoverage::TBadness	InconsistencyCoverage::GetTotalBadness() const
 					continue;
 				}
 
-				if (as->numEntities != bs->numEntities)
+				if (!as->EntitiesMatch(*bs))
 					return false;
-				if (as->numEntities < minEntityCount)
+				if (as->CountEntities() < minEntityCount)
 					return false;
+
 				if (as->next != bs->next)
 					return false;
 			}
@@ -999,9 +998,9 @@ InconsistencyCoverage::TBadness	InconsistencyCoverage::GetTotalBadness() const
 	const auto&as = a.core.GetCellOfL(cellCoords);
 	const auto&bs = b.core.GetCellOfL(cellCoords);
 
-	if (as.numEntities != bs.numEntities)
+	if (!as.EntitiesMatch(bs))
 		return false;
-	if (as.numEntities < minEntityCount)
+	if (as.CountEntities() < minEntityCount)
 		return false;
 
 	return as.next == bs.next;
