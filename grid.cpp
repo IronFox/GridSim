@@ -947,13 +947,16 @@ void		Grid::AssertIsRecovering()
 
 void		Grid::DispatchUserMessage(const GUID&target, LogicProcess targetProcess, const void*payload, size_t payloadSize)
 {
+	PMessageData msg {new MessageData((const BYTE*)payload,payloadSize)};
 	foreach (layers,l)
 	{
 		foreach (l->shardGrid,s)
 		{
-			s->userMessages.Append().message.ResizeAndCopy((const BYTE*)payload,payloadSize);
+			s->userMessages.Append().message = msg;
 			s->userMessages.Last().target.guid = target;
-			s->userMessages.Last().targetProcess = targetProcess;
+			#ifndef ONE_LOGIC_PER_ENTITY
+				s->userMessages.Last().targetProcess = targetProcess;
+			#endif
 		}
 	}
 }
