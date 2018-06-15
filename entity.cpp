@@ -3,7 +3,7 @@
 #include "SDS.h"
 #include "metric.h"
 
-/*static*/ const float Entity::MaxInfluenceRadius = 0.125f,
+/*static*/ const float Entity::MaxInfluenceRadius = 1.f / InconsistencyCoverage::Resolution,
 			#ifndef NO_SENSORY
 				Entity::MaxAdvertisementRadius = Entity::MaxInfluenceRadius/2,
 				Entity::MaxMotionDistance = Entity::MaxInfluenceRadius/2,
@@ -198,71 +198,31 @@ bool	ChangeSet::operator==(const ChangeSet&other)	const
 
 void ChangeSet::Apply(const TGridCoords&shardCoords,CoreShardDomainState &target) const
 {
+	/*
+		numErrors += motions.Execute(pool, ctx);
+	numErrors += pool.ResolveConflictFreeOperations(ic, ctx);
+	numErrors += removals.Execute(pool, ctx);
+	//numErrors += pool.ResolveConflictFreeOperations(ic);	//removals don't do conflicting stuff (one removes first, and all others fail, but entity is removed regardless, so all win)
+	numErrors += instantiations.Execute(pool, ctx);
+	numErrors += pool.ResolveConflictFreeOperations(ic,ctx);
+#if STATE_ADV
+	if (advertisements.Size > 0)
+		pool.RequireTree();
+	numErrors += advertisements.Execute(pool, ic, ctx);
+#endif
+	numErrors += messages.Execute(pool, ctx);
+	if (broadcasts.Size > 0)
+		pool.RequireTree();
+	numErrors += broadcasts.Execute(pool, ctx);
+	*/
+
+
 	const auto i2 = M::Sqr(Entity::MaxInfluenceRadius);
 	const auto m2 = M::Sqr(Entity::MaxMotionDistance);
 	#ifndef NO_SENSORY
 		const auto a2 = M::Sqr(Entity::MaxAdvertisementRadius);
 	#endif
 
-	foreach (target.entities,e)
-		foreach (e->logic,l)
-			l->receiver.Clear();
-	foreach (messageOps,op)
-	{
-		Entity*e = target.entities.FindEntity(op->target.guid);
-		if (!e)
-		{
-			LogUnexpected("Message: Target entity not found",op->target);
-			continue;
-		}
-		if (!Vec::equal(op->target.coordinates,e->coordinates))
-		{
-			LogUnexpected("Message: OP Target Mismatch",op->target,e);
-			continue;
-		}
-		if (!Metric::CheckDistance("Message",*e,op->origin,Op::Message::MaxRange))
-			continue;
-		auto*p = e->FindLogic(op->targetProcess);
-		if (p)
-		{
-			auto&m = p->receiver.Append();
-			m.data = op->message;
-			m.sender = op->origin;
-			m.senderProcess = op->sourceProcess;
-			m.isBroadcast = false;
-		}
-		else
-		{
-			LogUnexpected("Message: Target LP not found: "+String(op->targetProcess),op->target);
-			continue;
-		}
-	}
-	foreach (broadcastOps,op)
-	{
-		foreach (target.entities,e)
-		{
-			if (Metric::Distance(e->coordinates,op->origin.coordinates) > Op::Broadcast::MaxRange)
-				continue;
-			auto*p = e->FindLogic(op->targetProcess);
-			if (p)
-			{
-				auto&m = p->receiver.Append();
-				m.data = op->message;
-				m.sender = op->origin;
-				m.senderProcess = op->sourceProcess;
-				m.isBroadcast = true;
-			}
-			else
-			{
-				//LogUnexpected("Message: Target LP not found: "+String(op->targetProcess),op->target);
-				continue;
-			}
-		}
-
-	}
-	foreach (target.entities,e)
-		foreach (e->logic,l)
-			l->receiver.Sort();
 
 	foreach (motionOps,op)
 	{
@@ -388,6 +348,68 @@ void ChangeSet::Apply(const TGridCoords&shardCoords,CoreShardDomainState &target
 		foreach (op->logic,l)
 			((LogicState&)e->logic.Append()) = *l;
 	}
+
+	foreach (target.entities,e)
+		foreach (e->logic,l)
+			l->receiver.Clear();
+	foreach (messageOps,op)
+	{
+		Entity*e = target.entities.FindEntity(op->target.guid);
+		if (!e)
+		{
+			LogUnexpected("Message: Target entity not found",op->target);
+			continue;
+		}
+		if (!Vec::equal(op->target.coordinates,e->coordinates))
+		{
+			LogUnexpected("Message: OP Target Mismatch",op->target,e);
+			continue;
+		}
+		if (!Metric::CheckDistance("Message",*e,op->origin,Op::Message::MaxRange))
+			continue;
+		auto*p = e->FindLogic(op->targetProcess);
+		if (p)
+		{
+			auto&m = p->receiver.Append();
+			m.data = op->message;
+			m.sender = op->origin;
+			m.senderProcess = op->sourceProcess;
+			m.isBroadcast = false;
+		}
+		else
+		{
+			LogUnexpected("Message: Target LP not found: "+String(op->targetProcess),op->target);
+			continue;
+		}
+	}
+	foreach (broadcastOps,op)
+	{
+		foreach (target.entities,e)
+		{
+			if (Metric::Distance(e->coordinates,op->origin.coordinates) > Op::Broadcast::MaxRange)
+				continue;
+			auto*p = e->FindLogic(op->targetProcess);
+			if (p)
+			{
+				auto&m = p->receiver.Append();
+				m.data = op->message;
+				m.sender = op->origin;
+				m.senderProcess = op->sourceProcess;
+				m.isBroadcast = true;
+			}
+			else
+			{
+				//LogUnexpected("Message: Target LP not found: "+String(op->targetProcess),op->target);
+				continue;
+			}
+		}
+
+	}
+	foreach (target.entities,e)
+		foreach (e->logic,l)
+			l->receiver.Sort();
+
+
 
 	#ifndef NO_SENSORY
 		foreach (target.entities,e)
