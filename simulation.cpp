@@ -566,11 +566,11 @@ bool Simulation::RunIteration(const TExperiment&exp, bool correctionIterationsAf
 	//	simulated.TrimTo(simulated.topGeneration);
 
 	Database::AdvanceTimestep(simulated.topGeneration);
-	#ifdef D3
-		bool cont = (simulated.topGeneration - simulated.oldestLivingGeneration < 20);
-	#else
-		bool cont = (simulated.topGeneration - simulated.oldestLivingGeneration < 50);
-	#endif
+//	#ifdef D3
+	bool cont = (simulated.topGeneration - simulated.oldestLivingGeneration < 20);
+	//#else
+	//	bool cont = (simulated.topGeneration - simulated.oldestLivingGeneration < 50);
+	//#endif
 
 	//if (!cont && simulated.layers.Count() == 2)
 	//{
