@@ -997,7 +997,7 @@ namespace Statistics
 
 	void	CaptureInconsistency(const IC&ic, const EntityStorage&inconsistent, const EntityStorage&consistent, const TGridCoords&shardOffset)
 	{
-		#ifdef MERGE_PROFILE_IS_COMPARATOR_SOURCE
+		#ifdef IC_PROFILE_IS_MERGE_COMPARATOR_SOURCE
 			return;	//disabled while comparator sampling is active, so we don't have to lock in ProfileComparator::GetBadness()
 		#endif
 		Array2D<ICInclusionCell> inclusion = Array2D<ICInclusionCell>(count_t(IC::MaxDepth)+1, count_t(IC::MaxDistance)+1);
@@ -1556,7 +1556,7 @@ namespace Statistics
 	void ExportMergeResults(const TExperiment&ex)
 	{
 		using namespace Details;
-		#ifndef MERGE_PROFILE_IS_COMPARATOR_SOURCE
+		#ifndef IC_PROFILE_IS_MERGE_COMPARATOR_SOURCE
 		{
 			StringFile file;
 			file.Create(Filename(ex,"icProfile","csv"));
@@ -1964,6 +1964,7 @@ namespace Statistics
 	}
 
 
+	#ifdef IC_PROFILE_IS_MERGE_COMPARATOR_SOURCE
 	float	ProfileComparator::GetBadness(const IC::TSample&ics) const
 	{
 		if (ics.IsConsistent())
@@ -1973,6 +1974,6 @@ namespace Statistics
 		const ICCell&cell = icProfile.Get(ics.depth,ics.spatialDistance);
 		return cell.inconsistentSamples > 0 ? cell.omegaSum / cell.inconsistentSamples : -1;
 	}
-
+	#endif
 }
 
