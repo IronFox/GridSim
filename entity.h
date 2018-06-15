@@ -164,8 +164,109 @@ struct EntityAppearance : public EntityID, public EntityShape, public Collider, 
 
 void	LogUnexpected(const String&message,const EntityID&p0, const EntityID*p1=nullptr);
 
+#ifdef CAPTURE_MESSAGE_VOLUME
+	class MessageData
+	{
+		Array<BYTE> payload;
 
-typedef Array<BYTE>	MessageData;
+	public:
+		static std::atomic<size_t>	totalMessageVolume;
+
+		/**/		MessageData()
+		{}
+
+		/**/		MessageData(const void*data, size_t dataSize):payload((const BYTE*)data,dataSize)
+		{
+			totalMessageVolume += dataSize;
+		}
+
+		/**/		MessageData(const MessageData&other):payload(other.payload)
+		{
+			totalMessageVolume += payload.Count();
+		}
+
+		virtual		~MessageData()
+		{
+			totalMessageVolume -= payload.Count();
+		}
+
+		void	ResizeAndCopy(const BYTE*data, size_t numBytes)
+		{
+			totalMessageVolume -= payload.Count();
+			payload.ResizeAndCopy(data,numBytes);
+			totalMessageVolume += payload.Count();
+		}
+
+		template <typename T>
+		void	SetPOD(const T&item)
+		{
+			ResizeAndCopy((const BYTE*)&item,sizeof(T));
+		}
+
+		const BYTE* GetPointer() const
+		{
+			return payload.GetPointer();
+		}
+
+		size_t	Length() const {return payload.Length();}
+
+		void	SetSize(size_t newSize)
+		{
+			if (newSize == payload.Length())
+				return;
+
+			totalMessageVolume -= payload.Count();
+			payload.SetSize(newSize);
+			totalMessageVolume += payload.Count();
+		}
+
+		void	operator=(const MessageData&data)
+		{
+			totalMessageVolume -= payload.Count();
+			payload = data.payload;
+			totalMessageVolume += payload.Count();
+		}
+
+		void	adoptData(MessageData&other)
+		{
+			totalMessageVolume -= payload.Count();
+			payload.adoptData(other.payload);
+			//no other change
+		}
+
+		int		CompareTo(const MessageData&other, int comparator(const BYTE&,const BYTE&)) const
+		{
+			return payload.CompareTo(other.payload,comparator);
+		}
+
+		operator const ArrayRef<BYTE>&() const
+		{
+			return payload;
+		}
+
+		void	swap(MessageData&other)
+		{
+			payload.swap(other.payload);
+		}
+
+		bool	operator==(const MessageData&other) const
+		{
+			return payload == other.payload;
+		}
+
+		bool	operator!=(const MessageData&other) const
+		{
+			return payload != other.payload;
+		}
+
+	};
+#else
+	typedef Array<BYTE>	MessageData;
+#endif
+
+typedef std::shared_ptr<MessageData>	PMessageData;
+
+//typedef Array<BYTE>	MessageData;
 
 
 
@@ -215,14 +316,14 @@ struct Message
 {
 	EntityID		sender;
 	LogicProcess	senderProcess=nullptr;
-	MessageData		data;
+	PMessageData	data;
 	bool			isBroadcast = false;
 
 	void			adoptData(Message&msg)
 	{
 		sender = msg.sender;
 		senderProcess = msg.senderProcess;
-		data.adoptData(msg.data);
+		data.swap(msg.data);
 		isBroadcast = msg.isBroadcast;
 	}
 
@@ -238,7 +339,9 @@ struct Message
 			return 1;
 		if (isBroadcast != other.isBroadcast)
 			return isBroadcast ? 1 : -1;
-		return data.CompareTo(other.data,Compare::Primitives<BYTE>);
+		if (data == other.data)
+			return 0;
+		return data->CompareTo(*other.data,Compare::Primitives<BYTE>);
 	}
 
 	bool operator==(const Message&other) const
@@ -512,19 +615,21 @@ namespace Op
 		typedef TTrue		DispatchToOrigin;
 	};
 
+	inline bool MessagesEqual(const PMessageData&a, const PMessageData&b) {return a == b || (*a) == (*b);}
+
 	class Message : public Base, public Targeted
 	{
 	public:
 		static const float	MaxRange;
 		LogicProcess		targetProcess,sourceProcess;
-		MessageData			message;
+		PMessageData		message;
 
 		void				swap(Message&other)	{Base::swap(other); 
 									Targeted::swap(other);
 									swp(targetProcess,other.targetProcess);
 									swp(sourceProcess,other.sourceProcess);
 									message.swap(other.message);}
-		bool				operator==(const Message&other) const {return Base::operator==(other) && Targeted::operator==(other) && targetProcess == other.targetProcess && sourceProcess == other.sourceProcess && message == other.message;}
+		bool				operator==(const Message&other) const {return Base::operator==(other) && Targeted::operator==(other) && targetProcess == other.targetProcess && sourceProcess == other.sourceProcess && MessagesEqual(message, other.message);}
 		bool				operator!=(const Message&other) const {return !operator==(other);}
 	};
 
@@ -534,7 +639,7 @@ namespace Op
 		static const float	MaxRange;
 		typedef TTrue		DispatchRadially;
 		LogicProcess		targetProcess,sourceProcess;
-		MessageData			message;
+		PMessageData		message;
 		
 		void				swap(Broadcast&other)
 							{
@@ -543,7 +648,7 @@ namespace Op
 								swp(sourceProcess,other.sourceProcess);
 								message.swap(other.message);
 							}
-		bool				operator==(const Broadcast&other) const {return Base::operator==(other) && targetProcess == other.targetProcess && sourceProcess == other.sourceProcess && message == other.message;}
+		bool				operator==(const Broadcast&other) const {return Base::operator==(other) && targetProcess == other.targetProcess && sourceProcess == other.sourceProcess && MessagesEqual(message, other.message);}
 		bool				operator!=(const Broadcast&other) const {return !operator==(other);}
 	};
 
@@ -604,16 +709,16 @@ public:
 		memcpy(m.message.pointer(),&msg,sizeof(T));
 	}
 
-	void	DispatchFleeting(const EntityID&targetEntity, LogicProcess targetProcess, MessageData&&msg)
+	void	DispatchFleeting(const EntityID&targetEntity, LogicProcess targetProcess, PMessageData&&msg)
 	{
 		Op::Message&m = messages.Append();
-		m.message.adoptData(msg);
+		m.message = std::move(msg);
 		m.sourceProcess = fromProcess;
 		m.target = targetEntity;
 		m.targetProcess = targetProcess;
 	};
 
-	void	DispatchCopy(const EntityID&targetEntity, LogicProcess targetProcess, const MessageData&msg)
+	void	DispatchCopy(const EntityID&targetEntity, LogicProcess targetProcess, const PMessageData&msg)
 	{
 		Op::Message&m = messages.Append();
 		m.message = msg;

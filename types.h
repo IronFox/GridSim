@@ -18,6 +18,10 @@ using namespace DeltaWorks;
 //#define PERFORMANCE_TEST_TIMESTEPS	200
 
 
+/**
+Replaces MessageData with a custom class to accumulate contained data
+*/
+//#define CAPTURE_MESSAGE_VOLUME
 #if defined PERFORMANCE_TEST_TIMESTEPS && !defined RECOVERY_TEST
 	#define RECOVERY_TEST
 #endif

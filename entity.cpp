@@ -22,6 +22,9 @@
 				
 				;
 
+#ifdef CAPTURE_MESSAGE_VOLUME
+	/*static*/ std::atomic<size_t>	MessageData::totalMessageVolume;
+#endif
 
 namespace Detail
 {
