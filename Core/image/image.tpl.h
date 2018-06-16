@@ -460,13 +460,13 @@ template <typename T>
 						sum += intensity*(float)GetPixel(ax,ay)[channel];
 					}
 				ASSERT__(counter > 0);
-				channels.get(x,y) = T(sum/counter);
+				channels.Get(x,y) = T(sum/counter);
 			}
 		});
 		Concurrency::parallel_for(dimension_t(0),image_width,[this,&channels,channel](dimension_t x)
 		{
 			for (dimension_t y = 0; y < image_height; y++)
-				GetPixel(x,y)[channel] = channels.get(x,y);
+				GetPixel(x,y)[channel] = channels.Get(x,y);
 		});
 	}
 
