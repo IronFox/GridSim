@@ -156,7 +156,7 @@ namespace Engine
 			Resolution					target_buffer_resolution,
 										overridden_client_resolution;
 			bool						framebuffer_alpha;
-			M::TVec3<float>				camera_location;
+			M::TVec3<float>				cameraLocation;
 	static	SimpleGeometry				pivot;
 	static  bool						pivot_defined;
 
@@ -305,6 +305,10 @@ namespace Engine
 			void					Pick(const Aspect<C>&aspect);	//!< Picks aspect (i.e. a camera) for rendering \param aspect Aspect that should be used from now on
 		template <class C>
 			void					PickCentered(const Aspect<C>&aspect);				//!< Picks aspect (i.e. a camera) as if it were located in the point of origin \param aspect Aspect that should be used from now on
+		/**
+		Returns the last picked camera's location. If picked centered, returns 0-vector
+		*/
+		const M::TVec3<>&			GetCameraLocation() const {return cameraLocation;}
 		bool						TargetFBO(const typename GL::FBO&pobj);	 //!< Binds a pixel buffer object for rendering \param pobj Pixel buffer object that should be rendered to
 		void						TargetBackbuffer();										//!< Unbinds bound pixel buffer object
 		void						OverrideSetClientResolution(const Resolution&res);

@@ -738,7 +738,7 @@ namespace Engine
 		environment_matrix.x.xyz = aspect.viewInvert.x.xyz;
 		environment_matrix.y.xyz = aspect.viewInvert.y.xyz;
 		environment_matrix.z.xyz = aspect.viewInvert.z.xyz;
-		camera_location = aspect.viewInvert.w.xyz;
+		cameraLocation = aspect.viewInvert.w.xyz;
 	}
 
 	template <class GL>
@@ -770,7 +770,7 @@ namespace Engine
 		environment_matrix.x.xyz = aspect.viewInvert.x.xyz;
 		environment_matrix.y.xyz = aspect.viewInvert.y.xyz;
 		environment_matrix.z.xyz = aspect.viewInvert.z.xyz;
-		camera_location = aspect.viewInvert.w.xyz;
+		cameraLocation = M::Vector3<>::zero;
 	}
 
 	template <class GL>
