@@ -157,9 +157,8 @@ namespace Engine
 										overridden_client_resolution;
 			bool						framebuffer_alpha;
 			M::TVec3<float>				camera_location;
-	static  SimpleGeometry				pivot,omni,spot,direct;
-	static  bool						pivot_defined,
-										lights_defined;
+	static	SimpleGeometry				pivot;
+	static  bool						pivot_defined;
 
 	#if SYSTEM==WINDOWS
 	inline  void						Process(const MSG&msg);
@@ -282,7 +281,6 @@ namespace Engine
 		void						RenderSomething();
 		inline	void				RenderPivot();		//!< Identical to RenderSomething()
 		inline	void				RenderToken();		//!< Identical to RenderSomething()
-		void						RenderLights();		//!< Renders the active light scenario in line geometries
 
 		inline  bool				ApplyScreen();
 		inline  bool				ApplyWindowScreen(DWORD refresh_rate=0);

@@ -62,6 +62,149 @@ namespace Engine
 
 	
 	
+		
+
+
+
+	
+	bool				OpenGL::hasMoved(const PLight&light)
+	{
+		return light->moved;
+	}
+
+	bool				OpenGL::wasModified(const PLight&light)
+	{
+		return light->modified;
+	}
+
+	void				OpenGL::setHasMoved(const PLight&light,bool b)
+	{
+		light->moved = b;
+	}
+
+	void				OpenGL::setWasModified(const PLight&light,bool b)
+	{
+		light->modified = b;
+
+	}
+
+
+	index_t			OpenGL::getIndexOf(const PLight&light)
+	{
+		return light->index;
+	}
+
+	void				OpenGL::setIndexOf(const PLight&light,index_t index)
+	{
+		light->index = index;
+	}
+
+	LightScene*		OpenGL::getLightSceneOf(const PLight&light)
+	{
+		return light->scene;
+	}
+
+
+
+	PLight	OpenGL::createLight(bool enable)
+	{
+		PLight light(new Light(active_scene,this));
+		active_scene->Append(light);
+		
+		if (enable)
+			light->enable();
+		return light;
+	}
+
+	void		OpenGL::discardLight(const PLight&light)
+	{
+		LightScene*scene = light->scene;
+		
+	    if (scene->at(light->origin) != light)
+	        FATAL__("bad light");
+			
+	    light->disable();
+	    index_t index = light->origin;
+	    scene->Erase(light->origin);
+	    for (index_t i = index; i < scene->Count(); i++)
+	        scene->at(i)->origin = i;
+	}
+
+	void		OpenGL::clearLights()
+	{
+		foreach (*active_scene,light)
+			(*light)->disable();
+		active_scene->clear();
+	}
+
+	void		OpenGL::resetLighting()
+	{
+		if (application_shutting_down)
+			return;
+		Array<LightScene*>	exported;
+		scenes.ExportTo(exported);
+		for (index_t i = 0; i < exported.Count(); i++)
+		{
+			foreach (*exported[i],light)
+				(*light)->disable();
+		}
+		scenes.clear();
+		active_scene_index = 0;
+		scene_index_counter = 0;
+		active_scene = scenes.define(scene_index_counter++);
+		pickLightScene(0);
+	}
+
+	index_t  OpenGL::createLightScene()
+	{
+		index_t index = scene_index_counter++;
+		scenes.define(index);
+	    pickLightScene(index);
+	    return index;
+	}
+
+	bool			OpenGL::isLightScene(index_t scenario)	const
+	{
+		return scenes.IsSet(scenario);
+	}
+
+	void            OpenGL::discardLightScene(index_t index)
+	{
+	    if (!index)
+			return;
+		LightScene*scene = scenes.drop(index);
+		if (!scene)
+			return;
+		if (scene == active_scene)
+			pickLightScene(0);
+		foreach (*scene,light)
+			(*light)->disable();
+		Discard(scene);
+	}
+	
+	index_t		OpenGL::getLightScene()	const
+	{
+		return active_scene_index;
+	}
+	
+	void			OpenGL::getSceneLights(ArrayData<PLight>&array, bool enabled_only)
+	{
+		size_t	count = 0;
+		if (!enabled_only)
+			count = active_scene->Count();
+		else
+			for (unsigned i = 0; i < active_scene->Count(); i++)
+				if (active_scene->at(i)->isEnabled())
+					count++;
+		array.SetSize(count);
+		count = 0;
+		for (unsigned i = 0; i < active_scene->Count(); i++)
+			if (!enabled_only || active_scene->at(i)->isEnabled())
+				array[count++] = active_scene->at(i);
+	}
+
+
+	
 	
 	namespace GL
 	{
@@ -2151,9 +2294,10 @@ namespace Engine
 		GL_END
 		//unbindPBufferObject();
 	}
-
-		OpenGL::OpenGL():verbose(false)
+		
+		OpenGL::OpenGL():verbose(false),active_scene_index(0),scene_index_counter(0),lighting_enabled(false)
 		{
+		    active_scene = scenes.define(scene_index_counter++);
 			#if SYSTEM_VARIANCE==LINUX
 				visual = NULL;
 			#endif

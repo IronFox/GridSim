@@ -84,12 +84,6 @@ namespace Engine
 	*/
 	class DummyGL: public VisualInterface
 	{
-	protected:
-		virtual			void			enableLight(Light*)	{}
-		virtual			void			disableLight(Light*)	{}
-		virtual			void			updateLight(Light*)	{}
-		virtual			void			updateLightPosition(Light*)	{}
-
 	public:
 
 		typedef		float							FloatType;					//!< Float type best used for float fields to achive top render speed
@@ -103,11 +97,6 @@ namespace Engine
 		typedef		MaterialComposition<Texture*>	Material;			//!< Material-Container
 
 		static		DummyGL						*global_instance;		//!< Global default instance (set by Eve<DummyGL>)
-		
-						void			enableLighting()	{}				//!< Globally enables lighting.
-						void			disableLighting()	{}				//!< Globally disables lighting.
-
-		virtual			bool			pickLightScene(unsigned  scenario) {return false;}	//!< Picks a light scenario as active scenario (this may be slow at times). \param scenario Index of an existing scenario that should be used from now on (0 = default scenario). \return true on success
 
 						bool			enableGeometryUpload()		{return false;}		//!< Globally enables geometry gmem upload (enabled by default) \return true if geometry upload is possible
 						void			disableGeometryUpload()		{}					//!< Globally disables geometry gmem upload (enabled by default)
@@ -129,8 +118,6 @@ namespace Engine
 		static inline	void			depthMask(bool mask)	{}	//!< Sets depth mask
 		static inline	void			setDepthTest(eDepthTest depthTest)	{}	//!< Sets depth test to use
 		
-		static inline	void			setFog(const Fog&fog,bool enabled=true)	{}							//!< Applies given fog configuration \param fog Fog configuration \param enabled Set true to enable fog
-		static inline	void			setFog(bool enabled)	{}													//!< Dynamically enables or disables fog \param enabled Set true to enable fog
 		static inline	void			setBackgroundColor(float red, float green, float blue, float alpha)	{}	//!< Changes the active clear color \param red Red color component (0.0f - 1.0f) \param green Green color component (0.0f - 1.0f) \param blue Blue color component (0.0f - 1.0f) \param alpha Transparency color component (0.0f - 1.0f)
 		static inline	void			setBackgroundColor(const float color[3], float alpha)	{}						//!< Changes the active clear color \param color Pointer to a color vector in R \param alpha Transparency color component (0.0f - 1.0f)
 		static inline	void			setBackgroundColor(const float color[4])	{}									//!< Changes the active clear color \param color Pointer to a 4d color vector.

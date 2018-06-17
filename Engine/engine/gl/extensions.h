@@ -6,6 +6,7 @@
 #include "../../gl/gl.h"
 #include "../../gl/glext.h"
 #include <general/undef.h>
+#include "light.h"
 
 #undef glBlendFuncSeparate
 #undef glGenBuffers

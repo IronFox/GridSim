@@ -50,6 +50,27 @@ namespace Engine
 
 	
 	class OpenGL;
+
+
+	
+	
+	struct	TExtShaderConfiguration		//! Additional shader configuration
+	{
+			bool				requires_tangents;
+	
+	};
+	
+	class	ShaderSourceCode:public TExtShaderConfiguration	//! Defined shader source code includig configuration
+	{
+	public:
+			String				code;
+			count_t				num_samplers;
+			bool				sky_lighting;
+
+								ShaderSourceCode():num_samplers(0),sky_lighting(false)
+								{}
+	};
+
 	
 	namespace GL
 	{
@@ -958,6 +979,55 @@ namespace Engine
 
 
 
+
+
+	/**
+		\brief Fog configuration
+		
+		Configuration structure for the fog environment.
+	*/
+	class Fog
+	{
+	public:
+			float						nearRange, //!< Fog start (should be small compared to the scene)
+										farRange,	//!< Fog end (should be large compared to the scene)
+										density;	//!< Fog density
+			M::TVec4<float>				color;	//!< Fog color - the 4th component should be 1.0f
+			enum
+			{
+				Linear,					//!< Linear fog (commonly used)
+				Exp,					//!< Exponential fog
+				Exp2					//!< Exp2 fog
+			}							type;		//!< Fog type
+			
+										Fog():nearRange(0.1),farRange(100),density(1.0),type(Linear)
+										{
+											M::Vec::set(color,1);
+										}
+										Fog(float range, float red=1, float green=1, float blue=1):nearRange(0.1),farRange(range),density(1.0),type(Linear)
+										{
+											M::Vec::def(color,red,green,blue,1);
+										}
+										Fog(float near_range_,float range, float red, float green, float blue):nearRange(near_range_),farRange(range),density(1.0),type(Linear)
+										{
+											M::Vec::def(color,red,green,blue,1);
+										}
+										Fog(float range, const M::TVec3<>&fog_color):nearRange(0.1),farRange(range),density(1.0),type(Linear)
+										{
+											color.rgb = fog_color;
+											color.alpha = 1;
+										}
+										Fog(float near_range_, float range, const M::TVec3<>&fog_color):nearRange(near_range_),farRange(range),density(1.0),type(Linear)
+										{
+											color.rgb = fog_color;
+											color.alpha = 1;
+										}
+	};
+
+
+
+
+
 	/**
 		\brief OpenGL Visual Interface
 
@@ -1006,6 +1076,14 @@ namespace Engine
 		static			LogFile				log_file;
 		static			GL::RenderState		state;					//!< Active OpenGL render state
 
+		SimpleGeometry					pivot,omni,spot,direct;
+		bool							lights_defined = false;
+		index_t							active_scene_index,		//!< Current light scenario index
+										scene_index_counter;
+		Ctr::IndexContainer<LightScene>	scenes;				//!< Light scenario container (index mapped)
+		LightScene						*active_scene;		//!< Currently active light scenario
+		bool							lighting_enabled;	//!< Lighting is currently enabled (some rendering processes behave differently when lighting is enabled)
+
 						void				initGL();					//!< Applies the initial OpenGL configuration
 		static			void 				generateNormalCubeSide(Image&target,  float ox, float oy, float oz,  float xx, float xy, float xz, float yx, float yy, float yz);
 
@@ -1018,15 +1096,26 @@ namespace Engine
 		static			void				setCurrentContext(const GLBinding&);
 						void				Bind(const VertexBinding&binding, const float*field);
 
+		static	index_t					getIndexOf(const PLight&);
+		static	void					setIndexOf(const PLight&,index_t);
+		static	LightScene*				getLightSceneOf(const PLight&);
+		static	bool					hasMoved(const PLight&);
+		static	bool					wasModified(const PLight&);
+		static	void					setHasMoved(const PLight&,bool);
+		static	void					setWasModified(const PLight&,bool);
+
+
 	protected:
+		friend class Light;
+
 		static			bool				TargetFBO(const GL::FBO&);
 						void				TargetBackbuffer();
 		inline			void				onModelviewChange();
 
-		virtual			void				enableLight(const PLight&) override;
-		virtual			void				disableLight(const PLight&) override;
-		virtual			void				updateLight(const PLight&) override;
-		virtual			void				updateLightPosition(const PLight&) override;
+		void				enableLight(const PLight&);
+		void				disableLight(const PLight&);
+		void				updateLight(const PLight&);
+		void				updateLightPosition(const PLight&);
 
 
 
@@ -1073,18 +1162,27 @@ namespace Engine
 
 		static		OpenGL							*globalInstance;		//!< Global default instance (set by Eve<OpenGL>)
 
-						void						enableLighting();					//!< Globally enables lighting.
-						void						disableLighting();					//!< Globally disables lighting.
-						bool						lightingEnabled()	const;			//!< Queries whether or not lighting is currently enabled
-
-		virtual			bool						pickLightScene(index_t  scenario);		//!< Picks a light scenario as active scenario (this may be slow at times). \param scenario Index of an existing scenario that should be used from now on (0 = default scenario). \return true on success
-
 		static			bool						enableGeometryUpload();				//!< Globally enables geometry gmem upload (enabled by default) \return true if geometry upload is possible
 		static			void						disableGeometryUpload();			//!< Globally disables geometry gmem upload (enabled by default)
 		static			bool						queryGeometryUpload();				//!< Queries geometry upload state \return true if geometry is enabled and possible
 		static			void						lockGeometryUpload();				//!< Locks current geometry upload state. Any succeeding enable or disableGeometryUpload() calls will fail until unlockGeometryUpload is called
 		static			void						unlockGeometryUpload();				//!< Unlocks current geometry upload state.
 		static			bool						queryGeometryUploadLock();			//!< Queries whether or not changes to the geometry upload state are currently locked \return true if upload is currently locked
+		//lighting: now OpenGL specific. Deprecated, but must be maintained for backwards compatibility (for now)
+		void						enableLighting();					//!< Globally enables lighting.
+		void						disableLighting();					//!< Globally disables lighting.
+		bool						lightingEnabled()	const;			//!< Queries whether or not lighting is currently enabled
+		PLight						createLight(bool enable=true);
+		void						discardLight(const PLight&light);
+		void						clearLights();
+		void						resetLighting();
+		bool						pickLightScene(index_t  scenario);		//!< Picks a light scenario as active scenario (this may be slow at times). \param scenario Index of an existing scenario that should be used from now on (0 = default scenario). \return true on success
+		index_t						getLightScene()	const;
+		index_t						createLightScene();						//!< Creates a new light scenario (collection of lights). \return Index of a new light scenario.
+		void						discardLightScene(index_t scenario);	//!< Erases a given light scenario. \param scenario Index of an existing scenario that should be erased.
+		bool						isLightScene(index_t scenario)	const;	//!< Queries if the specified light scenario exists. \param scenario Index of the light scenario that should be queried.
+		void						getSceneLights(ArrayData<PLight>&array, bool enabled_only);	//!< Retrieves pointers to all lights in the active light scene
+		void						RenderLights(const M::TVec3<>&cameraLocation);
 						
 						void						updateLighting(bool force=false);	//!< Completely refreshs the current lighting scenery
 						
