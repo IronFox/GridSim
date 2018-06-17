@@ -1129,45 +1129,34 @@ namespace Engine
 			@param preserve_active_shader	Set true to leave the active shader installed
 		 */
 		template <typename TextureType>
-						void				genericBindMaterial(const MaterialConfiguration&config, const TextureType*list, bool has_shader);
+			void					genericBindMaterial(const MaterialConfiguration&config, const TextureType*list, bool has_shader);
 
 
 	public:
-		static			void				BuildMipMaps(const GL::FBO&, unsigned target, const GLShader::Instance&mipMapShader);
-		static			void				BuildMipMaps(const GL::Texture::Reference&, const GLShader::Instance&mipMapShader, GLenum format=GL_RGBA8);
+		static void					BuildMipMaps(const GL::FBO&, unsigned target, const GLShader::Instance&mipMapShader);
+		static void					BuildMipMaps(const GL::Texture::Reference&, const GLShader::Instance&mipMapShader, GLenum format=GL_RGBA8);
 
-	/*thread-safe methods are:
-		all textureObject/discardTexture-methods
-		all vertexObject/discardVertices-methods
-		all IndexBufferObject/discardIndices-methods
-		all pbufferObject/discardPBuffer-methods
-		all queryObject/discardQuery-methods
-	*/
+		typedef GLfloat				FloatType;					//!< Float type best used for float fields to achive top render speed
+		typedef GLuint				IndexType;					//!< Index type best used for index fields to achive top render speed
 
-		//static			bool			verbose;
+		typedef GL::VBO				VBO;
+		typedef GL::IBO				IBO;
+		typedef GL::FBO				FBO;
+		typedef GL::Texture			Texture;
+		typedef GL::Query			Query;			//!< Handle for pixel visibility queries
+		typedef GL::Shader			Shader;			//!< Handle to a shader instance
+		typedef MaterialComposition<Texture::Reference>
+									Material;		//!< Material-Container
+		typedef GL::ContextLock		ContextLock;
 
+		static OpenGL				*globalInstance;		//!< Global default instance (set by Eve<OpenGL>)
 
-		typedef		GLfloat							FloatType;					//!< Float type best used for float fields to achive top render speed
-		typedef		GLuint							IndexType;					//!< Index type best used for index fields to achive top render speed
-
-		typedef		GL::VBO							VBO;
-		typedef		GL::IBO							IBO;
-		typedef		GL::FBO							FBO;
-		typedef		GL::Texture						Texture;
-		typedef		GL::Query						Query;			//!< Handle for pixel visibility queries
-		typedef		GL::Shader						Shader;			//!< Handle to a shader instance
-		typedef		MaterialComposition<Texture::Reference>
-													Material;		//!< Material-Container
-		typedef		GL::ContextLock					ContextLock;
-
-		static		OpenGL							*globalInstance;		//!< Global default instance (set by Eve<OpenGL>)
-
-		static			bool						enableGeometryUpload();				//!< Globally enables geometry gmem upload (enabled by default) \return true if geometry upload is possible
-		static			void						disableGeometryUpload();			//!< Globally disables geometry gmem upload (enabled by default)
-		static			bool						queryGeometryUpload();				//!< Queries geometry upload state \return true if geometry is enabled and possible
-		static			void						lockGeometryUpload();				//!< Locks current geometry upload state. Any succeeding enable or disableGeometryUpload() calls will fail until unlockGeometryUpload is called
-		static			void						unlockGeometryUpload();				//!< Unlocks current geometry upload state.
-		static			bool						queryGeometryUploadLock();			//!< Queries whether or not changes to the geometry upload state are currently locked \return true if upload is currently locked
+		static bool					enableGeometryUpload();				//!< Globally enables geometry gmem upload (enabled by default) \return true if geometry upload is possible
+		static void					disableGeometryUpload();			//!< Globally disables geometry gmem upload (enabled by default)
+		static bool					queryGeometryUpload();				//!< Queries geometry upload state \return true if geometry is enabled and possible
+		static void					lockGeometryUpload();				//!< Locks current geometry upload state. Any succeeding enable or disableGeometryUpload() calls will fail until unlockGeometryUpload is called
+		static void					unlockGeometryUpload();				//!< Unlocks current geometry upload state.
+		static bool					queryGeometryUploadLock();			//!< Queries whether or not changes to the geometry upload state are currently locked \return true if upload is currently locked
 		//lighting: now OpenGL specific. Deprecated, but must be maintained for backwards compatibility (for now)
 		void						enableLighting();					//!< Globally enables lighting.
 		void						disableLighting();					//!< Globally disables lighting.
@@ -1184,95 +1173,95 @@ namespace Engine
 		void						getSceneLights(ArrayData<PLight>&array, bool enabled_only);	//!< Retrieves pointers to all lights in the active light scene
 		void						RenderLights(const M::TVec3<>&cameraLocation);
 						
-						void						updateLighting(bool force=false);	//!< Completely refreshs the current lighting scenery
+		void						updateLighting(bool force=false);	//!< Completely refreshs the current lighting scenery
 						
 
-		static			bool						queryBegin(bool depthTest=true);											//!< Set up query environment (disable rendering etc.) \param depthTest if set true then rendered pixels may be occluded by objects \return true if the query-environment could be set up
-		static			void						queryEnd();																//!< Ends querying and returns the original state.
-		static			void						castQuery(const Query&query);										//!< Renders the linked object. To extract the number of pixels on the screen call resolveObjectSize(const OpenGL::QueryObject&) \param query Handle of the respective query object
-		static			void						castPointQuery(const Query&query, const M::TVec3<>&point);				//!< Dynamically renders one point. To extract the number of pixels on the screen call resolveObjectSize(const OpenGL::QueryObject&) \param query Handle of the respective query object \param point Pointer to a location array in R
-		static			GLuint 						resolveQuery(const Query&query);										//!< Resolves the number of pixels drawn during the last queryBegin()/queryEnd() sequence at the time @a query was cast
+		static bool					queryBegin(bool depthTest=true);											//!< Set up query environment (disable rendering etc.) \param depthTest if set true then rendered pixels may be occluded by objects \return true if the query-environment could be set up
+		static void					queryEnd();																//!< Ends querying and returns the original state.
+		static void					castQuery(const Query&query);										//!< Renders the linked object. To extract the number of pixels on the screen call resolveObjectSize(const OpenGL::QueryObject&) \param query Handle of the respective query object
+		static void					castPointQuery(const Query&query, const M::TVec3<>&point);				//!< Dynamically renders one point. To extract the number of pixels on the screen call resolveObjectSize(const OpenGL::QueryObject&) \param query Handle of the respective query object \param point Pointer to a location array in R
+		static GLuint 				resolveQuery(const Query&query);										//!< Resolves the number of pixels drawn during the last queryBegin()/queryEnd() sequence at the time @a query was cast
 
-		static inline	void						cullNormal();		//!< Sets face cull mode to normal (back face culling)
-		static inline	void						cullInverse();		//!< Sets face cull mode to inverse (front face culling)
-		static inline	void						cullAll();			//!< Sets face cull mode to all (no faces will be rendered)
-		static inline	void						cullNone();		//!< Sets face cull mode to none (all faces will be rendered)
-		static inline	void						depthMask(bool mask);	//!< Sets depth mask
-		static inline	void						setDepthTest(eDepthTest depthTest);	//!< Sets depth test to use
+		static inline void			cullNormal();		//!< Sets face cull mode to normal (back face culling)
+		static inline void			cullInverse();		//!< Sets face cull mode to inverse (front face culling)
+		static inline void			cullAll();			//!< Sets face cull mode to all (no faces will be rendered)
+		static inline void			cullNone();		//!< Sets face cull mode to none (all faces will be rendered)
+		static inline void			depthMask(bool mask);	//!< Sets depth mask
+		static inline void			setDepthTest(eDepthTest depthTest);	//!< Sets depth test to use
 
-		static inline	void						setDefaultBlendFunc();	//!< Sets default alpha blend function
-		static inline	void						setDefaultBlendMode();	//!< Sets default alpha blend function
-		static inline	void						defaultBlendFunc();	//!< Sets default alpha blend function
-		static inline	void						defaultBlendMode();	//!< Sets default alpha blend function
-		static inline	void						setFlareBlendFunc();	//!< Sets additive alpha weighted blend function
-		static inline	void						setFlareBlendMode();	//!< @overload
-		static inline	void						flareBlendFunc();	//!< Sets additive alpha weighted blend function
-		static inline	void						flareBlendMode();	//!< @overload
+		static inline void			setDefaultBlendFunc();	//!< Sets default alpha blend function
+		static inline void			setDefaultBlendMode();	//!< Sets default alpha blend function
+		static inline void			defaultBlendFunc();	//!< Sets default alpha blend function
+		static inline void			defaultBlendMode();	//!< Sets default alpha blend function
+		static inline void			setFlareBlendFunc();	//!< Sets additive alpha weighted blend function
+		static inline void			setFlareBlendMode();	//!< @overload
+		static inline void			flareBlendFunc();	//!< Sets additive alpha weighted blend function
+		static inline void			flareBlendMode();	//!< @overload
 
-		static inline	void						setFog(const Fog&fog,bool enabled=true);							//!< Applies given fog configuration \param fog Fog configuration \param enabled Set true to enable fog
-		static inline	void						setFog(bool enabled);													//!< Dynamically enables or disables fog \param enabled Set true to enable fog
-		static inline	void						SetBackbufferClearColor(float red, float green, float blue, float alpha);	//!< Changes the active clear color \param red Red color component (0.0f - 1.0f) \param green Green color component (0.0f - 1.0f) \param blue Blue color component (0.0f - 1.0f) \param alpha Transparency color component (0.0f - 1.0f)
-		static inline	void						SetBackbufferClearColor(const M::TVec3<>&color, float alpha);						//!< Changes the active clear color \param color Pointer to a color vector in R \param alpha Transparency color component (0.0f - 1.0f)
-		static inline	void						SetBackbufferClearColor(const M::TVec4<>&color);									//!< Changes the active clear color \param color Pointer to a 4d color vector.
+		static inline void			setFog(const Fog&fog,bool enabled=true);							//!< Applies given fog configuration \param fog Fog configuration \param enabled Set true to enable fog
+		static inline void			setFog(bool enabled);													//!< Dynamically enables or disables fog \param enabled Set true to enable fog
+		static inline void			SetBackbufferClearColor(float red, float green, float blue, float alpha);	//!< Changes the active clear color \param red Red color component (0.0f - 1.0f) \param green Green color component (0.0f - 1.0f) \param blue Blue color component (0.0f - 1.0f) \param alpha Transparency color component (0.0f - 1.0f)
+		static inline void			SetBackbufferClearColor(const M::TVec3<>&color, float alpha);						//!< Changes the active clear color \param color Pointer to a color vector in R \param alpha Transparency color component (0.0f - 1.0f)
+		static inline void			SetBackbufferClearColor(const M::TVec4<>&color);									//!< Changes the active clear color \param color Pointer to a 4d color vector.
 
-						bool						useTexture(const Texture&, bool clamp = false, bool override_safety = false);
-						bool						useTexture(const Texture*, bool clamp = false, bool override_safety = false);
-						bool						useTexture(const Texture::Reference&, bool clamp = false, bool override_safety = false);
-						bool						useTexture(const FBO&object, bool clamp = false, bool override_safety = false);
+		bool						useTexture(const Texture&, bool clamp = false, bool override_safety = false);
+		bool						useTexture(const Texture*, bool clamp = false, bool override_safety = false);
+		bool						useTexture(const Texture::Reference&, bool clamp = false, bool override_safety = false);
+		bool						useTexture(const FBO&object, bool clamp = false, bool override_safety = false);
 
 
-						void						bindMaterial(const MaterialConfiguration&config, const Texture *const * list, const Shader&shader);
-						void						bindMaterial(const MaterialConfiguration&config, const Texture::Reference*list, const Shader&shader);
-						void						bindMaterial(const MaterialConfiguration&config, const Shader&shader)	{bindMaterial(config,(const Texture::Reference*)NULL,shader);}
-						void						bindMaterial(const Material&material, const Shader&shader)				{bindMaterial(material,material.textures.pointer(),shader);}
+		void						bindMaterial(const MaterialConfiguration&config, const Texture *const * list, const Shader&shader);
+		void						bindMaterial(const MaterialConfiguration&config, const Texture::Reference*list, const Shader&shader);
+		void						bindMaterial(const MaterialConfiguration&config, const Shader&shader)	{bindMaterial(config,(const Texture::Reference*)NULL,shader);}
+		void						bindMaterial(const Material&material, const Shader&shader)				{bindMaterial(material,material.textures.pointer(),shader);}
 
-						void						bindMaterial(const MaterialConfiguration&config, const Texture *const * list, const Shader::Instance*shader);
-						void						bindMaterial(const MaterialConfiguration&config, const Texture::Reference*list, const Shader::Instance*shader);
-						void						bindMaterial(const MaterialConfiguration&config, const Shader::Instance*shader)	{bindMaterial(config,(const Texture::Reference*)NULL,shader);}
-						void						bindMaterial(const Material&material, const Shader::Instance*shader)				{bindMaterial(material,material.textures.pointer(),shader);}
+		void						bindMaterial(const MaterialConfiguration&config, const Texture *const * list, const Shader::Instance*shader);
+		void						bindMaterial(const MaterialConfiguration&config, const Texture::Reference*list, const Shader::Instance*shader);
+		void						bindMaterial(const MaterialConfiguration&config, const Shader::Instance*shader)	{bindMaterial(config,(const Texture::Reference*)NULL,shader);}
+		void						bindMaterial(const Material&material, const Shader::Instance*shader)				{bindMaterial(material,material.textures.pointer(),shader);}
 
-						void						bindMaterialIgnoreShader(const MaterialConfiguration&config, const Texture *const * list);			//!< Similar to bindMaterial() . The method assumes that no shader will be installed, which is mostly fine as long as texcoods reflection is not enabled in the texture and performed by the shader (which may lead to undefined behavior)
-						void						bindMaterialIgnoreShader(const MaterialConfiguration&config, const Texture::Reference*list);
-						void						bindMaterialIgnoreShader(const MaterialConfiguration&config)	{bindMaterialIgnoreShader(config,(const Texture::Reference*)NULL);}
-						void						bindMaterialIgnoreShader(const Material&material)				{bindMaterialIgnoreShader(material,material.textures.pointer());}
+		void						bindMaterialIgnoreShader(const MaterialConfiguration&config, const Texture *const * list);			//!< Similar to bindMaterial() . The method assumes that no shader will be installed, which is mostly fine as long as texcoods reflection is not enabled in the texture and performed by the shader (which may lead to undefined behavior)
+		void						bindMaterialIgnoreShader(const MaterialConfiguration&config, const Texture::Reference*list);
+		void						bindMaterialIgnoreShader(const MaterialConfiguration&config)	{bindMaterialIgnoreShader(config,(const Texture::Reference*)NULL);}
+		void						bindMaterialIgnoreShader(const Material&material)				{bindMaterialIgnoreShader(material,material.textures.pointer());}
 
-		static	inline	void						overrideEmission(const M::TVec4<>&emission_color);	//!< Overrides the emission color specified by the last bindMaterial() or bindMaterilIgnoreShader() call
+		static inline void			overrideEmission(const M::TVec4<>&emission_color);	//!< Overrides the emission color specified by the last bindMaterial() or bindMaterilIgnoreShader() call
 
-						void						bindVertices(const VBO&vobj, const VertexBinding&binding);
-						void						bindVertices(const VBO::Reference&vobj, const VertexBinding&binding);
-						void						bindIndices(const IBO&iobj);
-						void						unbindIndices();
-						void						renderExplicit(GLuint type, index_t vertex_offset, GLsizei vertex_count);	//!< Render with explicit given configuration \param type OpenGL primitive type (GL_TRIANGLES, GL_QUADS, etc.) \param vertex_offset First vertex to render \param vertex_count Number of vertices to render
-	T_	inline			void						renderSub(const C system[4*4], unsigned vertex_offset, unsigned vertex_count);
-	T_	inline			void						renderQuadsSub(const C system[4*4], unsigned vertex_offset, unsigned vertex_count);
-		inline			void						render(unsigned vertex_offset, unsigned vertex_count);
-		inline			void						renderQuads(unsigned vertex_offset, unsigned vertex_count);
-	T_	inline			void						renderStrip(const C system[4*4], unsigned vertex_offset, unsigned vertex_count);
-	T_	inline			void						renderQuadStrip(const C system[4*4], unsigned vertex_offset, unsigned vertex_count);
-		inline			void						renderStrip(unsigned vertex_offset, unsigned vertex_count);
-		inline			void						renderQuadStrip(unsigned vertex_offset, unsigned vertex_count);
-		inline			void						renderVertexStrip(unsigned vertex_offset, unsigned vertex_count);
-						void						render(const SimpleGeometry&structure);
-		static			void						face(const tTVertex&v0, const tTVertex&v1, const tTVertex&v2, const tTVertex&v3);		//!< Renders a quad using the four specified texture-vertices
-		static			void						face(const tTVertex&v0, const tTVertex&v1, const tTVertex&v2);							//!< Renders a triangle using the three specified texture-vertices
-		static			void						face(const tCTVertex&v0, const tCTVertex&v1, const tCTVertex&v2, const tCTVertex&v3);	//!< Renders a quad using the four specified color-texture-vertices
-		static			void						face(const tCTVertex&v0, const tCTVertex&v1, const tCTVertex&v2);						//!< Renders a triangle using the three specified color-texture-vertices
-		static			void						face(const tNTVertex&v0, const tNTVertex&v1, const tNTVertex&v2, const tNTVertex&v3);	//!< Renders a quad using the four specified normal-texture-vertices
-		static			void						face(const tNTVertex&v0, const tNTVertex&v1, const tNTVertex&v2);						//!< Renders a triangle using the three specified normal-texture-vertices
-		static			void						face(const tNVertex&v0, const tNVertex&v1, const tNVertex&v2, const tNVertex&v3);		//!< Renders a quad using the four specified normal-vertices
-		static			void						face(const tNVertex&v0, const tNVertex&v1, const tNVertex&v2);							//!< Renders a triangle using the three specified normal-vertices
-		static			void						face(const tCVertex&v0, const tCVertex&v1, const tCVertex&v2, const tCVertex&v3);		//!< Renders a quad using the four specified color-vertices
-		static			void						face(const tCVertex&v0, const tCVertex&v1, const tCVertex&v2);							//!< Renders a triangle using the three specified color-vertices
-		static			void						face(const TVertex&v0, const TVertex&v1, const TVertex&v2, const TVertex&v3);			//!< Renders a quad using the four specified vertices
-		static			void						face(const TVertex&v0, const TVertex&v1, const TVertex&v2);								//!< Renders a triangle using the three specified vertices
-		static			void						segment(const tCVertex&v0, const tCVertex&v1);												//!< Renders a line segment using the two specified color-vertices
-		static			void						segment(const TVertex&v0, const TVertex&v1);												//!< Renders a line segment using the two specified vertices
-	T_	static inline	void						enterSubSystem(const M::TMatrix4<C>&system);																	//!< Enters a sub-system affecting all following render-calls \param system Pointer to a 4x4 system matrix
-		static inline	void						exitSubSystem();																				//!< Returns from a sub-system to the next higher system
-						void						unbindAll();																					//!< Unbinds the currently bound material, all textures and all vertex/index objects
+		void						bindVertices(const VBO&vobj, const VertexBinding&binding);
+		void						bindVertices(const VBO::Reference&vobj, const VertexBinding&binding);
+		void						bindIndices(const IBO&iobj);
+		void						unbindIndices();
+		void						renderExplicit(GLuint type, index_t vertex_offset, GLsizei vertex_count);	//!< Render with explicit given configuration \param type OpenGL primitive type (GL_TRIANGLES, GL_QUADS, etc.) \param vertex_offset First vertex to render \param vertex_count Number of vertices to render
+	T_	inline void						renderSub(const C system[4*4], unsigned vertex_offset, unsigned vertex_count);
+	T_	inline void						renderQuadsSub(const C system[4*4], unsigned vertex_offset, unsigned vertex_count);
+		inline void						render(unsigned vertex_offset, unsigned vertex_count);
+		inline void						renderQuads(unsigned vertex_offset, unsigned vertex_count);
+	T_	inline void						renderStrip(const C system[4*4], unsigned vertex_offset, unsigned vertex_count);
+	T_	inline void						renderQuadStrip(const C system[4*4], unsigned vertex_offset, unsigned vertex_count);
+		inline void						renderStrip(unsigned vertex_offset, unsigned vertex_count);
+		inline void						renderQuadStrip(unsigned vertex_offset, unsigned vertex_count);
+		inline void						renderVertexStrip(unsigned vertex_offset, unsigned vertex_count);
+		void						render(const SimpleGeometry&structure);
+		static void						face(const tTVertex&v0, const tTVertex&v1, const tTVertex&v2, const tTVertex&v3);		//!< Renders a quad using the four specified texture-vertices
+		static void						face(const tTVertex&v0, const tTVertex&v1, const tTVertex&v2);							//!< Renders a triangle using the three specified texture-vertices
+		static void						face(const tCTVertex&v0, const tCTVertex&v1, const tCTVertex&v2, const tCTVertex&v3);	//!< Renders a quad using the four specified color-texture-vertices
+		static void						face(const tCTVertex&v0, const tCTVertex&v1, const tCTVertex&v2);						//!< Renders a triangle using the three specified color-texture-vertices
+		static void						face(const tNTVertex&v0, const tNTVertex&v1, const tNTVertex&v2, const tNTVertex&v3);	//!< Renders a quad using the four specified normal-texture-vertices
+		static void						face(const tNTVertex&v0, const tNTVertex&v1, const tNTVertex&v2);						//!< Renders a triangle using the three specified normal-texture-vertices
+		static void						face(const tNVertex&v0, const tNVertex&v1, const tNVertex&v2, const tNVertex&v3);		//!< Renders a quad using the four specified normal-vertices
+		static void						face(const tNVertex&v0, const tNVertex&v1, const tNVertex&v2);							//!< Renders a triangle using the three specified normal-vertices
+		static void						face(const tCVertex&v0, const tCVertex&v1, const tCVertex&v2, const tCVertex&v3);		//!< Renders a quad using the four specified color-vertices
+		static void					face(const tCVertex&v0, const tCVertex&v1, const tCVertex&v2);							//!< Renders a triangle using the three specified color-vertices
+		static void					face(const TVertex&v0, const TVertex&v1, const TVertex&v2, const TVertex&v3);			//!< Renders a quad using the four specified vertices
+		static void					face(const TVertex&v0, const TVertex&v1, const TVertex&v2);								//!< Renders a triangle using the three specified vertices
+		static void					segment(const tCVertex&v0, const tCVertex&v1);												//!< Renders a line segment using the two specified color-vertices
+		static void					segment(const TVertex&v0, const TVertex&v1);												//!< Renders a line segment using the two specified vertices
+	T_	static inline void			enterSubSystem(const M::TMatrix4<C>&system);																	//!< Enters a sub-system affecting all following render-calls \param system Pointer to a 4x4 system matrix
+		static inline void			exitSubSystem();																				//!< Returns from a sub-system to the next higher system
+		void						unbindAll();																					//!< Unbinds the currently bound material, all textures and all vertex/index objects
 	
-		inline			void						storeCamera();																					//!< Pushes the current modelview and projection matrices to the stack
-		inline			void						restoreCamera();																				//!< Restores the modelview and projection matrices from the stack, overwriting the currently loaded modelview and projection matrices
+		inline void					storeCamera();																					//!< Pushes the current modelview and projection matrices to the stack
+		inline void					restoreCamera();																				//!< Restores the modelview and projection matrices from the stack, overwriting the currently loaded modelview and projection matrices
 		void						SetCameraMatrices(const M::TMatrix4<>&view, const M::TMatrix4<>&projection, const M::TMatrix4<>&viewInvert);
 		/**
 		@brief Pops and restores the last pushed render state from the stack.
@@ -1283,36 +1272,37 @@ namespace Engine
 		void						SetRasterizer(bool fill, bool cull);
 		void						SetBlendMode(BlendMode);
 		
-						void						NextFrameNoClr();																				//!< Swaps buffers
-						void						NextFrame();																					//!< Swaps buffers and clears the back buffer
+		void						NextFrameNoClr();																				//!< Swaps buffers
+		void						NextFrame();																					//!< Swaps buffers and clears the back buffer
 
-		static			String						renderState();																					//!< Queries the current render state \return String containing the current OpenGL render state
+		static String				renderState();																					//!< Queries the current render state \return String containing the current OpenGL render state
 
-		static			void						Capture(Image&target);																			//!< Copies the current visible image to the specified image
-		static			void						Capture(FloatImage&target);																			//!< Copies the current visible image to the specified image
-		static			void						Capture(Texture&target, unsigned width, unsigned height);										//!< Captures the current back buffer content to the specified texture
-		static			void						CaptureDepth(Texture&target, unsigned width, unsigned height);									//!< Captures the current back buffer depth content to the specified texture
 
-													OpenGL();
+		/**/						OpenGL();
 
 	#if SYSTEM==WINDOWS
-						HWND						createWindow(const String&class_name, const String&window_name,int x, int y, unsigned width, unsigned height, bool hide_border, TVisualConfig&config);
-						bool						CreateContext(HWND hWnd, TVisualConfig&config, const Resolution&res);
+		HWND						createWindow(const String&class_name, const String&window_name,int x, int y, unsigned width, unsigned height, bool hide_border, TVisualConfig&config);
+		bool						CreateContext(HWND hWnd, TVisualConfig&config, const Resolution&res);
 	#elif SYSTEM==UNIX
-		virtual										~OpenGL();
-						bool						CreateContext(::Display*connection, TVisualConfig&config, TWindowAttributes&out_attributes);
-						bool						BindContext(Window window);
+		virtual						~OpenGL();
+		bool						CreateContext(::Display*connection, TVisualConfig&config, TWindowAttributes&out_attributes);
+		bool						BindContext(Window window);
 	#endif
-						void						setVerbose(bool);
-						void						initDefaultExtensions();
-						bool						linkCallingThread();																			//!< Links OpenGL to the calling thread - necessary to perform multi threaded rendering @return true on success
-						void						LinkContextClone (context_t);
-						context_t					CreateContextClone();
-						context_t					linkContextClone();				//!< Attempts to create a clone of the local context for multi-threaded processing and automatically binds it to the local thread
-						void						unlinkAndDestroyContextClone(context_t);
-						void						adoptCurrentContext();																			//!< Retrieves device and gl context from the current rendering environment overwriting and currently bound contexts
-						void						DestroyContext();																				//!< Destroys the active rendering context
-						void						SetViewport(const RECT&region, const Resolution&windowRes);																//!< Sets a new rendering region	\param region Rectangle specifying the new rendering region in the active window
+		void						setVerbose(bool);
+		void						initDefaultExtensions();
+		bool						linkCallingThread();																			//!< Links OpenGL to the calling thread - necessary to perform multi threaded rendering @return true on success
+		context_t					linkContextClone();				//!< Attempts to create a clone of the local context for multi-threaded processing and automatically binds it to the local thread
+		void						unlinkAndDestroyContextClone(context_t);
+		void						adoptCurrentContext();																			//!< Retrieves device and gl context from the current rendering environment overwriting and currently bound contexts
+		
+		static void					Capture(Image&target);																			//!< Copies the current visible image to the specified image
+		static void					Capture(FloatImage&target);																			//!< Copies the current visible image to the specified image
+		static void					Capture(Texture&target, unsigned width, unsigned height);										//!< Captures the current back buffer content to the specified texture
+		static void					CaptureDepth(Texture&target, unsigned width, unsigned height);									//!< Captures the current back buffer depth content to the specified texture
+		void						LinkContextClone (context_t);
+		context_t					CreateContextClone();
+		void						DestroyContext();																				//!< Destroys the active rendering context
+		void						SetViewport(const RECT&region, const Resolution&windowRes);																//!< Sets a new rendering region	\param region Rectangle specifying the new rendering region in the active window
 		static const char*			GetErrorStr();																					//!< Returns a string-representation of the last occured error \return String-representation of the last occured error
 		static int					GetErrorCode();																				//!< Returns an index representation of the last occured error \return Error code of the last occured error
 		const char*					GetName();																						//!< Returns identity \return "OpenGL"
