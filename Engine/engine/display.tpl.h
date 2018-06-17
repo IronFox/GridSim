@@ -911,13 +911,11 @@ namespace Engine
 		{
 			M::TMatrix4<>	view_projection;
 			M::Mat::Mult(aspect.projection,view,view_projection);
-			GL::loadModelview(M::Matrix<>::eye4);
-			GL::loadProjection(view_projection);
+			GL::SetCameraMatrices(M::Matrix<>::eye4,view_projection,M::Matrix<>::eye4);
 		}
 		else
 		{
-			GL::loadModelview(view);
-			GL::loadProjection(aspect.projection);
+			GL::SetCameraMatrices(view,aspect.projection,aspect.viewInvert);
 		}
 		GL::setDepthTest(aspect.depthTest);
 
