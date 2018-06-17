@@ -6,4 +6,4 @@ E:\include\engine\renderer\dummygl.cpp
 
 ******************************************************************/
 
-Engine::DummyGL		*Engine::DummyGL::global_instance = NULL;		//!< Global default instance (set by Display<DummyGL>)
+Engine::DummyGL		*Engine::DummyGL::globalInstance = NULL;		//!< Global default instance (set by Display<DummyGL>)

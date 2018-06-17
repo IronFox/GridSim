@@ -12,16 +12,17 @@ Most methods return success if invoked. No objects are ever empty (except textur
 
 
 #include "renderer.h"
+#include <math/resolution.h>
 
 namespace Engine
 {
 
-	#undef T
-	#undef T2
-	#undef M
-	#define T	template <class C>
-	#define T2	template <class C0, class C1>
-	#define M	template <unsigned Layers>
+	#undef T_
+	#undef T2_
+	#undef M_
+	#define T_	template <class C>
+	#define T2_	template <class C0, class C1>
+	#define M_	template <unsigned Layers>
 
 
 	class		DummyObject	//! Base DummyGL object
@@ -84,19 +85,24 @@ namespace Engine
 	*/
 	class DummyGL: public VisualInterface
 	{
+		typedef VisualInterface	Super;
 	public:
-
 		typedef		float							FloatType;					//!< Float type best used for float fields to achive top render speed
 		typedef		unsigned						IndexType;					//!< Index type best used for index fields to achive top render speed
 		
 		typedef		DummyObject					VBO;			//!< Handle for vertex buffer objects
 		typedef		DummyObject					IBO;			//!< Handle for index buffer objects
+		struct FBO : public DummyObject
+		{
+			Resolution	GetResolution() const {return Resolution(0,0);}
+			bool		PrimaryHasAlpha() const {return false;}
+		};
 		typedef		DummyObject					Texture;			//!< Handle for textures
 		typedef		DummyObject					Query;			//!< Handle for pixel visibility queries
 		typedef		DummyObject					Shader;			//!< Handle for pixel buffer objects
 		typedef		MaterialComposition<Texture*>	Material;			//!< Material-Container
 
-		static		DummyGL						*global_instance;		//!< Global default instance (set by Eve<DummyGL>)
+		static		DummyGL						*globalInstance;		//!< Global default instance (set by Eve<DummyGL>)
 
 						bool			enableGeometryUpload()		{return false;}		//!< Globally enables geometry gmem upload (enabled by default) \return true if geometry upload is possible
 						void			disableGeometryUpload()		{}					//!< Globally disables geometry gmem upload (enabled by default)
@@ -138,14 +144,14 @@ namespace Engine
 						void			bindMaterial(CGS::MaterialInfo*info,unsigned coord_dimensions, UINT32 vertexFlags, const Texture*const *list,bool treat_empty_as_planar=false)	{}
 						void			bindMaterial(const MaterialConfiguration&config, const Texture *const * list)					{}
 						void			bindMaterial(const Material&material)														{}
-	T					void			bindVertices(C*vdata, const VBO&vobj, unsigned band, const TCodeLocation&location)		{}
-	T					void			bindIndices(C*idata, const IBO&iobj)													{}
-	T	inline			void			renderSub(const C system[4*4], unsigned vertex_offset, unsigned vertex_count)					{}
-	T	inline			void			renderQuadsSub(const C system[4*4], unsigned vertex_offset, unsigned vertex_count)				{}
+	T_					void			bindVertices(C*vdata, const VBO&vobj, unsigned band, const TCodeLocation&location)		{}
+	T_					void			bindIndices(C*idata, const IBO&iobj)													{}
+	T_	inline			void			renderSub(const C system[4*4], unsigned vertex_offset, unsigned vertex_count)					{}
+	T_	inline			void			renderQuadsSub(const C system[4*4], unsigned vertex_offset, unsigned vertex_count)				{}
 		inline			void			render(unsigned vertex_offset, unsigned vertex_count)											{}
 		inline			void			renderQuads(unsigned vertex_offset, unsigned vertex_count)										{}
-	T	inline			void			renderStrip(const C system[4*4], unsigned vertex_offset, unsigned vertex_count)					{}
-	T	inline			void			renderQuadStrip(const C system[4*4], unsigned vertex_offset, unsigned vertex_count)				{}
+	T_	inline			void			renderStrip(const C system[4*4], unsigned vertex_offset, unsigned vertex_count)					{}
+	T_	inline			void			renderQuadStrip(const C system[4*4], unsigned vertex_offset, unsigned vertex_count)				{}
 		inline			void			renderStrip(unsigned vertex_offset, unsigned vertex_count)										{}
 		inline			void			renderQuadStrip(unsigned vertex_offset, unsigned vertex_count)									{}
 		inline			void			renderVertexStrip(unsigned vertex_offset, unsigned vertex_count)								{}
@@ -164,36 +170,59 @@ namespace Engine
 		static			void			face(const TVertex&v0, const TVertex&v1, const TVertex&v2)	{}								//!< Renders a triangle using the three specified vertices
 		static			void			segment(const tCVertex&v0, const tCVertex&v1)	{}												//!< Renders a line segment using the two specified color-vertices
 		static			void			segment(const TVertex&v0, const TVertex&v1)	{}												//!< Renders a line segment using the two specified vertices
-	T	static inline	void			enterSubSystem(const C system[4*4])	{}																	//!< Enters a sub-system affecting all following render-calls \param system Pointer to a 4x4 system matrix
+	T_	static inline	void			enterSubSystem(const C system[4*4])	{}																	//!< Enters a sub-system affecting all following render-calls \param system Pointer to a 4x4 system matrix
 		static inline	void			exitSubSystem()	{}																				//!< Returns from a sub-system to the next higher system
 						void			unbindAll()	{}																					//!< Unbinds the currently bound material, all textures and all vertex/index objects
-	T					void			loadModelview(const C matrix[4*4])	{}															//!< Loads the specified matrix as modelview matrix \param matrix Pointer to a 4x4 (system) matrix
-	T					void			loadProjection(const C matrix[4*4])	{}															//!< Loads the specified matrix as projection matrix \param matrix Pointer to a 4x4 (projection) matrix
-	T					void			replaceModelview(const C matrix[4*4]) {}															//!< Pushes the current modelview matrix to the stack and loads the specified one. restoreModelview() must be called when done working with the replacement \param matrix Pointer to a 4x4 (system) matrix to replace the current one
-	T					void			replaceProjection(const C matrix[4*4]) {}															//!< Pushes the current projection matrix to the stack and loads the specified one. restoreProjection() must be called when done working with the replacement \param matrix Pointer to a 4x4 (projection) matrix to replace the current one
+	T_					void			loadModelview(const C matrix[4*4])	{}															//!< Loads the specified matrix as modelview matrix \param matrix Pointer to a 4x4 (system) matrix
+	T_					void			loadProjection(const C matrix[4*4])	{}															//!< Loads the specified matrix as projection matrix \param matrix Pointer to a 4x4 (projection) matrix
+	T_					void			replaceModelview(const C matrix[4*4]) {}															//!< Pushes the current modelview matrix to the stack and loads the specified one. restoreModelview() must be called when done working with the replacement \param matrix Pointer to a 4x4 (system) matrix to replace the current one
+	T_					void			replaceProjection(const C matrix[4*4]) {}															//!< Pushes the current projection matrix to the stack and loads the specified one. restoreProjection() must be called when done working with the replacement \param matrix Pointer to a 4x4 (projection) matrix to replace the current one
 		inline			void			restoreModelview() {}																				//!< Restores the modelview matrix from the stack overwriting the currently loaded modelview matrix
 		inline			void			restoreProjection() {}																			//!< Restores the projection matrix from the stack overwriting the currently loaded projection matrix
-						void			nextFrameNoClr()	{}																				//!< Swaps buffers
-						void			nextFrame()	{}																					//!< Swaps buffers and clears the back buffer
 
 		static			String			status()	{return "OK";}																						//!< Queries the current DummyGL status \return String containing the current interface status
 		static			String			renderState()	{return "DummyGL";}																					//!< Queries the current render state \return String containing the current OpenGL render state
 
+	T_	void						SetCameraMatrices(const M::TMatrix4<C>&view, const M::TMatrix4<C>&projection, const M::TMatrix4<C>&viewInvert) {};
+		/**
+		@brief Pops and restores the last pushed render state from the stack.
+		*/
+		void						RestoreRendererState()	{Super::PopStateStackToCurrent();}
+		//void						StoreRendererState();	//implemented by VisualInterface
+		void						SetDepthTest(bool depthTest, bool depthWrite)	{}
+		void						SetRasterizer(bool fill, bool cull)	{}
+		void						SetBlendMode(BlendMode)	{}
+		void						SetViewport(const RECT&region, const Resolution&windowRes)	{}
+		inline void					SignalWindowResize(const Resolution&)	{}
+		static void					Capture(Image&target)	{}
+		static void					Capture(FloatImage&target)	{}
+		static void					Capture(Texture&target, unsigned width, unsigned height)	{}
+		static void					CaptureDepth(Texture&target, unsigned width, unsigned height)	{}
+		void						NextFrameNoClr()	{}
+		void						NextFrame()	{}
+		void						DestroyContext()	{}
+		const char*					GetName()	{return "DummyGL";}
+
+
 	#if SYSTEM==WINDOWS
-						bool			createContext(HWND hWnd, TVisualConfig&config)	{return false;}
+						bool			CreateContext(HWND hWnd, TVisualConfig&config, const Resolution&res)	{return false;}
 	#elif SYSTEM==UNIX
-						bool			createContext(Display*connection, TVisualConfig&config, TWindowAttributes&out_attributes)	{return false;}
+						bool			CreateContext(Display*connection, TVisualConfig&config, TWindowAttributes&out_attributes)	{return false;}
 						bool			bindContext(Window window)	{return false;}
 	#endif
 
 						void			setVerbose(bool)	{}
 						void			setRegion(const RECT&region)	{}																//!< Sets a new rendering region	\param region Rectangle specifying the new rendering region in the active window
 		static			const char*		GetErrorStr()		{return "DummyGL does not provide any functionality";}																					//!< Returns a string-representation of the last occured error \return String-representation of the last occured error
-		static			int				getErrorCode()		{return ERR_GENERAL_FAULT;}																				//!< Returns an index representation of the last occured error \return Error code of the last occured error
-						const char*		name()				{return "DummyGL";}																						//!< Returns identity \return "OpenGL"
+		static			int				GetErrorCode()		{return ERR_GENERAL_FAULT;}																				//!< Returns an index representation of the last occured error \return Error code of the last occured error
+
+	protected:
+		static bool					TargetFBO(const FBO&)	{return false;}
+		void						TargetBackbuffer()	{}
+
 	};
 
-	#undef T
+	#undef T_
 	#undef T2
 	#undef M
 
