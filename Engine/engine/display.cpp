@@ -1,8 +1,10 @@
 #include "display.h"
 
 #include "renderer/opengl.h"
+#include "renderer/dummygl.h"
 
 template class Engine::Display < Engine::OpenGL > ;
+template class Engine::Display < Engine::DummyGL > ;
 
 
 
