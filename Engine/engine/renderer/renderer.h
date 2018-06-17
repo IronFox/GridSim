@@ -19,6 +19,7 @@ Universal visual language-interface and rendering related definitions
 #include "../objects/texture.h"
 #include <interface/hashable.h>
 #include <general/orthographic_comparator.h>
+#include <general/enumeration.h>
 
 #if SYSTEM==UNIX
 
@@ -39,6 +40,12 @@ namespace Engine
 
 	#define DO_VERIFY_VERTEX_BINDING
 	//#define DO_VERIFY_BUFFERED_DATA
+
+
+	/**
+	Renderer pixel blend mode
+	*/
+	CONSTRUCT_ENUMERATION4(BlendMode,None,AlphaBlend,FlareBlend,Add);
 
 
 
@@ -492,17 +499,30 @@ namespace Engine
 	class VisualInterface
 	{
 	protected:
+		struct TRendererState
+		{
+			BlendMode		blendMode;
+			bool			fill,cull,depthTest,depthWrite;
+		};
 
+		TRendererState				current;
 			
 			
-
+		void						PopStateStackToCurrent()
+		{
+			ASSERT__(stack.IsNotEmpty());
+			current = stack.Pop();
+		}
 		
 	public:
-
 		/**
-		Interface mutex to shield the underlieing visual language (i.e. OpenGL or Direct3D) from multiple parallel calls.
+		@brief Pushes the current render state (depth-test,rasterizer,blend-mode) to the stack.
 		*/
-		static	Sys::Mutex					vs_mutex;
+		void						StoreRendererState()	{ASSERT_LESS__(stack.Count(), 16); stack << current;}
+		//void						RestoreRendererState();	//must be implemented by 
+
+	private:
+		Buffer0<TRendererState>	stack;
 
 	};
 }

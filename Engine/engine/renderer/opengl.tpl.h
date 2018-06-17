@@ -719,17 +719,7 @@ namespace Engine
 	}
 
 
-	template <class C>
-		inline void		OpenGL::replaceCamera(const M::TMatrix4<C>&modelview, const M::TMatrix4<C>&projection)
-		{
-			storeCamera();
 
-			glLoadMatrix(modelview.v);
-			glMatrixMode(GL_PROJECTION);
-			glLoadMatrix(projection.v);
-			glMatrixMode(GL_MODELVIEW);
-			onModelviewChange();
-		}
 
 	inline	void		OpenGL::restoreCamera()
 	{
@@ -750,18 +740,6 @@ namespace Engine
 	}
 
 
-	template <class C>
-	void					OpenGL::SetCameraMatrices(const M::TMatrix4<C>&view, const M::TMatrix4<C>&projection, const M::TMatrix4<C>&viewInvert)
-	{
-		GL_BEGIN
-	    glLoadMatrix(view.v);
-	    glMatrixMode(GL_PROJECTION);
-	    glLoadMatrix(projection.v);
-	    glMatrixMode(GL_MODELVIEW);
-		onModelviewChange();
-		GL_END
-
-	}
 
 
 

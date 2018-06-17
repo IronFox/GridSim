@@ -1271,10 +1271,17 @@ namespace Engine
 		static inline	void						exitSubSystem();																				//!< Returns from a sub-system to the next higher system
 						void						unbindAll();																					//!< Unbinds the currently bound material, all textures and all vertex/index objects
 	
-	T_ void					SetCameraMatrices(const M::TMatrix4<C>&view, const M::TMatrix4<C>&projection, const M::TMatrix4<C>&viewInvert);
-	T_					void						replaceCamera(const M::TMatrix4<C>&modelview, const M::TMatrix4<C>&projection);								//!< Pushes the current modelview and projection matrices to the stack and loads the specified ones. restoreCamera() must be called when done working with the replacement
 		inline			void						storeCamera();																					//!< Pushes the current modelview and projection matrices to the stack
 		inline			void						restoreCamera();																				//!< Restores the modelview and projection matrices from the stack, overwriting the currently loaded modelview and projection matrices
+		void						SetCameraMatrices(const M::TMatrix4<>&view, const M::TMatrix4<>&projection, const M::TMatrix4<>&viewInvert);
+		/**
+		@brief Pops and restores the last pushed render state from the stack.
+		*/
+		void						RestoreRendererState();
+		//void						StoreRendererState();	//implemented by VisualInterface
+		void						SetDepthTest(bool depthTest, bool depthWrite);
+		void						SetRasterizer(bool fill, bool cull);
+		void						SetBlendMode(BlendMode);
 		
 						void						NextFrameNoClr();																				//!< Swaps buffers
 						void						NextFrame();																					//!< Swaps buffers and clears the back buffer

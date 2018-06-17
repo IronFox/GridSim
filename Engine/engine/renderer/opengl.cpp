@@ -3537,7 +3537,71 @@ namespace Engine
 		GL_END
 	}
 
+	void					OpenGL::SetCameraMatrices(const M::TMatrix4<>&view, const M::TMatrix4<>&projection, const M::TMatrix4<>&viewInvert)
+	{
+		GL_BEGIN
+	    glLoadMatrix(view.v);
+	    glMatrixMode(GL_PROJECTION);
+	    glLoadMatrix(projection.v);
+	    glMatrixMode(GL_MODELVIEW);
+		onModelviewChange();
+		GL_END
 
+	}
+
+
+	void					OpenGL::RestoreRendererState()
+	{
+		PopStateStackToCurrent();
+		SetBlendMode(current.blendMode);
+		SetRasterizer(current.fill,current.cull);
+		SetDepthTest(current.depthTest,current.depthWrite);
+	}
+
+	void					OpenGL::SetDepthTest(bool depthTest, bool depthWrite)
+	{
+		if (depthTest)
+			glEnable(GL_DEPTH_TEST);
+		else
+			glDisable(GL_DEPTH_TEST);
+		glDepthMask(depthWrite);
+	}
+
+	void					OpenGL::SetRasterizer(bool fill, bool cull)
+	{
+		if (fill)
+			glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+		else
+			glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+
+		if (cull)
+			glEnable(GL_CULL_FACE);
+		else
+			glDisable(GL_CULL_FACE);
+	}
+
+	void					OpenGL::SetBlendMode(BlendMode mode)
+	{
+		switch (mode)
+		{
+			case BlendMode::AlphaBlend:
+				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+				glEnable(GL_BLEND);
+			break;
+			case BlendMode::Add:
+				glBlendFunc(GL_ONE,GL_ONE);
+				glEnable(GL_BLEND);
+			break;
+			case BlendMode::FlareBlend:
+				glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+				glEnable(GL_BLEND);
+			break;
+			case BlendMode::None:
+				glBlendFunc(GL_ONE, GL_ZERO);
+				glDisable(GL_BLEND);
+			break;
+		}
+	}
 
 
 
