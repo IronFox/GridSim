@@ -3604,6 +3604,159 @@ namespace Engine
 	}
 
 
+	 
+	void						OpenGL::RenderLights(const M::TVec3<>&cameraLocation)
+	{
+		Array<PLight>	lights;
+		getSceneLights(lights, true);
+		if (!lights_defined)
+		{
+			lights_defined = true;
+			
+		/*	spot.select(SimpleGeometry::Lines);
+			spot.color(1,1,1);
+			spot.vertex(0,0,0);
+			spot.color(0,0,1);
+			spot.vertex(0,1,1);
+			spot.color(1,1,1);
+			spot.vertex(0,0,0);
+			spot.color(0,0,1);
+			spot.vertex(0,-1,1);
+			spot.color(1,1,1);
+			spot.vertex(0,0,0);
+			spot.color(0,0,1);
+			spot.vertex(1,0,1);
+			spot.color(1,1,1);
+			spot.vertex(0,0,0);
+			spot.color(0,0,1);
+			spot.vertex(-1,0,1);
+			for (unsigned i = 0; i < 40; i++)
+			{
+				float	f0 = (float)i/40.0f*2*M_PI,
+						f1 = (float)(i+1)/40.0f*2*M_PI;
+				spot.vertex(cos(f0),sin(f0),1);
+				spot.vertex(cos(f1),sin(f1),1);
+			}*/
+			
+			spot.select(SimpleGeometry::Triangles);
+			for (unsigned i = 0; i < 40; i++)
+			{
+				float	f0 = (float)i/40.0f*2*M_PI,
+						f1 = (float)(i+1)/40.0f*2*M_PI;
+				spot.color(0,0,1,0);
+				spot.vertex(cos(f0),sin(f0),1);
+				spot.vertex(cos(f1),sin(f1),1);
+				spot.color(1,1,1);
+				spot.vertex(0,0,0);
+			}
+			
+			spot.seal();
+			
+			
+			omni.select(SimpleGeometry::Lines);
+			omni.color(1,1,1);
+			omni.vertex(2,0,0);
+			omni.vertex(-2,0,0);
+			omni.vertex(0,2,0);
+			omni.vertex(0,-2,0);
+			omni.vertex(0,0,2);
+			omni.vertex(0,0,-2);
+			omni.seal();
+			
+			
+
+			direct.select(SimpleGeometry::Quads);
+			for (unsigned i = 0; i < 40; i++)
+			{
+				float	f0 = (float)i/40.0f*2*M_PI,
+						f1 = (float)(i+1)/40.0f*2*M_PI;
+				direct.color(0,0,1,0);
+				direct.vertex(cos(f1)*0.5,sin(f1)*0.5,0);
+				direct.vertex(cos(f0)*0.5,sin(f0)*0.5,0);
+				direct.color(1,1,1);
+				direct.vertex(cos(f0)*0.5,sin(f0)*0.5,1);
+				direct.vertex(cos(f1)*0.5,sin(f1)*0.5,1);
+			}
+			
+			direct.select(SimpleGeometry::Triangles);
+			direct.color(1,1,1);
+			for (unsigned i = 0; i < 40; i++)
+			{
+				float	f0 = (float)i/40.0f*2*M_PI,
+						f1 = (float)(i+1)/40.0f*2*M_PI;
+				direct.vertex(cos(f1)*0.5,sin(f1)*0.5,1);
+				direct.vertex(cos(f0)*0.5,sin(f0)*0.5,1);
+				direct.vertex(0,0,1);
+			}
+			
+			direct.seal();
+			
+			
+		}
+		for (index_t i = 0; i < lights.Count(); i++)
+		{
+		
+			switch (lights[i]->GetType())
+			{
+				case Light::Spot:
+				{
+					float scale = M::Vec::distance(cameraLocation,lights[i]->GetPosition())/5;
+					M::TMatrix4<> system;
+					float angle = pow(0.94,lights[i]->GetSpotExponent());
+					/*if (angle*45 > lights[i]->getSpotCutoff())
+						angle = lights[i]->getSpotCutoff()/45;*/
+					float z_scale = 1.0/M::clamped(angle,0.1,1);
+					M::Mat::makeAxisSystem(lights[i]->GetPosition(),lights[i]->GetSpotDirection(),2,system);
+					M::Vec::mult(system.x.xyz,scale/z_scale);
+					M::Vec::mult(system.y.xyz,scale/z_scale);
+					M::Vec::mult(system.z.xyz,scale*z_scale);
+					
+					enterSubSystem(system);
+						render(spot);
+					
+					exitSubSystem();
+				
+				}
+				break;
+				case Light::Omni:
+				{
+					float scale = M::Vec::distance(cameraLocation,lights[i]->GetPosition())/10;
+					M::TMatrix4<> system;
+					M::Mat::Eye(system);
+					M::Vec::copy(lights[i]->GetPosition(),system.w.xyz);
+					M::Vec::mult(system.x.xyz,scale);
+					M::Vec::mult(system.y.xyz,scale);
+					M::Vec::mult(system.z.xyz,scale);
+					enterSubSystem(system);
+						render(omni);
+					exitSubSystem();
+				}
+				break;
+				case Light::Direct:
+				{
+					float scale = M::Vec::length(cameraLocation)/4;
+					M::TMatrix4<> system;
+					M::TVec3<>	offset;
+					M::Vec::mult(lights[i]->GetPosition(),scale,offset);
+					M::Mat::makeAxisSystem(offset,lights[i]->GetPosition(),2,system);
+					M::Vec::mult(system.x.xyz,scale);
+					M::Vec::mult(system.y.xyz,scale);
+					M::Vec::mult(system.z.xyz,scale*2);
+					enterSubSystem(system);
+						render(direct);
+					exitSubSystem();
+				}
+				break;
+			}
+		
+		
+		}
+		
+		
+		
+	}
+
+
 
 	bool	GL::Buffer::isValid()	const
 	{
