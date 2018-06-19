@@ -48,10 +48,10 @@ BEGIN
         BLOCK "040704b0"
         BEGIN
             VALUE "CompanyName", ""
-            VALUE "FileDescription", PRODUCT_NAME " Prototype Strategy Game"
+            VALUE "FileDescription", PRODUCT_NAME " Simulation Grid Simulator"
             VALUE "FileVersion", PRODUCT_VERSION
             VALUE "InternalName", PRODUCT_NAME".exe"
-            VALUE "LegalCopyright", "Copyright (C) 2014-2015 by Stefan Elsen"
+            VALUE "LegalCopyright", "Copyright (C) 2014-2018 by Stefan Elsen"
             VALUE "OriginalFilename", PRODUCT_NAME
             VALUE "ProductName", PRODUCT_NAME
             VALUE "ProductVersion", PRODUCT_VERSION
