@@ -25,3 +25,4 @@ config/
 *.csv
 *.7z
 *.pdf
+/NormFinder/
