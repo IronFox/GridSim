@@ -418,6 +418,7 @@ void FullShardDomainState::FinalizeComputation(Shard&shard, const TCodeLocation&
 	significantInboundChange = false;
 
 	cs.Apply(shard.gridCoords,*out);
+	out->entities.Compact();
 	out->ic.VerifyIntegrity(CLOCATION);
 
 	pGrid->Include(out->entities);

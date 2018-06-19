@@ -52,6 +52,7 @@ public:
 	void				Clear()	{ entities.clear();}
 	bool				IsEmpty() const {return entities.IsEmpty();}
 	bool				IsNotEmpty() const {return entities.IsNotEmpty();}
+	void				Compact() {entities.Compact();}
 	/**
 	Inserts all entities contained by the specified other storage.
 	All contained entities must not be defined in the local storage
