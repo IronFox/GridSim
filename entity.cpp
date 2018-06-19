@@ -12,8 +12,7 @@
 			#endif
 				Op::Removal::MaxRange = Entity::MaxInfluenceRadius,
 				Op::Instantiation::MaxRange = Entity::MaxMotionDistance,
-				Op::Message::MaxRange = Entity::MaxInfluenceRadius,
-				Op::Broadcast::MaxRange = Entity::MaxInfluenceRadius,
+					Op::BaseMessage::MaxRange = Entity::MaxInfluenceRadius,
 				Op::Motion::MaxRange = Entity::MaxMotionDistance
 		#ifndef NO_SENSORY
 				,Op::StateAdvertisement::MaxRange = Entity::MaxAdvertisementRadius

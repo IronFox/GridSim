@@ -657,6 +657,7 @@ namespace Op
 	class BaseMessage : public Base
 	{
 	public:
+		static const float	MaxRange;
 		#ifndef ONE_LOGIC_PER_ENTITY
 			LogicProcess	targetProcess,sourceProcess;
 		#endif
@@ -687,7 +688,6 @@ namespace Op
 	class Message : public BaseMessage, public Targeted
 	{
 	public:
-		static const float	MaxRange;
 
 		void				swap(Message&other)
 							{
@@ -706,7 +706,6 @@ namespace Op
 	class Broadcast : public BaseMessage
 	{
 	public:
-		static const float	MaxRange;
 		typedef TTrue		DispatchRadially;
 	
 	};
