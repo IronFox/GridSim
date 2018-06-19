@@ -8,11 +8,19 @@
 				Entity::MaxAdvertisementRadius = Entity::MaxInfluenceRadius/2,
 				Entity::MaxMotionDistance = Entity::MaxInfluenceRadius/2,
 			#else
-				Entity::MaxMotionDistance = Entity::MaxInfluenceRadius,
+				#ifndef DISPLACED_MESSAGES
+					Entity::MaxMotionDistance = Entity::MaxInfluenceRadius,
+				#else
+					Entity::MaxMotionDistance = Entity::MaxInfluenceRadius/2,
+				#endif
 			#endif
 				Op::Removal::MaxRange = Entity::MaxInfluenceRadius,
 				Op::Instantiation::MaxRange = Entity::MaxMotionDistance,
+				#ifndef DISPLACED_MESSAGES
 					Op::BaseMessage::MaxRange = Entity::MaxInfluenceRadius,
+				#else
+					Op::BaseMessage::MaxRange = Entity::MaxInfluenceRadius/2,
+				#endif
 				Op::Motion::MaxRange = Entity::MaxMotionDistance
 		#ifndef NO_SENSORY
 				,Op::StateAdvertisement::MaxRange = Entity::MaxAdvertisementRadius
@@ -483,11 +491,26 @@ void ChangeSet::Apply(const TGridCoords&shardCoords,CoreShardDomainState &target
 
 void	ChangeSet::Add(const Entity&e, MessageDispatcher&dispatcher)
 {
+	const auto sector = e.GetShardCoords();
 	foreach (dispatcher.messages,msg)
-		messageOps.MoveAppend(*msg).SetOrigin(e); 
+		messageOps.MoveAppend(*msg).SetOrigin(e,sector); 
 	foreach (dispatcher.broadcasts,msg)
-		broadcastOps.MoveAppend(*msg).SetOrigin(e); 
+		broadcastOps.MoveAppend(*msg).SetOrigin(e,sector); 
 }
+
+#ifdef DISPLACED_MESSAGES
+	void	ChangeSet::Add(const Entity&e, MessageDispatcher&dispatcher, const TEntityCoords&displacedOrigin)
+	{
+		EntityID origin = e;
+		origin.coordinates = displacedOrigin;
+		const auto sector = origin.GetShardCoords();
+		foreach (dispatcher.messages,msg)
+			messageOps.MoveAppend(*msg).SetOrigin(origin,sector);
+		foreach (dispatcher.broadcasts,msg)
+			broadcastOps.MoveAppend(*msg).SetOrigin(origin,sector);
+	}
+#endif
+
 
 
 void	ChangeSet::AddSelfMotion(const Entity&e, const TEntityCoords&newCoordinates)

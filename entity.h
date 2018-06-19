@@ -615,6 +615,13 @@ namespace Op
 			origin = es;
 			originSector = es.GetShardCoords();
 		}
+
+		void				SetOrigin(const EntityID&es, const TGridCoords&originSector)
+		{
+			origin = es;
+			this->originSector = originSector;
+		}
+
 		bool				operator==(const Base&other) const {return origin == other.origin && originSector == other.originSector;}
 		bool				operator!=(const Base&other) const {return !operator==(other);}
 	};
@@ -872,6 +879,9 @@ public:
 			;
 	}
 	void	Add(const Entity&e, MessageDispatcher&dispatcher);
+	#ifdef DISPLACED_MESSAGES
+		void	Add(const Entity&e, MessageDispatcher&dispatcher, const TEntityCoords&displacedOrigin);
+	#endif
 	void	Add(const Entity&e, const Op::Instantiation&op)	{instantiationOps.Append(op).SetOrigin(e);}
 	void	Add(const Entity&e, const Op::Removal&op)		{removalOps.Append(op).SetOrigin(e);}
 	void	Add(const Entity&e, const Op::Motion&op)		{motionOps.Append(op).SetOrigin(e);}

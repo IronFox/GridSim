@@ -32,6 +32,7 @@ Replaces MessageData with a custom class to accumulate contained data
 
 
 #define NO_SENSORY	//completely disables all entity sensory functionality
+#define DISPLACED_MESSAGES //uses sensory logic on messages (radiated from future location, reduced range of motion and communication)
 
 //#define D3	//3d-grid
 

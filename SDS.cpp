@@ -748,7 +748,7 @@ void FullShardDomainState::ExecuteLogic(CS & outLocal, index_t generation, const
 		((EntityShape&)*e) = shape;
 		//float2 motion = e->coordinates - originPosition;
 		//e->coordinates = originPosition;
-		outLocal.Add(*e,dispatcher);
+
 
 		#ifndef NO_SENSORY
 			Op::StateAdvertisement&ad = outLocal.stateAdvertisementOps.Append();
@@ -773,10 +773,15 @@ void FullShardDomainState::ExecuteLogic(CS & outLocal, index_t generation, const
 				ad.origin.coordinates += shape.velocity;
 			#endif
 			//Add(*e,Op::StateAdvertisement(motion));
+			#ifdef DISPLACED_MESSAGES
+				outLocal.Add(*e,dispatcher, coords2);
+			#else
+				outLocal.Add(*e,dispatcher);
+			#endif
 		}
 		else
 		{
-			//outLocal.Add(*e,Op::StateAdvertisement());
+			outLocal.Add(*e,dispatcher);
 		}
 	}
 	GetOutput()->entities = processed;
