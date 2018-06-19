@@ -115,7 +115,11 @@ public:
 	/**
 	Broadcasts the specified message to all sectors
 	*/
-	void				DispatchUserMessage(const GUID&target, LogicProcess targetProcess, const void*payload, size_t payloadSize);
+	#ifdef INT_MESSAGES
+		void				DispatchUserMessage(const GUID&target, LogicProcess targetProcess, UINT64 payload);
+	#else
+		void				DispatchUserMessage(const GUID&target, LogicProcess targetProcess, const void*payload, size_t payloadSize);
+	#endif
 
 
 	const TBoundaries&	GetBoundaries() const {return boundaries;}

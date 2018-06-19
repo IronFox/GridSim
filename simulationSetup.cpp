@@ -62,7 +62,8 @@ namespace Logic
 			#ifndef ONE_LOGIC_PER_ENTITY
 				seq.AppendPOD(m->senderProcess);
 			#endif
-			seq.Append(m->data->GetPointer(),m->data->Length());
+			auto ref = ToArrayRef(m->data);
+			seq.Append(ref.GetPointer(),ref.Length());
 		}
 
 		#ifndef NO_SENSORY
@@ -94,10 +95,18 @@ namespace Logic
 		inOutShape.velocity += motion;
 
 		#ifdef NO_SENSORY
-			TBroadcastData broadcast;
-			broadcast.seed = seed;
-			broadcast.sender = e;
-			disp.BroadcastPOD(AggressiveRandomMotion,broadcast);
+			#ifdef INT_MESSAGES
+				UINT64 broadcast;
+				UINT32*parts = (UINT32*)&broadcast;
+				parts[0] = seed;
+				parts[1] = e.guid.Data1;
+				disp.BroadcastCopy(AggressiveRandomMotion,broadcast);
+			#else
+				TBroadcastData broadcast;
+				broadcast.seed = seed;
+				broadcast.sender = e;
+				disp.BroadcastPOD(AggressiveRandomMotion,broadcast);
+			#endif
 		#endif
 	}
 
@@ -111,7 +120,8 @@ namespace Logic
 			#ifndef ONE_LOGIC_PER_ENTITY
 				seq.AppendPOD(m->senderProcess);
 			#endif
-			seq.Append(m->data->GetPointer(),m->data->Length());
+			auto ref = ToArrayRef(m->data);
+			seq.Append(ref.GetPointer(),ref.Length());
 		}
 
 		#ifndef NO_SENSORY
@@ -144,11 +154,18 @@ namespace Logic
 		inOutShape.velocity += motion;
 
 
-		#ifdef NO_SENSORY
+		#ifdef INT_MESSAGES
+			UINT64 broadcast;
+			UINT32*parts = (UINT32*)&broadcast;
+			parts[0] = seed;
+			parts[1] = e.guid.Data1;
+			disp.BroadcastCopy(AggressiveRandomMotionX,broadcast);
+		#else
 			TBroadcastData broadcast;
 			broadcast.seed = seed;
 			broadcast.sender = e;
 			disp.BroadcastPOD(AggressiveRandomMotionX,broadcast);
+
 		#endif
 
 	}

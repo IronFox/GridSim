@@ -945,21 +945,39 @@ void		Grid::AssertIsRecovering()
 }
 
 
-void		Grid::DispatchUserMessage(const GUID&target, LogicProcess targetProcess, const void*payload, size_t payloadSize)
-{
-	PMessageData msg {new MessageData((const BYTE*)payload,payloadSize)};
-	foreach (layers,l)
+#ifdef INT_MESSAGES
+	void		Grid::DispatchUserMessage(const GUID&target, LogicProcess targetProcess, UINT64 payload)
 	{
-		foreach (l->shardGrid,s)
+		MessageDataContainer msg = payload;
+		foreach (layers,l)
 		{
-			s->userMessages.Append().message = msg;
-			s->userMessages.Last().target.guid = target;
-			#ifndef ONE_LOGIC_PER_ENTITY
-				s->userMessages.Last().targetProcess = targetProcess;
-			#endif
+			foreach (l->shardGrid,s)
+			{
+				s->userMessages.Append().message = msg;
+				s->userMessages.Last().target.guid = target;
+				#ifndef ONE_LOGIC_PER_ENTITY
+					s->userMessages.Last().targetProcess = targetProcess;
+				#endif
+			}
 		}
 	}
-}
+#else
+	void		Grid::DispatchUserMessage(const GUID&target, LogicProcess targetProcess, const void*payload, size_t payloadSize)
+	{
+		MessageDataContainer msg {new MessageData((const BYTE*)payload,payloadSize)};
+		foreach (layers,l)
+		{
+			foreach (l->shardGrid,s)
+			{
+				s->userMessages.Append().message = msg;
+				s->userMessages.Last().target.guid = target;
+				#ifndef ONE_LOGIC_PER_ENTITY
+					s->userMessages.Last().targetProcess = targetProcess;
+				#endif
+			}
+		}
+	}
+#endif
 
 void Check(const Shard&s, const FullShardDomainState&sds)
 {

@@ -1217,13 +1217,22 @@ namespace Build
 }
 
 
-void		Simulation::DispatchUserMessage(const GUID&target, LogicProcess targetProcess, const void*payload, size_t payloadSize)
-{
-	if (useControl)
-		control.DispatchUserMessage(target, targetProcess, payload, payloadSize);
-	simulated.DispatchUserMessage(target, targetProcess, payload, payloadSize);
-}
+#ifdef INT_MESSAGES
+	void	Simulation::DispatchUserMessage(const GUID&target, LogicProcess targetProcess, UINT64 message)
+	{
+		if (useControl)
+			control.DispatchUserMessage(target, targetProcess, message);
+		simulated.DispatchUserMessage(target, targetProcess, message);
 
+	}
+#else
+	void		Simulation::DispatchUserMessage(const GUID&target, LogicProcess targetProcess, const void*payload, size_t payloadSize)
+	{
+		if (useControl)
+			control.DispatchUserMessage(target, targetProcess, payload, payloadSize);
+		simulated.DispatchUserMessage(target, targetProcess, payload, payloadSize);
+	}
+#endif
 
 
 void Simulation::RebuildIfOudatedFor(float seconds)

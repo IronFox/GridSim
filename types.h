@@ -33,6 +33,48 @@ Replaces MessageData with a custom class to accumulate contained data
 
 #define NO_SENSORY	//completely disables all entity sensory functionality
 #define DISPLACED_MESSAGES //uses sensory logic on messages (radiated from future location, reduced range of motion and communication)
+#define INT_MESSAGES
+
+
+#ifdef INT_MESSAGES
+	typedef UINT64 MessageDataContainer;
+	typedef Strategy::Copy MessageDataStrategy;
+
+	inline int CompareMessages(MessageDataContainer a, MessageDataContainer b)
+	{
+		return a < b ? -1 : (a > b ? 1 : 0);
+	}
+
+	inline ArrayRef<const BYTE> ToArrayRef(const MessageDataContainer&a)
+	{
+		return ArrayRef<const BYTE>((const BYTE*)&a,sizeof(a));
+	}
+
+#else
+
+	#ifdef CAPTURE_MESSAGE_VOLUME
+		class CustomMessageData;
+		typedef CustomMessageData MessageData;
+	#else
+		typedef Array<BYTE>	MessageData;
+	#endif
+	typedef std::shared_ptr<MessageData>	MessageDataContainer;
+	DECLARE_DEFAULT_STRATEGY(MessageDataContainer,Swap);
+	typedef Strategy::Swap MessageDataStrategy;
+
+	inline int CompareMessage(const MessageDataContainer&a, const MessageDataContainer&b)
+	{
+		if (a == b)
+			return 0;
+		return a->CompareTo(*b,Compare::Primitives<BYTE>);
+	}
+	inline ArrayRef<const BYTE> ToArrayRef(const MessageDataContainer&a)
+	{
+		return *a;
+	}
+#endif
+
+
 
 //#define D3	//3d-grid
 

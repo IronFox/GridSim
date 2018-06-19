@@ -68,7 +68,11 @@ public:
 	bool		IsAsync() const;
 
 
-	void		DispatchUserMessage(const GUID&target, LogicProcess targetProcess, const void*payload, size_t payloadSize);
+	#ifdef INT_MESSAGES
+		void	DispatchUserMessage(const GUID&target, LogicProcess targetProcess, UINT64 message);
+	#else
+		void	DispatchUserMessage(const GUID&target, LogicProcess targetProcess, const void*payload, size_t payloadSize);
+	#endif
 
 	count_t		CountSingleLayerShards() const {return simulated.layers.IsNotEmpty() ? simulated.layers.First().shardGrid.Count() : 1;}
 	count_t		CountIterations() const {return numIterations;}
