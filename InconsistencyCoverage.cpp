@@ -586,25 +586,27 @@ static InconsistencyCoverage::TExtSample*	GetVerified(Array3D<InconsistencyCover
 	return &array.Get(c.x,c.y,c.z);
 }
 
-void InconsistencyCoverage::IncludeMissing(const TGridCoords&sectorDelta, const GridIndex&shardIndex, const GridSize&shardGridSize, generation_t generation)
+void InconsistencyCoverage::IncludeMissing(const NeighborInfo&info, generation_t generation)
 {
 	ASSERT__(!sealed);
 	VerifyIntegrity(CLOCATION);
-	TGridCoords pixelDelta = offset - sectorDelta * Resolution - (-1);
+	TGridCoords pixelDelta = offset - info.neighborSectorDelta * Resolution - (-1);
 
 	TExtSample v2;
 	v2.depth = 1;
 	v2.spatialDistance = 0;
 	//v2.unavailableShards.SetSize(numShards);
 	{
-		const index_t linear = shardGridSize.ToLinearIndex(shardIndex);
-		v2.unavailableShards.SetBit(linear,true);
-		v2.precise.Include(linear,generation);
-
-		shardIndex.IterateNeighborhood([&v2,shardGridSize,generation](const GridIndex&idx)
 		{
-			v2.fuzzy.Include(shardGridSize.ToLinearIndex(idx),generation);
-		},shardGridSize);
+			const index_t linear = info.shardGridSize.ToLinearIndex(info.neighborShardIndex);
+			v2.unavailableShards.SetBit(linear,true);
+			v2.precise.Include(linear,generation);
+		}
+
+		info.neighborShardIndex.IterateNeighborhood([&v2,info,generation](const GridIndex&idx)
+		{
+			v2.fuzzy.Include(info.shardGridSize.ToLinearIndex(idx),generation);
+		},info.shardGridSize);
 	}
 
 

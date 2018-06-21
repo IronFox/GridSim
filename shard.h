@@ -176,6 +176,16 @@ public:
 	void					UploadInitialStates();
 
 	/**
+	Gets all relevant IC neighbor information associated with a given outbound neighbor index
+	*/
+	IC::NeighborInfo		GetOutboundNeighborInfo(index_t neighborIndex) const;
+	/**
+	Gets all relevant IC neighbor information associated with a given inbound neighbor index
+	*/
+	IC::NeighborInfo		GetInboundNeighborInfo(index_t neighborIndex) const;
+
+
+	/**
 	Removes all consistent and confirmed SDS up to the first non-confirmed or inconsistent SDS.
 	Does not remove the last SDS
 	*/

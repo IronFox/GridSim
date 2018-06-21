@@ -411,7 +411,10 @@ void FullShardDomainState::FinalizeComputation(Shard&shard, const TCodeLocation&
 				inRCSPermanence[inbound].Request();
 			//this->GetOutput()->ic.Include(shard.outboundNeighbors[i].delta,bad);
 			ASSERT_LESS__(generation,std::numeric_limits<IC::generation_t>::max());
-			this->GetOutput()->ic.IncludeMissing(shard.neighbors[i].delta,VectorToIndex( shard.gridCoords),shard.parentGrid->currentSize,IC::generation_t(generation));
+			const auto info = shard.GetOutboundNeighborInfo(i);
+			auto&ic = this->GetOutput()->ic;
+			ic.IncludeMissing(info,IC::generation_t(generation));
+
 		}
 	}
 

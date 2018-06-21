@@ -916,7 +916,7 @@ void		Grid::AssertIsRecovering()
 
 		foreach (l->shardGrid,s)
 		{
-			for (index_t i =0; i < s->neighbors.Count(); i++)
+			for (index_t i =0; i < s->outboundNeighbors.Count(); i++)
 			{
 				const auto*n = s->outboundNeighbors[i].shard;
 				if (n)

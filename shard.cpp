@@ -294,6 +294,22 @@ void Shard::Trim()
 	this->VerifyIntegrity();
 }
 
+
+IC::NeighborInfo		Shard::GetOutboundNeighborInfo(index_t neighborIndex) const
+{
+	const auto&n = outboundNeighbors[neighborIndex];
+	IC::NeighborInfo rs;
+	rs.localShardIndex = VectorToIndex(gridCoords);
+	rs.neighborShardIndex = VectorToIndex(n.shard->gridCoords);
+	rs.neighborSectorDelta = n.delta;
+	rs.shardGridSize = parentGrid->currentSize;
+	return rs;
+}
+IC::NeighborInfo		Shard::GetInboundNeighborInfo(index_t neighborIndex) const
+{
+	return GetOutboundNeighborInfo(outboundNeighbors[neighborIndex].inboundIndex);
+}
+
 void Shard::UpdateOldestRecoverableGeneration()
 {
 	if (IsDead())

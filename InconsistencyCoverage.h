@@ -33,6 +33,17 @@ public:
 		bool	allUndefined = true;
 	};
 
+	/**
+	Information about a single missing neighbor
+	*/
+	struct NeighborInfo
+	{
+		TGridCoords	neighborSectorDelta;
+		GridIndex	localShardIndex, 
+					neighborShardIndex;
+		GridSize	shardGridSize;
+	};
+
 
 	struct TSample
 	{
@@ -288,7 +299,7 @@ public:
 	@return true, if any inconsistency was imported
 	*/
 	bool		Include(const TGridCoords&sectorDelta, const InconsistencyCoverage&remote);
-	void		IncludeMissing(const TGridCoords&sectorDelta, const GridIndex&shardIndex, const GridSize&shardGridSize, generation_t generation);
+	void		IncludeMissing(const NeighborInfo&missing, generation_t generation);
 
 	/**
 	Resizes the local area to at most Resolution*Resolution[*Resolution] and copies all values from the specified remote ic map
