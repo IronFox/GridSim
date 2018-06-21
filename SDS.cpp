@@ -50,7 +50,7 @@ void					RemoteChangeSet::VerifyIntegrity(const TCodeLocation&loc) const
 }
 
 
-void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBoundaries&motionSpace, index_t currentTimestep, const TCodeLocation&caller) const
+void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBoundaries&motionSpace, index_t topGeneration, const TCodeLocation&caller) const
 {
 	#ifdef DBG_SHARD_HISTORY
 		shard.LogEvent("Precompute SDS g"+String(generation+1)); 
@@ -91,7 +91,7 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 	inputHash.Finish(c);
 	ASSERT__(!rs.GetOutput() || !rs.GetOutput()->IsFullyConsistent());
 
-	rs.InitGeneration(generation + 1, currentTimestep,true,CLOCATION,caller);
+	rs.InitGeneration(generation + 1, topGeneration,true,CLOCATION,caller);
 	ASSERT__(!rs.GetOutput()->ic.IsSealed());
 	if (c == rs.inputHash)
 	{
