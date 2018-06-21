@@ -268,6 +268,7 @@ public:
 
 
 //	void				AssertEquality(const SDS&other) const;
+	static void			AssertEquality(const EntityStorage&a, const EntityStorage&b, const TCodeLocation&aBirthPlace, const TCodeLocation&bBirthPlace);
 	/**
 	Asserts total equality between this and other.
 	The method assumes both the local and remote SDS are fully consistent

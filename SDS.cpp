@@ -532,6 +532,21 @@ void				FullShardDomainState::AssertSelectiveEquality(const SDS&other, const TGr
 	AssertSelectiveEquality(GetOutput(),other.GetOutput(),shardOffset);
 }
 
+/*static*/ void FullShardDomainState::AssertEquality(const EntityStorage&a, const EntityStorage&b, const TCodeLocation&aBirthPlace, const TCodeLocation&bBirthPlace)
+{
+	foreach(a, p)
+	{
+		const Entity*p2 = b.FindEntity(p->guid);
+		ASSERT2__(p2 && (*p2) == *p, aBirthPlace,bBirthPlace);
+	}
+	foreach(b, p)
+	{
+		const Entity*p2 = a.FindEntity(p->guid);
+		ASSERT_NOT_NULL2__(p2, aBirthPlace,bBirthPlace);	//equality already checked if existent
+	}
+
+
+}
 
 void FullShardDomainState::AssertTotalEquality(const SDS & other, const TGridCoords&shardOffset) const
 {
@@ -543,17 +558,7 @@ void FullShardDomainState::AssertTotalEquality(const SDS & other, const TGridCoo
 
 	if (local && remote)
 	{
-		foreach(local->entities, p)
-		{
-			const Entity*p2 = remote->entities.FindEntity(p->guid);
-			ASSERT2__(p2 && (*p2) == *p, local->birthPlace,remote->birthPlace);
-		}
-
-		foreach(remote->entities, p)
-		{
-			const Entity*p2 = local->entities.FindEntity(p->guid);
-			ASSERT_NOT_NULL2__(p2, local->birthPlace,remote->birthPlace);	//equality already checked if existent
-		}
+		AssertEquality(local->entities,remote->entities, local->birthPlace,remote->birthPlace);
 
 		for (index_t i = 0; i < local->ic.GetGrid().Count(); i++)
 		{
