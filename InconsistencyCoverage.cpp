@@ -519,25 +519,36 @@ void InconsistencyCoverage::Grow(InconsistencyCoverage & rs) const
 			for (UINT32 x = 0; x < grid.GetWidth(); x++)
 			{
 				TExtSample v = grid.Get(x,y);
-				if (!v.IsConsistent())
-					v.IncreaseDepth();
-				if (v.depth < 2)
+				if (v.IsConsistent())
 					continue;
-				for (UINT32 i = 0; i <= expandBy; i++)
-					for (UINT32 j = 0; j <= expandBy; j++)
-						if (i || j)
+				v.IncreaseDepth();
+				ASSERT__(!v.IsConsistent());
+
+				for (int ex = -(int)expandBy; ex <= (int)expandBy; ex++)
+					for (int ey = -(int)expandBy; ey <= (int)expandBy; ey++)
+						if (ex || ey)
 						{
-							UINT32 dist = M::Max(i, j);
-							rs.grid.Get(x + expandBy - i, y + expandBy - j).IntegrateGrowingNeighbor(v, dist);
-							if (j != 0)
-								rs.grid.Get(x + expandBy - i, y + expandBy + j).IntegrateGrowingNeighbor(v,dist);
-							if (i != 0)
-							{
-								rs.grid.Get(x + expandBy + i, y + expandBy - j).IntegrateGrowingNeighbor(v, dist);
-								if (j != 0)
-									rs.grid.Get(x + expandBy + i, y + expandBy + j).IntegrateGrowingNeighbor(v, dist);
-							}
+							const UINT32 dist = M::Max(std::abs(ex),std::abs(ey));
+							auto&n = rs.grid.Get(x + expandBy + ex, y + expandBy + ey);
+							n.IntegrateGrowingNeighbor(v,dist);
+							ASSERT__(!n.IsConsistent());
 						}
+
+				//for (UINT32 i = 0; i <= expandBy; i++)
+				//	for (UINT32 j = 0; j <= expandBy; j++)
+				//		if (i || j)
+				//		{
+				//			UINT32 dist = M::Max(i, j);
+				//			rs.grid.Get(x + expandBy - i, y + expandBy - j).IntegrateGrowingNeighbor(v, dist);
+				//			if (j != 0)
+				//				rs.grid.Get(x + expandBy - i, y + expandBy + j).IntegrateGrowingNeighbor(v,dist);
+				//			if (i != 0)
+				//			{
+				//				rs.grid.Get(x + expandBy + i, y + expandBy - j).IntegrateGrowingNeighbor(v, dist);
+				//				if (j != 0)
+				//					rs.grid.Get(x + expandBy + i, y + expandBy + j).IntegrateGrowingNeighbor(v, dist);
+				//			}
+				//		}
 			}
 	#endif
 	rs.highest = highest;
