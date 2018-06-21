@@ -861,6 +861,17 @@ public:
 			stateAdvertisementOps.Clear();
 		#endif
 	}
+	void	Compact()
+	{
+		removalOps.Compact();
+		instantiationOps.Compact();
+		motionOps.Compact();
+		messageOps.Compact();
+		broadcastOps.Compact();
+		#ifndef NO_SENSORY
+			stateAdvertisementOps.Compact();
+		#endif
+	}
 	count_t	CountInstructions()	const
 	{
 		return removalOps.Count()
