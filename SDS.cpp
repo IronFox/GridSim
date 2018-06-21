@@ -152,6 +152,18 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 		InconsistencyCoverage ic;
 		input->MakeGrownSuccessorIC(shard,ic,rs);
 		rso->ic.CopyCoreArea(TGridCoords(),ic);
+
+		#ifdef THOROUGH_SDS_EVOLUTION_CHECK
+		if (consistentSuccessorMatch && rso->ic.IsFullyConsistent())
+		{
+			if (allNeighborsAlive)
+				ASSERT_EQUAL__(rs.inputHash,consistentSuccessorMatch->inputHash);
+			//otherwise hashes can diverge if neighborhood liveness has not changed, but is not complete, and result is consistent as it was before
+			AssertEquality(rs.processed,consistentSuccessorMatch->processed, CLOCATION,CLOCATION);
+			rs.localCS.AssertEqual(consistentSuccessorMatch->localCS);
+		}
+		#endif
+
 		return;
 	}
 	if (consistentSuccessorMatch && input->IsFullyConsistent() && allNeighborsAlive)
@@ -259,6 +271,15 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 			ASSERT__(rcs.ref->ic.IsFullyConsistent());
 
 	}
+
+	#ifdef THOROUGH_SDS_EVOLUTION_CHECK
+		if (consistentSuccessorMatch && rso->ic.IsFullyConsistent())
+		{
+			AssertEquality(rs.processed,consistentSuccessorMatch->processed, CLOCATION,CLOCATION);
+			rs.localCS.AssertEqual(consistentSuccessorMatch->localCS);
+		}
+	#endif
+
 }
 
 TSDSCheckResult	FullShardDomainState::CheckMissingRCS(Shard&s)
@@ -422,6 +443,14 @@ void FullShardDomainState::FinalizeComputation(Shard&shard, const TCodeLocation&
 
 	const SDS*const consistentMatch = shard.consistentMatch ? shard.consistentMatch->FindGeneration(generation) : nullptr;
 
+	#ifdef THOROUGH_SDS_EVOLUTION_CHECK
+		if (consistentMatch && out->ic.IsFullyConsistent())
+		{
+			AssertEquality(processed,consistentMatch->processed, CLOCATION,CLOCATION);
+			localCS.AssertEqual(consistentMatch->localCS);
+		}
+	#endif
+
 	ASSERT_EQUAL__(out->generation,generation);
 
 	#ifdef DBG_SHARD_HISTORY
@@ -480,6 +509,13 @@ void FullShardDomainState::FinalizeComputation(Shard&shard, const TCodeLocation&
 			const auto info = shard.GetOutboundNeighborInfo(i);
 			auto&ic = this->GetOutput()->ic;
 			ic.IncludeMissing(info,IC::generation_t(generation));
+
+			#ifdef THOROUGH_SDS_EVOLUTION_CHECK
+				auto index = TGridCoords{ IC::Resolution/2 };
+				index += index & info.neighborSectorDelta;
+				Vec::clamp(index,0,IC::Resolution-1);
+				ASSERT__(!ic.GetSample(index).IsConsistent());
+			#endif
 
 		}
 	}

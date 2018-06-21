@@ -19,6 +19,12 @@ using namespace DeltaWorks;
 
 
 /**
+	Thoroughly checks equality with consistent match and that inconsistency is where you expect it to be.
+	These checks are mostly redundant and should not trigger
+*/
+//#define THOROUGH_SDS_EVOLUTION_CHECK
+
+/**
 Replaces MessageData with a custom class to accumulate contained data
 */
 //#define CAPTURE_MESSAGE_VOLUME
