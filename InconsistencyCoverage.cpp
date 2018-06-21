@@ -756,9 +756,14 @@ void		InconsistencyCoverage::FlagInconsistent(const TEntityCoords&coords)
 	Vec::clamp(c,0,Resolution-1);
 	//static const constexpr TSample Max = {0,0xFE};
 	TExtSample&s = (*GetVerified(grid,c));
-	s.depth = MaxDepth;
-	s.spatialDistance = 0;
+
+	TExtSample v2;
+	v2.depth = 1;
+	v2.spatialDistance = 0;
+
+	s.Include(v2);
 	highest = M::Max(highest,s.depth);
+
 }
 
 bool		InconsistencyCoverage::IsInconsistent(const TEntityCoords&coords) const
