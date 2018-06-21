@@ -879,7 +879,8 @@ void		AssertRecovering(const SDS*mySDS, const SDS*nSDS, index_t i)
 	elif (mySDS)
 	{
 		const auto&out = mySDS->outboundRCS[i];
-		ASSERT__(out.ref->ic.IsFullyConsistent());
+		if (out.ref)
+			ASSERT__(out.ref->ic.IsFullyConsistent());
 	}
 	elif (nSDS)
 	{
@@ -916,6 +917,41 @@ void		Grid::AssertIsRecovering()
 
 		foreach (l->shardGrid,s)
 		{
+			{
+				auto*mySDS = s->FindGeneration(oldest+1);
+				if (mySDS && mySDS->GetOutput() && !mySDS->GetOutput()->ic.IsFullyConsistent())
+				{
+					TSDSCheckResult de = mySDS->CheckMissingRCS(*s);
+
+
+					#ifdef DBG_SHARD_HISTORY
+					{
+						s.LogEvent("Correct.localIndex="+String(at));
+						s.LogEvent("Correct.significantInboundChange="+String(s.sds[at].significantInboundChange));
+						s.LogEvent("Correct.missingRCS="+String(de.missingRCS));
+						s.LogEvent("Correct.outRCSUpdatable="+String(de.outRCSUpdatable));
+						s.LogEvent("Correct.predecessorIsConsistent="+String(de.predecessorIsConsistent));
+						s.LogEvent("Correct.rcsAvailableFromDatabase="+String(de.rcsAvailableFromDatabase));
+						s.LogEvent("Correct.rcsAvailableFromNeighbor="+String(de.rcsAvailableFromNeighbor));
+						s.LogEvent("Correct.rcsRestoredFromCache="+String(de.rcsRestoredFromCache));
+						s.LogEvent("Correct.thisIsConsistent="+String(de.thisIsConsistent));
+						s.LogEvent("Correct.thisGen="+String(s.sds[at].GetGeneration()));
+					}
+					#endif
+
+
+
+					if (!mySDS->significantInboundChange && !de.ShouldRecoverThis())
+						FATAL__("Bad state");
+					for (index_t k = 0; k < NumNeighbors; k++)
+					{
+						ASSERT__(mySDS->inboundRCS[k]);
+						ASSERT__(mySDS->inboundRCS[k]->ic.IsFullyConsistent());
+					}
+				}
+
+			}
+
 			for (index_t i =0; i < s->outboundNeighbors.Count(); i++)
 			{
 				const auto*n = s->outboundNeighbors[i].shard;
