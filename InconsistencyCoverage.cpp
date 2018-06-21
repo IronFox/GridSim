@@ -849,24 +849,34 @@ InconsistencyCoverage::content_t		InconsistencyCoverage::GetPixelInconsistency(c
 	return GetSample(coords).depth;
 }
 
+
+const index_t InconsistencyCoverage::GetSampleLinearIndex(TGridCoords coords) const
+{
+	static const TExtSample empty;
+	static const TGridCoords zero,one(1);
+	coords -= offset;
+	if (Vec::oneLess(coords,zero))
+		return InvalidIndex;
+	const auto idx = VectorToIndex(coords);
+	return grid.GetSize().ToLinearIndex(idx);
+	const auto size = grid.GetSize();
+	if (size.IsInBounds(idx))
+		return size.ToLinearIndexNoCheck(idx);
+	return InvalidIndex;
+}
+
+
 const InconsistencyCoverage::TExtSample&		InconsistencyCoverage::GetSample(TGridCoords coords) const
 {
 	static const TExtSample empty;
-	//ASSERT__(empty.spatialDistance == TExtSample().spatialDistance);
-	//ASSERT__(empty.depth == TExtSample().depth);
 	static const TGridCoords zero,one(1);
+	coords -= offset;
 	if (Vec::oneLess(coords,zero))
 		return empty;
-	coords -= offset;
-	if ((index_t)coords.x >= grid.GetWidth() || (index_t)coords.y >= grid.GetHeight())
-		return empty;
-	#ifdef D3
-		if ((index_t)coords.z >= grid.GetDepth())
-			return empty;
-		return grid.Get(coords.x,coords.y,coords.z);
-	#else
-		return grid.Get(coords.x,coords.y);
-	#endif
+	const auto idx = VectorToIndex(coords);
+	if (grid.GetSize().IsInBounds(idx))
+		return grid.Get(idx);
+	return empty;
 }
 
 

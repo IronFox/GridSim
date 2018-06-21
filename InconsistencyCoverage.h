@@ -357,7 +357,8 @@ public:
 	bool		IsInconsistent(const TEntityCoords&coords) const;
 	content_t	GetInconsistency(const TEntityCoords&coords) const;
 	content_t	GetPixelInconsistency(const TGridCoords&) const;
-	const TExtSample& GetSample(TGridCoords) const;
+	const TExtSample& GetSample(TGridCoords coords) const;
+	const index_t GetSampleLinearIndex(TGridCoords coords) const;
 	void		VerifyIsInconsistent(const TEntityCoords&coords, const TVerificationContext&context) const;
 	static TGridCoords	ToPixels(const TEntityCoords&coords);
 
