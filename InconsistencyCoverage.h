@@ -281,6 +281,7 @@ public:
 	Any existing ic in @a rs is wiped
 	*/
 	void		Grow(InconsistencyCoverage&rs)	const;
+	void		Grow();
 	/**
 	Sets the local ic to the union of the local and @a remote ic.
 	Areas outside the local ic image are ignored

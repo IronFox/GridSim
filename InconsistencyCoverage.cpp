@@ -417,6 +417,13 @@ void		InconsistencyCoverage::Hash(Hasher&inputHash)	const
 }
 
 
+void InconsistencyCoverage::Grow()
+{
+	InconsistencyCoverage copy;
+	copy = *this;
+	copy.Grow(*this);
+}
+
 void InconsistencyCoverage::Grow(InconsistencyCoverage & rs) const
 {
 	ASSERT__(!rs.sealed);
