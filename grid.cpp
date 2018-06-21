@@ -131,7 +131,7 @@ static bool AllConnectedTo(const Shard&s)
 {
 	if (s.IsDead())
 		return false;
-	foreach (s.neighbors,n)
+	foreach (s.outboundNeighbors,n)
 		if (n->shard && n->shard->IsDead())
 			return false;
 	return true;
@@ -554,7 +554,7 @@ void Grid::VerifyIntegrity() const
 			//		if (!sds->outboundRCS[i].confirmed)
 			//		{
 			//			//int2 coords = s->gridCoords + s->->delta;
-			//			const Shard*s2 = s->neighbors[i].shard;
+			//			const Shard*s2 = s->outboundNeighbors[i].shard;
 			//			if (!s2)
 			//				continue;
 			//			//ASSERT_NOT_NULL__(s2);
@@ -671,7 +671,7 @@ void Grid::FinalizeAll(index_t gen)
 		*/
 		if (rcs.confirmed || !rcs.ref)
 			continue;
-		Shard*neighbor = shard.neighbors[i].shard;
+		Shard*neighbor = shard.outboundNeighbors[i].shard;
 		if (!neighbor)
 		{
 			rcs.confirmed = true;
@@ -685,14 +685,14 @@ void Grid::FinalizeAll(index_t gen)
 		}
 
 		const auto&size = rcs.ref->GetDataSize();
-		shard.neighbors[i].dataSent += size;
+		shard.outboundNeighbors[i].dataSent += size;
 		if (neighbor->IsDead())
 		{
 			errors = true;
 			ASSERT__(!require);
 			continue;
 		}
-		shard.neighbors[i].dataConfirmed += size;
+		shard.outboundNeighbors[i].dataConfirmed += size;
 		SDS*other = neighbor->FindGeneration(sds.GetGeneration());
 		if (!other)
 		{
@@ -918,7 +918,7 @@ void		Grid::AssertIsRecovering()
 		{
 			for (index_t i =0; i < s->neighbors.Count(); i++)
 			{
-				const auto*n = s->neighbors[i].shard;
+				const auto*n = s->outboundNeighbors[i].shard;
 				if (n)
 				{
 					for (index_t j = 0; j < 2 && j < s->sds.Count(); j++)
@@ -933,7 +933,7 @@ void		Grid::AssertIsRecovering()
 					for (index_t j = 0; j < 2 && j < s->sds.Count(); j++)
 					{
 						const auto*mySDS = s->FindGeneration(oldest+j);
-						const index_t reverse = s->neighbors[i].inboundIndex;
+						const index_t reverse = s->outboundNeighbors[i].inboundIndex;
 						AssertRecovering(nullptr,mySDS,reverse);
 					}
 				}
@@ -988,12 +988,12 @@ void Check(const Shard&s, const FullShardDomainState&sds)
 	}
 
 	for (index_t n = 0; n < NumNeighbors; n++)
-		if (s.neighbors[n].shard)
+		if (s.outboundNeighbors[n].shard)
 		{
 			const auto&rcs = sds.outboundRCS[n].ref;
 			if (rcs && rcs->ic.IsFullyConsistent())
 			{
-				auto id = DB::ID(&s,s.neighbors[n].shard,  sds.GetGeneration());
+				auto id = DB::ID(&s,s.outboundNeighbors[n].shard,  sds.GetGeneration());
 				ASSERT__(DB::IsLocked() || s.client.ExistsAnywhere(id) || s.client.IsUploading(id));
 			}
 		}

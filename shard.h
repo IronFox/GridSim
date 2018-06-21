@@ -108,11 +108,17 @@ public:
 	The oldest inconsistent SDS generation that requires remote RCS to reach consistency
 	*/
 	index_t					oldestNonIsolatedInconsistentGeneration=0;
-	index_t					oldestRecoverableGeneration=InvalidIndex;	//synchronized among neighbors. 
+	index_t					oldestRecoverableGeneration=InvalidIndex;	//synchronized among outboundNeighbors. 
 	Database::Client		client;
 
-	FixedArray<TNeighbor,NumNeighbors>	neighbors;
 
+	/**
+	All shard neighbors, arranged in outbound order.
+	SDSs map inbound RCSs such that [neighbor k].inboundRCS[k] is set to [local].outboundRCS[k].
+	As a result, [local].inboundRCS[k] does not originate in [neighbor k], but rather the opposite of k.
+	To get the inboundRCS entry targeted by neighbor k use outboundNeighbors[k].inboundIndex
+	*/
+	FixedArray<TNeighbor,NumNeighbors>	outboundNeighbors;
 
 	struct TMergeStatistics
 	{

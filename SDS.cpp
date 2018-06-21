@@ -144,17 +144,17 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 
 	for (int i = 0; i < NumNeighbors; i++)
 	{
-		const TGridCoords&delta = shard.neighbors[i].delta;
+		const TGridCoords&delta = shard.outboundNeighbors[i].delta;
 		if (!motionSpace.Contains(shard.gridCoords + delta))
 		{
-			ASSERT__(shard.neighbors[i].shard == nullptr);
-			const index_t inbound = shard.neighbors[i].inboundIndex;
+			ASSERT__(shard.outboundNeighbors[i].shard == nullptr);
+			const index_t inbound = shard.outboundNeighbors[i].inboundIndex;
 			auto&in = rs.inboundRCS[inbound];
 			in = edgeInboundRCS;
 			in->VerifyIntegrity(CLOCATION);
 		}
 		else
-			ASSERT__(shard.neighbors[i].shard != nullptr);
+			ASSERT__(shard.outboundNeighbors[i].shard != nullptr);
 		OutRemoteChangeSet&rcs = rs.outboundRCS[i];
 		if (rcs.ref && rcs.ref->ic.IsFullyConsistent())
 		{
@@ -172,7 +172,7 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 		rcs.ref->ic.CopyCoreArea(-delta,ic);
 		rs.localCS.ExportEdge(delta,shard.gridCoords, rcs.ref->cs);
 		input->hGrid.core.ExportEdge(rcs.ref->hGrid,delta);
-		rcs.confirmed = shard.neighbors[i].shard == nullptr;
+		rcs.confirmed = shard.outboundNeighbors[i].shard == nullptr;
 		ASSERT_EQUAL__(rcs.confirmed,!motionSpace.Contains(shard.gridCoords + delta));
 
 
@@ -180,9 +180,9 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 			rcs.ref->Verify(consistentSuccessorMatch->outboundRCS[i].ref);
 
 
-		if (rcs.ref->ic.IsFullyConsistent() && shard.neighbors[i].shard)
+		if (rcs.ref->ic.IsFullyConsistent() && shard.outboundNeighbors[i].shard)
 		{
-			const auto id = DB::ID(&shard,shard.neighbors[i].shard,rs.GetGeneration());
+			const auto id = DB::ID(&shard,shard.outboundNeighbors[i].shard,rs.GetGeneration());
 			shard.client.Upload(id,rcs.ref);
 		}
 
@@ -202,12 +202,12 @@ TSDSCheckResult	FullShardDomainState::CheckMissingRCS(Shard&s)
 	rs.predecessorIsConsistent = inputConsistent;
 	rs.thisIsConsistent = GetOutput() && GetOutput()->ic.IsFullyConsistent();
 
-	for (index_t i = 0; i < s.neighbors.Count(); i++)
+	for (index_t i = 0; i < s.outboundNeighbors.Count(); i++)
 	{
-		Shard*other = s.neighbors[i].shard;
+		Shard*other = s.outboundNeighbors[i].shard;
 		if (inputConsistent && other && (!outboundRCS[i].ref || !outboundRCS[i].ref->ic.IsFullyConsistent()))
 			rs.outRCSUpdatable++;
-		index_t inbound = s.neighbors[i].inboundIndex;
+		index_t inbound = s.outboundNeighbors[i].inboundIndex;
 		auto&rcs = inboundRCS[inbound];
 		if (rcs && rcs->ic.IsFullyConsistent())
 			continue;
@@ -319,8 +319,8 @@ void				FullShardDomainState::SetOpenEdgeRCS(const Shard&owner)
 {
 	for (index_t i = 0; i < NumNeighbors; i++)
 	{
-		const index_t inbound = owner.neighbors[i].inboundIndex;
-		if (!owner.neighbors[i].shard)
+		const index_t inbound = owner.outboundNeighbors[i].inboundIndex;
+		if (!owner.outboundNeighbors[i].shard)
 			inboundRCS[inbound] = edgeInboundRCS;
 	}
 }
@@ -383,7 +383,7 @@ void FullShardDomainState::FinalizeComputation(Shard&shard, const TCodeLocation&
 
 	for (int i = 0; i < NumNeighbors; i++)
 	{
-		const index_t inbound = shard.neighbors[i].inboundIndex;
+		const index_t inbound = shard.outboundNeighbors[i].inboundIndex;
 		auto&rcs = inboundRCS[inbound];
 		if (rcs)
 		{
@@ -406,10 +406,10 @@ void FullShardDomainState::FinalizeComputation(Shard&shard, const TCodeLocation&
 		}
 		else
 		{
-			ASSERT_NOT_NULL__(shard.neighbors[i].shard);
-			//if (shard.client.Exists(DB::ID(shard.neighbors[i].shard,&shard,GetOutput()->generation)))
+			ASSERT_NOT_NULL__(shard.outboundNeighbors[i].shard);
+			//if (shard.client.Exists(DB::ID(shard.outboundNeighbors[i].shard,&shard,GetOutput()->generation)))
 				inRCSPermanence[inbound].Request();
-			//this->GetOutput()->ic.Include(shard.neighbors[i].delta,bad);
+			//this->GetOutput()->ic.Include(shard.outboundNeighbors[i].delta,bad);
 			ASSERT_LESS__(generation,std::numeric_limits<IC::generation_t>::max());
 			this->GetOutput()->ic.IncludeMissing(shard.neighbors[i].delta,VectorToIndex( shard.gridCoords),shard.parentGrid->currentSize,IC::generation_t(generation));
 		}
@@ -640,15 +640,15 @@ void		FullShardDomainState::RegisterDemand(DownloadDemandRegistry&reg,count_t ge
 	}
 	for (index_t i = 0; i < NumNeighbors; i++)
 	{
-		if (!s.neighbors[i].shard)
+		if (!s.outboundNeighbors[i].shard)
 			continue;
-		const index_t inbound = s.neighbors[i].inboundIndex;
+		const index_t inbound = s.outboundNeighbors[i].inboundIndex;
 		const auto*const ptr = inboundRCS[inbound].get();
 		if (ptr && ptr->ic.IsFullyConsistent())
 			continue;
 		ASSERT__(ptr != edgeInboundRCS.get());
 
-		const auto id = DB::ID(s.neighbors[i].shard,&s,generation);
+		const auto id = DB::ID(s.outboundNeighbors[i].shard,&s,generation);
 		float d= inRCSPermanence[inbound].GetDemand(generationsToTop,s.client.ExistsAnywhere(id));
 		reg.Register(d,id,inboundRCS[inbound]);
 	}
@@ -676,16 +676,16 @@ void		FullShardDomainState::RegisterDemand(DownloadDemandRegistry&reg,count_t ge
 //		return;
 //	for (index_t i = 0; i < NumNeighbors; i++)
 //	{
-//		if (!s.neighbors[i].shard)
+//		if (!s.outboundNeighbors[i].shard)
 //			continue;
 //
-//		const index_t inbound = s.neighbors[i].inboundIndex;
+//		const index_t inbound = s.outboundNeighbors[i].inboundIndex;
 //		if (inboundRCS[inbound] && inboundRCS[inbound]->ic.IsFullyConsistent())
 //			continue;
 //		if (inRCSPermanence[inbound].HasDemand())
 //		{
 //			total++;
-//			if (s.client.DownloadInbound(s.neighbors[i].shard,generation,inboundRCS[inbound]) == DB::Result::Downloaded)
+//			if (s.client.DownloadInbound(s.outboundNeighbors[i].shard,generation,inboundRCS[inbound]) == DB::Result::Downloaded)
 //				significantInboundChange = true;
 //			inRCSPermanence[inbound].FlushRequests();
 //		}
@@ -1179,7 +1179,7 @@ static PCoreShardDomainState		Merge(
 						if (delta.z == -1)
 							idSet.z = IC::Resolution-1;
 					#endif
-					em[i] = HGrid::EmptyCell(myShard.neighbors[n].shard->gridCoords,idSet);
+					em[i] = HGrid::EmptyCell(myShard.outboundNeighbors[n].shard->gridCoords,idSet);
 				}
 			}
 		}

@@ -228,8 +228,8 @@ count_t Simulation::Recover(Shard&s)
 	if (s.sds.Count() > 1)
 		for (index_t n = 0; n < NumNeighbors; n++)
 		{
-			const index_t inbound = s.neighbors[n].inboundIndex;
-			Shard*other = s.neighbors[n].shard;
+			const index_t inbound = s.outboundNeighbors[n].inboundIndex;
+			Shard*other = s.outboundNeighbors[n].shard;
 			if (other)
 			{
 				for (index_t i = 1; i < s.sds.Count(); i++)
@@ -1104,9 +1104,9 @@ namespace Build
 					//}
 
 					Scene::SetColor(0.5,0,0,0.5);
-					foreach (s.neighbors,n)
+					foreach (s.outboundNeighbors,n)
 					{
-						if (!sds->outboundRCS[n-s.neighbors.begin()].confirmed)
+						if (!sds->outboundRCS[n-s.outboundNeighbors.begin()].confirmed)
 							RenderFaultEdge(n->delta);
 					}
 
@@ -1354,8 +1354,8 @@ void Simulation::AccumulateInconsistentEntities(const TGridCoords&shardCoords, i
 void Simulation::AccumulateTraffic(const TGridCoords&shardCoords, index_t layer, index_t neighbor, DataSize&sent, DataSize&confirmed) const
 {
 	const Shard*shard0 = simulated.layers[layer].GetShard(shardCoords);
-	sent += shard0->neighbors[neighbor].dataSent;
-	confirmed += shard0->neighbors[neighbor].dataConfirmed;
+	sent += shard0->outboundNeighbors[neighbor].dataSent;
+	confirmed += shard0->outboundNeighbors[neighbor].dataConfirmed;
 }
 
 

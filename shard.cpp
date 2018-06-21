@@ -93,17 +93,21 @@ void Shard::Setup(Grid&grid, const TGridCoords&myCoords, index_t myLinearCoords,
 				ASSERT_EQUAL__(NeighborToLinear(delta),at);
 				ASSERT_EQUAL__(delta,LinearToNeighbor(at));
 
-				TNeighbor&n = neighbors[at++];
+				TNeighbor&n = outboundNeighbors[at++];
 				n.delta = delta;
 				n.shard = layerRef.GetShard(myCoords + n.delta);
 			}
-	ASSERT__(at == neighbors.size());
-	foreach (neighbors,n)
+	ASSERT__(at == outboundNeighbors.size());
+	foreach (outboundNeighbors,n)
 	{
 		TGridCoords dir = -n->delta;
-		foreach (neighbors,n2)
+		foreach (outboundNeighbors,n2)
 			if (n2->delta == dir)
-				n2->inboundIndex = n-neighbors.begin();
+			{
+				n2->inboundIndex = n-outboundNeighbors.begin();
+			}
+	}
+
 	}
 
 	auto&s = sds.First();
@@ -155,7 +159,7 @@ void Shard::VerifyIntegrity() const
 					auto delta = Shard::LinearToNeighbor(k);
 					foreach (grid,v)
 					{
-						ASSERT_EQUAL__(v->originShard,this->neighbors[k].shard->gridCoords);
+						ASSERT_EQUAL__(v->originShard,this->outboundNeighbors[k].shard->gridCoords);
 
 						if (delta.x < 0)
 							ASSERT_GREATER__(v->originCell.x,IC::Resolution/2)
@@ -180,8 +184,8 @@ void Shard::VerifyIntegrity() const
 
 	//for (index_t i = 0; i < NumNeighbors; i++)
 	//{
-	//	const index_t inbound =neighbors[i].inboundIndex;
-	//	if (!neighbors[i].shard)
+	//	const index_t inbound =outboundNeighbors[i].inboundIndex;
+	//	if (!outboundNeighbors[i].shard)
 	//	{
 	//		foreach (sds,s)
 	//			ASSERT2__(s->inboundRCS[inbound] == edgeInboundRCS,inbound,s->inboundRCS[inbound]==nullptr);
@@ -233,7 +237,7 @@ void Shard::Trim()
 //
 //				for (index_t n = 0; n < NumNeighbors; n++)
 //				{
-//					Shard*s = this->neighbors[n].shard;
+//					Shard*s = this->outboundNeighbors[n].shard;
 //					if (s)
 //					{
 //						auto rcs = sds.outboundRCS[n].ref;
@@ -293,7 +297,7 @@ void Shard::UpdateOldestRecoverableGeneration()
 		return;
 
 	oldestRecoverableGeneration = sds.Last().GetGeneration();
-	foreach (neighbors,n)
+	foreach (outboundNeighbors,n)
 		if (n->shard && !n->shard->IsDead())
 			oldestRecoverableGeneration = M::Min(oldestRecoverableGeneration,n->shard->oldestNonIsolatedInconsistentGeneration);
 	oldestRecoverableGeneration = M::Max(oldestRecoverableGeneration,newestConsistentGeneration+1);
