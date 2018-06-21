@@ -440,6 +440,7 @@ void InconsistencyCoverage::Grow(InconsistencyCoverage & rs) const
 	ASSERT__(!rs.sealed);
 	VerifyIntegrity(CLOCATION);
 	const UINT32 expandBy = (UINT32)ceil(Entity::MaxInfluenceRadius * Resolution);
+	rs.grid.Clear();
 	#ifdef D3
 		rs.grid.SetSize(grid.GetWidth() + 2 *expandBy,grid.GetHeight() + 2*expandBy,grid.GetDepth() + 2*expandBy);
 	#else
