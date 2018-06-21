@@ -17,6 +17,9 @@ public:
 
 	typedef UINT16	generation_t;
 
+	/**
+	Stores one generation range of unavailability per shard
+	*/
 	class RangeArray
 	{
 	public:
@@ -70,9 +73,20 @@ public:
 	struct TExtSample : public TSample
 	{
 		typedef TSample	Super;
+		/**
+		Tracks all shards whose missing has affected the local sample
+		*/
 		BitArray	unavailableShards;
 
-		RangeArray	precise,fuzzy;
+		/**
+		Tracks the oldest and newest generation at which each missing shard has affected the local sample
+		*/
+		RangeArray	precise;
+		/**
+		Blurs local and immediate neighbor shard ranges.
+		For each range in @a precise, it also includes all @a precise entries neighboring the range
+		*/
+		RangeArray	fuzzy;
 
 		void		Hash(Hasher&hasher) const
 		{
