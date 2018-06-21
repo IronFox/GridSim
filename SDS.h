@@ -248,10 +248,10 @@ public:
 
 	/**
 	Executes all entity logic processes, and adds automated operations.
-	@param[out] outLocal Puts all resulting operations here
-	@param motionSpace Outer edge of the simulated space
+	Result is written to localCS, which is cleared in advance, and compacted afterwards
 	*/
-	void				ExecuteLogic(CS&outLocal, index_t generation, const TGridCoords&gridCoords, const TBoundaries&motionSpace);
+	void				ExecuteLogic(const TGridCoords&gridCoords, const TBoundaries&motionSpace);
+	void				ExecuteLogic(const TGridCoords&gridCoords, const std::function<void(const Entity&e, TEntityCoords&motionTarget)>&clamp);
 
 	void				LosePermanence(bool isFirst);
 	void				ClearDemand();

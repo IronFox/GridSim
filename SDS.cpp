@@ -129,14 +129,13 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 		}
 	}
 
+		rs.ExecuteLogic(shard.gridCoords, motionSpace);
 	InconsistencyCoverage ic;
 	input->ic.Grow(ic);
 	rs.GetOutput()->ic.CopyCoreArea(TGridCoords(),ic);
 
 	rs.GetOutput()->ic.VerifyIntegrity(CLOCATION);
 
-	rs.localCS.Clear();
-	rs.ExecuteLogic(rs.localCS,rs.GetGeneration(),shard.gridCoords, motionSpace);
 	if (consistentSuccessorMatch && input->IsFullyConsistent())
 	{
 		rs.localCS.AssertEqual(consistentSuccessorMatch->localCS);
@@ -713,8 +712,11 @@ void		FullShardDomainState::LosePermanence(bool isFirst)
 	}
 }
 
-void FullShardDomainState::ExecuteLogic(CS & outLocal, index_t generation, const TGridCoords&gridCoords, const TBoundaries&motionSpace)
+void FullShardDomainState::ExecuteLogic(const TGridCoords&gridCoords, const std::function<void(const Entity&e, TEntityCoords&motionTarget)>&clamp)
 {
+	auto&outLocal = this->localCS;
+	outLocal.Clear();
+
 	CRC32::Sequence seq;
 	seq.AppendPOD(gridCoords);
 	seq.AppendPOD(generation);
@@ -761,16 +763,16 @@ void FullShardDomainState::ExecuteLogic(CS & outLocal, index_t generation, const
 
 		if (!Vec::zero(shape.velocity))
 		{
-			TEntityCoords coords2 = e->coordinates + shape.velocity;
-			motionSpace.Clamp(coords2);
-			shape.velocity = coords2 - e->coordinates;
 	
 			Metric::Distance len(shape.velocity);
-			//ASSERT__(!isnan(len));
 			if (len > Entity::MaxMotionDistance*0.99f)
 				shape.velocity *= Entity::MaxMotionDistance / *len*0.99f;
 
-			outLocal.AddSelfMotion(*e,e->coordinates + shape.velocity);
+			TEntityCoords coords2 = e->coordinates + shape.velocity;
+			clamp(*e, coords2);
+			shape.velocity = coords2 - e->coordinates;
+
+			outLocal.AddSelfMotion(*e,coords2);
 			#ifndef NO_SENSORY
 				ad.shape.velocity = shape.velocity;
 				ad.origin.coordinates += shape.velocity;
@@ -788,6 +790,14 @@ void FullShardDomainState::ExecuteLogic(CS & outLocal, index_t generation, const
 		}
 	}
 	GetOutput()->entities = processed;
+	outLocal.Compact();
+}
+
+
+
+void FullShardDomainState::ExecuteLogic(const TGridCoords&gridCoords, const TBoundaries&motionSpace)
+{
+	ExecuteLogic(gridCoords,[&motionSpace](const Entity&e, TEntityCoords&c){motionSpace.Clamp(c);});
 }
 
 
