@@ -294,12 +294,17 @@ namespace Statistics
 		RegardEntityState = 0x1,
 		RegardEntityEnvironment = 0x2,	//requires RegardEntityState
 
-		//exclusive (zero or one of these may be set):
-		RegardOriginBitField = 0x4,
-		RegardOriginRange = 0x8,
-		RegardFuzzyOriginRange = 0x10,
+		#ifdef EXTENDED_IC_GRID
+			//exclusive (zero or one of these may be set):
+			RegardOriginBitField = 0x4,
+			RegardOriginRange = 0x8,
+			RegardFuzzyOriginRange = 0x10,
 
-		NumBits = 5,
+			NumBits = 5,
+		#else
+			NumBits = 2,
+		#endif
+
 		NumCombinations = 1 << NumBits
 	};
 

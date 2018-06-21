@@ -360,9 +360,9 @@ void		InconsistencyCoverage::LoadMinimum(const InconsistencyCoverage&a, const In
 					Vec::def(c,*x + offset.x,*y + offset.y,*z + offset.z);
 
 
-					const TExtSample&va = a.GetSample(c);
-					const TExtSample&vb = b.GetSample(c);
-					TExtSample&merged = grid.Get(x,y,z);
+					const auto&va = a.GetSample(c);
+					const auto&vb = b.GetSample(c);
+					auto&merged = grid.Get(x,y,z);
 					merged.SetBest(va,vb,comp);
 					highest = M::Max(highest,merged.depth);
 				}
@@ -373,9 +373,9 @@ void		InconsistencyCoverage::LoadMinimum(const InconsistencyCoverage&a, const In
 			{
 				TGridCoords c((int)*x + offset.x,(int)*y + offset.y);
 
-				const TExtSample&va = a.GetSample(c);
-				const TExtSample&vb = b.GetSample(c);
-				TExtSample&merged = grid.Get(x,y);
+				const auto&va = a.GetSample(c);
+				const auto&vb = b.GetSample(c);
+				auto&merged = grid.Get(x,y);
 				merged.SetBest(va,vb,comp);
 				highest = M::Max(highest,merged.depth);
 			}
@@ -394,7 +394,7 @@ bool		InconsistencyCoverage::operator==(const InconsistencyCoverage&other) const
 void	InconsistencyCoverage::FillMinInconsistentWhereConsistent()
 {
 	ASSERT__(!sealed);
-	TExtSample sample;
+	Sample sample;
 	sample.depth = 1;
 	sample.spatialDistance = 0;
 	foreach (grid,g)
@@ -406,7 +406,7 @@ void	InconsistencyCoverage::FillMinInconsistentWhereConsistent()
 void InconsistencyCoverage::FillMinInconsistent()
 {
 	ASSERT__(!sealed);
-	TExtSample sample;
+	Sample sample;
 	sample.depth = 1;
 	sample.spatialDistance = 0;
 	grid.Fill(sample);
@@ -455,7 +455,7 @@ void InconsistencyCoverage::Grow(InconsistencyCoverage & rs) const
 			for (UINT32 y = 0; y < this->grid.GetHeight(); y++)
 				for (UINT32 x = 0; x < this->grid.GetWidth(); x++)
 				{
-					const TExtSample&v = grid.Get(x, y, z);
+					const auto&v = grid.Get(x, y, z);
 					auto&out = rs.grid.Get(x + expandBy, y + expandBy, z + expandBy);
 					out = v;
 					if (!out.IsConsistent())
@@ -466,7 +466,7 @@ void InconsistencyCoverage::Grow(InconsistencyCoverage & rs) const
 			for (UINT32 y = 0; y < grid.GetHeight(); y++)
 				for (UINT32 x = 0; x < grid.GetWidth(); x++)
 				{
-					TExtSample v = grid.Get(x,y,z);
+					auto v = grid.Get(x,y,z);
 					if (!v.IsConsistent())
 						v.IncreaseDepth();
 					if (v.depth < 2)
@@ -508,7 +508,7 @@ void InconsistencyCoverage::Grow(InconsistencyCoverage & rs) const
 		for (UINT32 y = 0; y < this->grid.GetHeight(); y++)
 			for (UINT32 x = 0; x < this->grid.GetWidth(); x++)
 			{
-				const TExtSample&v = grid.Get(x, y);
+				const auto&v = grid.Get(x, y);
 				auto&out = rs.grid.Get(x + expandBy, y + expandBy);
 				out = v;
 				if (!out.IsConsistent())
@@ -518,7 +518,7 @@ void InconsistencyCoverage::Grow(InconsistencyCoverage & rs) const
 		for (UINT32 y = 0; y < grid.GetHeight(); y++)
 			for (UINT32 x = 0; x < grid.GetWidth(); x++)
 			{
-				TExtSample v = grid.Get(x,y);
+				auto v = grid.Get(x,y);
 				if (v.IsConsistent())
 					continue;
 				v.IncreaseDepth();
@@ -557,8 +557,7 @@ void InconsistencyCoverage::Grow(InconsistencyCoverage & rs) const
 	rs.VerifyIntegrity(CLOCATION);
 }
 
-template <class S>
-static const InconsistencyCoverage::TExtSample*	GetVerified(const Array2D<InconsistencyCoverage::TExtSample,S>&array, const M::VecN<int,2>&c)
+static const InconsistencyCoverage::Sample*	GetVerified(const InconsistencyCoverage::TGrid&array, const M::VecN<int,2>&c)
 {
 	if (c.x < 0 || c.y < 0)
 		return nullptr;
@@ -567,8 +566,7 @@ static const InconsistencyCoverage::TExtSample*	GetVerified(const Array2D<Incons
 	return &array.Get(c.x,c.y);
 }
 
-template <class S>
-static InconsistencyCoverage::TExtSample*	GetVerified(Array2D<InconsistencyCoverage::TExtSample,S>&array, const M::VecN<int,2>&c)
+static InconsistencyCoverage::Sample*	GetVerified(InconsistencyCoverage::TGrid&array, const M::VecN<int,2>&c)
 {
 	if (c.x < 0 || c.y < 0)
 		return nullptr;
@@ -579,7 +577,7 @@ static InconsistencyCoverage::TExtSample*	GetVerified(Array2D<InconsistencyCover
 
 
 template <class S>
-static const InconsistencyCoverage::TExtSample*	GetVerified(const Array3D<InconsistencyCoverage::TExtSample,S>&array, const M::VecN<int,3>&c)
+static const InconsistencyCoverage::Sample*	GetVerified(const Array3D<InconsistencyCoverage::Sample,S>&array, const M::VecN<int,3>&c)
 {
 	if (c.x < 0 || c.y < 0 || c.z < 0)
 		return nullptr;
@@ -589,7 +587,7 @@ static const InconsistencyCoverage::TExtSample*	GetVerified(const Array3D<Incons
 }
 
 template <class S>
-static InconsistencyCoverage::TExtSample*	GetVerified(Array3D<InconsistencyCoverage::TExtSample,S>&array, const M::VecN<int,3>&c)
+static InconsistencyCoverage::Sample*	GetVerified(Array3D<InconsistencyCoverage::Sample,S>&array, const M::VecN<int,3>&c)
 {
 	if (c.x < 0 || c.y < 0 || c.z < 0)
 		return nullptr;
@@ -604,10 +602,11 @@ void InconsistencyCoverage::IncludeMissing(const NeighborInfo&info, generation_t
 	VerifyIntegrity(CLOCATION);
 	TGridCoords pixelDelta = offset - info.neighborSectorDelta * Resolution - (-1);
 
-	TExtSample v2;
+	Sample v2;
 	v2.depth = 1;
 	v2.spatialDistance = 0;
 	//v2.unavailableShards.SetSize(numShards);
+	#ifdef EXTENDED_IC_GRID
 	{
 		{
 			const index_t linear = info.shardGridSize.ToLinearIndex(info.neighborShardIndex);
@@ -620,7 +619,7 @@ void InconsistencyCoverage::IncludeMissing(const NeighborInfo&info, generation_t
 			v2.fuzzy.Include(info.shardGridSize.ToLinearIndex(idx),generation);
 		},info.shardGridSize);
 	}
-
+	#endif
 
 	#ifdef D3
 		for (UINT32 z = 0; z < grid.GetDepth(); z++)
@@ -641,9 +640,9 @@ void InconsistencyCoverage::IncludeMissing(const NeighborInfo&info, generation_t
 				)
 				continue;
 			#ifdef D3
-				TExtSample&v = grid.Get(x,y,z);
+				auto&v = grid.Get(x,y,z);
 			#else
-				TExtSample&v = grid.Get(x,y);
+				auto&v = grid.Get(x,y);
 			#endif
 			v.Include(v2);
 			highest = M::Max(highest,v.depth);
@@ -671,13 +670,13 @@ bool InconsistencyCoverage::Include(const TGridCoords & sectorDelta, const Incon
 			#else
 				TGridCoords at2 = TGridCoords(x,y) + pixelDelta;
 			#endif
-			const TExtSample*v2 = GetVerified(remote.grid,at2);
+			const auto*v2 = GetVerified(remote.grid,at2);
 			if (!v2 || v2->IsConsistent())
 				continue;
 			#ifdef D3
-				TExtSample&v = grid.Get(x,y,z);
+				auto&v = grid.Get(x,y,z);
 			#else
-				TExtSample&v = grid.Get(x,y);
+				auto&v = grid.Get(x,y);
 			#endif
 			v.Include(*v2);
 			//v.SetWorst(v,*v2);
@@ -727,14 +726,14 @@ void InconsistencyCoverage::CopyCoreArea(const TGridCoords & sectorDelta, const 
 				TGridCoords at2 = TGridCoords(x,y) + pixelDelta;	//assume (ic.width()-1,0)=(Resolution-1,0)
 			#endif
 			//=> at2 = (-Resolution+1+Resolution-1, 1+0)=(0,1)
-			const TExtSample*v2 = GetVerified(remote.grid,at2);
+			const auto*v2 = GetVerified(remote.grid,at2);
 			#ifdef D3
-				TExtSample&v = grid.Get(x,y,z);
+				auto&v = grid.Get(x,y,z);
 			#else
-				TExtSample&v = grid.Get(x,y);
+				auto&v = grid.Get(x,y);
 			#endif
 			if (!v2)
-				v = TExtSample();
+				v = Sample();
 			else
 			{
 				highest = M::Max(highest,v2->depth);
@@ -755,11 +754,12 @@ void		InconsistencyCoverage::FlagInconsistent(const TEntityCoords&coords, const 
 	Vec::mult(coords,Resolution,c);
 	Vec::clamp(c,0,Resolution-1);
 	//static const constexpr TSample Max = {0,0xFE};
-	TExtSample&s = (*GetVerified(grid,c));
+	auto&s = (*GetVerified(grid,c));
 
-	TExtSample v2;
+	Sample v2;
 	v2.depth = 1;
 	v2.spatialDistance = 0;
+	#ifdef EXTENDED_IC_GRID
 	{
 		{
 			const index_t linear = info.shardGridSize.ToLinearIndex(info.neighborShardIndex);
@@ -772,7 +772,7 @@ void		InconsistencyCoverage::FlagInconsistent(const TEntityCoords&coords, const 
 			v2.fuzzy.Include(info.shardGridSize.ToLinearIndex(idx),generation);
 		},info.shardGridSize);
 	}
-
+	#endif
 	s.Include(v2);
 	highest = M::Max(highest,s.depth);
 }
@@ -782,9 +782,10 @@ void		InconsistencyCoverage::FlagInconsistent(const NeighborInfo&info, generatio
 {
 	ASSERT__(!sealed);
 
-	TExtSample v2;
+	Sample v2;
 	v2.depth = 1;
 	v2.spatialDistance = 0;
+	#ifdef EXTENDED_IC_GRID
 	{
 		{
 			const index_t linear = info.shardGridSize.ToLinearIndex(info.neighborShardIndex);
@@ -797,7 +798,7 @@ void		InconsistencyCoverage::FlagInconsistent(const NeighborInfo&info, generatio
 			v2.fuzzy.Include(info.shardGridSize.ToLinearIndex(idx),generation);
 		},info.shardGridSize);
 	}
-
+	#endif
 	foreach (grid,g)
 		g->Include(v2);
 	highest = M::Max(highest,v2.depth);
@@ -814,9 +815,9 @@ void		InconsistencyCoverage::FlagInconsistent(const TEntityCoords&coords)
 	Vec::mult(coords,Resolution,c);
 	Vec::clamp(c,0,Resolution-1);
 	//static const constexpr TSample Max = {0,0xFE};
-	TExtSample&s = (*GetVerified(grid,c));
+	auto&s = (*GetVerified(grid,c));
 
-	TExtSample v2;
+	Sample v2;
 	v2.depth = 1;
 	v2.spatialDistance = 0;
 
@@ -911,7 +912,7 @@ InconsistencyCoverage::content_t		InconsistencyCoverage::GetPixelInconsistency(c
 
 const index_t InconsistencyCoverage::GetSampleLinearIndex(TGridCoords coords) const
 {
-	static const TExtSample empty;
+	static const Sample empty;
 	static const TGridCoords zero,one(1);
 	coords -= offset;
 	if (Vec::oneLess(coords,zero))
@@ -925,9 +926,9 @@ const index_t InconsistencyCoverage::GetSampleLinearIndex(TGridCoords coords) co
 }
 
 
-const InconsistencyCoverage::TExtSample&		InconsistencyCoverage::GetSample(TGridCoords coords) const
+const InconsistencyCoverage::Sample&		InconsistencyCoverage::GetSample(TGridCoords coords) const
 {
-	static const TExtSample empty;
+	static const Sample empty;
 	static const TGridCoords zero,one(1);
 	coords -= offset;
 	if (Vec::oneLess(coords,zero))
@@ -956,10 +957,12 @@ void		InconsistencyCoverage::VerifyIntegrity(const TCodeLocation&loc) const
 	content_t highest = 0;
 	foreach (grid,c)
 	{
-		const TExtSample&px = *c;
+		const auto&px = *c;
 
-		const bool zero = px.unavailableShards.AllZero();
-		ASSERT_EQUAL__(zero,px.IsConsistent());
+		#ifdef EXTENDED_IC_GRID
+			const bool zero = px.unavailableShards.AllZero();
+			ASSERT_EQUAL__(zero,px.IsConsistent());
+		#endif
 
 
 		if (px.IsInvalid())

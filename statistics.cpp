@@ -1088,12 +1088,15 @@ namespace Statistics
 				sflags += " entityEnvironment";
 			elif (config.flags & ICReductionFlags::RegardEntityState)
 				sflags += " entityState";
-			if (config.flags & ICReductionFlags::RegardOriginRange)
-				sflags += " originRange";
-			if (config.flags & ICReductionFlags::RegardFuzzyOriginRange)
-				sflags += " fuzzyOriginRange";
-			if (config.flags & ICReductionFlags::RegardOriginBitField)
-				sflags += " originBits";
+			#ifdef EXTENDED_IC_GRID
+				if (config.flags & ICReductionFlags::RegardOriginRange)
+					sflags += " originRange";
+				if (config.flags & ICReductionFlags::RegardFuzzyOriginRange)
+					sflags += " fuzzyOriginRange";
+				if (config.flags & ICReductionFlags::RegardOriginBitField)
+					sflags += " originBits";
+			#endif
+			xflags.inner_content = sflags;
 			xflags.inner_content = sflags;
 
 			xflags.Set("minEntityPresence",config.minEntityPresence);
@@ -1654,41 +1657,86 @@ namespace Statistics
 				return red.config.minSpatialDistance;
 			}),"S");
 
-			plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
-			{
-				if (red.config.flags != (ICReductionFlags::RegardEntityState | ICReductionFlags::RegardOriginRange))
-					return false;
+			#ifdef EXTENDED_IC_GRID
+				plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
+				{
+					if (red.config.flags != (ICReductionFlags::RegardEntityState | ICReductionFlags::RegardOriginRange))
+						return false;
 
-				if (red.config.overlapTolerance != 0)
-					return false;
-				if (red.config.maxDepth != IC::MaxDepth)
-					return false;
-				if (red.config.minEntityPresence != 0)
-					return false;
-				return true;
-			},
-			[](const TProbabilisticICReduction&red)->String
-			{
-				return red.config.minSpatialDistance;
-			}),"SR");
+					if (red.config.overlapTolerance != 0)
+						return false;
+					if (red.config.maxDepth != IC::MaxDepth)
+						return false;
+					if (red.config.minEntityPresence != 0)
+						return false;
+					return true;
+				},
+				[](const TProbabilisticICReduction&red)->String
+				{
+					return red.config.minSpatialDistance;
+				}),"SR");
 
-			plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
-			{
-				if (red.config.flags != (ICReductionFlags::RegardEntityState | ICReductionFlags::RegardOriginBitField))
-					return false;
+				plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
+				{
+					if (red.config.flags != (ICReductionFlags::RegardEntityState | ICReductionFlags::RegardOriginBitField))
+						return false;
 
-				if (red.config.overlapTolerance != 0)
-					return false;
-				if (red.config.maxDepth != IC::MaxDepth)
-					return false;
-				if (red.config.minEntityPresence != 0)
-					return false;
-				return true;
-			},
-			[](const TProbabilisticICReduction&red)->String
-			{
-				return red.config.minSpatialDistance;
-			}),"SB");
+					if (red.config.overlapTolerance != 0)
+						return false;
+					if (red.config.maxDepth != IC::MaxDepth)
+						return false;
+					if (red.config.minEntityPresence != 0)
+						return false;
+					return true;
+				},
+				[](const TProbabilisticICReduction&red)->String
+				{
+					return red.config.minSpatialDistance;
+				}),"SB");
+
+				plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
+				{
+					if (red.config.flags != (ICReductionFlags::RegardEntityState | ICReductionFlags::RegardOriginBitField))
+						return false;
+
+					if (red.config.overlapTolerance != 0)
+						return false;
+					if (red.config.maxDepth != IC::MaxDepth)
+						return false;
+					if (red.config.minEntityPresence != 0)
+						return false;
+					if (red.config.minSpatialDistance != 0)
+						return false;
+
+					return true;
+				},
+				[](const TProbabilisticICReduction&red)->String
+				{
+					return (red.config.flags & ICReductionFlags::RegardOriginBitField) ? "set":"";
+				}),"OBits");
+
+				plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
+				{
+					if (red.config.flags != (ICReductionFlags::RegardEntityState | ICReductionFlags::RegardOriginRange))
+						return false;
+
+					if (red.config.overlapTolerance != 0)
+						return false;
+					if (red.config.maxDepth != IC::MaxDepth)
+						return false;
+					if (red.config.minEntityPresence != 0)
+						return false;
+					if (red.config.minSpatialDistance != 0)
+						return false;
+
+					return true;
+				},
+				[](const TProbabilisticICReduction&red)->String
+				{
+					return (red.config.flags & ICReductionFlags::RegardOriginRange) ? "set":"";
+				}
+				),"ORange");
+			#endif
 
 			plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
 			{
@@ -1726,48 +1774,6 @@ namespace Statistics
 				return red.config.minSpatialDistance;
 			}),"S-Pure");
 
-			plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
-			{
-				if (red.config.flags != (ICReductionFlags::RegardEntityState | ICReductionFlags::RegardOriginBitField))
-					return false;
-
-				if (red.config.overlapTolerance != 0)
-					return false;
-				if (red.config.maxDepth != IC::MaxDepth)
-					return false;
-				if (red.config.minEntityPresence != 0)
-					return false;
-				if (red.config.minSpatialDistance != 0)
-					return false;
-
-				return true;
-			},
-			[](const TProbabilisticICReduction&red)->String
-			{
-				return (red.config.flags & ICReductionFlags::RegardOriginBitField) ? "set":"";
-			}),"OBits");
-
-			plot.AddPlot(FilterICReduction([](const TProbabilisticICReduction&red)->bool
-			{
-				if (red.config.flags != (ICReductionFlags::RegardEntityState | ICReductionFlags::RegardOriginRange))
-					return false;
-
-				if (red.config.overlapTolerance != 0)
-					return false;
-				if (red.config.maxDepth != IC::MaxDepth)
-					return false;
-				if (red.config.minEntityPresence != 0)
-					return false;
-				if (red.config.minSpatialDistance != 0)
-					return false;
-
-				return true;
-			},
-			[](const TProbabilisticICReduction&red)->String
-			{
-				return (red.config.flags & ICReductionFlags::RegardOriginRange) ? "set":"";
-			}
-			),"ORange");
 		}
 		catch (...){};
 
@@ -1864,17 +1870,21 @@ namespace Statistics
 				{
 					if (!(val->config.flags & ICReductionFlags::RegardEntityState))
 					{
-						if (val->config.flags & ICReductionFlags::RegardOriginBitField)
-							continue;
-						if (val->config.flags & ICReductionFlags::RegardOriginRange)
-							continue;
-						if (val->config.flags & ICReductionFlags::RegardFuzzyOriginRange)
-							continue;
+						#ifdef EXTENDED_IC_GRID
+							if (val->config.flags & ICReductionFlags::RegardOriginBitField)
+								continue;
+							if (val->config.flags & ICReductionFlags::RegardOriginRange)
+								continue;
+							if (val->config.flags & ICReductionFlags::RegardFuzzyOriginRange)
+								continue;
+						#endif
 					}
 					if (val->config.minEntityPresence > 0 || val->config.overlapTolerance > 0 || val->config.minSpatialDistance > 0 || val->config.maxDepth < IC::MaxDepth)
 						continue;
-					if (val->config.flags & ICReductionFlags::RegardFuzzyOriginRange)
-						continue;
+					#ifdef EXTENDED_IC_GRID
+						if (val->config.flags & ICReductionFlags::RegardFuzzyOriginRange)
+							continue;
+					#endif
 					const double positive = (val->consideredConsistent.Get() - val->shouldNotHaveConsideredConsistent.Get());
 					const double effectivity = positive / (val->actuallyConsistent.Get());
 					const double falsePositives = val->shouldNotHaveConsideredConsistent.Get() / (val->totalGuesses.Get()  -val->actuallyConsistent.Get()) ;
@@ -1883,10 +1893,12 @@ namespace Statistics
 					index_t x = 0;
 					if (val->config.flags & ICReductionFlags::RegardEntityState)
 						x++;
-					if (val->config.flags & ICReductionFlags::RegardOriginBitField)
-						x += 2;
-					elif (val->config.flags & ICReductionFlags::RegardOriginRange)
-						x += 4;
+					#ifdef EXTENDED_IC_GRID
+						if (val->config.flags & ICReductionFlags::RegardOriginBitField)
+							x += 2;
+						elif (val->config.flags & ICReductionFlags::RegardOriginRange)
+							x += 4;
+					#endif
 					if (val->config.flags & ICReductionFlags::RegardEntityEnvironment)
 						x++;
 					x *= 3;
@@ -1939,19 +1951,21 @@ namespace Statistics
 				return false;
 		}
 
-		if (flags & ICReductionFlags::RegardOriginRange)
-		{
-			canOverlap = true;
-			set++;
-		}
-		if (flags & ICReductionFlags::RegardFuzzyOriginRange)
-		{
-			canOverlap = true;
-			set++;
-		}
+		#ifdef EXTENDED_IC_GRID
+			if (flags & ICReductionFlags::RegardOriginRange)
+			{
+				canOverlap = true;
+				set++;
+			}
+			if (flags & ICReductionFlags::RegardFuzzyOriginRange)
+			{
+				canOverlap = true;
+				set++;
+			}
 		
-		if (flags & ICReductionFlags::RegardOriginBitField)
-			set++;
+			if (flags & ICReductionFlags::RegardOriginBitField)
+				set++;
+		#endif
 		
 		if (set > 1)
 			return false;

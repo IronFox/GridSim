@@ -594,8 +594,10 @@ void FullShardDomainState::AssertEquality(const SDS & other) const
 			const auto&rs = remote->ic.GetGrid()[i];
 			if (!ls.IsConsistent() || !rs.IsConsistent())
 				continue;
-			ASSERT__(ls.unavailableShards.AllZero());
-			ASSERT__(rs.unavailableShards.AllZero());
+			#ifdef EXTENDED_IC_GRID
+				ASSERT__(ls.unavailableShards.AllZero());
+				ASSERT__(rs.unavailableShards.AllZero());
+			#endif
 
 			const auto&lh = local->hGrid.core.grid[i];
 			const auto&rh = remote->hGrid.core.grid[i];
@@ -667,8 +669,10 @@ void FullShardDomainState::AssertTotalEquality(const SDS & other, const TGridCoo
 		{
 			const auto&ls = local->ic.GetGrid()[i];
 			const auto&rs = remote->ic.GetGrid()[i];
-			ASSERT__(ls.unavailableShards.AllZero());
-			ASSERT__(rs.unavailableShards.AllZero());
+			#ifdef EXTENDED_IC_GRID
+				ASSERT__(ls.unavailableShards.AllZero());
+				ASSERT__(rs.unavailableShards.AllZero());
+			#endif
 
 			const auto&lh = local->hGrid.core.grid[i].next;
 			const auto&rh = remote->hGrid.core.grid[i].next;
@@ -1194,7 +1198,7 @@ static PCoreShardDomainState		Merge(
 
 		const auto&g0 = a.ic.GetGrid();
 		const auto&g1 = b.ic.GetGrid();
-		GridArray<IC::TExtSample> gm;
+		GridArray<IC::Sample> gm;
 		ASSERT_EQUAL__(g0.GetSize(),size);
 		ASSERT_EQUAL__(g1.GetSize(),size);
 		gm.SetSize(size);
@@ -1538,33 +1542,35 @@ void				TestProbabilisticICReduction(const CoreShardDomainState&a, const ExtHGri
 				if (!ExtHGrid::CoreMatch(ag,bg,ToVector( actuallyConsistent.ToVectorIndex(i) ),strat.minEntityPresence))
 					match = false;
 		}
-		if (match && (strat.flags & Statistics::ICReductionFlags::RegardOriginBitField))
-		{
-			const BitArray&ba = a.ic.GetGrid()[i].unavailableShards;
-			const BitArray&bb = b.ic.GetGrid()[i].unavailableShards;
-			ASSERT__(!ba.AllZero());
-			ASSERT__(!bb.AllZero());
-			if (ba.OverlapsWith(bb))
-				match = false;
-		}
-		if (match && (strat.flags & Statistics::ICReductionFlags::RegardOriginRange))
-		{
-			const auto&p0 = a.ic.GetGrid()[i].precise;
-			const auto&p1 = b.ic.GetGrid()[i].precise;
-			ASSERT__(!p0.AllUndefined());
-			ASSERT__(!p1.AllUndefined());
-			if (p0.OverlapsWith(p1,strat.overlapTolerance))
-				match = false;
-		}
-		if (match && (strat.flags & Statistics::ICReductionFlags::RegardFuzzyOriginRange))
-		{
-			const auto&p0 = a.ic.GetGrid()[i].fuzzy;
-			const auto&p1 = b.ic.GetGrid()[i].fuzzy;
-			ASSERT__(!p0.AllUndefined());
-			ASSERT__(!p1.AllUndefined());
-			if (p0.OverlapsWith(p1,strat.overlapTolerance))
-				match = false;
-		}
+		#ifdef EXTENDED_IC_GRID
+			if (match && (strat.flags & Statistics::ICReductionFlags::RegardOriginBitField))
+			{
+				const BitArray&ba = a.ic.GetGrid()[i].unavailableShards;
+				const BitArray&bb = b.ic.GetGrid()[i].unavailableShards;
+				ASSERT__(!ba.AllZero());
+				ASSERT__(!bb.AllZero());
+				if (ba.OverlapsWith(bb))
+					match = false;
+			}
+			if (match && (strat.flags & Statistics::ICReductionFlags::RegardOriginRange))
+			{
+				const auto&p0 = a.ic.GetGrid()[i].precise;
+				const auto&p1 = b.ic.GetGrid()[i].precise;
+				ASSERT__(!p0.AllUndefined());
+				ASSERT__(!p1.AllUndefined());
+				if (p0.OverlapsWith(p1,strat.overlapTolerance))
+					match = false;
+			}
+			if (match && (strat.flags & Statistics::ICReductionFlags::RegardFuzzyOriginRange))
+			{
+				const auto&p0 = a.ic.GetGrid()[i].fuzzy;
+				const auto&p1 = b.ic.GetGrid()[i].fuzzy;
+				ASSERT__(!p0.AllUndefined());
+				ASSERT__(!p1.AllUndefined());
+				if (p0.OverlapsWith(p1,strat.overlapTolerance))
+					match = false;
+			}
+		#endif
 		
 		const bool consistent = actuallyConsistent[i];
 		const auto&test = shouldNotBeConsidered[i];

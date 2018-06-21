@@ -146,8 +146,16 @@ private:
 	content_t	highest=0;
 	bool		sealed = false;
 
-	typedef GridArray<TExtSample>	TGrid;
+public:
+	#ifdef EXTENDED_IC_GRID
+		typedef TExtSample Sample;
+	#else
+		typedef TSample Sample;
+	#endif
 
+	typedef GridArray<Sample>	TGrid;
+
+private:
 	TGrid	grid;
 
 public:
@@ -320,7 +328,7 @@ public:
 	void		FlushInconsistency()
 	{
 		ASSERT__(!sealed);
-		grid.Fill(TExtSample());
+		grid.Fill(Sample());
 		highest = 0;
 	}
 
@@ -359,7 +367,7 @@ public:
 	bool		IsInconsistent(const TEntityCoords&coords) const;
 	content_t	GetInconsistency(const TEntityCoords&coords) const;
 	content_t	GetPixelInconsistency(const TGridCoords&) const;
-	const TExtSample& GetSample(TGridCoords coords) const;
+	const Sample& GetSample(TGridCoords coords) const;
 	const index_t GetSampleLinearIndex(TGridCoords coords) const;
 	void		VerifyIsInconsistent(const TEntityCoords&coords, const TVerificationContext&context) const;
 	static TGridCoords	ToPixels(const TEntityCoords&coords);

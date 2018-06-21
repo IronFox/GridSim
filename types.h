@@ -17,6 +17,14 @@ using namespace DeltaWorks;
 //#define RECOVERY_TEST
 //#define PERFORMANCE_TEST_TIMESTEPS	200
 
+/**
+Extends information stored in each IC cell that can be used during merged.
+Must be defined when testing merge strategies involving these flags:
+	RegardOriginBitField
+	RegardOriginRange
+	RegardFuzzyOriginRange
+*/
+//#define EXTENDED_IC_GRID
 
 /**
 	Thoroughly checks equality with consistent match and that inconsistency is where you expect it to be.
