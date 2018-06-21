@@ -376,7 +376,10 @@ public:
 };
 
 
-
+/**
+If defined, stores all included entities in hash grid cells, as opposed to just their number.
+For debugging purposes only. Probably very slow, and memory consumptious
+*/
 //#define ENTITIES_IN_IC_GRID
 
 
