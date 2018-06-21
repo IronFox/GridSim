@@ -564,8 +564,8 @@ void FullShardDomainState::FinalizeComputation(Shard&shard, const TCodeLocation&
 		if (consistentMatch)
 		{
 			AssertSelectiveEquality(*consistentMatch,shard.gridCoords);
-
-			Statistics::CaptureInconsistency(out->ic,out->entities,consistentMatch->GetOutput()->entities,shard.gridCoords);
+			if (generation == shard.parentGrid->topGeneration+1)
+				Statistics::CaptureInconsistency(out->ic,out->entities,consistentMatch->GetOutput()->entities,shard.gridCoords);
 		}
 	}
 
