@@ -116,9 +116,11 @@ public:
 	All shard neighbors, arranged in outbound order.
 	SDSs map inbound RCSs such that [neighbor k].inboundRCS[k] is set to [local].outboundRCS[k].
 	As a result, [local].inboundRCS[k] does not originate in [neighbor k], but rather the opposite of k.
+	To get the actual origin of inboundRCS[k] use inboundToOutbound[k].
 	To get the inboundRCS entry targeted by neighbor k use outboundNeighbors[k].inboundIndex
 	*/
 	FixedArray<TNeighbor,NumNeighbors>	outboundNeighbors;
+	FixedArray<index_t,NumNeighbors> inboundToOutbound;
 
 	struct TMergeStatistics
 	{

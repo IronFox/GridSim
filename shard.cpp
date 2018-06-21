@@ -108,6 +108,9 @@ void Shard::Setup(Grid&grid, const TGridCoords&myCoords, index_t myLinearCoords,
 			}
 	}
 
+	foreach (outboundNeighbors,n)
+	{
+		inboundToOutbound[n->inboundIndex] = n - outboundNeighbors.begin();
 	}
 
 	auto&s = sds.First();
