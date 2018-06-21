@@ -35,6 +35,9 @@ Replaces MessageData with a custom class to accumulate contained data
 #define DISPLACED_MESSAGES //uses sensory logic on messages (radiated from future location, reduced range of motion and communication)
 #define INT_MESSAGES // causes messages to be simple uint64 values as opposed to arbitrary byte sequences. massively reduces memory consumption
 
+#define CLAMP_ENTITIES	//disallow entity losses
+
+
 
 #ifdef INT_MESSAGES
 	typedef UINT64 MessageDataContainer;

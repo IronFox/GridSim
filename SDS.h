@@ -42,7 +42,7 @@ public:
 	}
 	void				Hash(Hasher&)	const;
 
-
+	void				MakeGrownSuccessorIC(const Shard&shard, IC&target,const FullShardDomainState&targetState) const;
 	bool				IsFullyConsistent() const {return this && ic.IsFullyConsistent();}
 	bool				operator==(const CoreShardDomainState&other) const {return generation == other.generation && entities == other.entities && ic == other.ic;}
 };
@@ -187,6 +187,15 @@ public:
 	FixedArray<OutRemoteChangeSet,NumNeighbors>	outboundRCS;
 	FixedArray<PRCS,NumNeighbors>				inboundRCS;
 
+	#ifdef CLAMP_ENTITIES
+		/**
+		List of all locations that entities have been clamped in due to assumed unavailable neighbor.
+		When parent IC is reconstructed, these must be flagged inconsistent prior to growth.
+		Pairs relative entity location in [0,1) with outbound neighbor index.
+		*/
+		Buffer0<std::pair<TEntityCoords,BYTE> >	relativeClampedEntityLocations;
+	#endif
+
 	void				swap(FullShardDomainState&other)
 	{
 		using std::swap;
@@ -203,6 +212,9 @@ public:
 		swp(inputConsistent,other.inputConsistent);
 		swp(inputHash,other.inputHash);
 		userMessages.swap(other.userMessages);
+		#ifdef CLAMP_ENTITIES
+			relativeClampedEntityLocations.swap(other.relativeClampedEntityLocations);
+		#endif
 
 		if (output)
 			ASSERT_EQUAL__(generation,output->generation);

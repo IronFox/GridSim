@@ -21,6 +21,40 @@ void	CoreShardDomainState::Hash(Hasher&inputHash)	const
 	inputHash.AppendPOD(generation);
 }
 
+void				CoreShardDomainState::MakeGrownSuccessorIC(const Shard&shard, IC&target,const FullShardDomainState&targetState) const
+{
+	#ifdef CLAMP_ENTITIES
+		const auto&clampedEntities = targetState.relativeClampedEntityLocations;
+		target = ic;
+		const auto gen = IC::generation_t(targetState.GetGeneration());
+		foreach (clampedEntities,e)
+			target.FlagInconsistent(e->first, shard.GetOutboundNeighborInfo(e->second),gen);
+
+		target.Grow();
+
+		foreach (clampedEntities,e)
+		{
+			auto cl = target.ToPixels(e->first);
+			ASSERT__(!target.GetSample(cl).IsConsistent());
+			for (int x = cl.x-1; x <= cl.x+1; x++)
+				for (int y = cl.y-1; y <= cl.y+1; y++)
+				{
+					const auto coords = TGridCoords(x,y);
+					const auto&sample = target.GetSample(coords);
+					if (sample.IsConsistent())
+					{
+						auto linear = target.GetSampleLinearIndex(coords);
+						const auto&sample2 = target.GetSample(coords);
+						FATAL__("Bad sample at "+ToString(coords)+"/"+String(linear));
+					}
+				}
+		}
+	#else
+		ic.Grow(target);
+	#endif
+}
+
+
 
 void					RemoteChangeSet::Verify(const PRCS&consistentMatch)
 {
@@ -74,12 +108,30 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 			AssertSelectiveEquality(*consistentMatch,shard.gridCoords);
 	}
 
+	const bool isNew = rs.output == nullptr;
 	rs.pGrid.reset(new HashProcessGrid(input->hGrid.core,  generation+1,shard.gridCoords,false));
 
 	input->ic.VerifyIntegrity(CLOCATION);
 	Hasher	inputHash;
 	inputHash.AppendPOD(input->IsFullyConsistent());
 	input->Hash(inputHash);
+	bool allNeighborsAlive = true;
+	#ifdef CLAMP_ENTITIES
+		FixedArray<bool,NumNeighbors> neighborAlive;
+		for (index_t i = 0; i < NumNeighbors; i++)
+		{
+			const index_t inbound = shard.outboundNeighbors[i].inboundIndex;
+			bool alive;
+			if (!isNew)
+				alive = rs.inboundRCS[inbound] != nullptr /*&& inboundRCS[inbound] != nullptr*/;
+			else
+				alive = inboundRCS[inbound] != nullptr;
+			if (!alive)
+				allNeighborsAlive = false;
+			neighborAlive[i] = alive;
+			inputHash.AppendPOD(alive);
+		}
+	#endif
 	//foreach (userMessages,msg)
 	//{
 	//	msg->target.Hash(inputHash);
@@ -95,16 +147,14 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 	ASSERT__(!rs.GetOutput()->ic.IsSealed());
 	if (c == rs.inputHash)
 	{
-		rs.GetOutput()->entities = rs.processed;
-	//	if (!rs.outputConsistent)
-		{
-			InconsistencyCoverage ic;
-			input->ic.Grow(ic);
-			rs.GetOutput()->ic.CopyCoreArea(TGridCoords(),ic);
-		}
+		const auto rso = rs.GetOutput();
+		rso->entities = rs.processed;
+		InconsistencyCoverage ic;
+		input->MakeGrownSuccessorIC(shard,ic,rs);
+		rso->ic.CopyCoreArea(TGridCoords(),ic);
 		return;
 	}
-	if (consistentSuccessorMatch && input->IsFullyConsistent())
+	if (consistentSuccessorMatch && input->IsFullyConsistent() && allNeighborsAlive)
 		ASSERT__(c == consistentSuccessorMatch->inputHash);
 	rs.inputHash = c;
 	rs.processed = input->entities;
@@ -129,17 +179,34 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 		}
 	}
 
+	#ifdef CLAMP_ENTITIES
+		rs.relativeClampedEntityLocations.Clear();
+		rs.ExecuteLogic(shard.gridCoords, [this,&shard,motionSpace,&rs,neighborAlive](const Entity&e, TEntityCoords&c)
+		{
+			motionSpace.Clamp(c);
+			auto grid = EntityID::GetShardCoords(c);
+			if (grid == shard.gridCoords)
+				return;
+			auto ni = shard.NeighborToLinear(grid - shard.gridCoords);
+			if (!neighborAlive[ni])
+			{
+				c = e.coordinates;
+				const auto relative = e.coordinates - shard.gridCoords;
+				rs.relativeClampedEntityLocations << std::make_pair(relative,ni);
+			}
+		});
+		rs.relativeClampedEntityLocations.Compact();
+	#else
 		rs.ExecuteLogic(shard.gridCoords, motionSpace);
+	#endif
+
 	InconsistencyCoverage ic;
-	input->ic.Grow(ic);
-	rs.GetOutput()->ic.CopyCoreArea(TGridCoords(),ic);
+	input->MakeGrownSuccessorIC(shard,ic,rs);
+	const auto rso = rs.GetOutput();
+	rso->ic.CopyCoreArea(TGridCoords(),ic);
 
-	rs.GetOutput()->ic.VerifyIntegrity(CLOCATION);
+	rso->ic.VerifyIntegrity(CLOCATION);
 
-	if (consistentSuccessorMatch && input->IsFullyConsistent())
-	{
-		rs.localCS.AssertEqual(consistentSuccessorMatch->localCS);
-	}
 
 	for (int i = 0; i < NumNeighbors; i++)
 	{
@@ -188,7 +255,7 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 		rcs.ref->VerifyIntegrity(CLOCATION);
 
 
-		if (input->IsFullyConsistent())
+		if (input->IsFullyConsistent() && allNeighborsAlive)
 			ASSERT__(rcs.ref->ic.IsFullyConsistent());
 
 	}
