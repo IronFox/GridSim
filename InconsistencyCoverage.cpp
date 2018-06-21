@@ -745,6 +745,65 @@ void InconsistencyCoverage::CopyCoreArea(const TGridCoords & sectorDelta, const 
 }
 
 
+void		InconsistencyCoverage::FlagInconsistent(const TEntityCoords&coords, const NeighborInfo&info, generation_t generation)
+{
+	ASSERT__(!sealed);
+	static const TEntityCoords zero,one(1);
+	if (Vec::oneLess(coords,zero) || Vec::oneGreater(coords,one))
+		return;
+	TGridCoords c;
+	Vec::mult(coords,Resolution,c);
+	Vec::clamp(c,0,Resolution-1);
+	//static const constexpr TSample Max = {0,0xFE};
+	TExtSample&s = (*GetVerified(grid,c));
+
+	TExtSample v2;
+	v2.depth = 1;
+	v2.spatialDistance = 0;
+	{
+		{
+			const index_t linear = info.shardGridSize.ToLinearIndex(info.neighborShardIndex);
+			v2.unavailableShards.SetBit(linear,true);
+			v2.precise.Include(linear,generation);
+		}
+
+		info.neighborShardIndex.IterateNeighborhood([&v2,info,generation](const GridIndex&idx)
+		{
+			v2.fuzzy.Include(info.shardGridSize.ToLinearIndex(idx),generation);
+		},info.shardGridSize);
+	}
+
+	s.Include(v2);
+	highest = M::Max(highest,s.depth);
+}
+
+
+void		InconsistencyCoverage::FlagInconsistent(const NeighborInfo&info, generation_t generation)
+{
+	ASSERT__(!sealed);
+
+	TExtSample v2;
+	v2.depth = 1;
+	v2.spatialDistance = 0;
+	{
+		{
+			const index_t linear = info.shardGridSize.ToLinearIndex(info.neighborShardIndex);
+			v2.unavailableShards.SetBit(linear,true);
+			v2.precise.Include(linear,generation);
+		}
+
+		info.neighborShardIndex.IterateNeighborhood([&v2,info,generation](const GridIndex&idx)
+		{
+			v2.fuzzy.Include(info.shardGridSize.ToLinearIndex(idx),generation);
+		},info.shardGridSize);
+	}
+
+	foreach (grid,g)
+		g->Include(v2);
+	highest = M::Max(highest,v2.depth);
+}
+
+
 void		InconsistencyCoverage::FlagInconsistent(const TEntityCoords&coords)
 {
 	ASSERT__(!sealed);

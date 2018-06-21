@@ -353,6 +353,8 @@ public:
 	@param coords Entity coordinates to flag inconsistent. Must be in the range [0,0]-(1,1)
 	*/
 	void		FlagInconsistent(const TEntityCoords&coords);
+	void		FlagInconsistent(const TEntityCoords&coords, const NeighborInfo&info, generation_t generation);
+	void		FlagInconsistent(const NeighborInfo&info, generation_t generation);
 
 	bool		IsInconsistent(const TEntityCoords&coords) const;
 	content_t	GetInconsistency(const TEntityCoords&coords) const;
