@@ -299,6 +299,7 @@ public:
 	Fills all allocated pixels with the minimum inconsistent value
 	*/
 	void		FillMinInconsistent();
+	void		FillMinInconsistentWhereConsistent();
 
 	void		VerifyIntegrity(const TCodeLocation&) const;
 

@@ -391,6 +391,17 @@ bool		InconsistencyCoverage::operator==(const InconsistencyCoverage&other) const
 		grid == other.grid;
 }
 
+void	InconsistencyCoverage::FillMinInconsistentWhereConsistent()
+{
+	ASSERT__(!sealed);
+	TExtSample sample;
+	sample.depth = 1;
+	sample.spatialDistance = 0;
+	foreach (grid,g)
+		g->Include(sample);
+	highest = std::max(highest, sample.depth);
+}
+
 
 void InconsistencyCoverage::FillMinInconsistent()
 {
