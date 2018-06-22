@@ -376,6 +376,7 @@ public:
 	const index_t GetSampleLinearIndex(TGridCoords coords) const;
 	void		VerifyIsInconsistent(const TEntityCoords&coords, const TVerificationContext&context) const;
 	static TGridCoords	ToPixels(const TEntityCoords&coords);
+	static TGridCoords	RelativeToPixelsNoBounds(const TEntityCoords&coords);
 
 	bool		IsFullyConsistent() const {return highest == 0;}
 	content_t	GetHighestInconsistency() const {return highest;}

@@ -887,6 +887,15 @@ InconsistencyCoverage::content_t		InconsistencyCoverage::GetInconsistency(const 
 	return c;
 }
 
+/*static*/ TGridCoords	InconsistencyCoverage::RelativeToPixelsNoBounds(const TEntityCoords&coords)
+{
+	TGridCoords c;
+	TEntityCoords temp;
+	Vec::mult(coords,Resolution,temp);
+	Vec::floor(temp,c);
+	return c;
+}
+
 bool		InconsistencyCoverage::FindInconsistentPlacementCandidate(TEntityCoords&inOutCoords, float maxDist/*=1.f*/) const
 {
 	TGridCoords c= ToPixels(inOutCoords);
