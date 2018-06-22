@@ -357,12 +357,17 @@ public:
 
 
 	/**
-	Flags the ic cell corresponding to the given coordinates as inconsistent.
+	Flags the IC cell corresponding to the given coordinates as inconsistent.
 	@param coords Entity coordinates to flag inconsistent. Must be in the range [0,0]-(1,1)
 	*/
 	void		FlagInconsistent(const TEntityCoords&coords);
 	void		FlagInconsistent(const TEntityCoords&coords, const NeighborInfo&info, generation_t generation);
 	void		FlagInconsistent(const NeighborInfo&info, generation_t generation);
+	/**
+	Flags the specified IC sample as inconsistent
+	@param sampleCoords Target sample coordinates. May be negative if offset is non-negative
+	*/
+	void		FlagInconsistent(const TGridCoords&sampleCoords, const NeighborInfo&info, generation_t generation, bool clampIfOutOfRange);
 
 	bool		IsInconsistent(const TEntityCoords&coords) const;
 	content_t	GetInconsistency(const TEntityCoords&coords) const;
@@ -397,6 +402,9 @@ public:
 
 	bool		operator==(const InconsistencyCoverage&other) const;
 	bool		operator!=(const InconsistencyCoverage&other) const	{return !operator==(other);}
+private:
+	Sample*		GetSample(TGridCoords coords, bool clampIfOutOfRange);
+
 };
 
 

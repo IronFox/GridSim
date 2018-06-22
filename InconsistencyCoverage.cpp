@@ -744,6 +744,35 @@ void InconsistencyCoverage::CopyCoreArea(const TGridCoords & sectorDelta, const 
 }
 
 
+void		InconsistencyCoverage::FlagInconsistent(const TGridCoords&sampleCoords, const NeighborInfo&info, generation_t generation, bool clampIfOutOfRange)
+{
+	ASSERT__(!sealed);
+
+	auto s = GetSample(sampleCoords,clampIfOutOfRange);
+	if (!s)
+		return;
+
+	Sample v2;
+	v2.depth = 1;
+	v2.spatialDistance = 0;
+	#ifdef EXTENDED_IC_GRID
+	{
+		{
+			const index_t linear = info.shardGridSize.ToLinearIndex(info.neighborShardIndex);
+			v2.unavailableShards.SetBit(linear,true);
+			v2.precise.Include(linear,generation);
+		}
+
+		info.neighborShardIndex.IterateNeighborhood([&v2,info,generation](const GridIndex&idx)
+		{
+			v2.fuzzy.Include(info.shardGridSize.ToLinearIndex(idx),generation);
+		},info.shardGridSize);
+	}
+	#endif
+	s->Include(v2);
+	highest = M::Max(highest,s->depth);
+}
+
 void		InconsistencyCoverage::FlagInconsistent(const TEntityCoords&coords, const NeighborInfo&info, generation_t generation)
 {
 	ASSERT__(!sealed);
@@ -913,7 +942,7 @@ InconsistencyCoverage::content_t		InconsistencyCoverage::GetPixelInconsistency(c
 const index_t InconsistencyCoverage::GetSampleLinearIndex(TGridCoords coords) const
 {
 	static const Sample empty;
-	static const TGridCoords zero,one(1);
+	static const TGridCoords zero;
 	coords -= offset;
 	if (Vec::oneLess(coords,zero))
 		return InvalidIndex;
@@ -937,6 +966,30 @@ const InconsistencyCoverage::Sample&		InconsistencyCoverage::GetSample(TGridCoor
 	if (grid.GetSize().IsInBounds(idx))
 		return grid.Get(idx);
 	return empty;
+}
+
+InconsistencyCoverage::Sample*		InconsistencyCoverage::GetSample(TGridCoords coords, bool clampIfOutOfRange)
+{
+	static const Sample empty;
+	static const TGridCoords zero;
+	coords -= offset;
+	if (clampIfOutOfRange)
+	{
+		auto sizeVec = ToVector(grid.GetSize());
+		Vec::max(coords,zero,coords);
+		Vec::min(coords,sizeVec-(count_t)1,coords);
+		const auto idx = VectorToIndex(coords);
+		return &grid.Get(idx);
+	}
+	else
+	{
+		if (Vec::oneLess(coords,zero))
+			return nullptr;
+		const auto idx = VectorToIndex(coords);
+		if (grid.GetSize().IsInBounds(idx))
+			return &grid.Get(idx);
+		return nullptr;
+	}
 }
 
 
