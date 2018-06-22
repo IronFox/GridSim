@@ -502,7 +502,7 @@ functions:
 		:<cross>(v,reference,temp);
 		:<cross>(reference,temp,v);
 	
-	intercept(const[] position, const[] velocity, interception_velocity, [] result{normalized direction of intersection, if any; the value of this variable remains unchanged if no interseption could be determined}) -> :float {time of intersection, or 0 if no such could be determined}
+	intercept(const[] position, const[] velocity, interception_velocity, [] result{normalized direction of intersection, if any; the value of this variable remains unchanged if no interception could be determined}) -> :float {time of intersection, or 0 if no such could be determined}
 		{Calculates the time and direction of interception of an object at <paramref>position</paramref> moving with a specific constant speed and direction <paramref>velocity</paramref>}
 		:float	rs[2],
 				a = :<dot>(velocity) - interception_velocity*interception_velocity,
@@ -518,6 +518,40 @@ functions:
 		:<mad>(velocity,position,f,result);
 		:<normalize>(result);
 		return t;
+		
+	floor([] v{Vector to apply std::floor to})
+		{Applies (std::)floor() to all elements}
+		using std::floor;
+		:iterate
+			v:i = floor(v:i);
+	
+	floor(const [] v{Vector to apply std::floor to}, [] w{Result})
+		{Applies (std::)floor() to all elements, while copying them to w}
+		using std::floor;
+		:iterate
+			w:i = floor(v:i);
+			
+	round([] v{Vector to apply M::Round to})
+		{Applies M::Round() to all elements}
+		:iterate
+			v:i = M::Round(v:i);
+		
+	round(const [] v{Vector to apply M::Round to}, [] w{Result})
+		{Applies M::Round() to all elements, while copying them to w}
+		:iterate
+			w:i = M::Round(v:i);
+			
+	ceil([] v{Vector to apply std::ceil to})
+		{Applies (std::)ceil() to all elements}
+		using std::ceil;
+		:iterate
+			v:i = ceil(v:i);
+	
+	ceil(const [] v{Vector to apply std::ceil to}, [] w{Result})
+		{Applies (std::)ceil() to all elements, while copying them to w}
+		using std::ceil;
+		:iterate
+			w:i = ceil(v:i);
 	
 	toString(const[] vector) -> String
 		return '('+ :glue( ", ",String(vector:i))+')';
