@@ -153,7 +153,7 @@ namespace Statistics
 					//r.setup.numEntities = 16*16*1*2*2*8*8;		//each sees on average 4 others
 					//r.setup.numEntities = 16*16*2*2*2*8*8;		//each sees on average _8_ others
 				#else
-					r.setup.numEntities = 256;
+					r.setup.numEntities = 256*16;
 				#endif
 			#endif
 		}
