@@ -105,6 +105,8 @@ Replaces MessageData with a custom class to accumulate contained data
 
 	template <typename T,typename Strategy = typename Strategy::StrategySelector<T>::Default>
 		using GridArray = Array3D<T,Strategy>;
+	typedef Index3D<index_t> Index;
+	typedef Size3D<index_t> Size;
 
 
 #else
@@ -117,7 +119,8 @@ Replaces MessageData with a custom class to accumulate contained data
 
 	template <typename T,typename Strategy = typename Strategy::StrategySelector<T>::Default>
 		using GridArray = Array2D<T,Strategy>;
-
+	typedef Index2D<index_t> Index;
+	typedef Size2D<index_t> Size;
 
 #endif
 
@@ -141,17 +144,13 @@ inline M::TVec3<count_t>	ToVector(const Size3D<count_t>&s)
 	return rs;
 
 }
-inline M::TVec2<index_t>	ToVector(const Index2D<index_t>&s)
+inline M::Vec2<index_t>	ToVector(const Index2D<index_t>&s)
 {
-	M::TVec2<index_t> rs;
-	Vec::def(rs,s.x,s.y);
-	return rs;
+	return M::Vec2<index_t>(s.x,s.y);
 }
-inline M::TVec3<index_t>	ToVector(const Index3D<index_t>&s)
+inline M::Vec3<index_t>	ToVector(const Index3D<index_t>&s)
 {
-	M::TVec3<index_t> rs;
-	Vec::def(rs,s.x,s.y,s.z);
-	return rs;
+	return M::Vec3<index_t>(s.x,s.y,s.z);
 }
 
 template <typename T>
