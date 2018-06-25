@@ -128,20 +128,20 @@ bool takeTransparentScreenshot = false;
 
 bool loop()		//main loop function
 {
-	if (mouse.buttons.pressed)		//rotate the camera if any mouse button is currently pressed
+	if (Engine::mouse.buttons.pressed)		//rotate the camera if any mouse button is currently pressed
 	{
-		M::TVec2<> d = mouse.location.windowRelative - mouse.previous_location.windowRelative;
+		M::TVec2<> d = Engine::mouse.location.windowRelative - Engine::mouse.previous_location.windowRelative;
 		camera.AlterAngles(-d.y*100.0f,0,-d.x*100.0f);						//rotate the camera (also rebuild the camera)
 	}
 	static Timer::Time lastLoad = timer.Now();
 	if (timer.GetSecondsSince(lastLoad) > 0.25f)
 	{
-		if (input.pressed[Key::Left])
+		if (Engine::input.pressed[Key::Left])
 		{
 			PreviousFile();
 			lastLoad = timer.Now();
 		}
-		elif (input.pressed[Key::Right])
+		elif (Engine::input.pressed[Key::Right])
 		{
 			NextFile();
 			lastLoad = timer.Now();
@@ -166,7 +166,7 @@ bool loop()		//main loop function
 		
 
 
-		glBlack();
+		Engine::glBlack();
 
 
 
@@ -298,12 +298,12 @@ bool loop()		//main loop function
 			textout << nl << "  "<<t->metrics.totalSimulationRuns << " simulations";
 		}
 		textout.SetColor(1,1,1);
-		if (input.pressed[Key::V])
+		if (Engine::input.pressed[Key::V])
 			ShowMessage(display.renderState());
 		textout << nl << currentSampleType.ToString();
 		textout << nl << camera.angle;
 
-	return !input.pressed[Key::Escape];			//continue as long as the escape key is not pressed
+	return !Engine::input.pressed[Key::Escape];			//continue as long as the escape key is not pressed
 }
 
 
@@ -522,7 +522,7 @@ void PreviousFile()
 void IterateSampleMode()
 {
 	index_t next = (currentSampleType+1)%SampleType::N;
-	if (input.pressed[Key::Shift])
+	if (Engine::input.pressed[Key::Shift])
 	{
 		if (currentSampleType > 0)
 			next = currentSampleType -1;
@@ -1161,17 +1161,17 @@ int main()	//main entry point
 					1);			//1 as far z plane
 		hud.UpdateView();			//rebuild internal modelview matrix
 
-		input.Bind(Key::Up,ZoomIn);			//bind the up-arrow key to the zoomIn event handler
-		input.Bind(Key::Down,ZoomOut);		//bind the down-arrow key to the zoomOut event handler
-		mouse.BindWheel(wheelAction);		//bind the mouse wheel to the wheelAction event handler
-		input.Bind(Key::M,IterateSampleMode);
-		input.Bind(Key::S,MakeScreenshot);
-		input.Bind(Key::P,ExportExtremePlot);
+		Engine::input.Bind(Key::Up,ZoomIn);			//bind the up-arrow key to the zoomIn event handler
+		Engine::input.Bind(Key::Down,ZoomOut);		//bind the down-arrow key to the zoomOut event handler
+		Engine::mouse.BindWheel(wheelAction);		//bind the mouse wheel to the wheelAction event handler
+		Engine::input.Bind(Key::M,IterateSampleMode);
+		Engine::input.Bind(Key::S,MakeScreenshot);
+		Engine::input.Bind(Key::P,ExportExtremePlot);
 
 		
 		SetupRenderer();
 
-		Profiler::TextoutManager<GLTextureFont2>::Set(&textout);	//set textout pointer to profiler font object so we don't have to create a second one
+		Engine::Profiler::TextoutManager<Engine::GLTextureFont2>::Set(&textout);	//set textout pointer to profiler font object so we don't have to create a second one
 		
 		fps_graph.position.Set(0.65,0.6,1,1);	//local graph
 		fps_graph.install();					//and install graph

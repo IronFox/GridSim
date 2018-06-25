@@ -4,16 +4,16 @@
 
 
 
-Display<Renderer> 				display;
-Textout<GLTextureFont2>			textout;
-AngularCamera<float>			camera;
-OrthographicAspect<float>		hud;
-VectorCamera<float>				shadow_aspect0,
+Engine::Display<Renderer> 				display;
+Engine::Textout<Engine::GLTextureFont2>			textout;
+Engine::AngularCamera<float>			camera;
+Engine::OrthographicAspect<float>		hud;
+Engine::VectorCamera<float>				shadow_aspect0,
 								shadow_aspect1;
 
-Profiler::StackedGraph<OpenGL,GLTextureFont2>	fps_graph(&Profiler::fps_data);	//fps graph object
+Engine::Profiler::StackedGraph<Renderer,Engine::GLTextureFont2>	fps_graph(&Engine::Profiler::fps_data);	//fps graph object
 
-GLShader::Instance	shader,back_shader,holeShader,wallShader;
+Engine::GLShader::Instance	shader,back_shader,holeShader,wallShader;
 
 
 Renderer::FBO		shadow_fbo0,shadow_fbo1;
@@ -23,7 +23,7 @@ Geometry				scenery,holeScenery,wallScenery,transparentScenery;
 
 //M::Box<>				range = M::Box<>(0,0,0,/*T=*/128,/*S=*/256,1.1);
 M::Box<>				range = M::Box<>(0,0,0,/*T=*/64,/*S=*/64,1.1);
-float3					markerSteps = float3(16, 32, 0.2);
+float3					markerSteps = float3(16, 16, 0.2);
 float3					markerLabelFactor = float3(1,0.5,1);
 M::TVec3<const char*>	arrowLabel = {"T","S","P"};
 
@@ -220,7 +220,7 @@ void RenderAxis(const M::TFloatRange<>&range, float labelSteps, const M::TMatrix
 
 		static const float w = 0.03f;
 		const float h = length + 0.1;
-		glBlack();
+		Engine::glBlack();
 		glBegin(GL_TRIANGLES);
 			glVertex3f(h, w, w);
 			glVertex3f(h, w, -w);
@@ -318,7 +318,7 @@ void RenderExtendedAxes()
 	glPushMatrix();
 		TLabel::translation = float3(-1, -1, 0);
 		glTranslatef(-1, -1, 0);
-		glBlack();
+		Engine::glBlack();
 		//glScalef(2, 2, 2);
 		glDisable(GL_CULL_FACE);
 
@@ -351,7 +351,7 @@ void RenderExtendedAxes()
 		RenderAxis(range.y, markerSteps.y, ySystem, 2, arrowLabel.y, Axis::Y);
 		RenderAxis(range.z, markerSteps.z, zSystem, 1, arrowLabel.z,Axis::Z);
 
-		glBlack(0.5);
+		Engine::glBlack(0.5);
 		RenderGrid(xSystem, 2, range.z, range.y, markerSteps.z, markerSteps.y, 1, 2);
 		RenderGrid(ySystem, 2, range.z, range.x, markerSteps.z, markerSteps.x, 1, 2);
 		RenderGrid(zSystem, 1, range.x, range.y, markerSteps.x, markerSteps.y, 2, 2);

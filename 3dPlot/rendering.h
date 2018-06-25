@@ -12,19 +12,18 @@
 #include "geometryPool.h"
 //#include <engine/scenery.h>
 
-using namespace Engine;
 
-
-typedef OpenGL			Renderer;
-extern Display<Renderer> 				display;
-extern Textout<GLTextureFont2>			textout;
-extern AngularCamera<float>			camera;
-extern OrthographicAspect<float>		hud;
-extern VectorCamera<float>				shadow_aspect0,
+typedef Engine::OpenGL				Renderer;
+extern Engine::Display<Renderer>	display;
+extern Engine::Textout<Engine::GLTextureFont2>			textout;
+extern Engine::AngularCamera<float>			camera;
+extern Engine::OrthographicAspect<float>		hud;
+extern Engine::VectorCamera<float>				shadow_aspect0,
 										shadow_aspect1;
-extern Profiler::StackedGraph<OpenGL,GLTextureFont2>	fps_graph;
-extern GLShader::Instance				shader,back_shader,holeShader;
+extern Engine::Profiler::StackedGraph<Renderer,Engine::GLTextureFont2>	fps_graph;
+extern Engine::GLShader::Instance				shader,back_shader,holeShader;
 extern Renderer::FBO					shadow_fbo0,shadow_fbo1;
+
 extern M::Box<>						range;
 extern float3						markerSteps;
 extern float3						markerLabelFactor;
