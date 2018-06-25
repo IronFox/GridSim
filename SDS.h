@@ -188,12 +188,19 @@ public:
 	FixedArray<PRCS,NumNeighbors>				inboundRCS;
 
 	#ifdef CLAMP_ENTITIES
+		struct Clamped
+		{
+			TGridCoords		sampleOrigin, 
+							sampleTarget;	//may be negative
+			index_t			outboundNeighborIndex;
+		};
+
 		/**
 		List of all locations that entities have been clamped in due to assumed unavailable neighbor.
 		When parent IC is reconstructed, these must be flagged inconsistent prior to growth.
 		Pairs relative entity location in [0,1) with outbound neighbor index.
 		*/
-		Buffer0<std::pair<TEntityCoords,BYTE> >	relativeClampedEntityLocations;
+		Buffer0<Clamped>	clampedEntities;
 	#endif
 
 	void				swap(FullShardDomainState&other)
@@ -213,7 +220,7 @@ public:
 		swp(inputHash,other.inputHash);
 		userMessages.swap(other.userMessages);
 		#ifdef CLAMP_ENTITIES
-			relativeClampedEntityLocations.swap(other.relativeClampedEntityLocations);
+			clampedEntities.swap(other.clampedEntities);
 		#endif
 
 		if (output)

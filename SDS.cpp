@@ -24,31 +24,64 @@ void	CoreShardDomainState::Hash(Hasher&inputHash)	const
 void				CoreShardDomainState::MakeGrownSuccessorIC(const Shard&shard, IC&target,const FullShardDomainState&targetState) const
 {
 	#ifdef CLAMP_ENTITIES
-		const auto&clampedEntities = targetState.relativeClampedEntityLocations;
+		const auto&clampedEntities = targetState.clampedEntities;
 		target = ic;
 		const auto gen = IC::generation_t(targetState.GetGeneration());
-		foreach (clampedEntities,e)
-			target.FlagInconsistent(e->first, shard.GetOutboundNeighborInfo(e->second),gen);
+
+		//foreach (clampedEntities,e)
+		//	target.FlagInconsistent(e->first, shard.GetOutboundNeighborInfo(e->second),gen);
 
 		target.Grow();
-
 		foreach (clampedEntities,e)
 		{
-			auto cl = target.ToPixels(e->first);
-			ASSERT__(!target.GetSample(cl).IsConsistent());
-			for (int x = cl.x-1; x <= cl.x+1; x++)
-				for (int y = cl.y-1; y <= cl.y+1; y++)
+			const auto info = shard.GetOutboundNeighborInfo(e->outboundNeighborIndex);
+
+			#ifdef CLAMP_MESSAGES
+				/*
+				We must flag the surrounding area, too, due to broadcasts.
+				The broadcast will still be dispatched to all affected neighbors, but its origin location will have
+				changed.
+				Hence no neighbor that could be affected by either the old or new broadcasts may receive a fully
+				consistent RCS.
+				Flagging only the precise destination location does not correctly capture all receipients of the
+				broadcast.
+
+				We can safely use the target location, as it must also include all clamped affected areas due to:
+				message range + movement range <= R.
+				If the motion has reached a neighbor, it's reverse affected range cannot exceed 1*R
+				*/
+
+				auto vec = VectorToIndex(e->sampleTarget+1);
+				vec.IterateNeighborhood([&info,gen,&target](const Index&idx)
 				{
-					const auto coords = TGridCoords(x,y);
-					const auto&sample = target.GetSample(coords);
-					if (sample.IsConsistent())
-					{
-						auto linear = target.GetSampleLinearIndex(coords);
-						const auto&sample2 = target.GetSample(coords);
-						FATAL__("Bad sample at "+ToString(coords)+"/"+String(linear));
-					}
-				}
+					target.FlagInconsistent( ToVector(idx)-1 , info, gen, true);
+				},target.GetGrid().GetSize());
+
+			#else
+				target.FlagInconsistent( e->sampleTarget , info, gen, true);
+				target.FlagInconsistent( e->sampleOrigin , info, gen, true);
+			#endif
+
+
 		}
+
+		//foreach (clampedEntities,e)
+		//{
+		//	auto cl = target.ToPixels(e->first);
+		//	ASSERT__(!target.GetSample(cl).IsConsistent());
+		//	for (int x = cl.x-1; x <= cl.x+1; x++)
+		//		for (int y = cl.y-1; y <= cl.y+1; y++)
+		//		{
+		//			const auto coords = TGridCoords(x,y);
+		//			const auto&sample = target.GetSample(coords);
+		//			if (sample.IsConsistent())
+		//			{
+		//				auto linear = target.GetSampleLinearIndex(coords);
+		//				const auto&sample2 = target.GetSample(coords);
+		//				FATAL__("Bad sample at "+ToString(coords)+"/"+String(linear));
+		//			}
+		//		}
+		//}
 	#else
 		ic.Grow(target);
 	#endif
@@ -120,12 +153,14 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 		FixedArray<bool,NumNeighbors> neighborAlive;
 		for (index_t i = 0; i < NumNeighbors; i++)
 		{
-			const index_t inbound = shard.outboundNeighbors[i].inboundIndex;
+			const auto&n = shard.outboundNeighbors[i];
+			const index_t inbound = n.inboundIndex;
 			bool alive;
-			if (!isNew)
-				alive = rs.inboundRCS[inbound] != nullptr /*&& inboundRCS[inbound] != nullptr*/;
-			else
-				alive = inboundRCS[inbound] != nullptr;
+			alive = !n.shard || n.shard->IsFullyAvailable();
+			//if (!isNew)
+			//	alive = rs.inboundRCS[inbound] != nullptr /*&& inboundRCS[inbound] != nullptr*/;
+			//else
+			//	alive = inboundRCS[inbound] != nullptr;
 			if (!alive)
 				allNeighborsAlive = false;
 			neighborAlive[i] = alive;
@@ -192,7 +227,7 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 	}
 
 	#ifdef CLAMP_ENTITIES
-		rs.relativeClampedEntityLocations.Clear();
+		rs.clampedEntities.Clear();
 		rs.ExecuteLogic(shard.gridCoords, [this,&shard,motionSpace,&rs,neighborAlive](const Entity&e, TEntityCoords&c)
 		{
 			motionSpace.Clamp(c);
@@ -202,12 +237,15 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 			auto ni = shard.NeighborToLinear(grid - shard.gridCoords);
 			if (!neighborAlive[ni])
 			{
-				c = e.coordinates;
 				const auto relative = e.coordinates - shard.gridCoords;
-				rs.relativeClampedEntityLocations << std::make_pair(relative,ni);
+				auto&cl = rs.clampedEntities.Append();
+				cl.outboundNeighborIndex = ni;
+				cl.sampleOrigin = IC::RelativeToPixelsNoBounds(relative);
+				cl.sampleTarget = IC::RelativeToPixelsNoBounds(c - shard.gridCoords);
+				c = e.coordinates;
 			}
 		});
-		rs.relativeClampedEntityLocations.Compact();
+		rs.clampedEntities.Compact();
 	#else
 		rs.ExecuteLogic(shard.gridCoords, motionSpace);
 	#endif
@@ -881,6 +919,7 @@ void FullShardDomainState::ExecuteLogic(const TGridCoords&gridCoords, const std:
 				shape.velocity *= Entity::MaxMotionDistance / *len*0.99f;
 
 			TEntityCoords coords2 = e->coordinates + shape.velocity;
+			const auto targeted = coords2;
 			clamp(*e, coords2);
 			shape.velocity = coords2 - e->coordinates;
 
@@ -891,7 +930,11 @@ void FullShardDomainState::ExecuteLogic(const TGridCoords&gridCoords, const std:
 			#endif
 			//Add(*e,Op::StateAdvertisement(motion));
 			#ifdef DISPLACED_MESSAGES
-				outLocal.Add(*e,dispatcher, coords2);
+				#ifdef CLAMP_MESSAGES
+					outLocal.Add(*e,dispatcher, coords2);
+				#else
+					outLocal.Add(*e,dispatcher, targeted);
+				#endif
 			#else
 				outLocal.Add(*e,dispatcher);
 			#endif
