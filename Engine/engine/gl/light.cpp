@@ -3,6 +3,12 @@
 
 namespace Engine
 {
+	namespace M = DeltaWorks::M;
+
+	/**/						LightData::LightData():type(Omni),position(M::Vector3<>::zero),diffuse(M::Vector4<>::one),ambient(M::Vector4<>::one),
+										specular(M::Vector4<>::one),spotDirection(M::Vector3<>::x_axis),spotCutoff(180),spotExponent(0),size(1),
+										constantAttenuation(1),linearAttenuation(0),quadraticAttenuation(0)		{}
+
 	Light::Light(LightScene*scene_,OpenGL*interface_):origin(scene_->Count()),scene(scene_),parent_interface(interface_),moved(false),modified(false),index(InvalidIndex)
 	{}
 
@@ -118,16 +124,6 @@ namespace Engine
 	}
 
 
-	Light*			Light::SetDirection(const M::TVec3<double>&c)
-	{
-		if (type == Spot)
-			setSpotDirection(c);
-		else
-			setPosition(-c.x,-c.y,-c.z);
-		return this;
-	}
-
-
 	Light*			Light::setNegativeDirection(float x, float y, float z)
 	{
 		if (type == Spot)
@@ -147,16 +143,6 @@ namespace Engine
 	}
 
 
-	Light*			Light::setNegativeDirection(const M::TVec3<double>&c)
-	{
-		if (type == Spot)
-			setSpotDirection(-c.x,-c.y,-c.z);
-		else
-			setPosition(c);
-		return this;
-	}
-
-
 
 
 	Light*			Light::setSpotDirection(const M::TVec3<float>&c)
@@ -167,13 +153,6 @@ namespace Engine
 		return this;
 	}
 	
-	Light*			Light::setSpotDirection(const M::TVec3<double>&c)
-	{
-		M::Vec::copy(c,spotDirection);
-		M::Vec::normalize0(spotDirection);
-		update();
-		return this;
-	}
 
 	Light*			Light::setSpotDirection(float x, float y, float z)
 	{
@@ -192,13 +171,6 @@ namespace Engine
 		return this;
 	}
 
-	Light*			Light::setDiffuse(const M::TVec3<double>&c)
-	{
-		M::Vec::copy(c,diffuse.rgb);
-		//diffuse[3] = 1.0f;
-		update();
-		return this;
-	}
 	Light*			Light::setDiffuse(const M::TVec3<float>&c,float factor)
 	{
 		M::Vec::mult(c,factor,diffuse.rgb);
@@ -206,15 +178,6 @@ namespace Engine
 		update();
 		return this;
 	}
-
-	Light*			Light::setDiffuse(const M::TVec3<double>&c,double factor)
-	{
-		M::Vec::mult(c,factor,diffuse.rgb);
-		//diffuse[3] = 1.0f;
-		update();
-		return this;
-	}
-
 	Light*			Light::setDiffuse(float r, float g, float b)
 	{
 		M::Vec::def(diffuse.rgb,r,g,b);
@@ -238,24 +201,8 @@ namespace Engine
 		update();
 		return this;
 	}
-	
-	Light*			Light::setAmbient(const M::TVec3<double>&c)
-	{
-		M::Vec::copy(c,ambient.rgb);
-		//ambient[3] = 1.0f;
-		update();
-		return this;
-	}
 
 	Light*			Light::setAmbient(const M::TVec3<float>&c, float factor)
-	{
-		M::Vec::mult(c,factor,ambient.rgb);
-		//ambient[3] = 1.0f;
-		update();
-		return this;
-	}
-	
-	Light*			Light::setAmbient(const M::TVec3<double>&c, double factor)
 	{
 		M::Vec::mult(c,factor,ambient.rgb);
 		//ambient[3] = 1.0f;
@@ -286,14 +233,6 @@ namespace Engine
 		return this;
 	}
 	
-	Light*			Light::setSpecular(const M::TVec3<double>&c)
-	{
-		M::Vec::copy(c,specular.rgb);
-		//specular[3] = 1.0f;
-		update();
-		return this;
-	}
-
 	Light*			Light::setSpecular(const M::TVec3<float>&c, float factor)
 	{
 		M::Vec::mult(c,factor,specular.rgb);
@@ -302,14 +241,6 @@ namespace Engine
 		return this;
 	}
 	
-	Light*			Light::setSpecular(const M::TVec3<double>&c, double factor)
-	{
-		M::Vec::mult(c,factor,specular.rgb);
-		//specular[3] = 1.0f;
-		update();
-		return this;
-	}
-
 	Light*			Light::setSpecular(float intensity)
 	{
 		M::Vec::set(specular.rgb,intensity);
