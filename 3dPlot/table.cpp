@@ -482,8 +482,10 @@ void	THypothesisData::Train(index_t sourceTableID, SampleType t)
 
 static float SampleDensityToOpacity(float sampleDensity)
 {
+	//return 1;
+	return sampleDensity > 100 ? 1 : -1;
 	//return sampleDensity > 50 ? 1 : -1;
-	return sampleDensity > 1000 ? 1 : -1;
+	//return sampleDensity > 1000 ? 1 : -1;
 }
 
 float3	Table::TrainFlatOverestimation(index_t sourceTableID, SampleType t,float threshold)
@@ -1869,10 +1871,10 @@ Table::TEdgePoint::TEdgePoint(const float*cgsVertex):position(cgsVertex),color(c
 						a1 = v1[A],
 						a2 = v2[A],
 						a3 = v3[A];
-			const auto b0 = a0 >= 0;	
-			const auto b1 = a1 >= 0;	
-			const auto b2 = a2 >= 0;	
-			const auto b3 = a3 >= 0;	
+			const auto b0 = a0 >= 0;
+			const auto b1 = a1 >= 0;
+			const auto b2 = a2 >= 0;
+			const auto b3 = a3 >= 0;
 			if (b0 && b1 && b2 && b3)
 				obj.MakeQuadInv(vi0,vi1,vi2,vi3);
 			else
