@@ -47,6 +47,9 @@ namespace DeltaWorks
 					msg += "\nSupported values are "+supported;
 				else
 					msg += "\nPossible values are "+supported;
+				const auto def = v.GetDefault();
+				if (def.IsNotEmpty())
+					msg += ". Default is '"+def+"'";
 			}
 			if (more)
 				msg += '.';
