@@ -701,6 +701,31 @@ namespace DeltaWorks
 		}
 
 
+		UTF32String	UTF16::ToUTF32(const StringType::ReferenceExpression<char16_t>&utf16Source)
+		{
+			UTF32String rs;
+			ToUTF32(utf16Source,rs);
+			return rs;
+		}
+		UTF32String	UTF16::ToUTF32(const StringType::Template<char16_t>&utf16Source)
+		{
+			UTF32String rs;
+			ToUTF32(utf16Source,rs);
+			return rs;
+		}
+		String		UTF16::ToUTF8(const StringType::ReferenceExpression<char16_t>&utf16Source)
+		{
+			String rs;
+			ToUTF8(utf16Source,rs);
+			return rs;
+		}
+		String		UTF16::ToUTF8(const StringType::Template<char16_t>&utf16Source)
+		{
+			String rs;
+			ToUTF8(utf16Source,rs);
+			return rs;
+		}
+
 
 		#ifdef WIN32
 			static_assert(sizeof(wchar_t)==sizeof(char16_t),"Expected wchar_t to be 16 bit on windows");
@@ -742,6 +767,32 @@ namespace DeltaWorks
 			{
 				UTF16::ToUTF8(utf16Source.ref(),utf8Dest);
 			}
+
+			UTF32String	UTF16::ToUTF32(const StringType::ReferenceExpression<wchar_t>&utf16Source)
+			{
+				UTF32String rs;
+				ToUTF32(utf16Source,rs);
+				return rs;
+			}
+			UTF32String	UTF16::ToUTF32(const StringW&utf16Source)
+			{
+				UTF32String rs;
+				ToUTF32(utf16Source,rs);
+				return rs;
+			}
+			String		UTF16::ToUTF8(const StringType::ReferenceExpression<wchar_t>&utf16Source)
+			{
+				String rs;
+				ToUTF8(utf16Source,rs);
+				return rs;
+			}
+			String		UTF16::ToUTF8(const StringW&utf16Source)
+			{
+				String rs;
+				ToUTF8(utf16Source,rs);
+				return rs;
+			}
+
 
 		#endif
 
