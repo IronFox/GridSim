@@ -136,7 +136,7 @@ namespace DeltaWorks
 		*/
 		void			ClearPathPrefixes();
 
-		String			PathToString(const PathString&path);
+		String			PathToString(const PathString&path, bool replaceDetectedPrefixes=true);
 
 
 		/**

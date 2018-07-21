@@ -49,18 +49,21 @@ namespace DeltaWorks
 			prefixRules.Clear();
 		}
 
-		String			PathToString(const PathString&path)
+		String			PathToString(const PathString&path, bool replaceDetectedPrefixes/*=true*/)
 		{
 			String*caption = nullptr;
 			auto ref = path.ref();
 			String rs;
-			foreach (prefixRules,r)
-				if (ref.BeginsWith(r->first))
-				{
-					caption = &r->second;
-					ref = ref.SubStringRef(r->first.GetLength());
-					break;
-				}
+			if (replaceDetectedPrefixes)
+			{
+				foreach (prefixRules,r)
+					if (ref.BeginsWith(r->first))
+					{
+						caption = &r->second;
+						ref = ref.SubStringRef(r->first.GetLength());
+						break;
+					}
+			}
 			#if SYSTEM==WINDOWS
 				if (ref.BeginsWith(ABS_MARKER))
 					ref = ref.SubStringRef(4);
