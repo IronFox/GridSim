@@ -9,14 +9,14 @@ E:\include\string\cli.tpl.h
 ******************************************************************/
 
 template <typename F>
-	CLI::PCommand				CLI::Interpreter::DefineCommand(const String& def, const F&f, eCommandCompletion completion/*=NoCompletion*/)
+	CLI::PCommand				CLI::Parser::DefineCommand(const StringRef& def, const F&f, eCommandCompletion completion/*=NoCompletion*/)
 	{
-		Tokenizer::tokenize(def,lookup.pathConfig,lookup.pathSegments);
-		if (!lookup.pathSegments)
-			return NULL;
+		Tokenizer::Tokenize(def,lookup.pathConfig,lookup.pathSegments);
+		if (lookup.pathSegments.IsEmpty())
+			return nullptr;
 		PFolder parent = _Resolve(def.BeginsWith('/'));
 		if (!parent)
-			return NULL;
+			return nullptr;
 		Command::Name name;
 		if (!name.Parse(lookup.pathSegments.Last()))
 			return false;
@@ -24,22 +24,22 @@ template <typename F>
 		PCommand result = parent->commands.Query(name.coreName);
 		if (result)
 			return result;
-		PCommand command (new Command(name,f, completion));
+		PCommand command(new Command(name,f, completion));
 		parent->commands.Insert(command->name, command);
 		return command;
 	}
 
 template <typename F>
-	CLI::PCommand				CLI::Interpreter::DefineGlobalCommand(const String& def, const F&f, eCommandCompletion completion/*=NoCompletion*/)
+	CLI::PCommand				CLI::Parser::DefineGlobalCommand(const StringRef& def, const F&f, eCommandCompletion completion/*=NoCompletion*/)
 	{
 		Command::Name name;
 		if (!name.Parse(def))
 			return false;
-		PCommand result = globalCommands.Query(name.coreName);
+		PCommand result = state->GetGlobalCommand(name.coreName);
 		if (result)
 			return result;
 		PCommand command (new Command(name,f, completion));
-		globalCommands.Insert(command->name, command);
+		state->InsertGlobalCommand(command);
 		return command;
 	}
 
@@ -170,57 +170,35 @@ template <typename T, count_t Components>
 	}
 
 	
+template <typename T, count_t Components>
+	VectorVariable<T, Components>::VectorVariable(const String&name, unsigned protection):Super(name,"Vector",Components,protection)
+	{}
 	
-template <count_t Components>
-	VectorVariable<Components>::VectorVariable(const String&name, float content_[Components], unsigned protection):Variable(name,"FloatVector",Components,protection)
+template <typename T, count_t Components>
+	VectorVariable<T, Components>::VectorVariable(const String&name, const M::TVec<T,Components>&values, unsigned protection):Super(name,"Vector",Components,protection)
 	{
-		if (content_)
-			M::VecUnroll<Components>::copy(content_,content);
-	}
-	
-template <count_t Components>
-	String			VectorVariable<Components>::ConvertToString()					const
-	{
-		return M::VecUnroll<Components>::toString(content);
+		content = values;
 	}
 	
-template <count_t Components>
-	bool			VectorVariable<Components>::Set(const String&value)
+template <typename T, count_t Components>
+	String			VectorVariable<T, Components>::ConvertToString()					const
 	{
-		return SetVectorVariableContent<float,Components>(content,value);
-	}
-
-template <count_t Components>	
-	bool	VectorVariable<Components>::Set(const String&component, const String&value)
-	{
-		return SetVectorVariableContent<float,Components>(content,component,value);
-	}
-
-
-template <count_t Components>
-	DoubleVectorVariable<Components>::DoubleVectorVariable(const String&name, double content_[Components], unsigned protection):Variable(name,"DoubleVector",Components,protection)
-	{
-		if (content_)
-			M::VecUnroll<Components>::copy(content_,content);
+		return M::VecUnroll<Components>::toString(content.v);
 	}
 	
-template <count_t Components>
-	String		DoubleVectorVariable<Components>::ConvertToString()					const
+template <typename T, count_t Components>
+	bool			VectorVariable<T, Components>::Set(const String&value)
 	{
-		return M::VecUnroll<Components>::toString(content);
+		return SetVectorVariableContent<float,Components>(content.v,value);
 	}
 
-template <count_t Components>	
-	bool		DoubleVectorVariable<Components>::Set(const String&value)
+template <typename T, count_t Components>	
+	bool	VectorVariable<T, Components>::Set(const String&component, const String&value)
 	{
-		return SetVectorVariableContent<double,Components>(content,value);
+		return SetVectorVariableContent<float,Components>(content.v,component,value);
 	}
 
-template <count_t Components>	
-	bool		DoubleVectorVariable<Components>::Set(const String&component, const String&value)
-	{
-		return SetVectorVariableContent<double,Components>(content,component,value);
-	}	
+
 
 
 #endif

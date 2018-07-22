@@ -426,13 +426,13 @@ namespace DeltaWorks
 			return 0;
 		}
 
-		static void innerDequote(const char*in_str, size_t in_len, char*out_str,size_t out_len, const Configuration&config)
+		static void innerDequote(const StringRef&in, char*out_str,size_t out_len, const Configuration&config)
 		{
 			bool escaped = false;
 			char*out = out_str;
-			for (size_t i = 1; i+1 < in_len; i++)
+			for (size_t i = 1; i+1 < in.GetLength(); i++)
 			{
-				char c = in_str[i];
+				char c = in[i];
 				bool is_escape = config.quotation_escape_character == c;
 				if (is_escape && !escaped)
 					escaped=true;
@@ -447,11 +447,18 @@ namespace DeltaWorks
 			ASSERT_EQUAL__((void*)out,(void*)(out_str+out_len));
 		}
 
-		bool dequote(const String&line, const Configuration&config, String&result)
+		bool DequoteChangesString(const StringRef&in, const Configuration&config)
+		{
+			const auto checked = checkQuotation(in,config);
+			return checked != 0 && checked != in.GetLength()+1;
+		}
+
+
+		bool Dequote(const StringRef&line, const Configuration&config, String&result)
 		{
 			size_t	len = checkQuotation(line,config);
 					
-			if (&line != &result)
+			if (!result.Owns(line.GetPointer()))
 			{
 				if (!len)
 				{
@@ -460,7 +467,7 @@ namespace DeltaWorks
 				}
 				len--;
 				result.Resize(len);
-				innerDequote(line.c_str(),line.GetLength(),result.mutablePointer(),len,config);
+				innerDequote(line,result.mutablePointer(),len,config);
 			}
 			else
 			{
@@ -469,26 +476,32 @@ namespace DeltaWorks
 				len--;
 				String rs;
 				rs.Resize(len);//= TStringLength(len);
-				innerDequote(line.c_str(),line.GetLength(),rs.mutablePointer(),len,config);
+				innerDequote(line,rs.mutablePointer(),len,config);
 				result = rs;
 			}
 			return true;
 		}
 	
-		String			dequote(const String&string, const Configuration&config)
+		String			Dequote(const String&string, const Configuration&config)
 		{
 			String result;
-			dequote(string,config,result);
+			Dequote(string.ToRef(),config,result);
 			return result;
 		}
-	
+		
+		String			Dequote(const StringRef&string, const Configuration&config)
+		{
+			String result;
+			Dequote(string,config,result);
+			return result;
+		}
 
-		bool			dequote(Container::StringList&list, const Configuration&config)
+		bool			DequoteAll(Container::StringList&list, const Configuration&config)
 		{
 			bool result = true;
 			String rs;
 			for (size_t i = 0; i < list.Count(); i++)
-				result &= dequote(list[i],config,list[i]);
+				result &= Dequote(list[i].ToRef(),config,list[i]);
 			return result;
 		}
 

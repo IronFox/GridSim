@@ -299,46 +299,48 @@ namespace DeltaWorks
 		bool			trimSegment(TSegment&segment, const Configuration&config);
 	
 		/**
-			@brief Checks the quotation of the specified string and returns the number of quoted characters
+		@brief Checks the quotation of the specified string and returns the number of quoted characters
 		
-			For this function to return non-0 the specified string must begin with a quotation character and end with the same quotation character again
+		For this function to return non-0 the specified string must begin with a quotation character and end with the same quotation character again
 		
-			@param string String to check
-			@param config Configuration to use to determine quotation and escape characters
-			@return Length of the string plus 1 inbetween the leading and trailing quotation characters, excluding escape characters. 0 if the quotation is invalid
+		@param string String to check
+		@param config Configuration to use to determine quotation and escape characters
+		@return Length of the string plus 1 inbetween the leading and trailing quotation characters, excluding escape characters. 0 if the quotation is invalid
 		*/
-		size_t			checkQuotation(const String&string, const Configuration&config);
+		size_t			CheckQuotation(const StringRef&string, const Configuration&config);
 	
 		/**
-			@brief Removes quotation characters from the beginning and end as well as escape characters from the specified string
+		@brief Removes quotation characters from the beginning and end as well as escape characters from the specified string
 		
-			@param string String to dequote
-			@param config Configuration to determine what a string quote is
-			@param result String to write the dequoted string to
-			@return True on success, false otherwise. @a result will contain the unmodified input string if dequote() failed
+		@param string String to dequote
+		@param config Configuration to determine what a string quote is
+		@param result String to write the dequoted string to
+		@return True on success, false otherwise. @a result will contain the unmodified input string if dequote() failed
 		*/
-		bool			dequote(const String&string, const Configuration&config, String&result);
+		bool			Dequote(const StringRef&string, const Configuration&config, String&result);
+		bool			DequoteChangesString(const StringRef&string, const Configuration&config);
 	
 		/**
-			@brief Similar to the above but without signaling success of failure
+		@brief Similar to the above but without signaling success of failure
 		
-			If dequoting failed then the result will be the unmidified input string
+		If dequoting failed then the result will be the unmidified input string
 		
-			@param string String to dequote
-			@param config Configuration to determine quotes from
-			@return Dequoted string
+		@param string String to dequote
+		@param config Configuration to determine quotes from
+		@return Dequoted string
 		*/
-		String			dequote(const String&string, const Configuration&config);
+		String			Dequote(const String&string, const Configuration&config);
+		String			Dequote(const StringRef&string, const Configuration&config);
 
 		/**
-			@brief Dequotes all entries of the specified list
+		@brief Dequotes all entries of the specified list
 
-			@param list List to dequote
-			@param config Configuration to determine quotes from
-			@return true if all entries of the specified list could be dequoted successfully, false if at least one failed
+		@param list List to dequote
+		@param config Configuration to determine quotes from
+		@return true if all entries of the specified list could be dequoted successfully, false if at least one failed
 
 		*/
-		bool			dequote(Container::StringList&list, const Configuration&config);
+		bool			DequoteAll(Container::StringList&list, const Configuration&config);
 	
 	}
 

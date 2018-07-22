@@ -11,17 +11,8 @@ namespace DeltaWorks
 
 	namespace CLI
 	{
-
-		pPrintln		println=NULL;
-
-		Interpreter		*main_interpretor(NULL);
-		pOnFocusChange	onFocusChange=NULL;
-		bool echoSetOperation = true;
 	
-	
-	
-	
-		static void Describe(const CLI::Variable&v, bool more)
+		static void Describe(const PParser&parser, const CLI::Variable&v, bool more)
 		{
 			String msg = "'"+v.name+"' ("+v.type;
 			if (v.components != 1)
@@ -53,20 +44,23 @@ namespace DeltaWorks
 			}
 			if (more)
 				msg += '.';
-			println(msg);
+			parser->PrintLine(msg);
 		}
 
-		static void	printHelp(const String&p)
+		static void	PrintHelp(const PParser&parser, const PCommand&, Command::ArgumentList arguments)
 		{
-			String parameter = p;
-			if (!parameter.GetLength())
+			StringRef parameter;
+			if (arguments.Count() > 1)
+				parameter = arguments[1];
+
+			if (parameter.IsEmpty())
 				parameter = "help";
 		
 			{
 				String message;
-				if (PVariable var = main_interpretor->FindVar(parameter))
+				if (PVariable var = parser->FindVar(parameter))
 				{
-					Describe(*var,true);
+					Describe(parser,*var,true);
 					String supported = var->GetSupportedValues();
 					if (var->help)
 						message = *var->help;
@@ -75,14 +69,14 @@ namespace DeltaWorks
 						message = "No additional information available :/";
 					}
 				}
-				elif (PCommand cmd = main_interpretor->Find(parameter))
+				elif (PCommand cmd = parser->Find(parameter))
 				{
 					if (cmd->help)
 						message = cmd->fullSpecification+":\n"+*cmd->help;
 					else
 						message = "No additional information available for command '"+cmd->fullSpecification+"' :/";
 				}
-				elif (PFolder folder = main_interpretor->FindFolder(parameter))
+				elif (PFolder folder = parser->FindFolder(parameter))
 				{
 					if (folder->help)
 						message = folder->name+":\n"+*folder->help;
@@ -90,16 +84,16 @@ namespace DeltaWorks
 						message = "No additional information available for folder '"+folder->name+"' :/";
 				}
 			
-				if (!message.GetLength())
+				if (message.IsEmpty())
 				{
 					message ="Unable to find requested entry '"+parameter+"' :/";
 				}
-				println(message);
+				parser->PrintLine(message);
 			}
 		}
 
 
-		static void	printCommands(CLI::ItemTable<CLI::Command>&commands, const String&appendix)
+		static void	PrintCommands(const PParser&parser, const CLI::ItemTable<CLI::Command>&commands, const String&appendix)
 		{
 			PointerTable<bool>	listed_commands;
 
@@ -117,131 +111,161 @@ namespace DeltaWorks
 					for (index_t j = 0; j < temp.Count()-1; j++)
 						line+=temp[j]->name+"/";
 					line+=temp.Last()->fullSpecification+appendix;
-					println(line);
+
+					parser->PrintLine(line);
 					listed_commands.Set(cmd.get(),true);
 				}
 			}
 		}
 
-		static void 	list(const String&f)
+		static void 	List(const PParser&parser, const PCommand&, Command::ArgumentList arguments)
 		{
-			CLI::PFolder folder = f.IsNotEmpty() ? main_interpretor->FindFolder(f) : main_interpretor->GetFocus();
+			StringRef f;
+			if (arguments.Count() > 1)
+				f = arguments[1];
+
+			CLI::PFolder folder = f.IsNotEmpty() ? parser->FindFolder(f) : parser->GetFocus();
 			if (!folder)
 			{
-				println("'"+f+"' is not a folder");
+				parser->FailCommandExecution("'"+f+"' is not a folder");
 				return;
 			}
 		
 			//println(" ["+folder->path()+"]:");
-			println("-");
+			parser->PrintLine("-");
 			for (index_t i = 0; i < folder->variables.Count(); i++)
-				println(" "+folder->variables[i]->name);
+				parser->PrintLine(" "+folder->variables[i]->name);
 			if (folder->variables.Count())
-				println("-");
+				parser->PrintLine("-");
 		
-			printCommands(folder->commands,"");
+			PrintCommands(parser,folder->commands,"");
 			if (folder->parent.expired())
-				printCommands(main_interpretor->globalCommands," (global)");
+				PrintCommands(parser,parser->GetGlobalCommands()," (global)");
 			if (folder->commands.Count())
-				println("-");
+				parser->PrintLine("-");
 			if (folder->folders.Count() < 6)
 				for (index_t i = 0; i < folder->folders.Count(); i++)
-					println(" ["+folder->folders[i]->name+"]");
+					parser->PrintLine(" ["+folder->folders[i]->name+"]");
 			else
 			{
 				count_t groups = folder->folders.Count()/3;
 				for (index_t i = 0; i < groups; i++)
-					println(" ["+folder->folders[i*3]->name+"] ["+folder->folders[i*3+1]->name+"] ["+folder->folders[i*3+2]->name+"]");
+					parser->PrintLine(" ["+folder->folders[i*3]->name+"] ["+folder->folders[i*3+1]->name+"] ["+folder->folders[i*3+2]->name+"]");
 				if (folder->folders.Count()%3)
 					if (groups*3+1 == folder->folders.Count())
-						println(" ["+folder->folders[groups*3]->name+"]");
+						parser->PrintLine(" ["+folder->folders[groups*3]->name+"]");
 					else
-						println(" ["+folder->folders[groups*3]->name+"] ["+folder->folders[groups*3+1]->name+"]");
+						parser->PrintLine(" ["+folder->folders[groups*3]->name+"] ["+folder->folders[groups*3+1]->name+"]");
 			}
 			if (folder->folders.Count())
-				println("-");
+				parser->PrintLine("-");
 		}
 
-		static void	cd(const String&folder)
+		static void	ChangeDirectory(const PParser&parser, const PCommand&, CLI::Command::ArgumentList arguments)
 		{
-			if (!main_interpretor->MoveFocus(folder))
-				println(main_interpretor->GetErrorStr());
-			elif (onFocusChange)
-				onFocusChange();
-		
+			if (arguments.Count() != 2)	//command+argument
+			{
+				parser->FailCommandExecution("Must specify exactly one folder to change to");
+				return;
+			}
+			parser->MoveFocus(arguments[1]);
 		}
 
 
-		static bool UpdateComponent(const String&variable, const String&value)
+		static bool UpdateComponent(const PParser&parser, const StringRef&variable, const StringRef&value, bool echoSetOperation)
 		{
 			index_t p = variable.Find('.');
 			if (p == InvalidIndex)
 				return false;
 
-			String var = variable.SubString(0,p);
-			StringRef component = variable.SubStringRef(p+1);
-			CLI::PVariable v = main_interpretor->FindVar(var);
+			const auto var = variable.SubStringRef(0,p);
+			const auto component = variable.SubStringRef(p+1);
+			CLI::PVariable v = parser->FindVar(var);
 			if (!v)
 			{
-				println("Unknown variable: '"+var+"'. Variable must be set for component access");
+				parser->FailCommandExecution("Unknown variable: '"+var+"'. Variable must be set for component access");
 				return true;
 			}
 			if (v->IsWriteProtected())
 			{
-				println("Variable '"+var+"' is write-protected");
+				parser->FailCommandExecution("Variable '"+var+"' is write-protected");
 				return true;
 			}
 			if (!v->Set(component,value))
 			{
-				println("Failed to update '"+variable+"'");
+				parser->FailCommandExecution("Failed to update '"+variable+"'");
 				return true;
 			}
 			if (echoSetOperation)
-				println(v->name+" set to "+v->ConvertToString());
+				parser->PrintLine(v->name+" set to "+v->ConvertToString());
 			return true;
 		}
 		
 
-
-		static void	Set(const String&variable, const String&value)
+		template <bool EchoSetOperation>
+		static void	Set(const PParser&parser, const PCommand&, Command::ArgumentList arguments)
 		{
-			if (UpdateComponent(variable,value))
+			if (arguments.Count() != 3)	//command+name+value
+			{
+				parser->FailCommandExecution("Must specify name and value to update");
+				return;
+			}
+			if (UpdateComponent(parser,arguments[1],arguments[2],EchoSetOperation))
 				return;
 			CLI::PVariable v;
-			if (!(v=main_interpretor->Set(variable,value)))
+			if (!(v=parser->Set(arguments[1],arguments[2])))
+				return;
+
+			if (EchoSetOperation)
+				parser->PrintLine(v->name+" set to "+v->ConvertToString());
+		}
+
+		static void	VariableCallBack(const PParser&parser, const PFolder&containingFolder, const CLI::PVariable&v)
+		{
+			auto ctx = parser->GetFocus()->GetPath();
+			auto fld = containingFolder->GetPath();
+
+			String msg;
+
+			if (ctx.IsEmpty())
 			{
-				println(main_interpretor->GetErrorStr());
+				if (fld.IsEmpty())
+					msg = "/"+v->name+": "+v->ConvertToString();
+				else
+					msg = "/"+fld+"/"+v->name+": "+v->ConvertToString();
+			}
+			else
+				msg = v->name+": "+v->ConvertToString();	//don't care
+			parser->PrintLine(msg);
+		}
+
+		static void	ShowTypeof(const PParser&parser, const PCommand&, Command::ArgumentList arguments)
+		{
+			if (arguments.Count() != 2)	//command+name
+			{
+				parser->FailCommandExecution("Must specify name to get type of variable");
 				return;
 			}
-
-			if (echoSetOperation)
-				println(v->name+" set to "+v->ConvertToString());
-		}
-
-		static void	variableCallBack(const CLI::PVariable&v)
-		{
-			String msg = v->name+": "+v->ConvertToString();
-			println(msg);
-		}
-
-		static void	showTypeof(const String&var)
-		{
-			CLI::PVariable v = main_interpretor->FindVar(var);
+			CLI::PVariable v = parser->FindVar(arguments[1]);
 			if (!v)
 			{
-				if (main_interpretor->FindFolder(var))
-					println("'"+var+"' is of type folder");
+				if (parser->FindFolder(arguments[1]))
+					parser->PrintLine("'"+arguments[1]+"' is of type folder");
 				else
-					println("Undefined variable: '"+var+"'");
+					parser->FailCommandExecution("Undefined variable: '"+arguments[1]+"'");
 				return;
 			}
-			Describe(*v,false);
+			Describe(parser,*v,false);
 		}
 
-		static void	Unset(const String&variable)
+		static void	Unset(const PParser&parser, const PCommand&, Command::ArgumentList arguments)
 		{
-			if (!main_interpretor->Unset(variable))
-				println(main_interpretor->GetErrorStr());
+			if (arguments.Count() != 2)	//command+name
+			{
+				parser->FailCommandExecution("Must specify name to unset variable");
+				return;
+			}
+			parser->Unset(arguments[1]);
 		}
 
 		typedef std::shared_ptr<const String>	PString;
@@ -255,26 +279,30 @@ namespace DeltaWorks
 							
 							
 	
-		void			InitDefaults(Interpreter&parser, pPrintln out, pOnFocusChange focusChange, bool echoSetOperation_)
+		void			InitDefaults(const PState&state, bool echoSetOperation)
 		{
-	
-			println = out;
-			onFocusChange = focusChange;
-			echoSetOperation = echoSetOperation_;
-		
-			main_interpretor = &parser;
-			PCommand help = parser.DefineGlobalCommand("help command/variable/folder",printHelp,CLI::CommandCompletion);
-			parser.DefineGlobalCommand("ls [folder]",list,CLI::FolderCompletion)->help = list_help;
-			parser.DefineGlobalCommand("list [folder]",list,CLI::FolderCompletion)->help = list_help;
-			//parser.defineGlobalCommand("list",list);
+			
+			state->onVariableCall = VariableCallBack;
 
-			parser.DefineGlobalCommand("set variable value",Set,CLI::VariableCompletion)->help = set_help;
-			parser.DefineGlobalCommand("unset variable",Unset,CLI::VariableCompletion)->help = unset_help;
-			parser.DefineGlobalCommand("cd folder",cd,CLI::FolderCompletion)->help = cd_help;
-			parser.DefineGlobalCommand("typeof variable",showTypeof,CLI::VariableCompletion)->help = typeof_help;
-			parser.onVariableCall = variableCallBack;
+			const count_t state0 = state->CountLinkedParsers();
+			{
+				auto parser = state->NewParser();
 		
-			help->help = general_help;
+				PCommand help = parser->DefineGlobalCommand("help command/variable/folder",PrintHelp,CLI::CommandCompletion);
+				parser->DefineGlobalCommand("ls [folder]",List,CLI::FolderCompletion)->help = list_help;
+				parser->DefineGlobalCommand("list [folder]",List,CLI::FolderCompletion)->help = list_help;
+				//parser.defineGlobalCommand("list",list);
+
+				parser->DefineGlobalCommand("set variable value", echoSetOperation ? Set<true> : Set<false>,CLI::VariableCompletion)->help = set_help;
+				parser->DefineGlobalCommand("unset variable",Unset,CLI::VariableCompletion)->help = unset_help;
+				parser->DefineGlobalCommand("cd folder",ChangeDirectory,CLI::FolderCompletion)->help = cd_help;
+				parser->DefineGlobalCommand("typeof variable",ShowTypeof,CLI::VariableCompletion)->help = typeof_help;
+		
+				help->help = general_help;
+
+				ASSERT_EQUAL__(state0+1,state->CountLinkedParsers());
+			}
+			ASSERT_EQUAL__(state0,state->CountLinkedParsers());
 		}
 
 	}

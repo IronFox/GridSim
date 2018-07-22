@@ -461,7 +461,7 @@ namespace DeltaWorks
 			static Tokenizer::Configuration	config(" "," \r\n","","","\'\"","",'\\',true,true,true);
 			static Container::StringList	segments;
 			Tokenizer::tokenize(line,config,segments);
-			Tokenizer::dequote(segments,config);
+			Tokenizer::DequoteAll(segments,config);
 			/*Ctr::Array<String>	segments;
 			explode(' ',line,segments);*/
 		

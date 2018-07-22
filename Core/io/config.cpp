@@ -761,7 +761,7 @@ namespace DeltaWorks
 						errors = true;
 					}
 					attrib.assignment_operator = tokens[1];
-					attrib.value = Tokenizer::dequote(tokens[2],configuration);
+					attrib.value = Tokenizer::Dequote(tokens[2],configuration);
 					attrib.comment = bufferedComments.ToStringRef();
 					attrib.comment += ' ';
 					attrib.comment += file.comment.Trim();

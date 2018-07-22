@@ -429,6 +429,13 @@ template <typename T>
 		//ASSERT_EQUAL__(out, (result.c_str()+result.GetLength()));
 		return result;
 	}
+
+template <typename T>
+	StringType::Template<T>		implode(T glue, const Ctr::ArrayRef<StringType::ReferenceExpression<T> >&pieces)
+	{
+		return implode(glue, pieces.GetPointer(), pieces.Count());
+	}
+
 	
 template <typename T0, typename T1>
 	StringType::Template<T1>		implode(const T0*glue_str, const StringType::Template<T1>*pieces, count_t numPieces)

@@ -32,7 +32,7 @@ namespace DeltaWorks
 		}
 
 
-		Command::Command(const Name&name):callback([](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config) {}),
+		Command::Command(const Name&name):callback([](const PParser&parser,const PCommand&command, ArgumentList arguments) {}),
 							NamedItem(name.coreName), fullSpecification(name.fullSpecification)
 		{
 			construct(NoCompletion);
@@ -46,35 +46,35 @@ namespace DeltaWorks
 		}
 		Command::Command(const Name&name, const function0_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f();})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f();})
 		{
 			construct(completion);
 
 		}
 		Command::Command(const Name&name, const function1_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config));})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1]);})
 
 		{
 			construct(completion);
 		}
 		Command::Command(const Name&name, const function2_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config));})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1],arguments[2]);})
 
 		{
 			construct(completion);
 		}
 		Command::Command(const Name&name, const function3_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config));})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1],arguments[2],arguments[3]);})
 
 		{
 			construct(completion);
 		}
 		Command::Command(const Name&name, const function4_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config));})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1],arguments[2],arguments[3],arguments[4]);})
 
 		{
 			construct(completion);
@@ -82,14 +82,14 @@ namespace DeltaWorks
 
 		Command::Command(const Name&name, const function5_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config),Tokenizer::dequote(arguments[5],config));})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1],arguments[2],arguments[3],arguments[4],arguments[5]);})
 
 		{
 			construct(completion);
 		}
 		Command::Command(const Name&name, const function6_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config),Tokenizer::dequote(arguments[5],config),Tokenizer::dequote(arguments[6],config));})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1],arguments[2],arguments[3],arguments[4],arguments[5],arguments[6]);})
 
 		{
 			construct(completion);
@@ -104,34 +104,34 @@ namespace DeltaWorks
 		}
 		Command::Command(const Name&name, const func0_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f();})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f();})
 		{
 			construct(completion);
 		}
 		Command::Command(const Name&name, const func1_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config));})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1]);})
 
 		{
 			construct(completion);
 		}
 		Command::Command(const Name&name, const func2_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config));})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1],arguments[2]);})
 
 		{
 			construct(completion);
 		}
 		Command::Command(const Name&name, const func3_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config));})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1],arguments[2],arguments[3]);})
 
 		{
 			construct(completion);
 		}
 		Command::Command(const Name&name, const func4_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config));})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1],arguments[2],arguments[3],arguments[4]);})
 
 		{
 			construct(completion);
@@ -139,14 +139,14 @@ namespace DeltaWorks
 
 		Command::Command(const Name&name, const func5_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config),Tokenizer::dequote(arguments[5],config));})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1],arguments[2],arguments[3],arguments[4],arguments[5]);})
 
 		{
 			construct(completion);
 		}
 		Command::Command(const Name&name, const func6_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PCommand&command, const StringList&arguments, const Tokenizer::Config&config){f(Tokenizer::dequote(arguments[1],config),Tokenizer::dequote(arguments[2],config),Tokenizer::dequote(arguments[3],config),Tokenizer::dequote(arguments[4],config),Tokenizer::dequote(arguments[5],config),Tokenizer::dequote(arguments[6],config));})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1],arguments[2],arguments[3],arguments[4],arguments[5],arguments[6]);})
 
 		{
 			construct(completion);
@@ -158,9 +158,9 @@ namespace DeltaWorks
 			this->completion = completion;
 		}
 
-		void		Command::Invoke(const StringList&arguments, const Tokenizer::Config&config)
+		void		Command::Invoke(const PParser&parser,ArgumentList arguments)
 		{
-			callback(shared_from_this(),arguments,config);
+			callback(parser,shared_from_this(),arguments);
 		}
 
 
@@ -169,13 +169,14 @@ namespace DeltaWorks
 
 
 
-
-
-	
-
-		Interpreter::Interpreter():root(new Folder(PFolder(),""))
+		PParser						State::NewParser()
 		{
-			focused = root;
+			return PParser(new Parser(shared_from_this()));
+		}
+
+
+		void Parser::_Setup()
+		{
 			lookup.pathConfig.main_separator="/";
 			lookup.segmentConfig.quotations = "\"'";
 			lookup.segmentConfig.main_separator = " ";
@@ -185,10 +186,53 @@ namespace DeltaWorks
 			lookup.lineConfig.main_separator = "\n;";
 			lookup.lineConfig.quotation_escape_character = '\\';
 			lookup.lineConfig.recursion_break = false;
-		
 		}
 	
-		bool Command::Name::Parse(const String&def)
+
+		Parser::Parser()
+		{
+			_Setup();
+		}
+
+		Parser::Parser(const PState&st)
+		{
+			_Setup();
+			LinkTo(st);
+		}
+
+
+
+		void	Parser::OnFolderDeleted(const PFolder&deletedFolder)
+		{
+			if (focused->IsChildOf(deletedFolder))
+			{
+				focused = deletedFolder->parent.lock();
+				if (onFocusChanged)
+					onFocusChanged();
+			}
+		}
+
+
+		void	Parser::PrintLine(const String&line) const
+		{
+			if (onPrintLine)
+				onPrintLine(line);
+		}
+		
+		void	Parser::LinkTo(const PState&newState)
+		{
+			if (state == newState)
+				return;
+			if (state)
+				state->UnlinkParser(this);
+			newState->LinkParser(this);
+			state = newState;
+			focused = newState->GetRoot();
+			if (onFocusChanged)
+				onFocusChanged();
+		}
+	
+		bool Command::Name::Parse(const StringRef&def)
 		{
 			StringList	items(def);
 			if (!items)
@@ -204,7 +248,7 @@ namespace DeltaWorks
 	
 
 
-		bool	Interpreter::InsertCommand(const PCommand&cmd, const String&targetPath)
+		bool	Parser::InsertCommand(const PCommand&cmd, const StringRef&targetPath)
 		{
 			if (!cmd)
 				return false;
@@ -218,8 +262,12 @@ namespace DeltaWorks
 			folder->commands.Set(cmd->name, cmd);
 			return true;
 		}
+
+		/**/						State::State():root(new Folder(PFolder(),""))
+		{}
+
 	
-		bool	Interpreter::InsertGlobalCommand(const PCommand&cmd)
+		bool	State::InsertGlobalCommand(const PCommand&cmd)
 		{
 			if (!cmd)
 				return false;
@@ -231,35 +279,37 @@ namespace DeltaWorks
 		}
 	
 
-		bool	Interpreter::_EntryLookup(const String&name, bool may_exist)
+		bool	Parser::_EntryLookup(const StringRef&name, bool may_exist)
 		{
+			error = "";
 			lookup.folder.reset();
 			lookup.variable.reset();
 			lookup.command.reset();
-			Tokenizer::tokenize(name,lookup.pathConfig,lookup.pathSegments);
-			if (!lookup.pathSegments)
+			Tokenizer::Tokenize(name,lookup.pathConfig,lookup.pathSegments);
+			if (lookup.pathSegments.IsEmpty())
 			{
 				error = "Path empty";
 				return false;
 			}
-			detail::makeValidName(lookup.pathSegments.Last());
+			String entryName = lookup.pathSegments.Last();
+			detail::makeValidName(entryName);
 			lookup.folder = _Resolve(name.BeginsWith('/'));
 			if (!lookup.folder)
 			{
 				error = "Unable to _Resolve parent folder";
 				return false;
 			}
-			lookup.variable = lookup.folder->variables.Query(lookup.pathSegments.Last());
-			lookup.command = lookup.folder->commands.Query(lookup.pathSegments.Last());
+			lookup.variable = lookup.folder->variables.Query(entryName);
+			lookup.command = lookup.folder->commands.Query(entryName);
 			if (!may_exist)
 				if (lookup.variable)
 				{
-					error = "Variable '"+lookup.pathSegments.Last()+"' already defined";
+					error = "Variable '"+entryName+"' already defined";
 					return false;
 				}
 				elif (lookup.command)
 				{
-					error = "Command '"+lookup.pathSegments.Last()+"' already defined";
+					error = "Command '"+entryName+"' already defined";
 					return false;
 			
 				}
@@ -267,25 +317,25 @@ namespace DeltaWorks
 			
 		}
 
-		PVariable	Interpreter::SetString(const String& name,	unsigned protection)
+		PVariable	Parser::SetString(const StringRef&name, unsigned protection)
 		{
 			if (!_EntryLookup(name,false))
-				return PVariable();
+				return nullptr;
 			ASSERT_IS_NULL__(lookup.variable);
 			ASSERT_IS_NULL__(lookup.command);
 			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(), new StringVariable(lookup.pathSegments.Last(),"",protection));
 		
 		}
 
-		PVariable	Interpreter::SetString(const String& name, const String& value, unsigned protection, bool allow_overwrite)
+		PVariable	Parser::SetString(const StringRef& name, const String& value, unsigned protection, bool allow_overwrite)
 		{
 			if (!_EntryLookup(name,allow_overwrite))
-				return PVariable();
+				return nullptr;
 
 			if (lookup.command)
 			{
 				error = "A command of that name ('"+lookup.pathSegments.Last()+"') already exists";
-				return PVariable();
+				return nullptr;
 			}
 		
 			if (!lookup.variable)
@@ -299,7 +349,7 @@ namespace DeltaWorks
 		}
 
 
-		PVariable	Interpreter::SetFloat(const String& name,	unsigned protection)
+		PVariable	Parser::SetFloat(const StringRef& name, unsigned protection)
 		{
 			if (!_EntryLookup(name,false))
 				return PVariable();
@@ -309,7 +359,7 @@ namespace DeltaWorks
 			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new FloatVariable(lookup.pathSegments.Last(),0,protection));
 		}
 
-		PVariable	Interpreter::SetFloat(const String& name, float value, unsigned protection)
+		PVariable	Parser::SetFloat(const StringRef& name, float value, unsigned protection)
 		{
 			if (!_EntryLookup(name,false))
 				return PVariable();
@@ -319,7 +369,7 @@ namespace DeltaWorks
 		}
 
 	
-		PVariable	Interpreter::SetInt(const String& name,	unsigned protection)
+		PVariable	Parser::SetInt(const StringRef& name, unsigned protection)
 		{
 	
 			if (!_EntryLookup(name,false))
@@ -329,7 +379,7 @@ namespace DeltaWorks
 			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new IntVariable(lookup.pathSegments.Last(),0,protection));
 		}
 
-		PVariable	Interpreter::SetInt(const String& name, int value, unsigned protection)
+		PVariable	Parser::SetInt(const StringRef& name, int value, unsigned protection)
 		{
 			if (!_EntryLookup(name,false))
 				return PVariable();
@@ -338,7 +388,7 @@ namespace DeltaWorks
 			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new IntVariable(lookup.pathSegments.Last(),value,protection));
 		}
 
-		PVariable	Interpreter::SetBool(const String& name,	unsigned protection)
+		PVariable	Parser::SetBool(const StringRef& name, unsigned protection)
 		{
 			if (!_EntryLookup(name,false))
 				return PVariable();
@@ -347,7 +397,7 @@ namespace DeltaWorks
 			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new BoolVariable(lookup.pathSegments.Last(),false,protection));
 		}
 
-		PVariable	Interpreter::SetBool(const String& name, bool value, unsigned protection)
+		PVariable	Parser::SetBool(const StringRef& name, bool value, unsigned protection)
 		{
 			if (!_EntryLookup(name,false))
 				return PVariable();
@@ -358,85 +408,12 @@ namespace DeltaWorks
 
 	
 	
-		PVariable	Interpreter::SetVector3f(const String& name, unsigned protection)
-		{
-			if (!_EntryLookup(name,false))
-				return PVariable();
-			ASSERT_IS_NULL__(lookup.variable);
-			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new VectorVariable<3>(lookup.pathSegments.Last(),NULL,protection));
-		}
-	
-		PVariable	Interpreter::SetVector4f(const String& name, unsigned protection)
-		{
-			if (!_EntryLookup(name,false))
-				return PVariable();
-			ASSERT_IS_NULL__(lookup.variable);
-			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new VectorVariable<4>(lookup.pathSegments.Last(),NULL,protection));
-		}
-	
-		PVariable	Interpreter::SetVector3d(const String& name, unsigned protection)
-		{
-			if (!_EntryLookup(name,false))
-				return PVariable();
-			ASSERT_IS_NULL__(lookup.variable);
-			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new DoubleVectorVariable<3>(lookup.pathSegments.Last(),NULL,protection));
-		}
-	
-		PVariable	Interpreter::SetVector4d(const String& name, unsigned protection)
-		{
-			if (!_EntryLookup(name,false))
-				return PVariable();
-			ASSERT_IS_NULL__(lookup.variable);
-			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new DoubleVectorVariable<4>(lookup.pathSegments.Last(),NULL,protection));
-		}
-	
-	
-		PVariable	Interpreter::SetVector3f(const String& name, float value[3], unsigned protection)
-		{
-			if (!_EntryLookup(name,false))
-				return PVariable();
-			ASSERT_IS_NULL__(lookup.variable);
-			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new VectorVariable<3>(lookup.pathSegments.Last(),value,protection));
-		}
-	
-		PVariable	Interpreter::SetVector4f(const String& name, float value[4], unsigned protection)
-		{
-			if (!_EntryLookup(name,false))
-				return PVariable();
-			ASSERT_IS_NULL__(lookup.variable);
-			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new VectorVariable<4>(lookup.pathSegments.Last(),value,protection));
-		}
-	
-		PVariable	Interpreter::SetVector3d(const String& name, double value[3], unsigned protection)
-		{
-			if (!_EntryLookup(name,false))
-				return PVariable();
-			ASSERT_IS_NULL__(lookup.variable);
-			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new DoubleVectorVariable<3>(lookup.pathSegments.Last(),value,protection));
-		}
-	
-		PVariable	Interpreter::SetVector4d(const String& name, double value[3], unsigned protection)
-		{
-			if (!_EntryLookup(name,false))
-				return PVariable();
-			ASSERT_IS_NULL__(lookup.variable);
-			ASSERT_IS_NULL__(lookup.command);
-			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),new DoubleVectorVariable<4>(lookup.pathSegments.Last(),value,protection));
-		}
 	
 
-		PVariable	Interpreter::SetVariable(const PVariable&v)
+		PVariable	Parser::SetVariable(const PVariable&v)
 		{
 			return focused->SetVariable(v);
 		}
-
 
 
 		PFolder		Folder::CreateOrGetChild(const String&folderName)
@@ -472,12 +449,12 @@ namespace DeltaWorks
 	
 	
 	
-		PVariable	Interpreter::Set(const String& name, const String& value)
+		PVariable	Parser::Set(const StringRef& name, const StringRef& value)
 		{
 			if (!_EntryLookup(name,true))
 				return PVariable();
 			
-			if (lookup.command || globalCommands.IsSet(lookup.pathSegments.Last()))
+			if (lookup.command || state->IsGlobalCommand(lookup.pathSegments.Last()))
 			{
 				error = "The requested variable name ('"+lookup.pathSegments.Last()+"') is already assigned to a command";
 				return PVariable();
@@ -497,9 +474,9 @@ namespace DeltaWorks
 				}
 				return lookup.variable;
 			}
-			if (!setMayCreateVariables)
+			if (!state->setMayCreateVariables)
 			{
-				error = "Creation of new variables via assignment is not allowed";
+				error = "Creation of new variables via assignment is not allowed by configuration";
 				return PVariable();
 			}
 
@@ -507,19 +484,19 @@ namespace DeltaWorks
 			float vval;
 		
 		
-			if (convertToInt(value.c_str(),ival))
+			if (convertToInt(value.GetPointer(),value.GetLength(),ival))
 				return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),(new IntVariable(lookup.pathSegments.Last(),ival)));
 		
-			if (convertToFloat(value.c_str(),vval))
+			if (convertToFloat(value.GetPointer(),value.GetLength(),vval))
 				return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),(new FloatVariable(lookup.pathSegments.Last(),vval)));
 		
-			VectorVariable<3>	f3(lookup.pathSegments.Last());
-			VectorVariable<4>	f4(lookup.pathSegments.Last());
+			VectorVariable<float,3>	f3(lookup.pathSegments.Last());
+			VectorVariable<float,4>	f4(lookup.pathSegments.Last());
 		
 			if (f3.Set(value))
-				return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),(new VectorVariable<3>(f3)));
+				return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),(new VectorVariable<float,3>(f3)));
 			if (f4.Set(value))
-				return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),(new VectorVariable<4>(f4)));
+				return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),(new VectorVariable<float,4>(f4)));
 			
 			return lookup.folder->variables.InsertNew(lookup.pathSegments.Last(),(new StringVariable(lookup.pathSegments.Last(),value)));
 		}
@@ -529,17 +506,18 @@ namespace DeltaWorks
 	
 	
 
-		PFolder	Interpreter::_Resolve(bool from_root)
+		PFolder	Parser::_Resolve(bool from_root)
 		{
-			if (!lookup.pathSegments)
+			error = "";
+			if (lookup.pathSegments.IsEmpty())
 			{
 				error = "Missing argument";
-				return PFolder();
+				return nullptr;
 			}
 		
-			PFolder current = from_root?root:focused;
+			PFolder current = from_root?state->GetRoot():focused;
 
-			for	(index_t i = 0; i < lookup.pathSegments-1; i++)
+			for	(index_t i = 0; i < lookup.pathSegments.Count()-1; i++)
 			{
 				if	(lookup.pathSegments[i] == '.')
 					continue;
@@ -548,7 +526,7 @@ namespace DeltaWorks
 					if	(!current->parent.lock())
 					{
 						error = "Can't exit folder. Folder is root";
-						return	PFolder();
+						return nullptr;
 					}
 					current = current->parent.lock();
 				}
@@ -557,7 +535,7 @@ namespace DeltaWorks
 					if	(!current->parent.lock())
 					{
 						error = "Can't exit folder. Folder is root";
-						return	PFolder();
+						return nullptr;
 					}
 					while (current->parent.lock()->parent.lock())
 						current = current->parent.lock();
@@ -568,25 +546,25 @@ namespace DeltaWorks
 					if	(!folder)
 					{
 						error = "Folder does not exist: '"+lookup.pathSegments[i]+"'";
-						return	PFolder();
+						return nullptr;
 					}
 					current = folder;
 				}
 			}
-			return	current;
+			return current;
 		}
 	
-		PFolder	Interpreter::_ResolveFull(bool from_root)
+		PFolder	Parser::_ResolveFull(bool from_root)
 		{
-			if (!lookup.pathSegments)
+			if (lookup.pathSegments.IsEmpty())
 			{
 				error = "Missing argument";
 				return PFolder();
 			}
 		
-			PFolder current = from_root?root:focused;
+			PFolder current = from_root?state->GetRoot():focused;
 
-			for	(index_t i = 0; i < lookup.pathSegments; i++)
+			for	(index_t i = 0; i < lookup.pathSegments.Count(); i++)
 			{
 				if	(lookup.pathSegments[i] == '.')
 					continue;
@@ -623,7 +601,7 @@ namespace DeltaWorks
 			return	current;
 		}
 
-		bool	Interpreter::Unset(const String&	name)
+		bool	Parser::Unset(const StringRef& name)
 		{
 			if (!_EntryLookup(name,true))
 				return false;
@@ -646,7 +624,7 @@ namespace DeltaWorks
 		}
 
 
-		void	Interpreter::UnsetIgnoreProtection(const String&	name)
+		void	Parser::UnsetIgnoreProtection(const StringRef&name)
 		{
 			if (!_EntryLookup(name,true) || !lookup.variable)
 				return;
@@ -655,7 +633,7 @@ namespace DeltaWorks
 			lookup.folder->variables.Unset(lookup.variable->name);
 		}
 
-		bool	Interpreter::Unset(const PFolder&folder, const PVariable&var, bool ignore_protection)
+		bool	Parser::Unset(const PFolder&folder, const PVariable&var, bool ignore_protection)
 		{
 			if (!var || !folder || !folder->variables.IsSet(var->name))
 			{
@@ -673,7 +651,7 @@ namespace DeltaWorks
 
 
 
-		unsigned	Interpreter::GetAsUnsigned(const String&	name,	unsigned	exception)
+		unsigned	Parser::GetAsUnsigned(const StringRef& name, unsigned exception)
 		{
 			PVariable v = FindVar(name);
 			if (!v)
@@ -689,7 +667,7 @@ namespace DeltaWorks
 			return val;
 		}
 
-		int	Interpreter::GetAsInt(const String&	name,	int	exception)
+		int	Parser::GetAsInt(const StringRef& name, int exception)
 		{
 			PVariable v = FindVar(name);
 			if (!v)
@@ -704,7 +682,7 @@ namespace DeltaWorks
 			return val;
 		}
 
-		float	Interpreter::GetAsFloat(const String&	name,	float	exception)
+		float	Parser::GetAsFloat(const StringRef& name, float exception)
 		{
 			PVariable v = FindVar(name);
 			if (!v)
@@ -719,7 +697,7 @@ namespace DeltaWorks
 			return val;
 		}
 
-		Key::Name	Interpreter::GetAsKey(const String&	name,	Key::Name	exception)
+		Key::Name	Parser::GetAsKey(const StringRef& name, Key::Name exception)
 		{
 			PVariable v = FindVar(name);
 			if (!v)
@@ -730,7 +708,7 @@ namespace DeltaWorks
 			return val;
 		}
 
-		bool	Interpreter::GetAsBool(const String&	name,	bool	exception)
+		bool	Parser::GetAsBool(const StringRef& name, bool exception)
 		{
 			PVariable v = FindVar(name);
 			if (!v)
@@ -746,7 +724,7 @@ namespace DeltaWorks
 		}
 
 
-		const String& Interpreter::GetAsString(const String& name, const String& exception)
+		const String& Parser::GetAsString(const StringRef& name, const String& exception)
 		{
 			static String content;
 			PVariable v = FindVar(name);
@@ -756,22 +734,22 @@ namespace DeltaWorks
 			return content;
 		}
 
-		const	String&	Interpreter::GetErrorStr()	const
+		const	String&	Parser::GetErrorStr()	const
 		{
 			return	error;
 		}
 
-		const	String&	Interpreter::GetError()	const
+		const	String&	Parser::GetError()	const
 		{
 			return	error;
 		}
 
 
-		PCommand Interpreter::Find(const String&name,PFolder*folder_out/*=NULL*/)
+		PCommand Parser::Find(const StringRef&name,PFolder*folder_out/*=NULL*/)
 		{
-			Tokenizer::tokenize(name,lookup.pathConfig,lookup.pathSegments);
+			Tokenizer::Tokenize(name,lookup.pathConfig,lookup.pathSegments);
 		
-			if (!lookup.pathSegments)
+			if (lookup.pathSegments.IsEmpty())
 				return PCommand();
 			PFolder folder = _Resolve(name.BeginsWith('/'));
 			if (!folder)
@@ -783,24 +761,24 @@ namespace DeltaWorks
 					(*folder_out) = folder;
 				return rs;
 			}
-			if (lookup.pathSegments==1)
+			if (lookup.pathSegments.Count()==1)
 			{
 				if (folder_out)
-					(*folder_out) = root;
-				return globalCommands.Query(lookup.pathSegments.First());
+					(*folder_out) = state->GetRoot();
+				return state->GetGlobalCommand(lookup.pathSegments.First());
 			}
 			return PCommand();
 		}
 
-		PCommand Interpreter::Find(const char*name,PFolder*folder_out/*=NULL*/)
+		PCommand Parser::Find(const String&name,PFolder*folder_out/*=NULL*/)
 		{
-			return Find(String(name),folder_out);
+			return Find(name.ToRef(),folder_out);
 		}
 
-		PVariable Interpreter::FindVar(const String&name,PFolder*folder_out/*=NULL*/)
+		PVariable Parser::FindVar(const StringRef&name,PFolder*folder_out/*=NULL*/)
 		{
-			Tokenizer::tokenize(name,lookup.pathConfig,lookup.pathSegments);
-			if (!lookup.pathSegments)
+			Tokenizer::Tokenize(name,lookup.pathConfig,lookup.pathSegments);
+			if (lookup.pathSegments.IsEmpty())
 				return PVariable();
 			PFolder folder = _Resolve(name.BeginsWith('/'));
 			if (!folder)
@@ -810,26 +788,23 @@ namespace DeltaWorks
 			return folder->variables.Query(lookup.pathSegments.Last());
 		}
 
-		PVariable Interpreter::FindVar(const char*name,PFolder *folder_out/*=NULL*/)
+		PVariable Parser::FindVar(const String&name,PFolder *folder_out/*=NULL*/)
 		{
-			Tokenizer::tokenize(name,lookup.pathConfig,lookup.pathSegments);
-			if (!lookup.pathSegments)
-				return PVariable();
-			PFolder folder = _Resolve(name[0]=='/');
-			if (!folder)
-				return PVariable();
-			if (folder_out)
-				(*folder_out) = folder;
-			return folder->variables.Query(lookup.pathSegments.Last());
+			return FindVar(name.ToRef(),folder_out);
 		}
 
-		PFolder 		Interpreter::FindFolder(const String&path)
+		PFolder 		Parser::FindFolder(const String&path)
 		{
-			Tokenizer::tokenize(path,lookup.pathConfig,lookup.pathSegments);
-			if (!lookup.pathSegments)
+			return FindFolder(path.ToRef());
+		}
+
+		PFolder 		Parser::FindFolder(const StringRef&path)
+		{
+			Tokenizer::Tokenize(path,lookup.pathConfig,lookup.pathSegments);
+			if (lookup.pathSegments.IsEmpty())
 			{
 				if (path == '/')
-					return root;
+					return state->GetRoot();
 				error = "No segments given in '"+path+"'";
 				return PFolder();
 			}
@@ -838,41 +813,41 @@ namespace DeltaWorks
 		}
 
 
-		bool	Interpreter::Interpret(const String&line, bool allow_global_commands/*=true*/)
+		bool	Parser::Interpret(const String&line, bool allow_global_commands/*=true*/)
 		{
-			return	Parse(line.c_str(),allow_global_commands);
+			return Parse(line.ToRef(),allow_global_commands);
 		}
 	
-		bool	Interpreter::Interpret(const char*line, bool allow_global_commands/*=true*/)
+		bool	Parser::Interpret(const StringRef&line, bool allow_global_commands/*=true*/)
 		{
-			return	Parse(line,allow_global_commands);
+			return Parse(line,allow_global_commands);
 		}
 
-		bool	Interpreter::Parse(const String&line, bool allow_global_commands/*=true*/)
+		bool	Parser::Parse(const String&line, bool allow_global_commands/*=true*/)
 		{
-			return	Parse(line.c_str(),allow_global_commands);
+			return Parse(line.ToRef(),allow_global_commands);
 		}
 
-		PCommand		Interpreter::GetExecutingCommand()	const
+		PCommand		Parser::GetExecutingCommand()	const
 		{
 			return executing;
 		}
 
-		PFolder 		Interpreter::GetExecutionContext()	const
+		PFolder 		Parser::GetExecutionContext()	const
 		{
 			return executingFolder;
 		}
 
-		String Interpreter::ExtendedComplete(const String&line, StringList&out)
+		String			Parser::ExtendedComplete(const StringRef&line, StringList&out)
 		{
 			out.clear();
-			StringList segments;
-			Tokenizer::tokenize(line,GetSegmentizerConfig(),segments);
+			Buffer0<StringRef> segments;
+			Tokenizer::Tokenize(line,GetSegmentizerConfig(),segments);
 
-			if (!segments)
+			if (segments.IsEmpty())
 				return "";
 		
-			if (segments == 1)
+			if (segments.Count() == 1)
 			{
 				return StandardComplete(segments[0],out);
 			}
@@ -883,7 +858,7 @@ namespace DeltaWorks
 				return line;
 			}
 		
-			String prefix = segments.fuse(0,segments-1,' ')+" ";
+			String prefix = implode(' ',segments.SubRef(0,segments.Count()-1))+" ";
 	
 			switch (cmd->completion)
 			{
@@ -931,49 +906,38 @@ namespace DeltaWorks
 
 
 
-
-
-
-
-
-		String			Interpreter::StandardComplete(const String&line, StringList&out)
+		void	State::AppendPrefixedMatchingGlobalCommands(const StringRef&needle, StringList&appendTo) const
 		{
+			for (index_t i = 0; i < globalCommands.Count(); i++)
+				if (globalCommands[i]->name.BeginsWith(needle))
+					appendTo << "/"+globalCommands[i]->name;
+		}
 
-			out.clear();
-			String longest_common;
-			Tokenizer::tokenize(line,lookup.pathConfig,lookup.pathSegments);
+
+		String			Parser::_Complete(const StringRef&line, const std::function<void(const PFolder&,const String&prefix, StringRef&needle,StringList&)>&include, StringList&out)
+		{
+				out.clear();
+			StringRef longestCommon;
+			Tokenizer::Tokenize(line,lookup.pathConfig,lookup.pathSegments);
 		
-			if (!lookup.pathSegments)
+			if (lookup.pathSegments.IsEmpty())
 				return "";
 			
 			PFolder parent = _Resolve(line.BeginsWith('/'));
 			if (!parent)
 				return "";
 		
-			String prefix = lookup.pathSegments.fuse(0,lookup.pathSegments-1,'/'),
-					inner = lookup.pathSegments.Last();
+			String	prefix = lookup.JoinAllButLastSegments();
+			StringRef	inner = lookup.pathSegments.Last();
 			if (prefix.GetLength())
 				prefix+= "/";
 				
 			if (line.BeginsWith('/'))
 				prefix = "/"+prefix;
 		
-			if (lookup.pathSegments==1)
-				for (index_t i = 0; i < globalCommands.Count(); i++)
-					if (globalCommands[i]->name.BeginsWith(inner))
-						out << prefix+globalCommands[i]->name;
-		
-			for (index_t i = 0; i < parent->commands.Count(); i++)
-				if (parent->commands[i]->name.BeginsWith(inner))
-					out << prefix+parent->commands[i]->name;
-			for (index_t i = 0; i < parent->variables.Count(); i++)
-				if (parent->variables[i]->name.BeginsWith(inner))
-					out << prefix+parent->variables[i]->name;
-			for (index_t i = 0; i < parent->folders.Count(); i++)
-				if (parent->folders[i]->name.BeginsWith(inner))
-					out << prefix+parent->folders[i]->name+"/";
+			include(parent,prefix,inner,out);
 
-			if (!out.Count())
+			if (out.IsEmpty())
 				return "";
 		
 			if (out.Count() == 1)
@@ -984,138 +948,90 @@ namespace DeltaWorks
 			bool same(true);
 			while (same)
 			{
-				longest_common = out.First().subString(0,longest);
-				if (longest>longest_common.GetLength())
+				longestCommon = out.First().SubStringRef(0,longest);
+				if (longest > longestCommon.GetLength())
 					same = false;
 				for (index_t i = 1; i < out.Count() && same; i++)
-					same = out[i].BeginsWith(longest_common);
+					same = out[i].BeginsWith(longestCommon);
 				if (same)
 					longest++;
 			}
-			longest_common.Erase(longest-1);
+			longestCommon = longestCommon.SubStringRef(0,longest-1);
 		
-		
-			return longest_common;
+			return longestCommon;
 		}
+		
 
-		String Interpreter::CompleteVariables(const String&line,StringList&out)
+		String			Parser::StandardComplete(const StringRef&line, StringList&out)
 		{
-			out.clear();
-			String longest_common;
-			Tokenizer::tokenize(line,lookup.pathConfig,lookup.pathSegments);
-		
-			if (!lookup.pathSegments)
-				return "";
-			
-			PFolder parent = _Resolve(line.BeginsWith('/'));
-			if (!parent)
-				return "";
-		
-			String prefix = lookup.pathSegments.fuse(0,lookup.pathSegments-1,'/'),
-					inner = lookup.pathSegments.Last();
-			if (prefix.GetLength())
-				prefix+= "/";
-			if (line.BeginsWith('/'))
-				prefix = "/"+prefix;
-		
-			for (index_t i = 0; i < parent->variables.Count(); i++)
-				if (parent->variables[i]->name.BeginsWith(inner))
-					out << prefix+parent->variables[i]->name;
-			for (index_t i = 0; i < parent->folders.Count(); i++)
-				if (parent->folders[i]->name.BeginsWith(inner))
-					out << prefix+parent->folders[i]->name+'/';
-		
-
-			if (!out.Count())
-				return "";
-		
-			if (out.Count() == 1)
+			return _Complete(line,[this](const PFolder&parent, const String&prefix, const StringRef&inner, StringList&out)
 			{
-				return out.First();
-			}
-			count_t longest = prefix.GetLength()+1;
-			bool same(true);
-			while (same)
-			{
-				longest_common = out.First().subString(0,longest);
-				if (longest>longest_common.GetLength())
-					same = false;
-				for (index_t i = 1; i < out.Count() && same; i++)
-					same = out[i].BeginsWith(longest_common);
-				if (same)
-					longest++;
-			}
-			longest_common.Erase(longest-1);
+				if (prefix == '/')
+					state->AppendPrefixedMatchingGlobalCommands(inner,out);
 		
-			return longest_common;
+				for (index_t i = 0; i < parent->commands.Count(); i++)
+					if (parent->commands[i]->name.BeginsWith(inner))
+						out << prefix+parent->commands[i]->name;
+				for (index_t i = 0; i < parent->variables.Count(); i++)
+					if (parent->variables[i]->name.BeginsWith(inner))
+						out << prefix+parent->variables[i]->name;
+				for (index_t i = 0; i < parent->folders.Count(); i++)
+					if (parent->folders[i]->name.BeginsWith(inner))
+						out << prefix+parent->folders[i]->name+"/";
+			},out);
 		}
 
-
-
-		String Interpreter::CompleteFolders(const String&line, StringList&out)
+		String	Parser::TLookup::JoinAllButLastSegments() const
 		{
-			out.clear();
-			String longest_common;
-			Tokenizer::tokenize(line,lookup.pathConfig,lookup.pathSegments);
-		
-			if (!lookup.pathSegments)
-				return "";
-			
-			PFolder parent = _Resolve(line.BeginsWith('/'));
-			if (!parent)
-				return "";
-		
-			String prefix = lookup.pathSegments.fuse(0,lookup.pathSegments-1,'/'),
-					inner = lookup.pathSegments.Last();
-			if (prefix.GetLength())
-				prefix+= "/";
-
-			if (line.BeginsWith('/'))
-				prefix = "/"+prefix;
-		
-			for (index_t i = 0; i < parent->folders.Count(); i++)
-				if (parent->folders[i]->name.BeginsWith(inner))
-					out << prefix+parent->folders[i]->name+"/";
-		
-
-			if (!out.Count())
-				return "";
-		
-			if (out.Count() == 1)
-			{
-				return out.First();
-			}
-			count_t longest = prefix.GetLength()+1;
-			bool same(true);
-			while (same)
-			{
-				longest_common = out.First().subString(0,longest);
-				if (longest>longest_common.GetLength())
-					same = false;
-				for (index_t i = 1; i < out.Count() && same; i++)
-					same = out[i].BeginsWith(longest_common);
-				if (same)
-					longest++;
-			}
-			longest_common.Erase(longest-1);
-		
-			return longest_common;
+			return implode('/',pathSegments.SubRef(0,pathSegments.Count()-1));
 		}
 
-		const StringList&	Interpreter::GetExecutionSegments()		const
+
+		String Parser::CompleteVariables(const StringRef&line,StringList&out)
 		{
-			return lookup.cmdSegments;
+			return _Complete(line,[this](const PFolder&parent, const String&prefix, const StringRef&inner, StringList&out)
+			{
+				for (index_t i = 0; i < parent->variables.Count(); i++)
+					if (parent->variables[i]->name.BeginsWith(inner))
+						out << prefix+parent->variables[i]->name;
+				for (index_t i = 0; i < parent->folders.Count(); i++)
+					if (parent->folders[i]->name.BeginsWith(inner))
+						out << prefix+parent->folders[i]->name+'/';
+			},out);
 		}
+
+
+
+		String Parser::CompleteFolders(const StringRef&line, StringList&out)
+		{
+			return _Complete(line,[this](const PFolder&parent, const String&prefix, const StringRef&inner, StringList&out)
+			{
+				for (index_t i = 0; i < parent->folders.Count(); i++)
+					if (parent->folders[i]->name.BeginsWith(inner))
+						out << prefix+parent->folders[i]->name+"/";
+			},out);
+		}
+
+		const ArrayRef<StringRef>	Parser::GetExecutionSegments()		const
+		{
+			return lookup.cmdSegments.ToRef();
+		}
+
+		void	Parser::FailCommandExecution(const String&error)
+		{
+			this->error = error;
+		}
+
 	
-		bool	Interpreter::_ParseLine(const char*line,bool allow_global_commands)
+		bool	Parser::_ParseLine(const StringRef&line,bool allow_global_commands)
 		{
 			//cout << "parse("<<line<<")"<<endl;
-			Tokenizer::tokenize(line,lookup.segmentConfig,lookup.cmdSegments);
-			if (!lookup.cmdSegments)
+			Tokenizer::Tokenize(line,lookup.segmentConfig,lookup.cmdSegments);
+			if (lookup.cmdSegments.IsEmpty())
 				return true;
 			
-			Tokenizer::tokenize(lookup.cmdSegments[0],lookup.pathConfig,lookup.pathSegments);
-			if	(!lookup.pathSegments)
+			Tokenizer::Tokenize(lookup.cmdSegments[0],lookup.pathConfig,lookup.pathSegments);
+			if	(lookup.pathSegments.IsEmpty())
 				return	true;	//this would be rather odd...
 			
 			executingFolder = _Resolve(line[0]=='/');
@@ -1127,24 +1043,44 @@ namespace DeltaWorks
 			//cout << "pathSegments:"<<endl;
 			//lookup.pathSegments.printLines(cout," ");
 
-			if	(lookup.cmdSegments == 1)
+			if	(lookup.cmdSegments.Count() == 1)
 				if (PVariable v = executingFolder->variables.Query(lookup.pathSegments.Last()))
 				{
-					if (onVariableCall)
-						onVariableCall(v);
+					if (state->onVariableCall)
+						state->onVariableCall(shared_from_this(),executingFolder,v);
 					return true;
 				}
 		
 			executing = executingFolder->commands.Query(lookup.pathSegments.Last());
 			if (!executing && allow_global_commands)
-				executing = globalCommands.Query(lookup.pathSegments.Last());
+				executing = state->GetGlobalCommand(lookup.pathSegments.Last());
 		
 			if (executing)
 			{
-				executing->Invoke(lookup.cmdSegments, lookup.segmentConfig);
+
+				//lookup.segmentConfig
+				bool dequote = false;
+				for (index_t i = 1; i < lookup.cmdSegments.Count(); i++)
+					if (Tokenizer::DequoteChangesString(lookup.cmdSegments[i],lookup.segmentConfig))
+					{
+						dequote = true;
+						break;
+					}
+				if (dequote)
+				{
+					lookup.dequotedCMDSegments.Clear();
+					lookup.dequotedCMDSegments << lookup.cmdSegments.First();
+					for (index_t i = 1; i < lookup.cmdSegments.Count(); i++)
+						Tokenizer::Dequote(lookup.cmdSegments[i],lookup.segmentConfig,lookup.dequotedCMDSegments.Append());
+					lookup.cmdSegments.Clear();
+					foreach (lookup.dequotedCMDSegments,seg)
+						lookup.cmdSegments << seg->ToRef();
+				}
+				executing->Invoke(shared_from_this(),lookup.cmdSegments.ToRef());
+
 				executing.reset();
 				executingFolder.reset();
-				return true;
+				return error.IsEmpty();
 			}
 		
 			executingFolder.reset();
@@ -1152,14 +1088,14 @@ namespace DeltaWorks
 			return false;
 		}
 
-		bool	Interpreter::Parse(const char*line, bool allow_global_commands /*=true*/)
+		bool	Parser::Parse(const StringRef&line, bool allow_global_commands /*=true*/)
 		{
-			StringList	lines;
-			Tokenizer::tokenize(line,lookup.lineConfig,lines);
-			for	(index_t i = 0; i < lines;	i++)
-				if	(!_ParseLine(lines[i].c_str(),allow_global_commands))
-					return	false;
-			return	true;
+			Buffer0<StringRef>	lines;
+			Tokenizer::Tokenize(line,lookup.lineConfig,lines);
+			for	(index_t i = 0; i < lines.Count(); i++)
+				if (!_ParseLine(lines[i],allow_global_commands))
+					return false;
+			return true;
 		}
 	
 
@@ -1217,6 +1153,14 @@ namespace DeltaWorks
 			return rs;
 		}
 	
+		PFolder		Folder::GetRoot()
+		{
+			PFolder p = this->parent.lock();
+			if (!p)
+				return shared_from_this();
+			return p->GetRoot();
+		}
+
 		bool Folder::IsChildOf(const PFolder&other)	const
 		{
 			if (!other)
@@ -1237,10 +1181,10 @@ namespace DeltaWorks
 		}
 
 
-		PFolder 		Interpreter::EnterNewFolder(const String& name, bool enter_existing)
+		PFolder 		Parser::EnterNewFolder(const StringRef& name, bool enter_existing)
 		{
-			Tokenizer::tokenize(name,lookup.pathConfig,lookup.pathSegments);
-			if (!lookup.pathSegments)
+			Tokenizer::Tokenize(name,lookup.pathConfig,lookup.pathSegments);
+			if (lookup.pathSegments.IsEmpty())
 				return PFolder();
 		
 			PFolder parent = _Resolve(name.BeginsWith('/'));
@@ -1251,88 +1195,104 @@ namespace DeltaWorks
 			if (result)
 			{
 				if (enter_existing)
+				{
 					focused = result;
+					if (onFocusChanged)
+						onFocusChanged();
+				}
 				return PFolder();
 			}
 			
 			result.reset(new Folder(parent,lookup.pathSegments.Last()));
 			parent->folders.Insert(result->name,result);
 			focused = result;
+			if (onFocusChanged)
+				onFocusChanged();
 			return result;
 		}
 
-		void				Interpreter::EraseFolder(const PFolder&folder)
+		void				State::EraseFolder(const PFolder&folder)
 		{
 			if (!folder)
 				return;
 			PFolder parent = folder->parent.lock();
 			if (!parent)
 				return;
-		
-			if (focused->IsChildOf(parent))
-				focused = parent;
-		
+			foreach (this->activeParsers,p)
+			{
+				(*p)->OnFolderDeleted(folder);
+			}
 			parent->folders.Unset(folder->name);
 		}
 	
-		void				Interpreter::EraseFolder(const String& name)
+		void				Parser::EraseFolder(const StringRef& name)
 		{
-			Tokenizer::tokenize(name,lookup.pathConfig,lookup.pathSegments);
-			if (!lookup.pathSegments)
+			Tokenizer::Tokenize(name,lookup.pathConfig,lookup.pathSegments);
+			if (lookup.pathSegments.IsEmpty())
 				return;
 			
 			if (PFolder parent = _Resolve(name.BeginsWith('/')))
-			{
-				if (focused->IsChildOf(parent))
-					focused = parent;
-				parent->folders.Unset(lookup.pathSegments.Last());
-			}
+				state->EraseFolder(parent->folders.Query(lookup.pathSegments.Last()));
 		}
 
 
-		bool	Interpreter::MoveFocus(const String&context)
+		bool	Parser::MoveFocus(const StringRef&context)
 		{
-			Tokenizer::tokenize(context,lookup.pathConfig,lookup.pathSegments);
+			Tokenizer::Tokenize(context,lookup.pathConfig,lookup.pathSegments);
 			lookup.pathSegments << ".";	//dummy
 			PFolder new_focus = _Resolve(context.BeginsWith('/'));
 			if (new_focus)
 			{
-				focused = new_focus;
+				if (new_focus != focused)
+				{
+					focused = new_focus;
+					if (onFocusChanged)
+						onFocusChanged();
+				}
 				return true;
 			}
 			return false;
 		}
 
-		bool	Interpreter::ExitFolder()
+		bool	Parser::ExitFolder()
 		{
 			return ExitFocus();
 		}
 	
-		bool	Interpreter::ExitFocus()
+		bool	Parser::ExitFocus()
 		{
 			PFolder parent = focused->parent.lock();
 			if (parent)
 			{
 				focused = parent;
+				if (onFocusChanged)
+					onFocusChanged();
 				return true;
 			}
 			return false;
 		}
 
-		void	Interpreter::ResetFocus()
+		void	Parser::ResetFocus()
 		{
-			focused = root;
+			focused = state->GetRoot();
+			if (onFocusChanged)
+				onFocusChanged();
 		}
 
-		PFolder 	Interpreter::GetFocus()	const
+		PFolder 	Parser::GetFocus()	const
 		{
 			return focused;
 		}
 	
-		void		Interpreter::SetFocus(const PFolder&folder)
+		void		Parser::SetFocus(const PFolder&folder)
 		{
 			if (folder)
+			{
+				ASSERT__(folder->GetRoot() == state->GetRoot());
 				focused = folder;
+				if (onFocusChanged)
+					onFocusChanged();
+			}
 			else
 			{
 				FATAL__("Trying to set NULL focus");
@@ -1340,12 +1300,12 @@ namespace DeltaWorks
 			}
 		}
 
-		void		Interpreter::PushFocus()
+		void		Parser::PushFocus()
 		{
 			focusStack << focused;
 		}
 
-		void		Interpreter::PushAndReplaceFocus(const PFolder&new_focus)
+		void		Parser::PushAndReplaceFocus(const PFolder&new_focus)
 		{
 			PushFocus();
 			//if (new_focus)
@@ -1353,7 +1313,7 @@ namespace DeltaWorks
 		}
 
 
-		void		Interpreter::PopFocus()
+		void		Parser::PopFocus()
 		{
 			ASSERT__(focusStack.IsNotEmpty());
 			SetFocus(focusStack.pop());
@@ -1361,12 +1321,12 @@ namespace DeltaWorks
 
 
 	
-		String			Interpreter::GetContext(unsigned depth)	const
+		String			Parser::GetContext(unsigned depth)	const
 		{
 			return focused->GetPath(depth);
 		}
 
-		const Tokenizer::Config&	Interpreter::GetSegmentizerConfig()	const
+		const Tokenizer::Config&	Parser::GetSegmentizerConfig()	const
 		{
 			return lookup.segmentConfig;
 		}
@@ -1451,14 +1411,15 @@ namespace DeltaWorks
 			return nullptr;
 		}
 
-		bool	ScriptList::Execute(const	String&alias,Interpreter*parser)
+		bool	ScriptList::Execute(const	String&alias,Parser&parser)
 		{
 			Script*script = Find(alias);
-			if	(!script)
-				return	false;
+			if (!script)
+				return false;
 			for	(index_t i = 0;	i < script->Count(); i++)
-				parser->Parse(script->Get(i));
-			return	true;
+				if (!parser.Parse(script->Get(i)))
+					return false;
+			return true;
 		}
 	}
 }

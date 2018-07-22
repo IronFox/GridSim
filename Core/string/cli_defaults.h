@@ -14,11 +14,7 @@ namespace DeltaWorks
 {
 	namespace CLI
 	{
-		typedef	void	(*pPrintln)(const String&);
-		typedef	void	(*pOnFocusChange)();
-	
-		extern pPrintln			println;
-		extern pOnFocusChange	onFocusChange;
+
 
 	
 		/**
@@ -29,7 +25,7 @@ namespace DeltaWorks
 		@param println Pointer to a print line function that will be used to print results to a console
 		@param onFocusChange Function pointer to execute if the cd command was successfuly executed
 		*/
-		void			InitDefaults(Interpreter&target, pPrintln println, pOnFocusChange onFocusChange=NULL, bool echoSetOperation = true);
+		void			InitDefaults(const PState&target, bool echoSetOperation = true);
 
 
 	

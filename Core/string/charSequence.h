@@ -482,6 +482,8 @@ namespace DeltaWorks
 					bool		operator!=(const ArrayRef<T2>&other)	const	{return !operator==(other);}
 				bool			operator==(const T*str)	const	{size_t l = CharFunctions::strlen(str); return l == Super::elements && CharFunctions::strncmp(str,Super::data,Super::elements) == 0;}
 				bool			operator!=(const T*str)	const	{return !operator==(str);}
+				bool			operator==(const T&ch)	const	{return 1 == Super::elements && Super::data[0] == ch;}
+				bool			operator!=(const T&ch)	const	{return !operator==(ch);}
 
 				/**
 				Tests for case insensitive equality to another String object.
