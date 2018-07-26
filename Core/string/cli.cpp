@@ -31,6 +31,13 @@ namespace DeltaWorks
 			}
 		}
 
+		static Command::Argument Get(const Command::ArgumentList&list, index_t at)
+		{
+			if (at >= list.Count())
+				return Command::Argument();
+			return list[at];
+		}
+
 
 		Command::Command(const Name&name):callback([](const PParser&parser,const PCommand&command, ArgumentList arguments) {}),
 							NamedItem(name.coreName), fullSpecification(name.fullSpecification)
@@ -53,28 +60,28 @@ namespace DeltaWorks
 		}
 		Command::Command(const Name&name, const function1_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1]);})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(Get(arguments,1));})
 
 		{
 			construct(completion);
 		}
 		Command::Command(const Name&name, const function2_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1],arguments[2]);})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(Get(arguments,1),Get(arguments,2));})
 
 		{
 			construct(completion);
 		}
 		Command::Command(const Name&name, const function3_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1],arguments[2],arguments[3]);})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(Get(arguments,1),Get(arguments,2),Get(arguments,3));})
 
 		{
 			construct(completion);
 		}
 		Command::Command(const Name&name, const function4_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1],arguments[2],arguments[3],arguments[4]);})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(Get(arguments,1),Get(arguments,2),Get(arguments,3),Get(arguments,4));})
 
 		{
 			construct(completion);
@@ -82,14 +89,14 @@ namespace DeltaWorks
 
 		Command::Command(const Name&name, const function5_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1],arguments[2],arguments[3],arguments[4],arguments[5]);})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(Get(arguments,1),Get(arguments,2),Get(arguments,3),Get(arguments,4),Get(arguments,5));})
 
 		{
 			construct(completion);
 		}
 		Command::Command(const Name&name, const function6_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1],arguments[2],arguments[3],arguments[4],arguments[5],arguments[6]);})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(Get(arguments,1),Get(arguments,2),Get(arguments,3),Get(arguments,4),Get(arguments,5),Get(arguments,6));})
 
 		{
 			construct(completion);
@@ -110,28 +117,28 @@ namespace DeltaWorks
 		}
 		Command::Command(const Name&name, const func1_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1]);})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(Get(arguments,1));})
 
 		{
 			construct(completion);
 		}
 		Command::Command(const Name&name, const func2_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1],arguments[2]);})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(Get(arguments,1),Get(arguments,2));})
 
 		{
 			construct(completion);
 		}
 		Command::Command(const Name&name, const func3_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1],arguments[2],arguments[3]);})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(Get(arguments,1),Get(arguments,2),Get(arguments,3));})
 
 		{
 			construct(completion);
 		}
 		Command::Command(const Name&name, const func4_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1],arguments[2],arguments[3],arguments[4]);})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(Get(arguments,1),Get(arguments,2),Get(arguments,3),Get(arguments,4));})
 
 		{
 			construct(completion);
@@ -139,14 +146,14 @@ namespace DeltaWorks
 
 		Command::Command(const Name&name, const func5_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1],arguments[2],arguments[3],arguments[4],arguments[5]);})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(Get(arguments,1),Get(arguments,2),Get(arguments,3),Get(arguments,4),Get(arguments,5));})
 
 		{
 			construct(completion);
 		}
 		Command::Command(const Name&name, const func6_t&f, eCommandCompletion completion):
 						NamedItem(name.coreName), fullSpecification(name.fullSpecification),
-						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(arguments[1],arguments[2],arguments[3],arguments[4],arguments[5],arguments[6]);})
+						callback([f](const PParser&parser,const PCommand&command, ArgumentList arguments){f(Get(arguments,1),Get(arguments,2),Get(arguments,3),Get(arguments,4),Get(arguments,5),Get(arguments,6));})
 
 		{
 			construct(completion);
