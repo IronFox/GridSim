@@ -439,14 +439,14 @@ namespace DeltaWorks
 									{
 										return element-data;
 									}				
-				inline count_t		findFirst(const T&entry) const	//!< Finds the index of the first occurance of the specified entry. Entries are compared via the == operator. @param entry Entry to look for @return Index of the found match plus one or 0 if no match was found
+				inline index_t		findFirst(const T&entry) const	//!< Finds the index of the first occurance of the specified entry. Entries are compared via the == operator. @param entry Entry to look for @return Index of the found match plus one or 0 if no match was found
 									{
 										for (count_t i = 0; i < elements; i++)
 											if (data[i] == entry)
 												return i+1;
 										return 0;
 									}
-				inline count_t		FindFirst(const T&entry) const	/**@copydoc findFirst()*/ {return findFirst(entry);}
+				inline index_t		FindFirst(const T&entry) const	/**@copydoc findFirst()*/ {return findFirst(entry);}
 
 				inline bool			Contains(const T&entry) const	{	return FindFirst(entry) != 0;	}
 
