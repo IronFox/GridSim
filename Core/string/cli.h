@@ -536,7 +536,6 @@ namespace DeltaWorks
 			PCommand 					Find(const StringRef&path,PFolder*folder_out=NULL);		//!< Identical to find(const String&)
 			PVariable 					FindVar(const String&path,PFolder*folder_out=NULL);	//!< Attempts to find a variable matching \b path @param path Path of the variable to look for \return Pointer to a matching variable or NULL if no such variable exists
 			PVariable					FindVar(const StringRef&path,PFolder*folder_out=NULL);		//!< Identical to FindVar(const String&)
-			PFolder						FindFolder(const String&path);	//!< Attempts to find a folder matching \b path @param path Path of the folder to look for \return Pointer to a matching folder or NULL if no such folder exists
 			PFolder						FindFolder(const StringRef&path);	//!< Attempts to find a folder matching \b path @param path Path of the folder to look for \return Pointer to a matching folder or NULL if no such folder exists
 			bool						InsertCommand(const PCommand&cmd, const StringRef&targetPath);	//!< Inserts a new command in the specified location. The method fails if a command already exists in the specified location. @param cmd New command object. The object will be managed by this structure and must not be deleted \return Pointer to the inserted command object if no command of that name existed, NULL otherwise
 			template <typename F>

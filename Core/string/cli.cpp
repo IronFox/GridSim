@@ -800,11 +800,6 @@ namespace DeltaWorks
 			return FindVar(name.ToRef(),folder_out);
 		}
 
-		PFolder 		Parser::FindFolder(const String&path)
-		{
-			return FindFolder(path.ToRef());
-		}
-
 		PFolder 		Parser::FindFolder(const StringRef&path)
 		{
 			Tokenizer::Tokenize(path,lookup.pathConfig,lookup.pathSegments);
