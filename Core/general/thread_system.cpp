@@ -385,6 +385,7 @@ namespace DeltaWorks
 		{
 			if (!operation.executing)
 				return;
+			ASSERT__(!isSelf());	//waiting for self doesn't work so well (or at all)
 			#if SYSTEM==WINDOWS
 				if (handle == NULL)
 					FATAL__("bad state");
