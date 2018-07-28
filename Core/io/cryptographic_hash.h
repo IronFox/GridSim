@@ -277,6 +277,21 @@ namespace DeltaWorks
 				s.Write(v.bytes,num_bytes);
 			}
 
+			bool	IsSet() const
+			{
+				return *this != Empty;
+			}
+
+			bool	IsNotEmpty() const
+			{
+				return *this != Empty;
+			}
+
+			bool	IsEmpty() const
+			{
+				return *this == Empty;
+			}
+
 			static const THash	Empty;
 		};
 
