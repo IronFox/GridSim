@@ -174,8 +174,10 @@ namespace DeltaWorks
 
 		static bool UpdateComponent(const PParser&parser, const StringRef&variable, const StringRef&value, bool echoSetOperation)
 		{
-			index_t p = variable.Find('.');
-			if (p == InvalidIndex)
+			const index_t lastFolderSlash = variable.FindLast('/');
+
+			const index_t p = variable.FindLast('.');
+			if (p == InvalidIndex || (lastFolderSlash != InvalidIndex && lastFolderSlash > p))
 				return false;
 
 			const auto var = variable.SubStringRef(0,p);
