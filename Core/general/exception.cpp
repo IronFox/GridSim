@@ -51,7 +51,7 @@ namespace DeltaWorks
 
 		void	EndFatal()
 		{
-			fatal_mutex.release();
+			fatal_mutex.Release();
 		}
 
 		void	BeginFatal()
@@ -65,7 +65,7 @@ namespace DeltaWorks
 				}
 			#endif
 
-			fatal_mutex.lock();
+			fatal_mutex.Lock();
 		}
 
 

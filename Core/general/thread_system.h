@@ -284,190 +284,199 @@ namespace DeltaWorks
 				uint32_t		lock_level;
 				Mutex			operation_shield;
 		public:
-								RecursiveMutex():lock_level(0)
-								{}
-				bool			isLocked()	const
-				{
-					return lock_level > 0;
-				}
+							RecursiveMutex():lock_level(0)
+							{}
+			bool			IsLocked()	const
+			{
+				return lock_level > 0;
+			}
 
-				bool			isLockedByMe()	const
-				{
-					return lock_level > 0 && locked_thread == thisThread();
-				}
+			bool			IsNotLocked() const
+			{
+				return lock_level == 0;
+			}
 
-				void			p()	//!< Identical to lock()
-				{
-					lock();
-				}
-				void			P()	//!< Identical to lock()
-				{
-					lock();
-				}
-				void			v()	//!< Identical to release()
-				{
-					unlock();
-				}
-				void			V()
-				{
-					unlock();
-				}
-				void			lock()
-				{
-					thread_handle_t self = thisThread();
-					operation_shield.lock();
-						if (lock_level > 0)
+			bool			IsLockedByMe()	const
+			{
+				return lock_level > 0 && locked_thread == thisThread();
+			}
+
+			void			p()	//!< Identical to lock()
+			{
+				Lock();
+			}
+			void			P()	//!< Identical to lock()
+			{
+				Lock();
+			}
+			void			v()	//!< Identical to release()
+			{
+				Unlock();
+			}
+			void			V()
+			{
+				Unlock();
+			}
+			void			Lock()
+			{
+				thread_handle_t self = thisThread();
+				operation_shield.lock();
+					if (lock_level > 0)
+					{
+						if (locked_thread == self)
 						{
-							if (locked_thread == self)
-							{
-								lock_level++;
-								operation_shield.unlock();
-								return;
-							}
+							lock_level++;
+							operation_shield.unlock();
+							return;
 						}
-						Mutex::lock();
-							if (lock_level != 0)	//technically, this should not be possible
-							{
-								operation_shield.unlock();
-								FATAL__("Trying to lock recursive mutex on lock_level != 0");
-								return;
-							}
+					}
+					Mutex::lock();
+						if (lock_level != 0)	//technically, this should not be possible
+						{
+							operation_shield.unlock();
+							FATAL__("Trying to lock recursive mutex on lock_level != 0");
+							return;
+						}
 
-							lock_level = 1;
-							locked_thread = self;
-					operation_shield.unlock();
-				}
+						lock_level = 1;
+						locked_thread = self;
+				operation_shield.unlock();
+			}
 
 			
-				bool			tryLock()
-				{
-					thread_handle_t self = thisThread();
-					operation_shield.lock();
-						if (lock_level > 0)
+			bool			TryLock()
+			{
+				thread_handle_t self = thisThread();
+				operation_shield.lock();
+					if (lock_level > 0)
+					{
+						if (locked_thread == self)
 						{
-							if (locked_thread == self)
-							{
-								lock_level++;
-								operation_shield.unlock();
-								return true;
-							}
-						}
-						if (Mutex::tryLock())
-						{
-							if (lock_level != 0)	//technically, this should not be possible
-							{
-								operation_shield.unlock();
-								FATAL__("Trying to lock recursive mutex on lock_level != 0");
-								return false;
-							}
-
-							lock_level = 1;
-							locked_thread = self;
+							lock_level++;
 							operation_shield.unlock();
 							return true;
 						}
-					operation_shield.unlock();
-					return false;
-				}
-
-				bool			tryLock(long milliseconds)
-				{
-					thread_handle_t self = thisThread();
-					operation_shield.lock();
-						if (lock_level > 0)
+					}
+					if (Mutex::tryLock())
+					{
+						if (lock_level != 0)	//technically, this should not be possible
 						{
-							if (locked_thread == self)
-							{
-								lock_level++;
-								operation_shield.unlock();
-								return true;
-							}
+							operation_shield.unlock();
+							FATAL__("Trying to lock recursive mutex on lock_level != 0");
+							return false;
 						}
-						if (Mutex::tryLock(milliseconds))
+
+						lock_level = 1;
+						locked_thread = self;
+						operation_shield.unlock();
+						return true;
+					}
+				operation_shield.unlock();
+				return false;
+			}
+
+			bool			TryLock(long milliseconds)
+			{
+				thread_handle_t self = thisThread();
+				operation_shield.lock();
+					if (lock_level > 0)
+					{
+						if (locked_thread == self)
 						{
-							if (lock_level != 0)	//technically, this should not be possible
-							{
-								operation_shield.unlock();
-								FATAL__("Trying to lock recursive mutex on lock_level != 0");
-								return false;
-							}
-							lock_level = 1;
-							locked_thread = self;
+							lock_level++;
 							operation_shield.unlock();
 							return true;
 						}
-					operation_shield.unlock();
-					return false;
-				}
-
-				void			unlock()
-				{
-					thread_handle_t self = thisThread();
-					operation_shield.lock();
-						if (self != locked_thread)
+					}
+					if (Mutex::tryLock(milliseconds))
+					{
+						if (lock_level != 0)	//technically, this should not be possible
 						{
 							operation_shield.unlock();
-							FATAL__("Trying to unlock mutex that was not locked by this thread");
-							return;
+							FATAL__("Trying to lock recursive mutex on lock_level != 0");
+							return false;
 						}
-						if (!lock_level)
-						{
-							operation_shield.unlock();
-							FATAL__("Trying to unlock mutex that was not locked at all");
-							return;
-						}
-						lock_level--;
-						if (!lock_level)
-							Mutex::unlock();
-					operation_shield.unlock();
-				}
+						lock_level = 1;
+						locked_thread = self;
+						operation_shield.unlock();
+						return true;
+					}
+				operation_shield.unlock();
+				return false;
+			}
 
-				void			release()
-				{
-					unlock();
-				}
+			void			Unlock()
+			{
+				thread_handle_t self = thisThread();
+				operation_shield.lock();
+					if (self != locked_thread)
+					{
+						operation_shield.unlock();
+						FATAL__("Trying to unlock mutex that was not locked by this thread");
+						return;
+					}
+					if (!lock_level)
+					{
+						operation_shield.unlock();
+						FATAL__("Trying to unlock mutex that was not locked at all");
+						return;
+					}
+					lock_level--;
+					if (!lock_level)
+						Mutex::unlock();
+				operation_shield.unlock();
+			}
+
+			void			Release()
+			{
+				Unlock();
+			}
 
 		};
 	
 
-	
-		class MutexLock	//! Automatic localized mutex lock. The class prevents double locking or unlocking and automatically aquires/releases the lock on the referenced mutex on construction/destruction.
-		{
-		protected:
+
+		template <typename Mutex>
+			class MutexLockT	//! Automatic localized mutex lock. The class prevents double locking or unlocking and automatically aquires/releases the lock on the referenced mutex on construction/destruction.
+			{
+			protected:
 				Mutex*			reference;
 				bool			locked;
 
 								//SyncLock(const SyncLock&other)	{}
-				MutexLock&		operator=(const MutexLock&lock)	{return *this;}
+				MutexLockT&		operator=(const MutexLockT&lock)	{return *this;}
 			
-								MutexLock()
+								MutexLockT()
 								{}
-		public:
-								MutexLock(Mutex&mutex):reference(&mutex),locked(false) {acquire();}
+			public:
+								MutexLockT(Mutex&mutex):reference(&mutex),locked(false) {Acquire();}
 
-								~MutexLock()
+								~MutexLockT()
 								{
-									release();
+									Release();
 								}
-				void			acquire()	//!< Acquires a lock on the referenced mutex if a lock has not yet been acquired
+				void			Acquire()	//!< Acquires a lock on the referenced mutex if a lock has not yet been acquired
 								{
 									if (!locked)
 									{
-										reference->lock();
+										reference->P();
 										locked = true;
 									}
 								}
-				void			release()	//!< Releases the lock on the referenced mutex if a lock has been acquired
+				void			Release()	//!< Releases the lock on the referenced mutex if a lock has been acquired
 								{
 									if (locked)
 									{
-										reference->release();
+										reference->V();
 										locked = false;
 									}
 								}
-				operator bool()	{acquire(); return true;}	//!< Aquires a lock if not already done
+				operator bool()	{Acquire(); return true;}	//!< Aquires a lock if not already done
 	
-		};
+			};
+		typedef MutexLockT<Mutex>	MutexLock;
+		typedef MutexLockT<RecursiveMutex>	RecursiveMutexLock;
+	
 	
 		/**
 			@brief Automatic localized timeout mutex lock
@@ -505,7 +514,7 @@ namespace DeltaWorks
 									{
 										if (is_recursive)
 										{
-											if (!recursive_reference->tryLock(1000))
+											if (!recursive_reference->TryLock(1000))
 												Except::TriggerFatal(lock_location,"Failed to acquire lock in 1000 mseconds. Deadlock assumed.");
 										}
 										else
@@ -519,7 +528,7 @@ namespace DeltaWorks
 									if (locked)
 									{
 										if (is_recursive)
-											recursive_reference->release();
+											recursive_reference->Release();
 										else
 											reference->release();
 										locked = false;
