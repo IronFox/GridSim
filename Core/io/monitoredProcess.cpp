@@ -299,6 +299,10 @@ namespace DeltaWorks
 
 	void		MonitoredProcess::ResumeOrStart(const PathString&workingDirectory, const PathString&executablePath, const PathString&parametersWithoutExecutableName, bool createWindow/*=true*/)
 	{
+		ResumeOrStart(workingDirectory,executablePath,[parametersWithoutExecutableName](){return parametersWithoutExecutableName;},createWindow);
+	}
+	void		MonitoredProcess::ResumeOrStart(const PathString&workingDirectory, const PathString&executablePath, const std::function<PathString()>&parametersWithoutExecutableName, bool createWindow/*=true*/)
+	{
 		if (TryResume(workingDirectory,executablePath))
 			return;
 		Start(workingDirectory,executablePath,parametersWithoutExecutableName, createWindow);
@@ -306,6 +310,12 @@ namespace DeltaWorks
 
 
 	void		MonitoredProcess::Start(const PathString&_workingDirectory, const PathString&_executablePath, const PathString&parametersWithoutExecutableName, bool createWindow)
+	{
+		Start(_workingDirectory,_executablePath,[parametersWithoutExecutableName](){return parametersWithoutExecutableName;},createWindow);
+	}
+
+
+	void		MonitoredProcess::Start(const PathString&_workingDirectory, const PathString&_executablePath, const std::function<PathString()>&parametersWithoutExecutableName, bool createWindow)
 	{
 		Terminate();
 		FileSystem::Folder f(_workingDirectory);
@@ -316,7 +326,8 @@ namespace DeltaWorks
 			throw Except::IO::DriveAccess("Process Start: Chosen executable '"+FileSystem::PathToString(_executablePath)+"' does not exist");
 		if (!found.DoesExist())
 			throw Except::IO::DriveAccess("Process Start: Chosen executable '"+FileSystem::PathToString(found.GetLocation())+"' does not exist");
-		parameters = '"'+FileSystem::ExtractFileNameExt(_executablePath)+"\" "+parametersWithoutExecutableName;
+		this->asyncFetchParameters = parametersWithoutExecutableName;
+		executableName = '"'+FileSystem::ExtractFileNameExt(_executablePath)+"\"";
 		paths.executablePath = found.GetLocation();
 		paths.workingDirectory = f.GetLocation();
 
@@ -324,6 +335,14 @@ namespace DeltaWorks
 		this->createWindow = createWindow;
 		Restart();
 	}
+
+	PathString		MonitoredProcess::CompileFullExecutable()const
+	{
+		if (!asyncFetchParameters)
+			return executableName;
+		return executableName+" "+asyncFetchParameters();
+	}
+
 
 
 	void	MonitoredProcess::Restart()
@@ -387,7 +406,7 @@ namespace DeltaWorks
 			if (!createWindow)
 				flags |= CREATE_NO_WINDOW;
 
-			
+			auto parameters = this->CompileFullExecutable();
 			BOOL rs = CreateProcessW(paths.executablePath.c_str(),parameters.mutablePointer(),NULL,NULL,FALSE,flags,NULL,paths.workingDirectory.c_str(),&infoIn,&infoOut);
 			if (rs == FALSE)
 				throw Except::IO::ParameterFault("Process Start: Windows refused to start process '"+FileSystem::PathToString(paths.executablePath)+"': "+System::GetLastErrorString());

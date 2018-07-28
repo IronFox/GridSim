@@ -11,6 +11,12 @@
 namespace DeltaWorks
 {
 
+	/**
+	Generalized process supervisor.
+	Allows the creation of arbitrary process, and potentially automatic restarting in case they fail.
+	A separate thread is localy created to monitor the running process.
+	The process is NOT terminated upon object destruction, but all observation will come to an end (obviously)
+	*/
 	class MonitoredProcess : private Sys::ThreadObject
 	{
 	private:
@@ -25,7 +31,8 @@ namespace DeltaWorks
 		Timer::Time		lastCheck = timer.Now();
 
 		Paths			paths;
-		PathString		parameters;
+		PathString		executableName;
+		std::function<PathString()>	asyncFetchParameters;
 
 		bool			createWindow = true;
 
@@ -35,6 +42,7 @@ namespace DeltaWorks
 		String			lastFault;
 		DWORD			lastExitCode=0;
 
+		PathString		CompileFullExecutable()const;
 
 
 		void			Restart();
@@ -52,23 +60,58 @@ namespace DeltaWorks
 		*/
 		std::function<void()>	onEndAsync;
 
+		/**
+		Constructs a new process monitor.
+		@param autoRestart If set, any started or resumed process will be automatically restarted if found to have ended due to whatever cause
+		*/
 		/**/			MonitoredProcess(bool autoRestart):autoRestart(autoRestart)	{}
 
 		virtual			~MonitoredProcess() {QuitThread();}
 
+		/**
+		Updates whether any monitored process should automatically be restarted.
+		Affects any subsequent time, a process monitored by this object is detected to have ended.
+		No reset anywhere else
+		*/
 		void			SetAutoRestart(bool autoRestart) {this->autoRestart = autoRestart;}
 		bool			DoesAutoRestart() const {return autoRestart;}
 
-
-		//bool			IsStarted() const {return isStarted;}	//deprecated. do not use. ever. use IsRunning() instead
+		/**
+		Terminates any running process and starts the local process anew using the specified configuration.
+		If auto-restart has been configured, then the started process will be kept alive
+		@param workingDirectory The folder that the process should run in
+		@param executablePath Path to the executable to be executed, including file name
+		@param parametersWithoutExecutableName Additional parameters. May be empty
+		@param createWindow If false, any window/console created by the started process will not appear (Windows feature), otherwise operates as normal
+		*/
 		void			Start(const PathString&workingDirectory, const PathString&executablePath, const PathString&parametersWithoutExecutableName, bool createWindow=true);
+		/**
+		@copydoc Start();
+		@param asyncGetParametersWithoutExecutableName Function to retrieve additional parameters from. May be empty. Called by a separate thread, therefor must be thread safe.
+		*/
+		void			Start(const PathString&workingDirectory, const PathString&executablePath, const std::function<PathString()>&asyncGetParametersWithoutExecutableName, bool createWindow=true);
 
+		/**
+		Checks whether a process with the specified executablePath is already running. Parameters cannot be checked reliably, so they are ignored.
+		If a process is found, then the found process is copied to the local configuration.
+		@return True if a running process was found, false otherwise
+		*/
 		bool			TryResume(const PathString&workingDirectory, const PathString&executablePath);
 		/**
 		First checks whether a process with the specified executablePath is already running. Parameters cannot be checked reliably, so it is assumed they match.
-		If a process is found then the found process is copied to the local configuration.
+		If a process is found, then the found process is copied to the local configuration.
+		Otherwise a new process is started with the given parameters
+		@param workingDirectory The folder that the process should run in
+		@param executablePath Path to the executable to be executed, including file name
+		@param parametersWithoutExecutableName Additional parameters. May be empty
+		@param createWindow If false, any window/console created by the started process will not appear (Windows feature), otherwise operates as normal
 		*/
 		void			ResumeOrStart(const PathString&workingDirectory, const PathString&executablePath, const PathString&parametersWithoutExecutableName, bool createWindow=true);
+		/**
+		@copydoc ResumeOrStart()
+		@param asyncGetParametersWithoutExecutableName Function to retrieve additional parameters from. May be empty. Called by a separate thread, therefor must be thread safe.
+		*/
+		void			ResumeOrStart(const PathString&workingDirectory, const PathString&executablePath, const std::function<PathString()>&asyncGetParametersWithoutExecutableName, bool createWindow=true);
 		/**
 		Terminates the process if currently active
 		*/
