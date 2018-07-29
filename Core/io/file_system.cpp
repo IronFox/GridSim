@@ -237,21 +237,21 @@ namespace DeltaWorks
 			return "Non-existent: "+String(f.location);
 		}
 
-		bool File::Unlink() const
+		bool File::TryToUnlink() const
 		{
 			if (!this)
 				return false;
-			#if SYSTEM==UNIX
-				if (is_folder)
-					return !rmdir(location.c_str());
-				return !::unlink(location.c_str());
-			#elif SYSTEM==WINDOWS
-				if (IsDirectory())
-					return !!RemoveDirectoryW(location.c_str());
-				return !!DeleteFileW(location.c_str());
-			#else
-				#error not supported
-			#endif
+			if (IsDirectory())
+				return TryToRemoveFolder(location);
+			return TryToUnlinkFile(location);
+		}
+
+		void File::Unlink() const
+		{
+			if (IsDirectory())
+				RemoveFolder(location);
+			else
+				UnlinkFile(location);
 		}
 
 
@@ -266,8 +266,7 @@ namespace DeltaWorks
 		{
 			if (created)
 			{
-				UnlinkFile(filename);
-		//		cout << " - "<<filename.c_str()<<endl;
+				TryToUnlinkFile(filename);
 			}
 
 		}
@@ -332,7 +331,7 @@ namespace DeltaWorks
 			if (created)
 			{
 				Sys::MutexLock	lock(mutex);
-				UnlinkFile(filename);
+				TryToUnlinkFile(filename);
 				created = false;
 				return true;
 			}
@@ -1667,7 +1666,7 @@ namespace DeltaWorks
 					continue;
 				if (IsFile(path))
 				{
-					if (!unlinkFoundFiles || !UnlinkFile(path))
+					if (!unlinkFoundFiles || !TryToUnlinkFile(path))
 					{
 						if (unlinkFoundFiles)
 						{
@@ -1718,7 +1717,7 @@ namespace DeltaWorks
 
 
 	#if SYSTEM==WINDOWS
-		void PrintLastError()
+		void PrintLastError(const String&whileDoing)
 		{
 			DWORD code = GetLastError();
 			LPVOID lpMsgBuf;
@@ -1734,20 +1733,25 @@ namespace DeltaWorks
 				NULL
 				);
 			//unsigned len = strlen((char*)lpMsgBuf);
-			ErrMessage((const wchar_t*)lpMsgBuf);
+			ErrMessageW(StringW(whileDoing)+": "+ (const wchar_t*)lpMsgBuf);
 
 			LocalFree(lpMsgBuf);
 		}
 
 	#endif
 
-		bool			UnlinkFile(const PathString&location)
+		void			UnlinkFile(const PathString&location)
 		{
+			if (!IsFile(location))
+			{
+				if (IsDirectory(location))
+					throw Except::IO::DriveAccess::GeneralFault("Unable to unlink "+PathToString(location)+": Is a directory");
+				return;	//all good
+			}
 			#if SYSTEM==UNIX
-				return !::unlink(location.c_str());
+				if (!::unlink(location.c_str()))
+					throw Except::IO::DriveAccess::GeneralFault("Unable to unlink "+PathToString(location));
 			#elif SYSTEM==WINDOWS
-				if (!IsFile(location))
-					return true;
 				int retry = 0;
 				PathString loc = location;
 				loc.FindAndReplace(L'/',L'\\');
@@ -1755,8 +1759,10 @@ namespace DeltaWorks
 				{
 					if (retry > 10)
 					{
-						PrintLastError();
-						return false;
+						char buffer[0x1000];
+						System::WindowsErrorToString(GetLastError(), buffer, sizeof(buffer));
+
+						throw Except::IO::DriveAccess::GeneralFault("Unable to unlink "+PathToString(location)+": "+buffer);
 					}
 					if (retry == 0)
 						SetFileAttributesW(loc.c_str(), FILE_ATTRIBUTE_NORMAL);
@@ -1764,15 +1770,33 @@ namespace DeltaWorks
 						Sleep(10);
 					retry++;
 				}
-				return true;
 			#else
 				#error not supported
 			#endif
-
-
 		}
 
-		bool			RemoveFolderContents(const PathString&location)
+		bool			TryToUnlinkFile(const PathString&location)
+		{
+			if (!IsFile(location))
+			{
+				if (IsDirectory(location))
+					return false;
+				return true;	//all good
+			}
+			#if SYSTEM==UNIX
+				return ::unlink(location.c_str());
+			#elif SYSTEM==WINDOWS
+				int retry = 0;
+				PathString loc = location;
+				loc.FindAndReplace(L'/',L'\\');
+				return DeleteFileW(loc.c_str());
+			#else
+				#error not supported
+			#endif
+		}
+
+
+		bool			TryToRemoveFolderContents(const PathString&location)
 		{
 			FileSystem::Folder f(location);
 			if (!f.IsValidLocation())
@@ -1783,21 +1807,43 @@ namespace DeltaWorks
 			{
 				if (file.IsDirectory())
 				{
-					if (!RemoveFolder(file.GetLocation()))
+					if (!TryToRemoveFolder(file.GetLocation()))
 						return false;
 				}
 				else
-					if (!file.Unlink())
+					if (!file.TryToUnlink())
 						return false;
 			}
 			return true;
 		}
 
-		bool			RemoveFolder(const PathString&location)
+		void			RemoveFolderContents(const PathString&location)
+		{
+			FileSystem::Folder f(location);
+			if (!f.IsValidLocation())
+				throw Except::IO::DriveAccess::GeneralFault("Trying to erase invalid directory "+PathToString(location));
+			f.Rewind();
+			FileSystem::File file;
+			while (f.NextEntry(file))
+			{
+				if (file.IsDirectory())
+				{
+					RemoveFolder(file.GetLocation());
+				}
+				else
+					file.Unlink();
+			}
+		}
+
+		bool			TryToRemoveFolder(const PathString&location)
 		{
 			if (!IsFolder(location))
+			{
+				if (IsFile(location))
+					return false;
 				return true;
-			if (!RemoveFolderContents(location))
+			}
+			if (!TryToRemoveFolderContents(location))
 				return false;
 			#if SYSTEM==UNIX
 				return !rmdir(location.c_str());
@@ -1808,8 +1854,32 @@ namespace DeltaWorks
 			#else
 				#error not supported
 			#endif
+		}
 
 
+		void			RemoveFolder(const PathString&location)
+		{
+			if (!IsFolder(location))
+			{
+				if (IsFile(location))
+					throw Except::IO::DriveAccess("Cannot remove folder "+PathToString(location)+": is file");
+				return;
+			}
+			RemoveFolderContents(location);
+			#if SYSTEM==UNIX
+				if (!!rmdir(location.c_str()))
+					throw Except::IO::DriveAccess("Failed to remove folder "+PathToString(location));
+			#elif SYSTEM==WINDOWS
+				bool rs = !!RemoveDirectoryW(location.c_str());
+				if (!rs)
+				{
+					char buffer[0x1000];
+					System::WindowsErrorToString(GetLastError(), buffer, sizeof(buffer));
+					throw Except::IO::DriveAccess("Failed to remove folder "+PathToString(location)+": "+buffer);
+				}
+			#else
+				#error not supported
+			#endif
 		}
 
 		static const File* ResolveLink(const File*file)

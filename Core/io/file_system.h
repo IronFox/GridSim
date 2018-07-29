@@ -110,9 +110,12 @@ namespace DeltaWorks
 		*/
 		void			ForceCreateDirectory(const PathString&path, File&out);
 		
-		bool			UnlinkFile(const PathString&filename);											//!< Unlinks (erases) the specified file \return true on success
-		bool			RemoveFolder(const PathString&foldername);										//!< Recursively erases the specified folder and all contained files \return true on success, false if any one file or directory could not be deleted
-		bool			RemoveFolderContents(const PathString&foldername);								//!< Recursively erases the contents of the specified folder \return true on success, false if any one file or directory could not be deleted
+		void			UnlinkFile(const PathString&filename);											//!< Unlinks (erases) the specified file. Throws IO::DriveAccess::GeneralFault in case of failures
+		bool			TryToUnlinkFile(const PathString&filename);										//!< Unlinks (erases) the specified file. @return true on success
+		bool			TryToRemoveFolder(const PathString&foldername);										//!< Recursively erases the specified folder and all contained files \return true on success, false if any one file or directory could not be deleted
+		bool			TryToRemoveFolderContents(const PathString&foldername);								//!< Recursively erases the contents of the specified folder \return true on success, false if any one file or directory could not be deleted
+		void			RemoveFolder(const PathString&foldername);										//!< Recursively erases the specified folder and all contained files. Throws IO::DriveAccess::GeneralFault in case of failures
+		void			RemoveFolderContents(const PathString&foldername);								//!< Recursively erases the contents of the specified folder. Throws IO::DriveAccess::GeneralFault in case of failures
 		PathString		GetRelativePath(const PathString&origin, const PathString&destination);	//!< Creates a relative path from \b origin to \b destination \return relative path
 		PathString		GetAbsolutePath(const PathString&relative_path);	//!< Converts the specified relative path to an absolute path based on the current working directory.
 
@@ -183,7 +186,8 @@ namespace DeltaWorks
 			friend String		ToString(const File&);
 			bool				DoesExist()							const;		//!< Queries existence of the local file or folder
 
-			bool				Unlink()							const;		//!< Unlinks (erases) the local file/folder (making the local handle invalid) \return true on success
+			bool				TryToUnlink()						const;		//!< Unlinks (erases) the local file/folder (making the local handle invalid) \return true on success
+			void				Unlink()							const;		//!< Unlinks (erases) the local file/folder (making the local handle invalid). Throws IO::DriveAccess::GeneralFault on failure
 			
 			bool				operator<(const File&other)			const;
 			bool				operator>(const File&other)			const;
