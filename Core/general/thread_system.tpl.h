@@ -534,7 +534,7 @@ namespace System
 				for (unsigned i = 0; i < workers.Count(); i++)
 				{
 					THREAD_REPORT("joining thread ("<<i<<")")
-					workers[i].awaitCompletion();
+					workers[i].AwaitCompletion();
 				}
 			}
 			THREAD_REPORT("sleeping")

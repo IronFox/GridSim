@@ -42,7 +42,7 @@ namespace Engine
 		{
 			Stop();
 
-			Super::awaitCompletion();
+			Super::AwaitCompletion();
 			if (exception.IsNotEmpty())
 			{
 				String ex;

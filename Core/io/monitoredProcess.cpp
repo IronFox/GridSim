@@ -261,7 +261,7 @@ namespace DeltaWorks
 	{
 		quitThread = true;
 		if (!application_shutting_down)
-			awaitCompletion();
+			AwaitCompletion();
 	}
 
 

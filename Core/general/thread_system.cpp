@@ -381,38 +381,12 @@ namespace DeltaWorks
 			#endif
 		}
 
-		void        Thread::awaitCompletion(DWORD maxWaitMilliseconds/*=0xFFFFFFFF*/)
-		{
-			if (!operation.executing)
-				return;
-			ASSERT__(!isSelf());	//waiting for self doesn't work so well (or at all)
-			#if SYSTEM==WINDOWS
-				if (handle == NULL)
-					FATAL__("bad state");
-				DWORD waitingForThreadID = GetThreadId(handle);	//in case it 
-				DWORD rs = WaitForSingleObject(handle,maxWaitMilliseconds);
-				if (rs == WAIT_TIMEOUT)
-				{
-					FATAL__("Failed to await completion of thread in allotted amount of time");
-				}
-				elif (rs != 0)
-				{
-					//FATAL__("Some unknown error occFailed to await completion of thread in allotted amount of time");
-				}
-
-				CloseHandle(handle);
-				handle = NULL;
-			#elif SYSTEM==UNIX
-				pthread_join(handle,NULL);
-				handle = 0;
-			#endif
-			operation.executing = false;
-		}
-
-	   bool        Thread::CheckAwaitCompletion(DWORD maxWaitMilliseconds/*=0xFFFFFFFF*/)
+		
+		bool        Thread::AwaitCompletion(DWORD maxWaitMilliseconds/*=0xFFFFFFFF*/)
 		{
 			if (!operation.executing)
 				return true;
+			ASSERT__(!isSelf());	//waiting for self doesn't work so well (or at all)
 			#if SYSTEM==WINDOWS
 				if (handle == NULL)
 					FATAL__("bad state");
