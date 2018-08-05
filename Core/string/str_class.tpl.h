@@ -583,8 +583,8 @@ template <typename Char, typename Width>
 						)
 					)	
 					{
-						const bool forcedBreak = lineWidthToCurrent < lineWidth;	//ONLY forceNewLineAtNextChar is true
-						if (forcedBreak)
+						//const bool forcedBreak = lineWidthToCurrent < lineWidth;	//ONLY forceNewLineAtNextChar is true
+						if (forceNewlineAtNextChar)
 						{
 							firstWordChar = current-1;	//last char was newline. we don't pass that to the callback function, so reduce line limit (firstWordChar)
 						}
@@ -614,7 +614,7 @@ template <typename Char, typename Width>
 						}
 						callback(StringType::ReferenceExpression<Char>(firstLineChar,firstWordChar-firstLineChar));
 
-						if (forcedBreak)
+						if (forceNewlineAtNextChar)
 						{
 							firstWordChar = current;	//skip newline char
 							wordWithToCurrent = charW;
