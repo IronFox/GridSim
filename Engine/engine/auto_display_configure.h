@@ -110,7 +110,7 @@ namespace Engine
 				context.MaximizeWindow();
 			//elif (flags & DisplayConfig::IsMinimzed)
 			//	context.MinimizeWindow();
-			onResize(resolution,context.GetDisplayConfigFlags());
+			onResize(display.GetClientSize(),context.GetDisplayConfigFlags());
 			return flags;
 		}
 		
