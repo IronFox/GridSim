@@ -133,7 +133,7 @@ namespace DeltaWorks
 	
 		bool	File::IsExtension(const PathString&ext)		const
 		{
-			return ext == GetExtensionPointer();
+			return ext.EqualsIgnoreCase(GetExtensionPointer());
 		}
 	
 
@@ -295,7 +295,7 @@ namespace DeltaWorks
 
 				filename = szTempName;
 				FILE*tmp = _wfopen(filename.c_str(),L"wb");
-			#elif SYSTEM==UNIX
+			#elif SYSTEM==LINUX
 				static unsigned subsequent_call;
 				srand(time(NULL)+(subsequent_call++));
 				unsigned loops(0);
@@ -380,50 +380,43 @@ namespace DeltaWorks
 
 
 
-		Folder::Folder():absolute_folder(GetWorkingDirectory()),find_handle(NULL)
+		Folder::Folder():absolute_folder(GetWorkingDirectory())
 		{}
 
-		Folder::Folder(const PathString&folder_string) : absolute_folder(GetWorkingDirectory()), find_handle(NULL)
+		Folder::Folder(const PathString&folder_string) : absolute_folder(GetWorkingDirectory())
 		{
 			ResolvePath(folder_string,nullptr,absolute_folder);
 		}
 
-		Folder::Folder(const File&file):find_handle(NULL)
+		Folder::Folder(const File&file)
 		{
 			locate(file.location);
 		}
 
-		Folder::Folder(const File*file):find_handle(NULL)
+		Folder::Folder(const File*file)
 		{
 			if (file)
 				locate(file->location);
 		}
 
-		Folder::Folder(const Folder&folder):absolute_folder(folder.absolute_folder),find_handle(NULL)
+		Folder::Folder(const Folder&folder):absolute_folder(folder.absolute_folder)
 		{}
 
-		Folder::~Folder()
-		{
-			closeScan();
-		}
 
 		Folder& Folder::operator=(const Folder&other)
 		{
-			closeScan();
 			absolute_folder = other.absolute_folder;
 			return *this;
 		}
 
 		Folder& Folder::operator=(const File&file)
 		{
-			closeScan();
 			locate(file.location);
 			return *this;
 		}
 
 		Folder& Folder::operator=(const File*file)
 		{
-			closeScan();
 			if (file)
 				locate(file->location);
 			return *this;
@@ -431,21 +424,23 @@ namespace DeltaWorks
 
 		Folder& Folder::operator=(const PathString&folder_string)
 		{
-			closeScan();
 			MoveTo(folder_string);
 			return *this;
 		}
 
 
 
+		FolderScan::FolderScan(const Folder&f):path(f.GetLocation())
+		{}
+		
 
-		void Folder::closeScan()
+		void FolderScan::CloseScan()
 		{
 			if (!find_handle)
 				return;
 			#if SYSTEM==WINDOWS
 				FindClose(find_handle);
-			#elif SYSTEM==UNIX
+			#elif SYSTEM==LINUX
 				closedir(find_handle);
 			#else
 				#error not supported
@@ -494,7 +489,7 @@ namespace DeltaWorks
 						final = absolute_folder;
 						valid_location = this->IsValidLocation();
 					}
-			#elif SYSTEM==UNIX
+			#elif SYSTEM==LINUX
 				if (path_string.FirstChar() == '/')
 				{
 					local = path_string.subString(1);
@@ -593,8 +588,6 @@ namespace DeltaWorks
 
 		bool Folder::MoveTo(const PathString&folder_string)
 		{
-			closeScan();
-			//PathString final;
 			return ResolvePathAndMoveTo(folder_string,false);
 		}
 
@@ -615,7 +608,7 @@ namespace DeltaWorks
 			if (!IsValidLocation())
 				return false;
 			return ExitAbs(absolute_folder,true);
-			//#if SYSTEM==UNIX
+			//#if SYSTEM==LINUX
 			//	if (absolute_folder == '/' || absolute_folder == '\\')
 			//		return false;
 			//#endif
@@ -623,7 +616,7 @@ namespace DeltaWorks
 			//PathString current = absolute_folder,
 			//		dir = ExtractFileNameExt(absolute_folder),
 			//		super = ExtractFileDir(absolute_folder);
-			//#if SYSTEM!=UNIX
+			//#if SYSTEM!=LINUX
 			//	if (!super.GetLength())
 			//		return false;
 			//#else
@@ -698,103 +691,72 @@ namespace DeltaWorks
 			return IsFolder(absolute_folder);
 		}
 
-		count_t  Folder::CountEntries() const
+		bool FolderScan::IsValidLocation() const
 		{
+			return path.IsNotEmpty() && IsFolder(path);
+		}
+
+		bool		 FolderScan::Rewind()
+		{
+			CloseScan();
 			if (!IsValidLocation())
-				return 0;
-			count_t	count = 0;
-
+				return false;
 			#if SYSTEM==WINDOWS
-
-				WIN32_FIND_DATAW result;
-				HANDLE handle = FindFirstFileW(PathString(absolute_folder+L"\\*").c_str(),&result);
-				if (handle)
-				{
-					do
-					{
-						if (result.cFileName[0] != '.')
-							count++;
-					}
-					while (FindNextFileW(handle,&result));
-					FindClose(handle);
-				}
-			#elif SYSTEM==UNIX
-				DIR*dir = opendir(absolute_folder.c_str());
-				if (!dir)
-					return 0;
-				while (dirent*entry = readdir(dir))
-					if (entry->d_name[0] != '.')
-						count++;
-
-				closedir(dir);
+				find_handle = FindFirstFileW(PathString(path+L"\\*").c_str(),&find_data);
+			#elif SYSTEM==LINUX
+				find_handle = opendir(path.c_str());
 			#else
 				#error not supported
+				return false;
 			#endif
-			return count;
+			mustRewindManually = false;
+			return true;
 		}
 
-		void		 Folder::Reset()
-		{
-			#if SYSTEM==WINDOWS
-				if (find_handle)
-					FindClose(find_handle);
-				find_handle = FindFirstFileW(PathString(absolute_folder+L"\\*").c_str(),&find_data);
-			#elif SYSTEM==UNIX
-				if (find_handle)
-					rewinddir(find_handle);
-				else
-					find_handle = opendir(absolute_folder.c_str());
-			#else
-				#error not supported
-			#endif
-		}
 
-		void 	Folder::Rewind()
-		{
-			Reset();
-		}
-
-		const Folder::File*  Folder::NextEntry()
+		const Folder::File*  FolderScan::NextEntry()
 		{
 			bool dummy;
 			return NextEntry(dummy);
 		}
 
-		bool  Folder::NextEntry(File&file)
+		bool  FolderScan::NextEntry(File&file)
 		{
 			bool dummy;
 			return NextEntry(file,dummy);
 		}
 
-		const Folder::File*  Folder::NextEntry(bool&outIsDirectory)
+		const Folder::File*  FolderScan::NextEntry(bool&outIsDirectory)
 		{
 			if (NextEntry(file,outIsDirectory))
 				return &file;
 			return NULL;
 		}
 
-		bool Folder::NextEntry(File&file,bool&outIsDirectory)
+		bool FolderScan::NextEntry(File&file,bool&outIsDirectory)
 		{
-			if (!find_handle)
+			if (!find_handle && (mustRewindManually || !Rewind()))
 				return false;
 			bool retry=false;
 			#if SYSTEM==WINDOWS
 				file.name = find_data.cFileName;
-				file.location = absolute_folder;
+				file.location = path;
 				if (file.location.LastChar() != '/' && file.location.LastChar() != '\\')
 					file.location+=FOLDER_SLASH;
 				file.location+= find_data.cFileName;
 				outIsDirectory = (find_data.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
 				if (!FindNextFileW(find_handle,&find_data))
 				{
-					FindClose(find_handle);
-					find_handle = NULL;
+					CloseScan();
+					mustRewindManually = true;
+					return false;
 				}
-			#elif SYSTEM==UNIX
+			#elif SYSTEM==LINUX
 				dirent*entry = readdir(find_handle);
 				if (!entry)
 				{
-					closeScan();
+					CloseScan();
+					mustRewindManually = true;
 					return false;
 				}
 				file.name = entry->d_name;
@@ -816,7 +778,7 @@ namespace DeltaWorks
 		}
 
 
-		const Folder::File*	 Folder::NextFolder()
+		const Folder::File*	 FolderScan::NextFolder()
 		{
 			const File*file;
 			bool wasDir;
@@ -828,7 +790,7 @@ namespace DeltaWorks
 			return file;
 		}
 
-		bool	Folder::NextFolder(File&target)
+		bool	FolderScan::NextFolder(File&target)
 		{
 			bool wasDir;
 			while (NextEntry(target,wasDir))
@@ -837,7 +799,18 @@ namespace DeltaWorks
 			return false;
 		}
 
-		const Folder::File*	 Folder::NextFile()
+		bool	FolderScan::NextFolder(Folder&out)
+		{
+			if (NextFolder())
+			{
+				out = file;
+				return true;
+			}
+			return false;
+		}
+
+
+		const Folder::File*	 FolderScan::NextFile()
 		{
 			const File*file;
 			bool wasDir;
@@ -849,7 +822,7 @@ namespace DeltaWorks
 			return file;
 		}
 
-		bool	Folder::NextFile(File&target)
+		bool	FolderScan::NextFile(File&target)
 		{
 			bool wasDir;
 			while (NextEntry(target,wasDir))
@@ -859,28 +832,33 @@ namespace DeltaWorks
 		}
 
 
-		const Folder::File*	 Folder::NextFile(const PathString&extension)
+		const Folder::File*	 FolderScan::NextFile(const PathString&extension)
 		{
-			const PathString::char_t*ext = extension.c_str();
+//			const PathString::char_t*ext = extension.c_str();
 			const File*file;
 			bool wasDir;
 			do
 			{
 				file = NextEntry(wasDir);
 			}
-			while (file && (wasDir || !file->GetLocation().EndsWith(extension)));
+			while (file && (wasDir || !file->IsExtension(extension)));
 			//while (file && (file->is_folder || strcmpi(file->GetExtensionPointer(),ext)));
 			return file;
 		}
 
-		bool	Folder::NextFile(const PathString&extension, File&target)
+		bool	FolderScan::NextFile(const PathString&extension, File&target)
 		{
 			const PathString::char_t*ext = extension.c_str();
 			bool wasDir;
 			while (NextEntry(target,wasDir))
-				if (!wasDir && target.GetLocation().EndsWith(extension))
+				if (!wasDir && target.IsExtension(extension))
 					return true;
 			return false;
+		}
+
+		FolderScan		Folder::Scan() const
+		{
+			return FolderScan(*this);
 		}
 
 
@@ -899,8 +877,8 @@ namespace DeltaWorks
 
 		const Folder::File*	 Folder::FindEntry(const PathString&folder_str, bool&outIsDirectory,bool&outExists,UINT32 findFlags)	const
 		{
-			if (FindEntry(folder_str,file,outIsDirectory,outExists,findFlags))
-				return &file;
+			if (FindEntry(folder_str,findResult,outIsDirectory,outExists,findFlags))
+				return &findResult;
 			return NULL;
 		}
 
@@ -935,7 +913,7 @@ namespace DeltaWorks
 				}
 				bool isDir = outIsDirectory = (attributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
 				outExists = true;
-			#elif SYSTEM==UNIX
+			#elif SYSTEM==LINUX
 				struct stat s;
 				if (stat(out.location.c_str(),&s))
 					return (findFlags & FindFlags::MustExists) == 0;
@@ -1037,16 +1015,16 @@ namespace DeltaWorks
 		{
 			if (!IsValidLocation())
 				return NULL;
-			file.name = ExtractFileNameExt(absolute_folder);
-			file.location = absolute_folder;
-			return &file;
+			locationFile.name = ExtractFileNameExt(absolute_folder);
+			locationFile.location = absolute_folder;
+			return &locationFile;
 		}
 
 		const Folder::File* Folder::ParentLocation()	  const
 		{
 			if (!IsValidLocation())
 				return NULL;
-			#if SYSTEM==UNIX
+			#if SYSTEM==LINUX
 				if (absolute_folder == '/' || absolute_folder == '\\')
 					return nullptr;
 			#endif
@@ -1055,7 +1033,7 @@ namespace DeltaWorks
 			#if SYSTEM==WINDOWS
 				if (!super.GetLength())
 					return NULL;
-			#elif SYSTEM==UNIX
+			#elif SYSTEM==LINUX
 				if (!super.GetLength())
 				{
 					file.location = FOLDER_SLASH;
@@ -1066,9 +1044,9 @@ namespace DeltaWorks
 			#else
 				#error not supported
 			#endif
-			file.location = super;
-			file.name = ExtractFileNameExt(super);
-			return &file;
+			locationFile.location = super;
+			locationFile.name = ExtractFileNameExt(super);
+			return &locationFile;
 		}
 
 
@@ -1121,7 +1099,7 @@ namespace DeltaWorks
 					rs = ABS_MARKER + rs;
 	//			size_t len = ABS_MARKER_LENGTH;
 				return rs;
-			#elif SYSTEM==UNIX
+			#elif SYSTEM==LINUX
 				char buffer[0x1000];
 				if (!getcwd(buffer,ARRAYSIZE(buffer)))
 					return "";
@@ -1136,7 +1114,7 @@ namespace DeltaWorks
 		{
 			#if SYSTEM==WINDOWS
 				return !!SetCurrentDirectoryW(path.c_str());
-			#elif SYSTEM==UNIX
+			#elif SYSTEM==LINUX
 				return !chdir(path.c_str());
 			#else
 				#error not supported
@@ -1156,11 +1134,11 @@ namespace DeltaWorks
 		}
 		count_t GetDriveList(Drive*target, count_t max)
 		{
-			#if SYSTEM==UNIX
+			#if SYSTEM==LINUX
 				if (max)
 				{
 					target->root="/";
-					target->name="unix root-folder";
+					target->name="LINUX root-folder";
 				}
 				return 1;
 			#elif SYSTEM==WINDOWS
@@ -1188,7 +1166,6 @@ namespace DeltaWorks
 		}
 
 		static File  fs_result;
-		Folder::File  Folder::file;
 
 
 		template<typename T>
@@ -1318,7 +1295,7 @@ namespace DeltaWorks
 				}
 				DWORD attribs = GetFileAttributesW(name.c_str());
 				return attribs != INVALID_FILE_ATTRIBUTES && (attribs&FILE_ATTRIBUTE_DIRECTORY);
-			#elif SYSTEM==UNIX
+			#elif SYSTEM==LINUX
 				struct ::stat s;
 				return !stat(name.c_str(),&s) && (s.st_mode&S_IFDIR);
 			#else
@@ -1348,7 +1325,7 @@ namespace DeltaWorks
 				}
 				DWORD attribs = GetFileAttributesW(name);
 				return attribs != INVALID_FILE_ATTRIBUTES && !(attribs&FILE_ATTRIBUTE_DIRECTORY);
-			#elif SYSTEM==UNIX
+			#elif SYSTEM==LINUX
 				struct ::stat s;
 				return !stat(name,&s) && !(s.st_mode&S_IFDIR);
 			#else
@@ -1375,7 +1352,7 @@ namespace DeltaWorks
 					return DoesExist(copy);
 				}
 				return GetFileAttributesW(name.c_str()) != INVALID_FILE_ATTRIBUTES;
-			#elif SYSTEM==UNIX
+			#elif SYSTEM==LINUX
 				struct ::stat s;
 				return !stat(name.c_str(),&s);
 			#else
@@ -1399,7 +1376,7 @@ namespace DeltaWorks
 					return 0;
 				}
 				return ((fsize_t)data.nFileSizeHigh) << 32 | (fsize_t)data.nFileSizeLow;
-			#elif SYSTEM==UNIX
+			#elif SYSTEM==LINUX
 				struct ::stat s;
 				if (stat(name.c_str(),&s))
 					return 0;
@@ -1433,7 +1410,7 @@ namespace DeltaWorks
 				wtime = (wtime - 116444736000000000ULL) / 10000000ULL;
 				ctime = (ctime - 116444736000000000ULL) / 10000000ULL;
 				return std::max(wtime,ctime);
-			#elif SYSTEM==UNIX
+			#elif SYSTEM==LINUX
 				struct ::stat s;
 				if (stat(name.c_str(),&s))
 					return 0;
@@ -1463,7 +1440,7 @@ namespace DeltaWorks
 
 				if (!MoveFileW(source.c_str(),destination.c_str()))
 					return NULL;
-			#elif SYSTEM==UNIX
+			#elif SYSTEM==LINUX
 				if (rename(source.c_str(),destination.c_str()))
 					return NULL;
 			#else
@@ -1502,10 +1479,9 @@ namespace DeltaWorks
 					}
 					if (IsFile(destination))
 						return false;
-					Folder scan(source);
+					FolderScan scan = Folder(source).Scan();
 					Folder write(destination);
 					File found,dest,copied;
-					scan.Rewind();
 					while (scan.NextEntry(found))
 					{
 						if (write.Find(found.GetName(),dest,FindFlags::None))
@@ -1517,7 +1493,7 @@ namespace DeltaWorks
 					if (!CopyFileW(source.c_str(),my_destination.c_str(),!overwrite_if_exist) && _wsystem((L"copy \""+Escape(source)+L"\" \""+Escape(destination)+L"\"").c_str()))
 						return false;
 				}
-			#elif SYSTEM==UNIX
+			#elif SYSTEM==LINUX
 				/*FILE*fsource = fopen(EscapeSpaces(source),"rb");
 				if (!source)
 					return NULL;
@@ -1626,7 +1602,7 @@ namespace DeltaWorks
 						throw Except::IO::DriveAccess::GeneralFault(loc,"Failed to create last directory segment of '"+PathToString(path)+"': "+String(buffer));
 					}
 				}
-			#elif SYSTEM==UNIX || SYSTEM==LINUX
+			#elif SYSTEM==LINUX || SYSTEM==LINUX
 				if (mkdir(out.location.c_str(), S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) && errno != EEXIST)
 					throw Except::IO::DriveAccess::GeneralFault(loc,"Failed to create last directory segment of '"+PathToString(path)+"'");
 			#else
@@ -1748,7 +1724,7 @@ namespace DeltaWorks
 					throw Except::IO::DriveAccess::GeneralFault("Unable to unlink "+PathToString(location)+": Is a directory");
 				return;	//all good
 			}
-			#if SYSTEM==UNIX
+			#if SYSTEM==LINUX
 				if (!::unlink(location.c_str()))
 					throw Except::IO::DriveAccess::GeneralFault("Unable to unlink "+PathToString(location));
 			#elif SYSTEM==WINDOWS
@@ -1783,7 +1759,7 @@ namespace DeltaWorks
 					return false;
 				return true;	//all good
 			}
-			#if SYSTEM==UNIX
+			#if SYSTEM==LINUX
 				return ::unlink(location.c_str());
 			#elif SYSTEM==WINDOWS
 				int retry = 0;
@@ -1798,14 +1774,14 @@ namespace DeltaWorks
 
 		bool			TryToRemoveFolderContents(const PathString&location)
 		{
-			FileSystem::Folder f(location);
-			if (!f.IsValidLocation())
+			FolderScan scan = Folder(location).Scan();
+			if (!scan.IsValidLocation())
 				return false;
-			f.Rewind();
 			FileSystem::File file;
-			while (f.NextEntry(file))
+			bool dir;
+			while (scan.NextEntry(file,dir))
 			{
-				if (file.IsDirectory())
+				if (dir)
 				{
 					if (!TryToRemoveFolder(file.GetLocation()))
 						return false;
@@ -1819,14 +1795,14 @@ namespace DeltaWorks
 
 		void			RemoveFolderContents(const PathString&location)
 		{
-			FileSystem::Folder f(location);
-			if (!f.IsValidLocation())
+			FolderScan scan = Folder(location).Scan();
+			if (!scan.IsValidLocation())
 				throw Except::IO::DriveAccess::GeneralFault("Trying to erase invalid directory "+PathToString(location));
-			f.Rewind();
 			FileSystem::File file;
-			while (f.NextEntry(file))
+			bool dir;
+			while (scan.NextEntry(file,dir))
 			{
-				if (file.IsDirectory())
+				if (dir)
 				{
 					RemoveFolder(file.GetLocation());
 				}
@@ -1845,7 +1821,7 @@ namespace DeltaWorks
 			}
 			if (!TryToRemoveFolderContents(location))
 				return false;
-			#if SYSTEM==UNIX
+			#if SYSTEM==LINUX
 				return !rmdir(location.c_str());
 			#elif SYSTEM==WINDOWS
 				bool rs = !!RemoveDirectoryW(location.c_str());
@@ -1866,7 +1842,7 @@ namespace DeltaWorks
 				return;
 			}
 			RemoveFolderContents(location);
-			#if SYSTEM==UNIX
+			#if SYSTEM==LINUX
 				if (!!rmdir(location.c_str()))
 					throw Except::IO::DriveAccess("Failed to remove folder "+PathToString(location));
 			#elif SYSTEM==WINDOWS
@@ -1884,7 +1860,7 @@ namespace DeltaWorks
 
 		static const File* ResolveLink(const File*file)
 		{
-			#if SYSTEM==UNIX
+			#if SYSTEM==LINUX
 				if (!file)
 					return NULL;
 
@@ -1904,7 +1880,7 @@ namespace DeltaWorks
 
 		static bool ResolveLink(File&file)
 		{
-			#if SYSTEM==UNIX
+			#if SYSTEM==LINUX
 				char buffer[0x2000];
 				int len = readlink(file.GetLocation().c_str(),buffer,ARRAYSIZE(buffer));
 				if (len == -1 || len >= ARRAYSIZE(buffer))
@@ -1933,7 +1909,7 @@ namespace DeltaWorks
 
 			PathString filename=name;
 
-			#if SYSTEM==UNIX
+			#if SYSTEM==LINUX
 				if (filename.GetIndexOf('/'))
 			#endif
 			{

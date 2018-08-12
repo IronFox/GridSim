@@ -6,7 +6,7 @@
 #if SYSTEM == WINDOWS
 	#include <winbase.h>
 	#include <stdio.h>
-#elif SYSTEM == UNIX
+#elif SYSTEM == LINUX
 	#include <unistd.h>
 	#include <dirent.h>
 	#include <sys/stat.h>
@@ -36,11 +36,12 @@ namespace DeltaWorks
 		class File;
 		class Drive;
 		class Folder;
+		class FolderScan;
 
 
 
 	
-		typedef unsigned long long ftime_t;	//!< File time type
+		typedef unsigned long long ftime_t;	//!< File time type (unix time)
 		typedef unsigned long long fsize_t;
 	
 	
@@ -50,14 +51,14 @@ namespace DeltaWorks
 			static const int		MaxDrives=1;
 		#endif
 
-		PathString		ExtractFileExt(const PathString&filename);										//!< Extracts the file extension of \b filename without preceeding '.'
+		PathString		ExtractFileExt(const PathString&filename);										//!< Extracts the file extension of \b filename without preceding '.'
 		PathString		ExtractFileDir(const PathString&filename);										//!< Extracts the file directory of \b filename without trailing slash
-		PathString		ExtractFileName(const PathString&filename);										//!< Extracts the file name of \b filename without preceeding folder or succeeding extension (neither preceeding slashes or succeeding dots either)
+		PathString		ExtractFileName(const PathString&filename);										//!< Extracts the file name of \b filename without preceding folder or succeeding extension (neither preceding slashes or succeeding dots either)
 		PathString		ExtractFileDirName(const PathString&filename);									//!< Extracts folders and file name of \b filename but no trailing extension (or extension dot)
-		PathString		ExtractFileNameExt(const PathString&filename);									//!< Extracts the file name and extension of \b filename but no preceeding folders (or slashes)
-		PathString		EscapeSpaces(const PathString&path);											//!< Inserts a backslash before every space character (for unix systems)
+		PathString		ExtractFileNameExt(const PathString&filename);									//!< Extracts the file name and extension of \b filename but no preceding folders (or slashes)
+		PathString		EscapeSpaces(const PathString&path);											//!< Inserts a backslash before every space character (for LINUX systems)
 	
-		ftime_t			GetModificationTime(const PathString&name);										//!< Returns the unix timestamp of the specified file \param name File name \return Unix timestamp
+		ftime_t			GetModificationTime(const PathString&name);										//!< Returns the LINUX timestamp of the specified file \param name File name \return LINUX timestamp
 		fsize_t			GetFileSize(const PathString&name);												//!< Returns the size (in bytes) of the specified file
 		bool			DoesExist(const PathString&path);												//!< Checks if the specified file or folder exists \param path File/folder name \return true if the specified file/folder exists, false otherwise
 		bool			IsFile(const PathString::char_t*path);											//!< Checks if the specified file exists \param path Filename \return true if the entry exists in the file system and is a file, false otherwise
@@ -151,8 +152,9 @@ namespace DeltaWorks
 		private:
 			PathString		name,
 							location;
-			friend class	Folder;
-			friend class	Drive;
+			friend class Folder;
+			friend class Drive;
+			friend class FolderScan;
 			friend bool			FileSystem::Copy(const PathString&source, const PathString&destination, File&outFile, bool overwrite_if_exist);
 			friend const File*	FileSystem::Move(const PathString&source, const PathString&destination);
 			friend const File*	FileSystem::Move(const File*, const PathString&);
@@ -170,18 +172,18 @@ namespace DeltaWorks
 			friend void swap(File& a, File& b)	{a.swap(b);}
 
 			const File*			GetSibling(const PathString&ext)		const;
-			ftime_t				GetModificationTime()				const;		//!< Returns the unix filetime of the local entry \return Unix time stamp
-			PathString			GetName()							const;		//!< Returns the name of the local entry (without preceeding folder(s)) \return Filename
-			PathString			GetInnerName()						const;		//!< Returns the name of the local entry (without preceeding folder(s)) excluding any trailing extension \return Inner filename
-			const PathString&	GetLocation()						const;		//!< Returns the absolute filename (including any preceeding folder(s)) \return Absolute location
+			ftime_t				GetModificationTime()				const;		//!< Returns the LINUX filetime of the local entry \return LINUX time stamp
+			PathString			GetName()							const;		//!< Returns the name of the local entry (without preceding folder(s)) \return Filename
+			PathString			GetInnerName()						const;		//!< Returns the name of the local entry (without preceding folder(s)) excluding any trailing extension \return Inner filename
+			const PathString&	GetLocation()						const;		//!< Returns the absolute filename (including any preceding folder(s)) \return Absolute location
 			PathString			GetFolder()							const;		//!< Returns the absolute name of the parent folder without trailing slash \return Absolute location of the containing folder
 			/**
-			Returns the file extension (without preceeding dot)
+			Returns the file extension (without preceding dot)
 			@return String containing the file extension
 			*/
 			PathString			GetExtension()						const;
-			const PathString::char_t*			GetExtensionPointer()				const;		//!< Returns the file extension (without preceeding dot) \return Pointer to the beginning of the local filename's file extension. Does not return NULL
-			bool				IsExtension(const PathString&ext)		const;		//!< Checks if the specified extension equals the local file's extension. Comparison is case insensitive. \return true if the specified extension matches the extension of the local file
+			const PathString::char_t*			GetExtensionPointer()	const;		//!< Returns the file extension (without preceding dot) \return Pointer to the beginning of the local filename's file extension. Does not return NULL
+			bool				IsExtension(const PathString&ext)	const;		//!< Checks if the specified extension equals the local file's extension. Comparison is case insensitive. @param ext Extensiont to match (without preceding dot). \return true if the specified extension matches the extension of the local file
 			bool				IsDirectory()						const;		//!< Returns true if the local entry is a folder/directory \return true if folder
 			friend String		ToString(const File&);
 			bool				DoesExist()							const;		//!< Queries existence of the local file or folder
@@ -265,7 +267,118 @@ namespace DeltaWorks
 			};
 		};
 
+		/**
+		Folder entry scanner.
+		Allows to scan for files or folders in a given parent folder
+		*/
+		class FolderScan
+		{
+			PathString			path;
+			File				file;
+			bool				mustRewindManually = false;
+			#if SYSTEM == WINDOWS
+				HANDLE			find_handle = nullptr;
+				WIN32_FIND_DATAW find_data;
+			#elif SYSTEM == LINUX
+				DIR				*find_handle = nullptr;
+			#endif
+			void				CloseScan();
+		public:
+			/**/				FolderScan() {};
+			/**/				FolderScan(const File&f):path(f.GetLocation()){}
+			/**/				FolderScan(const File*f):path(f ? f->GetLocation() : PathString()){}
+			/**/				FolderScan(const Folder&f);
+			/**/				FolderScan(const FolderScan&other):path(other.path){}
+			virtual				~FolderScan() {CloseScan();}
+			void				operator=(const FolderScan&other) {CloseScan(); path = other.path; mustRewindManually = false;}
 
+			const PathString&	GetLocation()		const				/** Queries location. @return Local path */	{return path;}
+			bool				IsValidLocation()	const;				//!< Queries location validity. @return true if the local FolderScan resides in a valid folder
+
+
+			/**
+			Checks if a rewind is necessary in order to retrieve more (the same) entries.
+			@return true if Rewind() must be called before the next Next*() call can return anything
+			*/
+			bool				HasReachedEnd()	const	{return mustRewindManually;}
+
+			/**
+			Resets the folder cursor to the beginning of the folder.
+			Must be called once any Next*() call has returned false, and another scan should be started
+			Called automatically by the first Next*() call, but not at the end the current pass
+			@return true if rewind was successful, false if the local folder doesn't exist (anymore)
+			*/
+			bool				Rewind();
+			/**
+			Returns the next entry in the local folder
+			@param[out] outIsDirectory Set to true if the returned entry is a folder, false otherwise. Undefined if the method returns false
+			@return Pointer to a file container pointing to the next entry in the local folder or NULL if no further entries exist.
+				The returned object is owned by the local object, and updated by the next local pointer-returning Next*() call. Must not be deleted or otherwise kept
+			*/
+			const File*			NextEntry(bool&outIsDirectory);
+			/**
+			Describes the next entry in the local folder
+			@param[out] out Target file structure to hold the next entry. Unchanged if the method returns false
+			@param[out] outIsDirectory Set to true if the returned entry is a folder, false otherwise. Undefined if the method returns false
+			@return true if a next entry exists, false if no further entries exist
+			*/
+			bool				NextEntry(File&out,bool&outIsDirectory);
+			/**
+			Returns the next entry in the local folder
+			@return Pointer to a file container pointing to the next entry in the local folder, or NULL if no further entries exist.
+				The returned object is owned by the local object, and updated by the next local pointer-returning Next*() call. Must not be deleted or otherwise kept
+			*/
+			const File*			NextEntry();
+			/**
+			Describes the next entry in the local folder
+			@param[out] out Target file structure to hold the next entry. Unchanged if the method returns false
+			@return true if a next entry exists, false if no further entries exist
+			*/
+			bool				NextEntry(File&out);
+			bool				operator>>(File&out) /** @copydoc NextEntry(File&)*/ {return NextEntry(out);}
+			/**
+			Returns the next sub-folder of the local folder
+			@return Pointer to a file container pointing to the next folder in the local folder, or NULL if no further sub-folders exist.
+				The returned object is owned by the local object, and updated by the next local pointer-returning Next*() call. Must not be deleted or otherwise kept
+			*/
+			const File*			NextFolder();
+			/**
+			Describes the next sub-folder of the local folder
+			@param[out] out Target to hold the next folder. Unchanged if the method returns false
+			Wreturn true if a next folder exists, false if no further sub-folders exist
+			*/
+			bool				NextFolder(File&out);
+			bool				NextFolder(Folder&out);						//!< @copydoc NextFolder(File&)
+			bool				operator>>(Folder&out) /** @copydoc NextFolder(File&)*/ {return NextFolder(out);}
+			/**
+			Returns the next file in the local folder
+			@return Pointer to a file container pointing to the next file in the local folder, or NULL if no further files exist.
+				The returned object is owned by the local object, and updated by the next local pointer-returning Next*() call. Must not be deleted or otherwise kept
+			*/
+			const File*			NextFile();			
+			/**
+			Describes the next file in the local folder
+			@param[out] out Target file structure to hold the next file. Unchanged if the method returns false
+			@return true if a next file exists, false if no further files exist
+			*/
+			bool				NextFile(File&out);
+			/**
+			Returns the next file in the local folder matching the specified extension.
+			Comparison is case insensitive. 
+			@param extension Extension to match (without preceding dot)
+			@return Pointer to a file container pointing to the next file matching the specified extension in the local folder, or NULL if no further files exist matching the extension.
+				The returned object is owned by the local object, and updated by the next local pointer-returning Next*() call. Must not be deleted or otherwise kept
+			*/
+			const File*			NextFile(const PathString&extension);
+			/**
+			Describes the next file in the local folder matching the specified extension.
+			Comparison is case insensitive. 
+			@param extension Extension to match (without preceding dot)
+			@param[out] out Target to hold the next matching file matching the given extension. Unchanged if the method returns false
+			@return true if a next file of the specified extension exists, false if no further files exist
+			*/
+			bool				NextFile(const PathString&extension, File&out);	
+		};
 
 		/**
 		\brief Folder handle
@@ -277,15 +390,8 @@ namespace DeltaWorks
 			typedef Drive	Drive;			//!< Drive entry
 		private:
 			PathString			absolute_folder;
-			static	File				file;
-			#if SYSTEM == WINDOWS
-				HANDLE			find_handle;
-				WIN32_FIND_DATAW find_data;
-			#elif SYSTEM == UNIX
-				DIR				*find_handle;
-			#endif
+			mutable File		findResult,locationFile;
 
-			void				closeScan();
 			bool				locate(const PathString&path);
 			bool				ResolvePathAndMoveTo(const PathString&path, bool moveToParent);
 			bool				ResolvePath(const PathString&path, PathString*finalParent, PathString&final) const;
@@ -299,7 +405,6 @@ namespace DeltaWorks
 								Folder(const File&file);
 								Folder(const File*file);
 								Folder(const Folder&other);
-			virtual				~Folder();
 			Folder&				operator=(const Folder&other);
 			Folder&				operator=(const File&file);
 			Folder&				operator=(const File*file);
@@ -315,21 +420,10 @@ namespace DeltaWorks
 			const File*			Location()			const;				//!< Queries location. Returns NULL if the current location is invalid \return Pointer to a handle pointing to the current location or NULL if the current location is invalid
 			const PathString&	LocationStr()		const;				//!< Queries location. \return Absolute location
 			const PathString&	GetLocation()		const;				//!< Queries location. \return Absolute location
-			bool				IsValidLocation()	const;					//!< Queries location validity. \return true if Folder resides in a valid folder (retrieves content of a local variable)
-			count_t				CountEntries()		const;				//!< Counts files/folders in the local folder \return Number of entries in the local folder
-			
-			void				Reset();									//!< Resets the folder cursor to the beginning of the folder
-			void				Rewind();									//!< Identical to reset()
-			const File*			NextEntry(bool&outIsDirectory);				//!< Returns the next entry in the local folder \return Pointer to a file container pointing to the next entry in the local folder or NULL if no such exists
-			bool				NextEntry(File&out,bool&outIsDirectory);	//!< Identifies the next entry in the local folder \param out Target file structure to hold the next entry \return true if a next entry exists, false otherwise
-			const File*			NextEntry();								//!< Returns the next entry in the local folder \return Pointer to a file container pointing to the next entry in the local folder or NULL if no such exists
-			bool				NextEntry(File&out);						//!< Identifies the next entry in the local folder \param out Target file structure to hold the next entry \return true if a next entry exists, false otherwise
-			const File*			NextFolder();								//!< Returns the next folder in the local folder \return Pointer to a file container pointing to the next folder in the local folder or NULL if no such exists
-			bool				NextFolder(File&out);						//!< Identifies the next folder in the local folder \param out Target file structure to hold the next folder \return true if a next folder exists, false otherwise
-			const File*			NextFile();									//!< Returns the next file in the local folder \return Pointer to a file container pointing to the next file in the local folder or NULL if no such exists
-			bool				NextFile(File&out);							//!< Identifies the next file in the local folder \param out Target file structure to hold the next file \return true if a next file exists, false otherwise
-			const File*			NextFile(const PathString&extension);				//!< Returns the next file in the local folder matching the specified extension \return Pointer to a file container pointing to the next file matching the specified extension in the local folder or NULL of no such exists
-			bool				NextFile(const PathString&extension, File&out);	//!< Identifies the next file in the local folder matching the specified extension \param extension File extension to look for (without succeeding dot) \param out Target file structure to hold the next matching file \return true if a next file of the specified extension exists, false otherwise
+			bool				IsValidLocation()	const;				//!< Queries location validity. \return true if Folder resides in a valid folder
+
+			FolderScan		Scan() const;
+
 			const File*			FindEntry(const PathString&path, bool&outIsDirectory,bool&outExists,UINT32 findFlags)						const;
 			bool				FindEntry(const PathString&path, File&out, bool&outIsDirectory,bool&outExists,UINT32 findFlags)			const;
 			const File*			Find(const PathString&path,UINT32 findFlags = FindFlags::MustExists)						const;	//!< Locates the specified file or folder starting from the current folder location. \param path Path to the file or folder that should be located \return Pointer to a file container pointing to the specified entry or NULL if the entry could not be located
