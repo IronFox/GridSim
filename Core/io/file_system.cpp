@@ -749,7 +749,7 @@ namespace DeltaWorks
 				{
 					CloseScan();
 					mustRewindManually = true;
-					return false;
+					//we still have one valid result. do NOT return false
 				}
 			#elif SYSTEM==LINUX
 				dirent*entry = readdir(find_handle);
