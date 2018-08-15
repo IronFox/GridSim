@@ -38,7 +38,7 @@ Engine Display
 namespace Engine
 {
 
-	typedef std::function<void()>	PCallback;
+	typedef std::function<void()>	FCallback;
 
 
 #if SYSTEM==WINDOWS
@@ -245,7 +245,7 @@ namespace Engine
 		FORWARD bool				IsMinimized();
 		FORWARD void				Minimize();
 		FORWARD void				Restore();
-		FORWARD void				RegisterFocusCallbacks(const PCallback&onFocusLost, const PCallback&onFocusRestored);
+		FORWARD void				RegisterFocusCallbacks(const FCallback&onFocusLost, const FCallback&onFocusRestored);
 		#if SYSTEM==WINDOWS
 			FORWARD bool			GetScreen(DEVMODE&mode);
 			FORWARD bool			GetScreen(DEVMODE*mode);
@@ -341,7 +341,7 @@ namespace Engine
 	#endif
 		bool					class_created;
 
-		PCallback				onRestoreFocus,onLoseFocus;
+		FCallback				onRestoreFocus,onLoseFocus;
 
 		static  LRESULT CALLBACK	WndProc(HWND hWnd, UINT Msg, WPARAM wParam,LPARAM lParam);
 
@@ -400,7 +400,7 @@ namespace Engine
 
 		UINT32					GetDisplayConfigFlags() const;
 			
-		void					RegisterFocusCallbacks(const PCallback&onFocusLost, const PCallback&onFocusRestored)
+		void					RegisterFocusCallbacks(const FCallback&onFocusLost, const FCallback&onFocusRestored)
 		{
 			onLoseFocus = onFocusLost;
 			onRestoreFocus = onFocusRestored;
@@ -446,6 +446,7 @@ namespace Engine
 
 			bool				isTopWindow()							const;
 			void				focus();
+			bool				IsFocused() const {return isFocused();}
 			bool				isFocused()								const;
 			bool				isMinimized()							const;
 

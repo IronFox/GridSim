@@ -664,7 +664,7 @@ namespace Engine
 	}
 
 
-	template <class GL> /*static*/ void Display<GL>::RegisterFocusCallbacks(const PCallback&onFocusLost, const PCallback&onFocusRestored)
+	template <class GL> /*static*/ void Display<GL>::RegisterFocusCallbacks(const FCallback&onFocusLost, const FCallback&onFocusRestored)
 	{
 		context.RegisterFocusCallbacks(onFocusLost,onFocusRestored);
 	}
