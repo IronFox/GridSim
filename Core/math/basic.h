@@ -963,16 +963,13 @@ namespace std
 		}
 
 		#define HLF_MANT_DIG 11
-		_STCONS(int, digits, HLF_MANT_DIG);
-		_STCONS(int, digits10, 3);
-
-		_STCONS(int, max_digits10, 2 + HLF_MANT_DIG * 301L / 1000);
-
-		_STCONS(int, max_exponent, (int)15);
-		_STCONS(int, max_exponent10, (int)4);
-		_STCONS(int, min_exponent, (int)-14);
-		_STCONS(int, min_exponent10, (int)-5);
-
+		static const int digits = HLF_MANT_DIG;
+		static const int digits10 = 3;
+		static const int max_digits10 = 2 + HLF_MANT_DIG * 301L / 1000;
+		static const int max_exponent = 15;
+		static const int max_exponent10 = 4;
+		static const int min_exponent = -14;
+		static const int min_exponent10 = -5;
 	};
 
 	template <>
