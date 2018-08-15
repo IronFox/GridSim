@@ -757,16 +757,22 @@ namespace Engine
 
 		void				SignalWindowFocusRestoration()
 		{
-			OpenAL::Status::focusLostMuted = false;
-			OpenAL::Status::fadeGainIn = true;
-			OpenAL::Status::fadeGainFrom = timer.Now();
-			OpenAL::Status::fadeGainSeconds = 2;
+			if (OpenAL::Status::focusLostMuted)
+			{
+				OpenAL::Status::focusLostMuted = false;
+				OpenAL::Status::fadeGainIn = true;
+				OpenAL::Status::fadeGainFrom = timer.Now();
+				OpenAL::Status::fadeGainSeconds = 2;
+			}
 		}
 
 		void				SignalWindowFocusLoss()
 		{
-			OpenAL::Status::focusLostMuted = true;
-			alListenerf(AL_GAIN,0);
+			if (!OpenAL::Status::focusLostMuted)
+			{
+				OpenAL::Status::focusLostMuted = true;
+				alListenerf(AL_GAIN,0);
+			}
 		}
 
 		ALenum FindFormat(count_t numChannels, count_t numBitsPerSample)
