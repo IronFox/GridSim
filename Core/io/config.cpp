@@ -522,7 +522,8 @@ namespace DeltaWorks
 					//for (index_t i = 0; i <= tabs; i++)
 					//	buffer << '\t';
 					Array<StringRef>	lines;
-					Wrap(attrib->name+": "+ attrib->comment.TrimRef(),80,lines);
+					String fullLine = attrib->name+": "+ attrib->comment.TrimRef();
+					Wrap(fullLine,80,lines);
 					foreach (lines,line)
 						buffer << indent << ";"<<*line<<nl;
 				}
@@ -575,7 +576,8 @@ namespace DeltaWorks
 				if (child->comment.IsNotEmpty())
 				{
 					Array<StringRef>	lines;
-					Wrap(child->name+": "+child->comment.TrimRef(),80,lines);
+					String fullLine = child->name+": "+child->comment.TrimRef();
+					Wrap(fullLine,80,lines);
 					foreach (lines,line)
 						buffer << indent << ";"<<*line<<nl;
 				}

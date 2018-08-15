@@ -695,13 +695,15 @@ template <typename Char>
 template <typename Char>
 	void 	Wrap(const ArrayRef<Char>&string, count_t lineCharCount, ArrayData<StringType::ReferenceExpression<Char> >&result)
 	{
-		Wrap(ArrayRef<const Char>(string),lineCharCount,ConstantCharWidthFunction,result);
+		ArrayRef<const Char> cp = string;
+		Wrap(cp,lineCharCount,ConstantCharWidthFunction,result);
 	}
 
 template <typename Char, typename Width>
 	void	Wrap(const ArrayRef<Char>&string, const Width&lineWidth, Width (*charWidthFunction)(Char),ArrayData<StringType::ReferenceExpression<Char> >&result)
 	{
-		Wrap(ArrayRef<const Char>(string),lineWidth,charWidthFunction,result);
+		ArrayRef<const Char> cp = string;
+		Wrap(cp,lineWidth,charWidthFunction,result);
 	}
 
 
