@@ -9,6 +9,7 @@
 #include <io/xml.h>
 #include <container/array2d.h>
 #include <io/file_system.h>
+#include <shellapi.h>
 
 #include "experiment.h"
 
@@ -29,7 +30,8 @@ namespace Statistics
 		#ifdef D3
 			return false;
 		#else
-			return true;
+			//return true;
+			return false;
 		#endif
 	}
 
@@ -326,7 +328,7 @@ namespace Statistics
 						<< "\\addplot+[mark=] plot coordinates {"<<nl;
 					bool any = false;
 					foreach (runs,r)
-						if (*s == r->setup && r->endlessRuns < r->numRuns / 10)
+						if (*s == r->setup)
 						{
 							double val = f(*r);
 							if (!isnan(val))
@@ -457,6 +459,13 @@ namespace Statistics
 			StringTable<TMergeCapture>	mergeCaptures;
 			HashTable<TICReductionConfig,TProbabilisticICReduction>	icReductionCaptures;
 		}
+
+
+		static double ExtrapolateMeanLifetimeZeroFunction(double L, double t, double T)
+		{
+			return T * log(1.0 - L / T) + t;
+		}
+
 		TExperiment Next()
 		{
 
@@ -515,16 +524,32 @@ namespace Statistics
 			doc.SaveToFile(FILENAME);
 
 
-			ExportTexMeasurement("Time-Steps Survived", [](const TRun&r)
+			ExportTexMeasurement("Time-Steps Survived", [](const TRun&r) -> double
 					{
 						//if (r.setup.maxSiblingSyncOperations > 0)
 							//return (double)NAN;
-						double mean,dev;
-						auto surv = r.survived;
-						for (index_t i = 0; i < r.endlessRuns; i++)
-							surv.Add(10000);
-						r.survived.GetMeanDeviation(mean,dev);
-						return mean;
+
+						if (!r.survived.sampleCount || r.endlessRuns > r.numRuns)
+							return NAN;
+						if (r.survived.sampleCount < 30)
+							return NAN;
+						if (r.endlessRuns == 0)	//never seen any variation, only computation expenses in the below
+							return r.survived.sum / r.survived.sampleCount -20;	//-20 because that's the terminal dd, which cannot be reached in less than 20 generations
+						static const count_t t = 10000;
+						const double L = (double)(r.survived.sum) / (r.survived.sampleCount);
+
+						double minT = L, maxT = 50000;
+						for (index_t i = 0; i < 100; i++)
+						{
+							double middle = (minT + maxT) * 0.5;
+							double z = ExtrapolateMeanLifetimeZeroFunction(L,t,middle);
+							if (z < 0)
+								minT = middle;
+							else
+								maxT = middle;
+						}
+						double error = ExtrapolateMeanLifetimeZeroFunction(L,t,minT);
+						return minT - 20;
 					});
 
 			ExportTexMeasurement("Total_Merges", [](const TRun&r)
@@ -838,6 +863,41 @@ TExperiment Statistics::Begin( )
 {
 	using namespace Details;
 
+	#ifdef SELECTION_STRATEGY_EVALUATION
+
+		#ifndef D3
+		int reliabilityLevel = 22;
+		#else
+		int reliabilityLevel = 27;
+		#endif
+
+		{
+			auto cmd = GetCommandLineW();
+			int numArgs = 0;
+			auto szArgList = CommandLineToArgvW(cmd,&numArgs);
+
+			if (numArgs > 1)
+			{
+				ASSERT1__(Convert(String(szArgList[1]),reliabilityLevel),szArgList[1]);
+				LogMessage("Using reliability "+String(reliabilityLevel));
+			}
+
+
+			LocalFree(szArgList);
+		}
+
+
+
+		AddRun(reliabilityLevel,2,1,1,1,TExperiment::OracleDoubleStrategy).setup.numEntities = 0;
+		AddRun(reliabilityLevel,2,1,1,1,TExperiment::OriginalStrategy).setup.numEntities = 0;
+		AddRun(reliabilityLevel,2,1,1,1,TExperiment::OracleSingleStrategy).setup.numEntities = 0;
+
+
+	#else
+	
+
+
+
 	//16 = 0.99, 20=0.9968, 24=0.999
 
 	#ifdef D3
@@ -873,6 +933,8 @@ TExperiment Statistics::Begin( )
 					//AddRun(i,12,l,s);
 				}
 			}
+	#endif
+
 	#endif
 
 	try
