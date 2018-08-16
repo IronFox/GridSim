@@ -1930,17 +1930,7 @@ namespace StringType
 	template <typename T>
 		Template<T>				Template<T>::GetLastWord()							const
 		{
-			const T	*end = Super::data+Super::elements-1,
-					*begin = Super::data;
-			while (end >= begin && IsWhitespace(*end))
-				end--;
-			begin = end;
-			while (begin >= Super::data && !IsWhitespace(*begin))
-				begin--;
-			begin++;
-			end++;
-		
-			return Template<T>(begin,begin-end);
+			return GetLastWordRef();
 		}
 	
 	template <typename T>
@@ -1950,13 +1940,15 @@ namespace StringType
 					*begin = Super::data;
 			while (end >= begin && IsWhitespace(*end))
 				end--;
+			if (end < begin)
+				return ReferenceExpression<T>();
 			begin = end;
 			while (begin >= Super::data && !IsWhitespace(*begin))
 				begin--;
 			begin++;
 			end++;
 		
-			return ReferenceExpression<T>(begin,begin-end);
+			return ReferenceExpression<T>(begin,end-begin);
 		}
 
 
