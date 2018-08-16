@@ -1562,13 +1562,9 @@ namespace DeltaWorks
 
 	//these are really bad if allowed, because the string becomes invalid the moment the function returns. thus they are deleted:
 	template <typename Char>
-		void 	Wrap(ArrayRef<const Char>&&string, count_t lineCharCount, ArrayData<StringType::ReferenceExpression<Char> >&result)=delete;
+		void 	Wrap(StringType::Template<Char>&&, count_t lineCharCount, ArrayData<StringType::ReferenceExpression<Char> >&result)=delete;
 	template <typename Char, typename Width>
-		void	Wrap(ArrayRef<const Char>&&string, const Width&lineWidth, Width (*charWidthFunction)(Char),ArrayData<StringType::ReferenceExpression<Char> >&result)=delete;
-	template <typename Char>
-		void 	Wrap(ArrayRef<Char>&&string, count_t lineCharCount, ArrayData<StringType::ReferenceExpression<Char> >&result)=delete;
-	template <typename Char, typename Width>
-		void	Wrap(ArrayRef<Char>&&string, const Width&lineWidth, Width (*charWidthFunction)(Char),ArrayData<StringType::ReferenceExpression<Char> >&result)=delete;
+		void	Wrap(StringType::Template<Char>&&, const Width&lineWidth, Width (*charWidthFunction)(Char),ArrayData<StringType::ReferenceExpression<Char> >&result)=delete;
 
 
 	void			ShowString(const String&line);
