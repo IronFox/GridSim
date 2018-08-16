@@ -135,7 +135,7 @@ namespace Statistics
 		Buffer0<TRun>	runs;
 		index_t			currentRun=InvalidIndex;
 
-		void AddRun(int reliabilityLevel, count_t recoveryOperations, count_t numLayers, count_t maxSiblingSyncOperations, count_t siblingSyncDelay=1)
+		TRun& AddRun( int reliabilityLevel, count_t recoveryOperations, count_t numLayers, count_t maxSiblingSyncOperations, count_t siblingSyncDelay=1, TExperiment::selection_strategy_t strategy=TExperiment::OriginalStrategy )
 		{
 			auto&r = runs.Append();
 			r.setup.recoveryIterations = (int)recoveryOperations;
@@ -143,6 +143,7 @@ namespace Statistics
 			r.setup.numLayers = (int)numLayers;
 			r.setup.maxSiblingSyncOperations = numLayers > 1 ? (int)maxSiblingSyncOperations : 0;
 			r.setup.siblingSyncDelay = numLayers > 1 ? (int)siblingSyncDelay : 0;
+			r.setup.selectionStrategy = (int)strategy;
 
 			#ifndef D3
 				#ifndef _DEBUG	
@@ -156,6 +157,7 @@ namespace Statistics
 					r.setup.numEntities = 256*16;
 				#endif
 			#endif
+			return r;
 		}
 		
 		struct AtomicDouble
@@ -832,7 +834,7 @@ double		Statistics::GetEntityDensityPerRCube(const TExperiment&ex)
 	}
 #endif
 
-TExperiment Statistics::Begin()
+TExperiment Statistics::Begin( )
 {
 	using namespace Details;
 

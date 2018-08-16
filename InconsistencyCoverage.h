@@ -381,6 +381,8 @@ public:
 	bool		IsFullyConsistent() const {return highest == 0;}
 	content_t	GetHighestInconsistency() const {return highest;}
 
+	bool		AnyInconsistentIn(const Volume<int>&space) const;
+
 	count_t		CountInconsistentSamples() const;
 
 	/**

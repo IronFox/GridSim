@@ -1,6 +1,7 @@
 #include <global_root.h>
 #include "grid.h"
 #include "experiment.h"
+#include "sdsCheckResult.h"
 
 void Grid::Layer::Create(const GridSize&size, Grid&g, index_t layer)
 {
@@ -307,42 +308,148 @@ Grid::TCStat Grid::LockstepCorrectSome(const TExperiment&exp, const std::functio
 	//LockstepCorrectOldest(c);
 	for (index_t i = 0; i < (count_t)exp.recoveryIterations; i++)
 	{
-		rs += LockstepCorrectSelective([i](Shard&s)->index_t
+		rs += LockstepCorrectSelective([i,exp](Shard&s)->index_t
 		{
 			if (s.sds.Count() <= 1)
 				return InvalidIndex;
 					
-			index_t at = s.NewestConsistentSDSIndex()+1;
+			const index_t begin = s.NewestConsistentSDSIndex()+1;
+			index_t at = begin;
 			if (at >= s.sds.Count())
 				return InvalidIndex;	//happens
+			const auto out = s.sds[begin].GetOutput();
+			const bool cons = out->IsFullyConsistent();
+			const auto max = out->ic.GetHighestInconsistency();
+			ASSERT__(!cons);
 			index_t currentGen = s.sds[at].GetGeneration();
-			for (;at < s.sds.Count(); at++)
+
+			switch (exp.selectionStrategy)
 			{
-				TSDSCheckResult de = s.sds[at].CheckMissingRCS(s);
-
-
-				#ifdef DBG_SHARD_HISTORY
+				case TExperiment::DoubleStrategy:
+				case TExperiment::OracleDoubleStrategy:
 				{
-					s.LogEvent("Correct.localIndex="+String(at));
-					s.LogEvent("Correct.significantInboundChange="+String(s.sds[at].significantInboundChange));
-					s.LogEvent("Correct.missingRCS="+String(de.missingRCS));
-					s.LogEvent("Correct.outRCSUpdatable="+String(de.outRCSUpdatable));
-					s.LogEvent("Correct.predecessorIsConsistent="+String(de.predecessorIsConsistent));
-					s.LogEvent("Correct.rcsAvailableFromDatabase="+String(de.rcsAvailableFromDatabase));
-					s.LogEvent("Correct.rcsAvailableFromNeighbor="+String(de.rcsAvailableFromNeighbor));
-					s.LogEvent("Correct.rcsRestoredFromCache="+String(de.rcsRestoredFromCache));
-					s.LogEvent("Correct.thisIsConsistent="+String(de.thisIsConsistent));
-					s.LogEvent("Correct.thisGen="+String(s.sds[at].GetGeneration()));
+					bool oracle = exp.selectionStrategy == TExperiment::OracleDoubleStrategy;
+					Buffer0<TSDSCheckResult> results;
+					for (;at < s.sds.Count(); at++)
+					{
+						const auto&de = results.Append(s.sds[at].CheckMissingRCS(s,s.sds[at-1]));
+
+
+						#ifdef DBG_SHARD_HISTORY
+						{
+							s.LogEvent("Correct.localIndex="+String(at));
+							s.LogEvent("Correct.significantInboundChange="+String(s.sds[at].significantInboundChange));
+							s.LogEvent("Correct.missingRCS="+String(de.missingRCS));
+							s.LogEvent("Correct.outRCSUpdatable="+String(de.outRCSUpdatable));
+							s.LogEvent("Correct.predecessorIsConsistent="+String(de.predecessorIsConsistent));
+							s.LogEvent("Correct.rcsAvailableFromDatabase="+String(de.rcsAvailableFromDatabase));
+							s.LogEvent("Correct.rcsAvailableFromNeighbor="+String(de.rcsPossiblyAvailableFromNeighbor));
+							s.LogEvent("Correct.rcsRestoredFromCache="+String(de.rcsRestoredFromCache));
+							s.LogEvent("Correct.thisIsConsistent="+String(de.thisIsConsistent));
+							s.LogEvent("Correct.thisGen="+String(s.sds[at].GetGeneration()));
+						}
+						#endif
+
+
+
+						if (s.sds[at].significantInboundChange || (oracle? de.ShouldRecoverThis2() : de.ShouldRecoverThis0()))
+							break;
+					}
+					if (at == s.sds.Count())
+					{
+						at = begin;
+						index_t i = 0;
+						for (;at < s.sds.Count(); at++, i++)
+						{
+							const auto&de = results[i];
+
+
+							#ifdef DBG_SHARD_HISTORY
+							{
+								s.LogEvent("Correct.localIndex="+String(at));
+								s.LogEvent("Correct.significantInboundChange="+String(s.sds[at].significantInboundChange));
+								s.LogEvent("Correct.missingRCS="+String(de.missingRCS));
+								s.LogEvent("Correct.outRCSUpdatable="+String(de.outRCSUpdatable));
+								s.LogEvent("Correct.predecessorIsConsistent="+String(de.predecessorIsConsistent));
+								s.LogEvent("Correct.rcsAvailableFromDatabase="+String(de.rcsAvailableFromDatabase));
+								s.LogEvent("Correct.rcsAvailableFromNeighbor="+String(de.rcsPossiblyAvailableFromNeighbor));
+								s.LogEvent("Correct.rcsRestoredFromCache="+String(de.rcsRestoredFromCache));
+								s.LogEvent("Correct.thisIsConsistent="+String(de.thisIsConsistent));
+								s.LogEvent("Correct.thisGen="+String(s.sds[at].GetGeneration()));
+							}
+							#endif
+
+
+
+							if (s.sds[at].significantInboundChange || de.ShouldRecoverThis_Original())
+								break;
+						}
+					}
 				}
-				#endif
+				break;
+				case TExperiment::OracleSingleStrategy:
+				{
+					for (;at < s.sds.Count(); at++)
+					{
+						TSDSCheckResult de = s.sds[at].CheckMissingRCS(s,s.sds[at-1]);
+
+
+						#ifdef DBG_SHARD_HISTORY
+						{
+							s.LogEvent("Correct.localIndex="+String(at));
+							s.LogEvent("Correct.significantInboundChange="+String(s.sds[at].significantInboundChange));
+							s.LogEvent("Correct.missingRCS="+String(de.missingRCS));
+							s.LogEvent("Correct.outRCSUpdatable="+String(de.outRCSUpdatable));
+							s.LogEvent("Correct.predecessorIsConsistent="+String(de.predecessorIsConsistent));
+							s.LogEvent("Correct.rcsAvailableFromDatabase="+String(de.rcsAvailableFromDatabase));
+							s.LogEvent("Correct.rcsAvailableFromNeighbor="+String(de.rcsPossiblyAvailableFromNeighbor));
+							s.LogEvent("Correct.rcsRestoredFromCache="+String(de.rcsRestoredFromCache));
+							s.LogEvent("Correct.thisIsConsistent="+String(de.thisIsConsistent));
+							s.LogEvent("Correct.thisGen="+String(s.sds[at].GetGeneration()));
+						}
+						#endif
 
 
 
-				if (s.sds[at].significantInboundChange || de.ShouldRecoverThis())
-					break;
+						if (s.sds[at].significantInboundChange || de.ShouldRecoverThis2())
+							break;
+					}
+				}
+				break;
+
+				case TExperiment::OriginalStrategy:
+				{
+					for (;at < s.sds.Count(); at++)
+					{
+						TSDSCheckResult de = s.sds[at].CheckMissingRCS(s,s.sds[at-1]);
+
+
+						#ifdef DBG_SHARD_HISTORY
+						{
+							s.LogEvent("Correct.localIndex="+String(at));
+							s.LogEvent("Correct.significantInboundChange="+String(s.sds[at].significantInboundChange));
+							s.LogEvent("Correct.missingRCS="+String(de.missingRCS));
+							s.LogEvent("Correct.outRCSUpdatable="+String(de.outRCSUpdatable));
+							s.LogEvent("Correct.predecessorIsConsistent="+String(de.predecessorIsConsistent));
+							s.LogEvent("Correct.rcsAvailableFromDatabase="+String(de.rcsAvailableFromDatabase));
+							s.LogEvent("Correct.rcsAvailableFromNeighbor="+String(de.rcsPossiblyAvailableFromNeighbor));
+							s.LogEvent("Correct.rcsRestoredFromCache="+String(de.rcsRestoredFromCache));
+							s.LogEvent("Correct.thisIsConsistent="+String(de.thisIsConsistent));
+							s.LogEvent("Correct.thisGen="+String(s.sds[at].GetGeneration()));
+						}
+						#endif
+
+
+
+						if (s.sds[at].significantInboundChange || de.ShouldRecoverThis_Original())
+							break;
+					}
+				}
+				break;
 			}
 
-
+			if (at >= s.sds.Count())
+				at = begin;	//let's recover _something_
 			if (at < s.sds.Count())
 			{
 				#ifdef DBG_SHARD_HISTORY
@@ -921,7 +1028,7 @@ void		Grid::AssertIsRecovering()
 				auto*mySDS = s->FindGeneration(oldest+1);
 				if (mySDS && mySDS->GetOutput() && !mySDS->GetOutput()->ic.IsFullyConsistent())
 				{
-					TSDSCheckResult de = mySDS->CheckMissingRCS(*s);
+					TSDSCheckResult de = mySDS->CheckMissingRCS(*s,*(mySDS-1));
 
 
 					#ifdef DBG_SHARD_HISTORY
@@ -941,7 +1048,7 @@ void		Grid::AssertIsRecovering()
 
 
 
-					if (!mySDS->significantInboundChange && !de.ShouldRecoverThis())
+					if (!mySDS->significantInboundChange && !de.ShouldRecoverThis_Original())
 						FATAL__("Bad state");
 					for (index_t k = 0; k < NumNeighbors; k++)
 					{
@@ -1086,8 +1193,10 @@ void Grid::EvolveTop()
 
 				Check(s,newState);
 				//numCurrentEntities += newState.GetOutput()->Count();
+				s.VerifyIntegrity();
 			}
-			s.VerifyIntegrity();
+			else
+				s.VerifyIntegrity();
 		}
 
 	);

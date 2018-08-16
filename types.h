@@ -94,7 +94,7 @@ Replaces MessageData with a custom class to accumulate contained data
 
 
 
-//#define D3	//3d-grid
+#define D3	//3d-grid
 
 #ifdef D3
 	static const constexpr count_t Dimensions=3;
@@ -240,33 +240,5 @@ inline hash_t Hash(const GUID&g)
 	return HashValue() << g.Data1 << g.Data2 << g.Data3 << g.Data4;
 }
 
+struct TSDSCheckResult;
 
-struct TSDSCheckResult
-{
-	count_t			missingRCS=0;
-	count_t			rcsAvailableFromNeighbor=0,
-					outRCSUpdatable=0,
-					rcsAvailableFromDatabase=0,
-					rcsRestoredFromCache = 0;
-	bool			predecessorIsConsistent = false,
-					thisIsConsistent = false;
-
-	bool			AllThere() const {return missingRCS == 0;}
-	bool			MissingAvailableFromNeighbors() const {return missingRCS == rcsAvailableFromNeighbor;}
-	bool			MissingAvailableFromAnywhere() const {return missingRCS == rcsAvailableFromNeighbor + rcsAvailableFromDatabase;}
-	bool			AnyAvailableFromNeighbors() const volatile {return rcsAvailableFromNeighbor > 0;}
-	bool			AnyAvailableFromAnywhere() const {return rcsAvailableFromNeighbor > 0 || rcsAvailableFromDatabase > 0;}
-	//bool			ShouldRecoverThis() const {return AnyAvailableFromNeighbors() || rcsRestoredFromCache > 0 || outRCSUpdatable > 0 || (missingRCS == 0 && predecessorIsConsistent);}
-	bool			ShouldRecoverThis() const volatile {return !thisIsConsistent && (AnyAvailableFromNeighbors() || rcsRestoredFromCache > 0 || outRCSUpdatable > 0 || (missingRCS == 0 && predecessorIsConsistent) || rcsRestoredFromCache > 0);}
-
-	void			AssertEqualTo(const TSDSCheckResult&other) const
-	{
-		ASSERT_EQUAL__(missingRCS,other.missingRCS);
-		ASSERT_EQUAL__(rcsAvailableFromNeighbor,other.rcsAvailableFromNeighbor);
-		ASSERT_EQUAL__(outRCSUpdatable,other.outRCSUpdatable);
-		ASSERT_EQUAL__(rcsAvailableFromDatabase,other.rcsAvailableFromDatabase);
-		ASSERT_EQUAL__(rcsRestoredFromCache,other.rcsRestoredFromCache);
-		ASSERT_EQUAL__(predecessorIsConsistent,other.predecessorIsConsistent);
-		ASSERT_EQUAL__(thisIsConsistent,other.thisIsConsistent);
-	}
-};

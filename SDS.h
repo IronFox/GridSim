@@ -253,6 +253,8 @@ public:
 	*/
 	void				SetOpenEdgeRCS(const Shard&owner);
 
+	bool				SuccessorOutRCSWouldBeConsistent(const Shard&shard, index_t outNeighborIndex) const;
+
 	index_t				GetGeneration() const {return generation;}
 	void				InitGeneration(index_t gen, index_t currentTimestep, bool reallocateOutput, const TCodeLocation&birthPlace, const TCodeLocation&precomputeCaller);
 
@@ -280,7 +282,7 @@ public:
 	bool				AllConfirmed() const;
 	bool				AllReceived() const;
 	bool				AllRCSAreLocalAndConsistent() const;
-	TSDSCheckResult		CheckMissingRCS(Shard&);
+	TSDSCheckResult		CheckMissingRCS(Shard&, const SDS&predecessor);
 
 	void				PrecomputeSuccessor(Shard&shard, SDS&rs,const TBoundaries&motionSpace, index_t currentTimestep, const TCodeLocation&caller)	const;
 	void				FinalizeComputation(Shard&shard, const TCodeLocation&caller);

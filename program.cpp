@@ -547,7 +547,7 @@ bool	Loop()
 		textout.PushState();
 		messageLogLock.lock();
 		{
-			textout.MoveTo(0.f,0.f + textout.GetScaledHeight() * (10 + messageLog.Count()));
+			textout.MoveTo(0.f,0.f + textout.GetScaledHeight() * (11 + messageLog.Count()));
 			foreach (messageLog,msg)
 				textout << *msg << nl;
 		}
@@ -559,7 +559,8 @@ bool	Loop()
 			<< "DD: "<< (testSimulation.GetTopGeneration() - testSimulation.GetOldestGeneration()) << nl
 			<< "Recovery: "<< (testSimulation.LastRecoveryOps())<<"/"<< testSimulation.LastRecoverCompletedSDS() << nl
 			//<< "Scene# "<< numResets << nl
-			<< "Reliability "<<currentSetup.GetReliability()<<nl
+			<< "Reliability "<<currentSetup.reliabilityLevel<<": "<< currentSetup.GetReliability()<<nl
+			<< "Selection Strategy "<<currentSetup.selectionStrategy << nl
 			<< "Recovery Ops "<<currentSetup.recoveryIterations << nl
 			<< "Recoverying or dead nodes: "<<testSimulation.CountNonFullyAvailableNodes() << nl
 			<< "Layers "<<currentSetup.numLayers << nl

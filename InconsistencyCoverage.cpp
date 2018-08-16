@@ -597,6 +597,7 @@ static InconsistencyCoverage::Sample*	GetVerified(Array3D<InconsistencyCoverage:
 	return &array.Get(c.x,c.y,c.z);
 }
 
+
 void InconsistencyCoverage::IncludeMissing(const NeighborInfo&info, generation_t generation)
 {
 	ASSERT__(!sealed);
@@ -687,6 +688,28 @@ bool InconsistencyCoverage::Include(const TGridCoords & sectorDelta, const Incon
 	VerifyIntegrity(CLOCATION);
 	return rs;
 }
+
+
+bool InconsistencyCoverage::AnyInconsistentIn(const Volume<int>&space) const
+{
+	TGridCoords coords;
+	for (int x = space.axis[0].min; x < space.axis[0].max; x++)
+	for (int y = space.axis[1].min; y < space.axis[1].max; y++)
+		#ifdef D3
+			for (int z = space.axis[2].min; z < space.axis[2].max; z++)
+		#endif
+	{
+		coords.x = x;
+		coords.y = y;
+		#ifdef D3
+			coords.z = z;
+		#endif
+		if (!GetSample(coords).IsConsistent())
+			return true;
+	}
+	return false;
+}
+
 
 void InconsistencyCoverage::CopyCoreArea(const TGridCoords & sectorDelta, const InconsistencyCoverage & remote)
 {

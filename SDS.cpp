@@ -8,11 +8,14 @@
 #include "shard.h"
 #include "Database.h"
 #include "statistics.h"
+#include "sdsCheckResult.h"
 
 ///*static*/ float		FullShardDomainState::minEntityDistance = 0.05f;
 
 const PRCS edgeInboundRCS(new RCS(TCodeLocation()));
 
+
+bool	OutRCSWouldBeConsistent(const Shard&shard, const IC&ic, index_t outNeighborIndex);
 
 void	CoreShardDomainState::Hash(Hasher&inputHash)	const
 {
@@ -296,6 +299,8 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 			rcs.ref->Verify(consistentSuccessorMatch->outboundRCS[i].ref);
 
 
+		//ASSERT__(OutRCSWouldBeConsistent(shard,input->ic,i) == rcs.ref->ic.IsFullyConsistent());	//seems to be correct now
+
 		if (rcs.ref->ic.IsFullyConsistent() && shard.outboundNeighbors[i].shard)
 		{
 			const auto id = DB::ID(&shard,shard.outboundNeighbors[i].shard,rs.GetGeneration());
@@ -320,19 +325,51 @@ void FullShardDomainState::PrecomputeSuccessor(Shard&shard, SDS & rs, const TBou
 
 }
 
-TSDSCheckResult	FullShardDomainState::CheckMissingRCS(Shard&s)
+bool				OutRCSWouldBeConsistent(const Shard&shard, const IC&ic, index_t outNeighborIndex)
+{
+	static const Volume<int> limit = Volume<int>(TGridCoords(0),TGridCoords(IC::Resolution));
+	Volume<int> scope = limit;
+	scope.Translate(shard.outboundNeighbors[outNeighborIndex].delta * (IC::Resolution-1) );
+	scope.ConstrainBy(limit);
+
+	return !ic.AnyInconsistentIn(scope);
+}
+
+
+bool				FullShardDomainState::SuccessorOutRCSWouldBeConsistent(const Shard&shard, index_t outNeighborIndex) const
+{
+	auto out = GetOutput();
+	if (!out)
+		return false;
+	return OutRCSWouldBeConsistent(shard,out->ic,outNeighborIndex);
+}
+
+
+TSDSCheckResult	FullShardDomainState::CheckMissingRCS(Shard&s, const SDS&predecessor)
 {
 	ASSERT__(!GetOutput() || !GetOutput()->IsFullyConsistent());
 	TSDSCheckResult rs;
-	rs.predecessorIsConsistent = inputConsistent;
+	rs.predecessorIsConsistent = predecessor.GetOutput()->IsFullyConsistent();
 	rs.thisIsConsistent = GetOutput() && GetOutput()->ic.IsFullyConsistent();
 
 	for (index_t i = 0; i < s.outboundNeighbors.Count(); i++)
 	{
 		Shard*other = s.outboundNeighbors[i].shard;
-		if (inputConsistent && other && (!outboundRCS[i].ref || !outboundRCS[i].ref->ic.IsFullyConsistent()))
-			rs.outRCSUpdatable++;
-		index_t inbound = s.outboundNeighbors[i].inboundIndex;
+
+		if (other && (!outboundRCS[i].ref || !outboundRCS[i].ref->ic.IsFullyConsistent()))
+		{
+			if (predecessor.GetOutput()->IsFullyConsistent())
+			{
+				rs.outRCSUpdatable++;
+				//rs.outPreciseRCSUpdateble ++;
+			}
+		/*	else
+				if (predecessor.SuccessorOutRCSWouldBeConsistent(s,i))
+					rs.outPreciseRCSUpdateble++;*/
+		}
+
+
+		const index_t inbound = s.outboundNeighbors[i].inboundIndex;
 		auto&rcs = inboundRCS[inbound];
 		if (rcs && rcs->ic.IsFullyConsistent())
 			continue;
@@ -363,21 +400,24 @@ TSDSCheckResult	FullShardDomainState::CheckMissingRCS(Shard&s)
 		//try to get from neighbor:
 		if (other->IsFullyAvailable())
 		{
-			rs.rcsAvailableFromNeighbor++;	//optimisitic guess
+			rs.rcsPossiblyAvailableFromNeighbor++;	//optimisitic guess
+			if (!outboundRCS[i].confirmed)
+				rs.rcsLikelyAvailableFromNeighbor++;//wasn't there before
 
+			auto remoteParent = other->FindGeneration(this->generation-1);
+			auto remote = other->FindGeneration(this->generation);
+			if (remoteParent && remote && !remote->GetOutput()->IsFullyConsistent())
+			{
+				if (remoteParent->GetOutput()->IsFullyConsistent())
+				{
+					rs.rcsVeryLikelyAvailableFromNeighbor++;
+					//rs.preciseRCSVeryLikelyAvailableFromNeighbor++;
+				}
+				//else
+				//	if (remoteParent->SuccessorOutRCSWouldBeConsistent(*other,inbound))
+				//		rs.preciseRCSVeryLikelyAvailableFromNeighbor++;
+			}
 
-			//SDS*remoteSDS = other->FindGeneration(this->GetOutput()->generation);
-			//if (remoteSDS)
-			//{
-			//	const auto&nRCS = remoteSDS->outboundRCS[inbound].ref;
-			//	if ((nRCS && nRCS->ic.IsFullyConsistent()) || )
-			//	{
-			//		rs.rcsAvailableFromNeighbor++;
-			//		continue;
-			//	}
-			//}
-			//else
-			//	check = true;
 		}
 		if (s.client.ExistsAnywhere(Database::ID(other,&s,GetOutput()->generation)))
 		{
@@ -452,6 +492,7 @@ void				FullShardDomainState::SetOpenEdgeRCS(const Shard&owner)
 
 void	FullShardDomainState::InitGeneration(index_t gen, index_t currentTimestep, bool reallocateOutput, const TCodeLocation&caller, const TCodeLocation&precomputeCaller)
 {
+	inputConsistent = gen == 0;
 	generation = gen;
 	if (!reallocateOutput)
 		output.reset();
