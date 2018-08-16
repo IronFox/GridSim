@@ -1,4 +1,5 @@
 #pragma once
+#ifndef NO_WINDOW
 
 #include <engine/renderer/opengl.h>
 #include <math/vclasses.h>
@@ -101,3 +102,4 @@ namespace Scene
 }
 #endif
 
+#endif

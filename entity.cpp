@@ -563,10 +563,11 @@ void LogUnexpected(const String & message, const EntityID & p0, const EntityID *
 	String msg = message + " p0="+ToString(p0.guid)+" (@"+p0.coordinates.ToString()+")";
 	if (p1)
 		msg += " p1="+ToString(p1->guid)+" (@"+p1->coordinates.ToString()+")";
-	messageLogLock.lock();
-	messageLog.MoveAppend(msg);
-	messageLog.Truncate(5);
-	messageLogLock.unlock();
+	LogMessage(msg);
+	//messageLogLock.lock();
+	//messageLog.MoveAppend(msg);
+	//messageLog.Truncate(5);
+	//messageLogLock.unlock();
 }
 
 

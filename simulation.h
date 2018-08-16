@@ -100,8 +100,10 @@ public:
 
 	GridSize	GetGridSize() const {return gridSize;}
 
-	void		Rebuild();
-	void		RebuildIfOudatedFor(float seconds);
+	#ifndef NO_WINDOW
+		void	Rebuild();
+		void	RebuildIfOudatedFor(float seconds);
+	#endif
 	void		Verify();
 	
 	void		AssertIsRecovering();

@@ -557,6 +557,7 @@ void InconsistencyCoverage::Grow(InconsistencyCoverage & rs) const
 	rs.VerifyIntegrity(CLOCATION);
 }
 
+#ifndef D3
 static const InconsistencyCoverage::Sample*	GetVerified(const InconsistencyCoverage::TGrid&array, const M::VecN<int,2>&c)
 {
 	if (c.x < 0 || c.y < 0)
@@ -574,7 +575,7 @@ static InconsistencyCoverage::Sample*	GetVerified(InconsistencyCoverage::TGrid&a
 		return nullptr;
 	return &array.Get(c.x,c.y);
 }
-
+#endif
 
 template <class S>
 static const InconsistencyCoverage::Sample*	GetVerified(const Array3D<InconsistencyCoverage::Sample,S>&array, const M::VecN<int,3>&c)

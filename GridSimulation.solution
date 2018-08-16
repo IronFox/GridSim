@@ -1,3 +1,4 @@
 <solution language="C++">
 	<project name="Grid Simulation" primary="true" />
+	<project name="Console Grid Simulation" />
 </solution>

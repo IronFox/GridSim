@@ -755,10 +755,13 @@ void EvolveV(const TInputVector&vec)
 			currentSetup.reliabilityLevel = INT_MAX;
 	#endif
 
-
+	
+	std::cout << "Simulation generation "<< testSimulation.GetTopGeneration()-1 << " completed" << std::endl;
 
 	if (success == Simulation::Result::Failed)
 	{
+		std::cout << "\t... failed" << std::endl;
+
 		#ifndef RECOVERY_TEST
 			StartNext(true);
 		#endif
@@ -831,6 +834,7 @@ void RecoverOnly()
 
 void	SetupScene()
 {
+	std::cout << "Setting up scene "<< numResets << std::endl;
 	numResets++;
 
 	{

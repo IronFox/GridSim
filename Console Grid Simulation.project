@@ -1,0 +1,4 @@
+<project type="Application:Console">
+	<clone name="Grid Simulation" />
+	<macro name="NO_WINDOW" />
+</project>

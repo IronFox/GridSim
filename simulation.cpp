@@ -683,6 +683,7 @@ count_t Simulation::CountUnconfirmedTopLevelUpdates() const
 namespace Build
 {
 
+#ifndef NO_WINDOW
 
 	#ifdef D3
 
@@ -724,12 +725,12 @@ namespace Build
 			Scene3D::PutSolid(inner);
 
 			Scene3D::SetColor(1, 0, 0);
-			foreach (shard.neighbors,n)
+			for (int i = 0; i < NumNeighbors; i++)
 			{
-				if (shard.sds.IsEmpty() || !shard.sds.Last().outboundRCS[n-shard.neighbors.begin()].confirmed)
+				if (shard.sds.IsEmpty() || !shard.sds.Last().outboundRCS[i].confirmed)
 				{
 					M::Box<> comm2 = comm;
-					comm2.Translate(comm.GetExtent()&float3(n->delta));
+					comm2.Translate(comm.GetExtent()&float3(shard.outboundNeighbors[i].delta));
 					comm2.ConstrainBy(outer);
 					Scene3D::PutSolid(comm2);
 				}
@@ -1193,6 +1194,7 @@ namespace Build
 		}
 	}
 
+#endif
 
 	void VerifyGenerationDelta(const Shard&approx, const Grid::Layer&approxLayer, const Grid::Layer&control, index_t generation)
 	{
@@ -1234,6 +1236,7 @@ namespace Build
 	}
 #endif
 
+#ifndef NO_WINDOW
 
 void Simulation::RebuildIfOudatedFor(float seconds)
 {
@@ -1285,6 +1288,9 @@ void Simulation::Rebuild()
 
 	#endif
 }
+
+
+#endif
 
 void Simulation::Verify()
 {

@@ -27,7 +27,9 @@
 #include "types.h"
 #include "shard.h"
 #include "grid.h"
-#include "scene.h"
+#ifndef NO_WINDOW
+	#include "scene.h"
+#endif
 #include "simulation.h"
 #include "statistics.h"
 #include "metric.h"
@@ -49,10 +51,12 @@ extern "C"
 }
 
 
-Engine::Display<Engine::OpenGL>	display;
-Engine::Textout<Engine::GLTextureFont2>	textout;
-Buffer0<String>	messageLog;
-Sys::SpinLock	messageLogLock;
+#ifndef NO_WINDOW
+	Engine::Display<Engine::OpenGL>	display;
+	Engine::Textout<Engine::GLTextureFont2>	textout;
+	Buffer0<String>	messageLog;
+	Sys::SpinLock	messageLogLock;
+#endif
 
 
 
@@ -62,9 +66,13 @@ bool	blockRight = false;
 
 void LogMessage(const String&msg)
 {
-	messageLogLock.lock();
-	messageLog << msg;
-	messageLogLock.unlock();
+	#ifndef NO_WINDOW
+		messageLogLock.lock();
+		messageLog << msg;
+		messageLogLock.unlock();
+	#else
+		std::cout << msg << std::endl;
+	#endif
 }
 
 namespace Aspect
@@ -459,6 +467,7 @@ namespace Aspect
 #endif /*0*/
 
 
+#ifndef NO_WINDOW
 bool	Loop()
 {
 	#if 0
@@ -470,28 +479,6 @@ bool	Loop()
 	if (SimulationActive())
 	{
 		Evolve();
-		//dataRanges.Last().Get(testSimulation.CountIterations()-1).Include(testSimulation.CountInconsistentSDS());
-		//errors.Get(testSimulation.CountIterations()-1).Include(testSimulation.CountUnconfirmedTopLevelUpdates()/2);
-		//if (testSimulation.CountIterations() >= NumSamples)
-		//{
-		//	if (!BeginNextRange())
-		//	{
-		//		simulate = false;
-		//		StringFile file;
-		//		file.Create("values.txt");
-		//		file << "Errors (min)"<<tab << "Errors (max)";
-		//		foreach (dataRanges,r)
-		//			file << tab << r->name;
-		//		file << nl;
-		//		for (index_t i = 0; i < NumSamples; i++)
-		//		{
-		//			file << errors[i].range.min << tab << errors[i].range.max;
-		//			foreach (dataRanges,r)
-		//				file << tab << r->at(i).GetAverage();
-		//			file << nl;
-		//		}
-		//	}
-		//}
 		if (!windowFocused)
 		{
 			for (index_t i = 0; i < 10; i++)
@@ -644,6 +631,7 @@ void ZoomOut()
 	OnMouseWheel(-3);
 }
 
+#endif
 
 
 void VerifyScene()
@@ -664,32 +652,6 @@ float GetFloat(std::mt19937&random, float min, float max)
 {
 	return float(random()) / random.max() * (max - min) + min;
 }
-
-//
-//void ExportSVG(const String&baseName)
-//{
-//	XML::Container c;
-//	c.root_node.name = "svg";
-//	c.root_node.SetMore("xmlns","http://www.w3.org/2000/svg").SetMore("xmlns:xlink","http://www.w3.org/1999/xlink").SetMore("version","1.1");
-//	PathString imageFolder = PathString(".\\"+baseName+"Images\\");
-//	FileSystem::Folder f(imageFolder);
-//	if (f.IsValidLocation())
-//		FileSystem::RemoveFolderContents(f.GetLocation());
-//	else
-//		ASSERT__(FileSystem::CreateDirectory(imageFolder));
-//	float2 size;
-//	#ifndef D3
-//	Scene::BuildSVG(c.root_node,imageFolder,size);
-//	#endif
-//	c.root_node.SetMore("width",size.x);
-//	c.root_node.SetMore("height",size.y);
-//	c.SaveToFile(PathString(baseName+".svg"));
-//}
-//
-//void MakeSVG()
-//{
-//	ExportSVG("out");
-//}
 
 
 
@@ -737,111 +699,103 @@ int main( int argc, const char* argv[])
 	bool brk = true;
 
 
-	//static const count_t Total = 1000000;
-	//float seconds0,seconds1;
-	//{
-	//	std::mt19937	random((long)1024);
-	//	Timer::Time t = timer.Now();
-	//	for (index_t i = 0; i < Total; i++)
-	//	{
-	//		TVec3<>	p = {GetFloat(random,-1000,1000),GetFloat(random,-1000,1000),GetFloat(random,-1000,1000)};
-	//		volatile double v = noise.Get(p.x,p.y,p.z);
-	//	}
-	//	seconds0 = timer.GetSecondsSince(t);
-	//}
-	//{
-	//	std::mt19937	random((long)1024);
-	//	Timer::Time t = timer.Now();
-	//	for (index_t i = 0; i < Total; i++)
-	//	{
-	//		TVec3<>	p = {GetFloat(random,-1000,1000),GetFloat(random,-1000,1000),GetFloat(random,-1000,1000)};
-	//		volatile double v = perlinNoise.Get(p.x,p.y,p.z);
-	//	}
-	//	seconds1 = timer.GetSecondsSince(t);
-	//}
-
-	//ShowMessage("simplex: "+String(seconds0)+", perlin: "+String(seconds1));
-
-
 	try
 	{
+	
 
-		display.config.fsaa_samples = 4;
-		display.config.vertical_sync = 1;
-		Engine::CreateDisplay(display,"./config","Grid Simulation"
-			#ifdef _DEBUG
-				" (DEBUG)"
+		#ifndef NO_WINDOW
+			display.config.fsaa_samples = 4;
+			display.config.vertical_sync = 1;
+			Engine::CreateDisplay(display,"./config","Grid Simulation"
+				#ifdef _DEBUG
+					" (DEBUG)"
+				#endif
+				,Resolution(1280,800),onWindowResize
+				,Engine::DisplayConfig::Icon(IDI_CLIENT)
+				);
+			display.RegisterFocusCallbacks([](){windowFocused = false;},[](){windowFocused = true;});
+
+			textout.GetActiveFont()->LoadFromFile("Font/font.xml");
+
+
+	//			Engine::mouse.bindWheel(Camera::Event::WheelAction);
+
+			textout.SetScale(1.f/display.GetClientWidth(),1.f/display.GetClientHeight());
+
+			Engine::GlobalAspectConfiguration::worldZIsUp = true;
+			Aspect::hud.UpdateProjection(0,0,1,1,-1,1);
+
+			Aspect::scene.retraction = float3(0,0,-4.f/Aspect::zoom);
+			Aspect::scene.UpdateProjection(display.GetPixelAspect(),0.1,1000);
+			#ifdef D3
+			Aspect::scene.angle.z = 45;
+			Aspect::scene.angle.x = 45;
+			#else
+				//Aspect::scene.angle.z = 45;
+				//Aspect::scene.angle.x = 45;
+
 			#endif
-			,Resolution(1280,800),onWindowResize
-			,Engine::DisplayConfig::Icon(IDI_CLIENT)
-			);
-		display.RegisterFocusCallbacks([](){windowFocused = false;},[](){windowFocused = true;});
+			Aspect::scene.UpdateView();
+			Aspect::scene.depthTest = Engine::NoDepthTest;
 
-		textout.GetActiveFont()->LoadFromFile("Font/font.xml");
+			#ifdef D3
+				display.SetBackbufferClearColor(0,0,0,0);
+			#else
+				display.SetBackbufferClearColor(1,1,1,0);
+			#endif
 
-
-//			Engine::mouse.bindWheel(Camera::Event::WheelAction);
-
-		textout.SetScale(1.f/display.GetClientWidth(),1.f/display.GetClientHeight());
-
-		Engine::GlobalAspectConfiguration::worldZIsUp = true;
-		Aspect::hud.UpdateProjection(0,0,1,1,-1,1);
-
-		Aspect::scene.retraction = float3(0,0,-4.f/Aspect::zoom);
-		Aspect::scene.UpdateProjection(display.GetPixelAspect(),0.1,1000);
-		#ifdef D3
-		Aspect::scene.angle.z = 45;
-		Aspect::scene.angle.x = 45;
-		#else
-			//Aspect::scene.angle.z = 45;
-			//Aspect::scene.angle.x = 45;
-
-		#endif
-		Aspect::scene.UpdateView();
-		Aspect::scene.depthTest = Engine::NoDepthTest;
-
-		#ifdef D3
-			display.SetBackbufferClearColor(0,0,0,0);
-		#else
-			display.SetBackbufferClearColor(1,1,1,0);
-		#endif
-
-		Engine::mouse.BindWheel(OnMouseWheel);
-		Engine::input.Bind(Key::Space,Pause);
-		Engine::input.Bind(Key::Return,VerifyIntegrity);
-		Engine::input.Bind(Key::Enter,VerifyIntegrity);
-		//Engine::input.Bind(Key::N1,[](){blockCenter = !blockCenter;});
-		//Engine::input.Bind(Key::N2,[](){blockRight = !blockRight;});
-		Engine::input.Bind(Key::Right,StartSimulation,StopSimulation);
-		Engine::input.Bind(Key::E,MakeErrorFree);
-		Engine::input.Bind(Key::R,RecoverOnly);
-		Engine::input.Bind(Key::Up,ZoomIn);
-		Engine::input.Bind(Key::Down,ZoomOut);
+			Engine::mouse.BindWheel(OnMouseWheel);
+			Engine::input.Bind(Key::Space,Pause);
+			Engine::input.Bind(Key::Return,VerifyIntegrity);
+			Engine::input.Bind(Key::Enter,VerifyIntegrity);
+			//Engine::input.Bind(Key::N1,[](){blockCenter = !blockCenter;});
+			//Engine::input.Bind(Key::N2,[](){blockRight = !blockRight;});
+			Engine::input.Bind(Key::Right,StartSimulation,StopSimulation);
+			Engine::input.Bind(Key::E,MakeErrorFree);
+			Engine::input.Bind(Key::R,RecoverOnly);
+			Engine::input.Bind(Key::Up,ZoomIn);
+			Engine::input.Bind(Key::Down,ZoomOut);
 		
-		#ifndef D3
-		Scene::Create();
-		#endif
+			#ifndef D3
+			Scene::Create();
+			#endif
 
 
-		//BeginNextRange();
+			//BeginNextRange();
 
-		//Statistics::ImportMean("capture.txt");
-		//StartSimulation();
+			//Statistics::ImportMean("capture.txt");
+			//StartSimulation();
 
-		#ifndef RECOVERY_TEST
-			currentSetup = Statistics::Begin();
+			#ifndef RECOVERY_TEST
+				currentSetup = Statistics::Begin();
+			#else
+				currentSetup.reliabilityLevel = 30;
+			#endif
+			SetupScene();
+			testSimulation.Rebuild();
+
+			display.Assign(Loop);
+			StartSimulation();
+			display.Execute();
+
+			display.Destroy();
+			application_shutting_down = true;
 		#else
-			currentSetup.reliabilityLevel = 30;
+			#ifndef RECOVERY_TEST
+				currentSetup = Statistics::Begin();
+			#else
+				currentSetup.reliabilityLevel = 30;
+			#endif
+			SetupScene();
+			StartSimulation();
+			std::cout << "Simulation active" << std::endl;
+			while (SimulationActive())
+			{
+				Evolve();
+				Sleep(10);
+			}
+
 		#endif
-		SetupScene();
-		testSimulation.Rebuild();
-
-		display.Assign(Loop);
-		StartSimulation();
-		display.Execute();
-
-		display.Destroy();
-		application_shutting_down = true;
 
 		TerminateProcess(GetCurrentProcess(),0);	//self-terminate
 

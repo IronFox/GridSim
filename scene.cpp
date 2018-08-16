@@ -1,3 +1,5 @@
+#ifndef NO_WINDOW
+
 #include <global_root.h>
 #include "scene.h"
 #include <gl/gl_generators.h>
@@ -706,3 +708,5 @@ namespace Scene3D
 
 	}
 }
+
+#endif

@@ -226,8 +226,9 @@ namespace DeltaWorks
 		inline String		ToString(const Index3D<T>&s)	{using StringConversion::ToString; return "["+ToString(s.x)+","+ToString(s.y)+","+ToString(s.z)+"]";}
 
 }
-extern Sys::SpinLock	messageLogLock;
-extern Buffer0<String>	messageLog;
+//extern Sys::SpinLock	messageLogLock;
+//extern Buffer0<String>	messageLog;
+void LogMessage(const String&msg);
 
 struct TExperiment;
 
