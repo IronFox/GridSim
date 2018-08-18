@@ -768,6 +768,7 @@ namespace DeltaWorks
 			public:
 				typedef typename TypeInfo<T>::UnionCompatibleBase
 					Type;
+				typedef Quad<T>	Self;
 
 				union
 				{
@@ -781,8 +782,8 @@ namespace DeltaWorks
 					Type				value[4];
 				};
 
-				Quad()					{}
-				Quad(const T&v)			:left(v),bottom(v),right(v),top(v)	{}
+				/**/					Quad(){}
+				/**/					Quad(const T&v):left(v),bottom(v),right(v),top(v)	{}
 				/**/					Quad(const T&left_, const T&bottom_, const T&right_, const T&top_)
 											:left(left_),bottom(bottom_),right(right_),top(top_)	{}
 
@@ -813,6 +814,15 @@ namespace DeltaWorks
 											bottom *= factor;
 											top *= factor;
 										}
+
+				bool					operator==(const Self&other) const
+				{
+					return left == other.left && bottom == other.bottom && right == other.right && top == other.top;
+				}
+				bool					operator!=(const Self&other) const
+				{
+					return !operator==(other);
+				}
 
 			};
 
