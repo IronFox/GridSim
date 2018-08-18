@@ -814,6 +814,16 @@ namespace DeltaWorks
 											bottom *= factor;
 											top *= factor;
 										}
+				T						Max() const
+				{
+					using std::max;
+					return max(max(left,right),max(top,bottom));
+				}
+				T						Min() const
+				{
+					using std::min;
+					return min(min(left,right),min(top,bottom));
+				}
 
 				bool					operator==(const Self&other) const
 				{
