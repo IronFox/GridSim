@@ -9,7 +9,11 @@ Also provides template-structures for abstract objects.
 
 ******************************************************************/
 
+namespace DeltaWorks
+{
 
+	namespace Math	//! Collection of geometry related mathematical functions and classes
+	{
 
 
 
@@ -1311,6 +1315,96 @@ template <class Def> MF_DECLARE (String)	_oCheckNeighborIntegrity(const DynamicM
 	
 namespace Obj
 {
+	template <typename F, typename I>
+	bool	TriangulateF( const count_t numVertices, const std::function<TVec2<F>(index_t)>&getVertex, BasicBuffer<I>&target )
+	{
+		Array<TVec2<F> >temp(numVertices);	//this is likely the most efficient approach, what with the constant searching
+		for (index_t i = 0; i < numVertices; i++)
+			temp[i] = getVertex(i);
+		return Triangulate(temp,target);
+	}
+
+	template <typename F, typename I>
+	bool	Triangulate( const ArrayRef<TVec2<F> >&vertices, BasicBuffer<I>&target )
+	{
+		target.reset();
+		if (vertices.Count() < 3)
+			return false;
+		Buffer0<I>	indices;
+		for (index_t i = 0; i < vertices.Count(); i++)
+			indices<<i;
+
+		typedef TVec2<F>	Vertex;
+		typedef F			Float;
+		typedef I			Index;
+
+		Float size(0);
+		for (index_t i = 0; i < vertices.Count()-1; i++)
+			size += Obj::zeroTriangleSize(vertices[i],vertices[i+1]);
+		size += Obj::zeroTriangleSize(vertices.Last(),vertices.First());
+
+		const int orientation = M::Sign(size);
+		bool failed(false);
+		
+		index_t		current_index(0),
+					walk(0);
+		while (indices.Count() > 3 && !failed)
+		{
+			walk = 0;
+			bool looping=true;
+			Index		index0,index1,index2;
+
+			while (looping)
+			{
+				walk++;
+				if (walk > vertices.Count())
+				{
+					looping = false;
+					failed = true;
+					continue;
+				}
+				index0 = indices[current_index];
+				index1 = indices[(current_index+1)%indices.Count()];
+				index2 = indices[(current_index+2)%indices.Count()];
+				current_index++;
+				if (current_index >= indices.Count())
+					current_index = 0;
+				if (M::Sign(Obj::signedTriangleSize(vertices[index0],vertices[index1],vertices[index2])) != orientation)
+					continue;
+				bool hit(false);
+				Float	dummy;
+				const Vertex &p0 = vertices[index2],	&p1 = vertices[indices[(current_index+2)%indices.Count()]],	&p2=vertices[index0];
+				const int thisOrientation = M::Sign(Obj::signedTriangleSize(p0,p1,p2));
+				if (thisOrientation != orientation && thisOrientation != 0)
+					continue;
+
+				for (index_t i = 0; i < indices.Count() && !hit; i++)
+				{
+					const index_t i0 = (indices[i]);
+					const index_t i1 = (indices[(i+1)%(indices.Count())]);
+					if (i0 != index0 && i0 != index2 && i1 != index0 && i1 != index2)
+					{
+						bool cut = Obj::detEdgeIntersection(vertices[i0],vertices[i1],vertices[index0],vertices[index2],dummy,dummy);
+						hit = cut;
+					}
+				}
+				
+				looping = hit;
+			}
+			if (!failed)
+			{
+				target << index0 << index1 << index2;
+				indices.Erase(current_index);
+				if (current_index >= indices.Count())
+					current_index = 0;
+			}
+		}
+		if (indices.Count() == 3)
+		{
+			target << indices.First() << indices[1] << indices[2];
+		}
+		return !failed;
+	}
 
 	MFUNC4 (bool)		DetectOpticalBoxIntersection(const M::Box<C0>&box, const M::TVec3<C1>&b, const M::TVec3<C2>&d, C3&distance)
 	{
@@ -8346,5 +8440,7 @@ MFUNC
 	}
 	
 
+}
+}
 
 #endif

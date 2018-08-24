@@ -351,6 +351,11 @@ namespace DeltaWorks
 	
 		namespace Obj
 		{
+			template <typename F, typename I>
+				bool	Triangulate(const ArrayRef<TVec2<F> >&vertices, BasicBuffer<I>&outIndices);
+			template <typename F, typename I>
+				bool	TriangulateF(const count_t numVertices, const std::function<TVec2<F>(index_t)>&getVertex, BasicBuffer<I>&outIndices);
+
 
 			/*!
 			@brief Checks for a valid closer intersection of the specified box and ray
@@ -1476,12 +1481,13 @@ namespace DeltaWorks
 					*/
 			MF_DECLARE	(void)		build(const C p0[3], const C n0[3], const C p1[3], const C n1[3], const C p2[3], const C n2[3], const C p3[3], const C n3[3], const C&control_factor=0.45);
 			};
-		#include "object.tpl.h"
 
 	}
 
 
 }
+
+#include "object.tpl.h"
 
 #endif
 
