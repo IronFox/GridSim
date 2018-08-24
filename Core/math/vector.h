@@ -836,6 +836,15 @@ namespace DeltaWorks
 
 			};
 
+		inline	Quad<bool>	operator&&(const Quad<bool>&a, const Quad<bool>&b)
+		{
+			return Quad<bool>(a.left && b.left, a.bottom && b.bottom, a.right && b.right,a.top && b.top);
+		}
+		inline	Quad<bool>	operator||(const Quad<bool>&a, const Quad<bool>&b)
+		{
+			return Quad<bool>(a.left || b.left, a.bottom || b.bottom, a.right || b.right,a.top || b.top);
+		}
+
 		template <typename T=float>
 			class Rect	//! General purpose rectangle
 			{
