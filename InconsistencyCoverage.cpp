@@ -199,6 +199,22 @@ const HGrid::TCell&		HGrid::GetCellOfL(const TGridCoords&localCoords) const
 
 
 
+/*virtual override*/ float	InconsistencyCoverage::OrthographicBadness::operator()(const TSample&s) const
+{
+	if (s.depth == 0)
+		return 0;
+	return (float)s.depth * IC::MaxDistance 
+		+ (IC::MaxDistance - s.spatialDistance); //larger extent means probably not as bad
+}
+
+/*virtual override*/ float	InconsistencyCoverage::ReverseOrthographicBadness::operator()(const TSample&s) const
+{
+	if (s.depth == 0)
+		return 0;
+	return (float)(IC::MaxDistance - s.spatialDistance) * IC::MaxDepth //larger extent means probably not as bad
+		+ s.depth;
+}
+
 
 
 

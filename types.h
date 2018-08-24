@@ -94,7 +94,7 @@ Replaces MessageData with a custom class to accumulate contained data
 
 
 
-#define D3	//3d-grid
+//#define D3	//3d-grid
 
 #ifdef D3
 	static const constexpr count_t Dimensions=3;

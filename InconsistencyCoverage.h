@@ -164,6 +164,84 @@ public:
 
 	TGridCoords		offset;	//!< Offset to the bottom left corner of the local shard space in pixels (can be negative)
 
+	class BadnessEstimator
+	{
+	public:
+		/**
+		Evaluates a linear badness value.
+		@return -1 if s0 is less bad than s1, +1 if s0 is worse than s1, and 0 if both are equal
+		*/
+		virtual float	operator()(const TSample&s0) const = 0;
+		virtual String	GetName() const = 0;
+	};
+
+	class OrthographicBadness : public BadnessEstimator
+	{
+	public:
+		virtual float	operator()(const TSample&s0) const override;
+		virtual String GetName() const override {return "Orthographic (depth>extent)";}
+	};
+
+	class ReverseOrthographicBadness : public BadnessEstimator
+	{
+	public:
+		virtual float	operator()(const TSample&s0) const override;
+		virtual String GetName() const override {return "Orthographic (extent>depth)";}
+	};
+
+	class DepthBadness : public BadnessEstimator
+	{
+	public:
+		virtual float	operator()(const TSample&s0) const override
+		{
+			return s0.depth;
+		}
+		virtual String GetName() const override {return "Depth";}
+	};
+
+	class ExtentBadness : public BadnessEstimator
+	{
+	public:
+		virtual float	operator()(const TSample&s0) const override
+		{
+			return s0.spatialDistance;
+		}
+		virtual String GetName() const override {return "Extent";}
+	};
+
+
+	class BinaryBadness : public BadnessEstimator
+	{
+	public:
+		virtual float	operator()(const TSample&s0) const override
+		{
+			return s0.IsConsistent() ? 0 : 1;
+		}
+		virtual String GetName() const override {return "Binary";}
+	};
+
+	class PlaneBadness : public BadnessEstimator
+	{
+		float3	plane;
+
+		float	GetScore(const TSample&s) const
+		{
+			float spatialDistance = s.spatialDistance;
+			float temporalDistance = float(s.depth) + s.spatialDistance;
+			spatialDistance *= 2;
+			return M::Max(0.f, (plane.z + plane.x * spatialDistance + plane.y * temporalDistance));
+		}
+	public:
+		/**/		PlaneBadness(const float3&plane) : plane(plane)	{}
+		virtual float operator()(const TSample&s0) const override
+		{
+			return GetScore(s0);
+		}
+		virtual String GetName() const override {return "Plane "+ToString(plane);}
+	};
+
+
+
 
 	class Comparator
 	{

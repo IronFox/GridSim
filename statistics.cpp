@@ -30,8 +30,8 @@ namespace Statistics
 		#ifdef D3
 			return false;
 		#else
-			//return true;
-			return false;
+			return true;
+			//return false;
 		#endif
 	}
 
@@ -448,7 +448,8 @@ namespace Statistics
 			Sys::SpinLock mergeLock;
 
 			TStateDifference		betterPreMerge,
-									worsePreMerge;
+									worsePreMerge,
+									generalPreMerge;
 									
 
 			struct TMergeCapture
@@ -924,7 +925,7 @@ TExperiment Statistics::Begin( )
 				index_t s = 1;
 				//for (index_t s = 0; s <= maxSync; s++)
 				{
-					AddRun(20,2,l,s);
+					AddRun(20,2,l,s,1,TExperiment::OracleDoubleStrategy);
 					//AddRun(i,3,l,s);
 					//AddRun(i,4,l,s);
 					//AddRun(i,6,l,s);
@@ -995,6 +996,12 @@ TExperiment Statistics::Begin( )
 	}
 	catch (...) {}
 	
+
+	foreach (runs,r)
+	{
+		ImportMergeResults(r->setup);
+		ExportMergeResults(r->setup);
+	}
 
 
 	return Next();
@@ -1086,19 +1093,24 @@ namespace Statistics
 	}
 
 
-	void	CapturePreMerge(const TStateDifference&preMergeA, const TStateDifference&preMergeB)
+	void	CapturePreMerge(const TStateDifference&preMergeA, const TStateDifference&preMergeB, const TStateDifference&general)
 	{
 		using namespace Details::MergeMeasurement;
 		mergeLock.lock();
 			worsePreMerge += TStateDifference::Maximum(preMergeA,preMergeB);
 			betterPreMerge += TStateDifference::Minimum(preMergeA,preMergeB);
+			generalPreMerge += general;
 		mergeLock.unlock();
 	}
 
-	String ToExt(MergeStrategy strategy)
+	String ToExt(MergeStrategy strategy, ConfidenceThreshold confidenceThreshold)
 	{
 		switch (strategy)
 		{
+			case MergeStrategy::EntitySelective:
+				if (confidenceThreshold != ConfidenceThreshold::Half)
+					return "_CT"+String(confidenceThreshold.ToString());
+			break;
 			case MergeStrategy::Exclusive:
 				return "_Ex";
 			case MergeStrategy::ExclusiveWithPositionCorrection:
@@ -1184,15 +1196,15 @@ namespace Statistics
 
 
 
-	void CaptureMergeResult(const IC::Comparator&comp, MergeStrategy strategy,const TStateDifference&postMerge)
+	void CaptureMergeResult(const IC::Comparator&comp, MergeStrategy strategy,ConfidenceThreshold confidenceThreshold,const TStateDifference&postMerge)
 	{
 		using namespace Details::MergeMeasurement;
 	
-		String ext = ToExt(strategy);
+		String ext = ToExt(strategy, confidenceThreshold);
 	
 		mergeLock.lock();
 			auto&entry = mergeCaptures.Set(String(comp.GetName())+ext);
-			entry.postMerge.AddMean(postMerge);
+			entry.postMerge += postMerge;
 		mergeLock.unlock();
 	}
 
@@ -1202,9 +1214,19 @@ namespace Statistics
 
 	PathString Filename(const TExperiment&ex, const PathString&coreName, const PathString&ext)
 	{
+		String append;
+
+
+		#ifdef CLAMP_ENTITIES
+			#ifndef CLAMP_MESSAGES
+				append = ".UnrestrictedMsg";
+			#endif;
+		#else
+			append = ".Unrestricted";
+		#endif
 		if (HashProcessGrid::RegardHistory)
-			return "measurements/"+coreName+PathString(ex.numEntities)+"."+ext;
-		return "measurements/"+coreName+PathString(ex.numEntities)+".NoHistoryState."+ext;
+			return "measurements/"+coreName+PathString(ex.numEntities)+append+"."+ext;
+		return "measurements/"+coreName+PathString(ex.numEntities)+append+".NoHistoryState."+ext;
 	}
 
 	PathString MergeFilename(const TExperiment&ex)
@@ -1353,10 +1375,12 @@ namespace Statistics
 		try
 		{
 			XML::Container doc;
-			doc.LoadFromFile(MergeFilename(ex));
+			const auto filename = MergeFilename(ex);
+			doc.LoadFromFile(filename);
 
 			betterPreMerge.Import(doc.root_node.Find("better"));
 			worsePreMerge.Import(doc.root_node.Find("worse"));
+			generalPreMerge.Import(doc.root_node.Find("general"));
 
 			String key;
 			foreach(doc.root_node.children,n)
@@ -1424,7 +1448,7 @@ namespace Statistics
 
 	struct ExportChannel
 	{
-		typedef std::function<TSDSample<double>(const TStateDifference&diff)> FFilter;
+		typedef std::function<TSDSample<double>(const TStateDifference&diff, const TStateDifference&averageReference)> FFilter;
 		const char*name="";
 		FFilter f;
 		const char* unit="";
@@ -1449,10 +1473,10 @@ namespace Statistics
 		for (index_t index = 0; index < channels.Count(); index++)
 		{
 			const auto&c = channels[index];
-			const float rawMax = std::max(c.f(worsePreMerge).Get(),c.f(cap.postMerge).Get());
+			const float rawMax = std::max(c.f(worsePreMerge, cap.postMerge).Get(),c.f(cap.postMerge, cap.postMerge).Get());
 			const float max = rawMax*1.2f;
-			float h0 = c.f(betterPreMerge).Get()/max;
-			float h1 = c.f(worsePreMerge).Get()/max;
+			float h0 = c.f(betterPreMerge, cap.postMerge).Get()/max;
+			float h1 = c.f(worsePreMerge, cap.postMerge).Get()/max;
 
 			//fill:
 			texFile << "\\draw [draw=black, pattern=north west lines, pattern color=black!50] (axis cs:"<<h0<<","<<(index)<<".0) rectangle (axis cs:"<<h1<<","<<index<<".9);"<<nl;
@@ -1461,7 +1485,7 @@ namespace Statistics
 			texFile << "\\node[anchor=west,align=left] at (axis cs:0.8333,"<<index<<".5) {"<<ToDisplay(rawMax)<<c.unit<<"};"<<nl;
 
 			//describe current:
-			float current = c.f(cap.postMerge).Get();
+			float current = c.f(cap.postMerge, cap.postMerge).Get();
 			texFile << "\\node[anchor=west,fill=white,inner sep=0.5pt,align=left] at (axis cs:"<<(current/max+0.01f) <<","<<index<<".45) {"<<ToDisplay(current)<<c.unit<<"};"<<nl;
 
 
@@ -1490,11 +1514,11 @@ namespace Statistics
 
 			StringFile texFile;
 			texFile.Create(PathString("tex/"+name+".tex"));
-
+			float h = 0.35f;
 			//areas:
 			texFile << "\\begin{axis}["<<nl
 					<< tab<< "width=\\linewidth,"<<nl
-					<< tab<< "height=0.4\\linewidth,"<<nl
+					<< tab<< "height="<<h<<"\\linewidth,"<<nl
 					<< tab<< "xmin=0,"<<nl
 					<< tab<< "xmax=1.02,"<<nl
 					<< tab<< "ticks=none,"<<nl
@@ -1505,21 +1529,21 @@ namespace Statistics
 				//{
 				//	return diff.icSize;
 				//}),
-				ExportChannel("$M$","\\%",[](const TStateDifference&diff)
+				ExportChannel("$P_M$","\\%",[](const TStateDifference&diff, const TStateDifference&avgReference)
 				{
-					return diff.missingEntities / diff.entitiesInInconsistentArea.Get() * 100;
+					return diff.value[TStateDifference::Metric::C_MissingProbability].Get() * 100;
 				}),
-				ExportChannel("$U$","\\%",[](const TStateDifference&diff)
+				ExportChannel("$P_U$","\\%",[](const TStateDifference&diff, const TStateDifference&avgReference)
 				{
-					return diff.overAccountedEntities / diff.entitiesInInconsistentArea.Get() * 100;
+					return diff.value[TStateDifference::Metric::I_UnwantedProbability].Get() * 100;
 				}),
-				ExportChannel("$P$","\\%", [](const TStateDifference&diff)
+				ExportChannel("$P_I$","\\%", [](const TStateDifference&diff, const TStateDifference&avgReference)
 				{
-					return diff.inconsistencyProbability * 100;
+					return diff.value[TStateDifference::Metric::C_InconsistencyProbability].Get() * 100;
 				}),
-				ExportChannel("$\\Omega$","R",[](const TStateDifference&diff)
+				ExportChannel("$\\Omega$","R",[](const TStateDifference&diff, const TStateDifference&avgReference)
 				{
-					return diff.omega * (1.0/ Entity::MaxInfluenceRadius);
+					return diff.value[TStateDifference::Metric::I_Omega].Get() * (1.0/ Entity::MaxInfluenceRadius);
 				}),
 			};
 
@@ -1528,7 +1552,7 @@ namespace Statistics
 			ExportRangeToTex(texFile,source ,channels);
 			texFile << "\\end{axis}"<<nl
 				<< "\\begin{axis}[width=\\linewidth,xmin=0,xmax=1.02,"<<nl
-				<< tab<< "height=0.4\\linewidth,"<<nl
+				<< tab<< "height="<<h<<"\\linewidth,"<<nl
 				<<tab<<"symbolic y coords={";
 			foreach (channels, ch)
 			{
@@ -1538,7 +1562,7 @@ namespace Statistics
 			float enlarge = 0.8f / (channels.Count()-1);
 				//0.4f;
 				// == 3 ? 0.4f : 0.27f;
-			float barWidth = 15/channels.Count();
+			float barWidth = 30/channels.Count();
 			
 
 			texFile << "},xticklabels={,,},ytick=data,"<<nl
@@ -1548,11 +1572,11 @@ namespace Statistics
 				<< tab << "/pgf/bar width="<<barWidth<<"pt,"<<nl
 				<< tab << "]"<<nl;
 	
-			texFile << "\\addplot+[xbar, color=black,mark=] coordinates {"<<nl;
+			texFile << "\\addplot+[xbar, color=black,fill=black!50!white,mark=] coordinates {"<<nl;
 			foreach (channels,ch)
 			{
-				const float current = ch->f(source.postMerge).Get();
-				const float worse = ch->f(worsePreMerge).Get();
+				const float current = ch->f(source.postMerge,source.postMerge).Get();
+				const float worse = ch->f(worsePreMerge,source.postMerge).Get();
 				const float max = std::max(worse,current) * 1.2f;
 				const float v = current / max;
 				texFile << tab<<"("<<v<<","<<ch->MakeName(source.postMerge)<<")"<<nl;
@@ -1564,10 +1588,12 @@ namespace Statistics
 		{}
 	}
 
-	static const Details::MergeMeasurement::TMergeCapture& ExportTexFile(const String&name)
+	static const Details::MergeMeasurement::TMergeCapture* ExportTexFile(const String&name)
 	{
-		const auto&data = Details::MergeMeasurement::mergeCaptures.Require(name);
-		ExportTexFile(name,data);
+		const auto*data = Details::MergeMeasurement::mergeCaptures.QueryPointer(name);
+		if (!data)
+			return nullptr;
+		ExportTexFile(name,*data);
 		return data;
 	}
 
@@ -1626,7 +1652,9 @@ namespace Statistics
 		#ifndef IC_PROFILE_IS_MERGE_COMPARATOR_SOURCE
 		{
 			StringFile file;
-			file.Create(Filename(ex,"icProfile","csv"));
+			const auto target = Filename(ex,"icProfile","csv");
+			FileSystem::CreateDirectory(FileSystem::ExtractFileDir(target));
+			file.Create(target);
 			//vertical: depth
 			count_t total = 0;
 			foreach (icProfile.Vertical(),v)
@@ -1664,6 +1692,8 @@ namespace Statistics
 
 			betterPreMerge.ToXML(doc.root_node.Create("better"));
 			worsePreMerge.ToXML(doc.root_node.Create("worse"));
+			generalPreMerge.ToXML(doc.root_node.Create("general"));
+			(worsePreMerge + betterPreMerge).ToXML(doc.root_node.Create("average"));
 
 			mergeCaptures.ExportTo(keys,values);
 			
@@ -1675,7 +1705,9 @@ namespace Statistics
 				values[i].postMerge.ToXML(node,betterPreMerge,worsePreMerge);
 			}
 
-			doc.SaveToFile(MergeFilename(ex));
+			const auto target = MergeFilename(ex);
+			FileSystem::CreateDirectory(FileSystem::ExtractFileDir(target));
+			doc.SaveToFile(target);
 		}
 		try
 		{
@@ -1894,6 +1926,8 @@ namespace Statistics
 
 			doc.SaveToFile(ICFilename(ex));
 
+			if (false)
+			{
 			try
 			{
 				StringFile csv;
@@ -1987,7 +2021,7 @@ namespace Statistics
 
 			}
 			catch (...)	{}
-
+			}
 		}
 
 
@@ -1996,8 +2030,17 @@ namespace Statistics
 		{
 			for (int i = 0; i < (int)MergeStrategy::Count; i++)
 			{
-				ExportTexFile("Binary"+ToExt((MergeStrategy)i));
-				ExportTexFile("Depth"+ToExt((MergeStrategy)i));
+				if (i != (int)MergeStrategy::EntitySelective)
+				{
+					ExportTexFile("Binary"+ToExt((MergeStrategy)i,ConfidenceThreshold::Half));
+					ExportTexFile("Depth"+ToExt((MergeStrategy)i,ConfidenceThreshold::Half));
+				}
+				else
+					for (index_t i = 0; i < ConfidenceThreshold::N; i++)
+					{
+						ExportTexFile("Binary"+ToExt((MergeStrategy)i,ConfidenceThreshold::Reinterpret(i)));
+						ExportTexFile("Depth"+ToExt((MergeStrategy)i,ConfidenceThreshold::Reinterpret(i)));
+					}
 			}
 		}
 	}

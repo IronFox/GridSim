@@ -145,43 +145,66 @@ namespace Statistics
 
 	struct TStateDifference
 	{
-		TSDSample<double>	inconsistency,
-							omega,
-							icSize,	//!< Number of inconsistent IC cells
-							entitiesInInconsistentArea,
-							entitiesInSDS,
-							inconsistentEntitiesOutsideIC,	//[0,1] probability that inconsistent entities lie outside the remaining inconsistent area
-							inconsistencyProbability,	//[0,1]
-							missingEntities,	//!< Entities that should be there according to consistent state, but were not found in local state
-							overAccountedEntities;	//!< Entities in the local state, that are not supposed to be here according to the consistent state
+		CONSTRUCT_ENUMERATION15(Metric,
+			C_SpatialDelta,			//Spatial difference between consistent entity and local entity (sometimes available)
+			I_SpatialDelta,			//Spatial difference between local entity and consistent entity (always available)
+			I_Omega,			
+			ICSize,					//Number of inconsistent IC cells (/64 to get percentage)
+			C_EntitiesInMergedIC,	//Consistent entities in remaining IC
+			C_EntitiesInMerged,		//Consistent entities in consistent merged SDS
+			I_EntitiesInMergedIC,
+			C_MissingEntitiesInMergedIC,	//Entities that should be there according to consistent state, but were not found in local state
+			I_UnwantedEntitiesInMergedIC,	//Entities in the local state, that are not supposed to be here according to the consistent state
+			C_InconsistencyProbability,	//[0,1] probability that inconsistent entities lie outside the remaining inconsistent area. apparently never correctly captured
+			C_MissingProbability,		//[0,1] probability that entity should be there according to consistent state, but was not found in local state
+			I_UnwantedProbability,		//[0,1] probability that entity is in local state, but should not according to the consistent state
+			C_ICIsFullyConsistentInMergedIC,		//[0,1] probability that no entity in the IC is inconsistent
+			C_ICIsCompletelyInconsistentInMergedIC,		//[0,1] probability that all entities in the IC are inconsistent
+			C_ICIsEmpty
+		);
+
+
+		static String GetOldName(Metric m)
+		{
+			switch (m)
+			{
+				case Metric::C_SpatialDelta:
+					return "inconsistency";
+				case Metric::C_EntitiesInMerged:
+					return "entitiesInSDS";
+				case Metric::C_EntitiesInMergedIC:
+					return "entitiesInInconsistentArea";
+				case Metric::C_MissingEntitiesInMergedIC:
+					return "missingEntities";
+				case Metric::I_Omega:
+					return "omega";
+				case Metric::ICSize:
+					return "icSize";
+				case Metric::I_UnwantedEntitiesInMergedIC:
+					return "overAccountedEntities";
+			}
+			return "";
+		}
+
+		FixedArray<TSDSample<double>,Metric::N>	value;
 
 		/**/				TStateDifference()	{};
 		static TStateDifference Minimum(const TStateDifference&a, const TStateDifference&b)
 		{
 			TStateDifference rs;
-			rs.omega = std::min(a.omega.Get(),b.omega.Get());
-			rs.inconsistency = std::min(a.inconsistency.Get(),b.inconsistency.Get());
-			rs.icSize = std::min(a.icSize.Get(),b.icSize.Get());	//might make more sense to compare to minimum here
-			rs.entitiesInInconsistentArea = std::min(a.entitiesInInconsistentArea.Get(),b.entitiesInInconsistentArea.Get());
-			rs.entitiesInSDS = std::min(a.entitiesInSDS.Get(),b.entitiesInSDS.Get());
-			rs.inconsistencyProbability = std::min(a.inconsistencyProbability.Get(),b.inconsistencyProbability.Get());
-			rs.inconsistentEntitiesOutsideIC = std::min(a.inconsistentEntitiesOutsideIC.Get(),b.inconsistentEntitiesOutsideIC.Get());
-			rs.missingEntities = std::min(a.missingEntities.Get(),b.missingEntities.Get());
-			rs.overAccountedEntities = std::min(a.overAccountedEntities.Get(),b.overAccountedEntities.Get());
+			using std::min;
+			for (index_t i = 0; i < Metric::N; i++)
+				rs.value[i] = a.value[i].Get() >= b.value[i].Get() ? b.value[i] : a.value[i];
+				//rs.value[i] = min(a.value[i].Get(),b.value[i].Get());
 			return rs;
 		}
 		static TStateDifference Maximum(const TStateDifference&a, const TStateDifference&b)
 		{
 			TStateDifference rs;
-			rs.omega = std::max(a.omega.Get(),b.omega.Get());
-			rs.inconsistency = std::max(a.inconsistency.Get(),b.inconsistency.Get());
-			rs.icSize = std::max(a.icSize.Get(),b.icSize.Get());	//might make more sense to compare to minimum here
-			rs.entitiesInInconsistentArea = std::max(a.entitiesInInconsistentArea.Get(),b.entitiesInInconsistentArea.Get());
-			rs.entitiesInSDS = std::max(a.entitiesInSDS.Get(),b.entitiesInSDS.Get());
-			rs.inconsistencyProbability = std::max(a.inconsistencyProbability.Get(),b.inconsistencyProbability.Get());
-			rs.inconsistentEntitiesOutsideIC = std::max(a.inconsistentEntitiesOutsideIC.Get(),b.inconsistentEntitiesOutsideIC.Get());
-			rs.missingEntities = std::max(a.missingEntities.Get(),b.missingEntities.Get());
-			rs.overAccountedEntities = std::max(a.overAccountedEntities.Get(),b.overAccountedEntities.Get());
+			using std::max;
+			for (index_t i = 0; i < Metric::N; i++)
+				rs.value[i] = a.value[i].Get() < b.value[i].Get() ? b.value[i] : a.value[i];
+				//rs.value[i] = max(a.value[i].Get(),b.value[i].Get());
 			return rs;
 		}
 		static double Avg(double a, double b)
@@ -191,90 +214,47 @@ namespace Statistics
 
 		void				operator+=(const TStateDifference&other)
 		{
-			omega += other.omega;
-			inconsistency += other.inconsistency;
-			icSize += other.icSize;
-			entitiesInInconsistentArea += other.entitiesInInconsistentArea;
-			entitiesInSDS += other.entitiesInSDS;
-			inconsistencyProbability += other.inconsistencyProbability;
-			inconsistentEntitiesOutsideIC += other.inconsistentEntitiesOutsideIC;
-			missingEntities += other.missingEntities;
-			overAccountedEntities += other.overAccountedEntities;
+			for (index_t i = 0; i < Metric::N; i++)
+				value[i] += other.value[i];
 		}
 
 		void				AddMean(const TStateDifference&other)
 		{
-			omega += other.omega.Get();
-			inconsistency += other.inconsistency.Get();
-			icSize += other.icSize.Get();
-			entitiesInInconsistentArea += other.entitiesInInconsistentArea.Get();
-			entitiesInSDS += other.entitiesInSDS.Get();
-			inconsistencyProbability += other.inconsistencyProbability.Get();
-			inconsistentEntitiesOutsideIC += other.inconsistentEntitiesOutsideIC.Get();
-			missingEntities += other.missingEntities.Get();
-			overAccountedEntities += other.overAccountedEntities.Get();
+			for (index_t i = 0; i < Metric::N; i++)
+				value[i] += other.value[i].Get();
 		}
 
 		TStateDifference	operator+(const TStateDifference&other) const
 		{
 			TStateDifference rs;
-			rs.omega = omega + other.omega;
-			rs.inconsistency = inconsistency + other.inconsistency;
-			rs.icSize = icSize + other.icSize;
-			rs.entitiesInInconsistentArea = entitiesInInconsistentArea + other.entitiesInInconsistentArea;
-			rs.entitiesInSDS = entitiesInSDS + other.entitiesInSDS;
-			rs.inconsistencyProbability = inconsistencyProbability + other.inconsistencyProbability;
-			rs.inconsistentEntitiesOutsideIC = inconsistentEntitiesOutsideIC + other.inconsistentEntitiesOutsideIC;
-			rs.missingEntities = missingEntities + other.missingEntities;
-			rs.overAccountedEntities = overAccountedEntities + other.overAccountedEntities;
+			for (index_t i = 0; i < Metric::N; i++)
+				rs.value[i] = value[i] + other.value[i];
 			return rs;
 		}
 
 		void	ToXML(XML::Node&outNode) const
 		{
-			#undef EXPORT
-			#define EXPORT(X)	X.ToXML(outNode.Create(#X));
-			EXPORT(omega);
-			EXPORT(inconsistency);
-			EXPORT(icSize);
-			EXPORT(entitiesInInconsistentArea);
-			EXPORT(entitiesInSDS);
-			EXPORT(inconsistencyProbability);
-			EXPORT(inconsistentEntitiesOutsideIC);
-			EXPORT(missingEntities);
-			EXPORT(overAccountedEntities);
+			for (index_t i = 0; i < Metric::N; i++)
+				value[i].ToXML(outNode.Create(Metric::Reinterpret(i).ToString()));
 		}
 
 		void	ToXML(XML::Node&outNode, const TStateDifference&min, const TStateDifference&max) const
 		{
-			#undef EXPORT
-			#define EXPORT(X)	X.ToXML(outNode.Create(#X),min.X,max.X);
-			EXPORT(omega);
-			EXPORT(inconsistency);
-			EXPORT(icSize);
-			EXPORT(entitiesInInconsistentArea);
-			EXPORT(entitiesInSDS);
-			EXPORT(inconsistencyProbability);
-			EXPORT(inconsistentEntitiesOutsideIC);
-			EXPORT(missingEntities);
-			EXPORT(overAccountedEntities);
+			for (index_t i = 0; i < Metric::N; i++)
+				value[i].ToXML(outNode.Create(Metric::Reinterpret(i).ToString()),min.value[i],max.value[i]);
 		}
 
 		void	Import(const XML::Node*node)
 		{
 			if (!node)
 				return;
-			#undef IMPORT
-			#define IMPORT(X)	X.Import(node->Find(#X));
-			IMPORT(omega);
-			IMPORT(inconsistency);
-			IMPORT(icSize);
-			IMPORT(entitiesInInconsistentArea);
-			IMPORT(entitiesInSDS);
-			IMPORT(inconsistencyProbability);
-			IMPORT(inconsistentEntitiesOutsideIC);
-			IMPORT(missingEntities);
-			IMPORT(overAccountedEntities);
+			for (index_t i = 0; i < Metric::N; i++)
+			{
+				auto imp = node->Find(Metric::Reinterpret(i).ToString());
+				if (!imp)
+					imp = node->Find(GetOldName(Metric::Reinterpret(i)));
+				value[i].Import(imp);
+			}
 		}
 
 	};
@@ -287,6 +267,13 @@ namespace Statistics
 
 		Count
 	};
+
+	CONSTRUCT_ENUMERATION4(ConfidenceThreshold,
+		Zero,
+		Half,
+		HalfPlusWI,
+		One
+	);
 
 
 	enum class ICReductionFlags
@@ -429,8 +416,8 @@ namespace Statistics
 
 	void	CaptureInconsistency(const IC&, const EntityStorage&inconsistent, const EntityStorage&consistent, const TGridCoords&shardOffset);
 	void	CaptureICTest(const TProbabilisticICReduction&);
-	void	CapturePreMerge(const TStateDifference&preMergeA, const TStateDifference&preMergeB);
-	void	CaptureMergeResult(const IC::Comparator&comp, MergeStrategy,const TStateDifference&postMerge);
+	void	CapturePreMerge(const TStateDifference&preMergeA, const TStateDifference&preMergeB, const TStateDifference&general);
+	void	CaptureMergeResult(const IC::Comparator&comp, MergeStrategy,ConfidenceThreshold,const TStateDifference&postMerge);
 	void	ExportMergeResults(const TExperiment&);
 	void	ImportMergeResults(const TExperiment&);
 	void	ExportMergeResults();
