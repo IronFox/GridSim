@@ -131,8 +131,10 @@ namespace DeltaWorks
 			return GetExtensionPointer();
 		}
 	
-		bool	File::IsExtension(const PathString&ext)		const
+		bool	File::IsExtension(const PathString::ReferenceType&ext)		const
 		{
+			if (ext.BeginsWith('.'))
+				return IsExtension(ext.SubStringRef(1));
 			return ext.EqualsIgnoreCase(GetExtensionPointer());
 		}
 	

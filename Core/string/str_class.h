@@ -663,6 +663,7 @@ namespace DeltaWorks
 			public:
 				typedef T		char_t;
 				static const count_t MaxLengthConst = std::numeric_limits<count_t>::max();
+				typedef ReferenceExpression<T>	ReferenceType;
 			protected:
 	
 	
@@ -1041,9 +1042,9 @@ namespace DeltaWorks
 					Template<T>			subString(IndexType index, count_t count=MaxLengthConst) const;	//!< Creates a string copy containing the specified sub string of the local string @param index Index of the sub string to extract with 0 being the first character  Invalid values are clamped to the valid range. @param count Number of characters to extract starting at @a index @return Extracted string
 				template <typename IndexType>
 					Template<T>			SubString(IndexType index, count_t count=MaxLengthConst) const	{return subString(index,count);}
-				ReferenceExpression<T>	subStringRef(sindex_t index, count_t count=MaxLengthConst) const;	//!< Creates a string reference expression pointing to the specified sub string of the local string. The returned object remains valid as long as the local string object is not deleted or modified @param index Index of the sub string to extract with 0 being the first character  Invalid values are clamped to the valid range. @param count Number of characters to extract starting at @a index @return String segment
-				ReferenceExpression<T>	SubStringRefS(sindex_t index, count_t count=MaxLengthConst) const	/**@copydoc subStringRef()*/ {return subStringRef(index,count);}
-				ReferenceExpression<T>	SubStringRef(index_t index, count_t count=MaxLengthConst) const	/**@copydoc subStringRef()*/ {return subStringRef(sindex_t(index),count);}
+				ReferenceType			subStringRef(sindex_t index, count_t count=MaxLengthConst) const;	//!< Creates a string reference expression pointing to the specified sub string of the local string. The returned object remains valid as long as the local string object is not deleted or modified @param index Index of the sub string to extract with 0 being the first character  Invalid values are clamped to the valid range. @param count Number of characters to extract starting at @a index @return String segment
+				ReferenceType			SubStringRefS(sindex_t index, count_t count=MaxLengthConst) const	/**@copydoc subStringRef()*/ {return subStringRef(index,count);}
+				ReferenceType			SubStringRef(index_t index, count_t count=MaxLengthConst) const	/**@copydoc subStringRef()*/ {return subStringRef(sindex_t(index),count);}
 
 	
 				/*!	\brief Removes whitespace characters from the beginning and the end of the local string
@@ -1051,29 +1052,29 @@ namespace DeltaWorks
 									
 				The following characters are considered whitespace: space (' '), tab ('\\t'), carriage return ('\\r') and newline ('\\n').*/
 				Template<T>&			TrimThis();
-				ReferenceExpression<T>	ref()			const;	//!< Creates a reference expression of the local string
-				ReferenceExpression<T>	ToRef()			const	{return ref();}
+				ReferenceType			ref()			const;	//!< Creates a reference expression of the local string
+				ReferenceType			ToRef()			const	{return ref();}
 		
 				/*!	\brief Creates a copy of the local string with whitespace characters removed from the beginning and the end of the local string
 				\return Trimmed copy of the local string.
 									
 				The resulting string has all preceeding and trailing whitespace characters removed. The following characters are considered whitespace: space (' '), tab ('\\t'), carriage return ('\\r') and newline ('\\n').*/
 				Template<T>				Trim()			const;
-				ReferenceExpression<T>	TrimRef()		const;	//!< Identical to the above but returns a reference instead
+				ReferenceType			TrimRef()		const;	//!< Identical to the above but returns a reference instead
 		
 				/*!	\brief Creates a copy of the local string with whitespace characters removed from the beginning of the local string
 				\return Trimmed copy of the local string.
 									
 				The resulting string has all preceeding whitespace characters removed. The following characters are considered whitespace: space (' '), tab ('\\t'), carriage return ('\\r') and newline ('\\n').*/
 				Template<T>				TrimLeft()		const;
-				ReferenceExpression<T>	TrimLeftRef()	const;	//!< Identical to the above but returns a reference instead
+				ReferenceType			TrimLeftRef()	const;	//!< Identical to the above but returns a reference instead
 		
 				/*!	\brief Creates a copy of the local string with whitespace characters removed from the end of the local string
 				\return Trimmed copy of the local string.
 									
 				The resulting string has all trailing whitespace characters removed. The following characters are considered whitespace: space (' '), tab ('\\t'), carriage return ('\\r') and newline ('\\n').*/
 				Template<T>				TrimRight()		const;
-				ReferenceExpression<T>	TrimRightRef()	const;	//!< Identical to the above but returns a reference instead
+				ReferenceType			TrimRightRef()	const;	//!< Identical to the above but returns a reference instead
 		
 				/*!	\brief Inserts a string into the local string
 				\param index Character offset to insert before (in the range [0,GetLength()-1])
@@ -1082,7 +1083,7 @@ namespace DeltaWorks
 									
 				This method inserts the string \b before the specified character offset. Passing 0 as \b index would insert before the first character.*/
 				Template<T>&			Insert(size_t index, const Template<T>&str)	{return Insert(index,str.ToRef());}
-				Template<T>&			Insert(size_t index, const ReferenceExpression<T>&str);
+				Template<T>&			Insert(size_t index, const ReferenceType&str);
 		
 				/*!	\brief Inserts a character into the local string
 				\param index Character offset to insert before (in the range [0,GetLength()-1])
@@ -1110,27 +1111,27 @@ namespace DeltaWorks
 				a.GetBetween("cd","ghi") will return "ef"
 				*/
 				Template<T>				GetBetween(const Template<T>&left_delimiter, const Template<T>&right_delimiter)	const;
-				ReferenceExpression<T>	GetBetweenRef(const Template<T>&left_delimiter, const Template<T>&right_delimiter)	const;		//!< Identical to the above but returns a reference instead
+				ReferenceType			GetBetweenRef(const Template<T>&left_delimiter, const Template<T>&right_delimiter)	const;		//!< Identical to the above but returns a reference instead
 				const T*				lastCharPointer()					const;		//!< Returns a pointer to the last character. The returned pointer points one before the trailing zero and is valid only if the local string is not empty.
 				Template<T>				GetFirstWord()							const;		//!< Retrieves the first word, either the full string or until the first whitespace character is encountered
-				ReferenceExpression<T>	GetFirstWordRef()						const;		//!< Identical to the above but returns a reference instead
+				ReferenceType			GetFirstWordRef()						const;		//!< Identical to the above but returns a reference instead
 				Template<T>				GetLastWord()							const;		//!< Retrieves the last word, either the full string or from where the last whitespace character is encountered. May require testing!
-				ReferenceExpression<T>	GetLastWordRef()						const;		//!< Identical to the above but returns a reference instead
-				Template<T>&			ReplaceSubString(size_t offset, size_t count, const ReferenceExpression<T>&replacement);	//!< Replaces a sub string section of the local string with the specified replacement @param offset Index of the first character to replace @param count Number of characters to replace. If this value is zero then the method effectively behaves like Insert() @param replacement String to replace the specified input section with @return Reference to @a this
+				ReferenceType			GetLastWordRef()						const;		//!< Identical to the above but returns a reference instead
+				Template<T>&			ReplaceSubString(size_t offset, size_t count, const ReferenceType&replacement);	//!< Replaces a sub string section of the local string with the specified replacement @param offset Index of the first character to replace @param count Number of characters to replace. If this value is zero then the method effectively behaves like Insert() @param replacement String to replace the specified input section with @return Reference to @a this
 				Template<T>&			ReplaceSubString(size_t offset, size_t count, const Template<T>&replacement)	/**@copydoc ReplaceSubString() */ {return ReplaceSubString(offset,count,replacement.ToRef());}
 				/**
 				Replaces all occurances of \b needle in the local string with \b replacement
 				@return Number of replacements
 				*/
-				count_t					FindAndReplace(const ReferenceExpression<T>&needle, const ReferenceExpression<T>&replacement);
-				count_t					FindAndReplace(const T*needle, const T*replacement)	/** @copydoc FindAndReplace(); */ {return FindAndReplace(ReferenceExpression<T>(needle),ReferenceExpression<T>(replacement));}
+				count_t					FindAndReplace(const ReferenceType&needle, const ReferenceType&replacement);
+				count_t					FindAndReplace(const T*needle, const T*replacement)	/** @copydoc FindAndReplace(); */ {return FindAndReplace(ReferenceType(needle),ReferenceType(replacement));}
 				count_t					FindAndReplace(const Template<T>&needle, const Template<T>&replacement)	/** @copydoc FindAndReplace(); */ {return FindAndReplace(needle.ToRef(),replacement.ToRef());}
 				/**
 				Replaces all occurances of \b needle_char in the local string with \b replacement
 				@return Number of replacements
 				*/
-				count_t					FindAndReplace(T needle, const ReferenceExpression<T>&replacement);
-				count_t					FindAndReplace(T needle, const T*replacement)	/** @copydoc FindAndReplace(); */ {return FindAndReplace(needle,ReferenceExpression<T>(replacement));}
+				count_t					FindAndReplace(T needle, const ReferenceType&replacement);
+				count_t					FindAndReplace(T needle, const T*replacement)	/** @copydoc FindAndReplace(); */ {return FindAndReplace(needle,ReferenceType(replacement));}
 				count_t					FindAndReplace(T needle, const Template<T>&replacement)	/** @copydoc FindAndReplace(); */ {return FindAndReplace(needle,replacement.ToRef());}
 				count_t					FindAndReplace(T needle, T replacement);						//!< @copydoc FindAndReplace()
 

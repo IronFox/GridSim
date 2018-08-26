@@ -183,7 +183,15 @@ namespace DeltaWorks
 			*/
 			PathString			GetExtension()						const;
 			const PathString::char_t*			GetExtensionPointer()	const;		//!< Returns the file extension (without preceding dot) \return Pointer to the beginning of the local filename's file extension. Does not return NULL
-			bool				IsExtension(const PathString&ext)	const;		//!< Checks if the specified extension equals the local file's extension. Comparison is case insensitive. @param ext Extensiont to match (without preceding dot). \return true if the specified extension matches the extension of the local file
+			/**
+			Checks if the specified extension equals the local file's extension.
+			Comparison is case insensitive.
+			@param ext Extension to compare to (with or without preceding dot).
+			@return true if the specified extension matches the extension of the local file
+			*/
+			bool				IsExtension(const PathString::ReferenceType&extRef) const;
+			bool				IsExtension(const PathString&ext)	const	{return IsExtension(ext.ToRef());}
+			bool				IsExtension(const PathString::char_t*cString) const {return IsExtension(PathString::ReferenceType(cString));}
 			bool				IsDirectory()						const;		//!< Returns true if the local entry is a folder/directory \return true if folder
 			friend String		ToString(const File&);
 			bool				DoesExist()							const;		//!< Queries existence of the local file or folder
