@@ -8,7 +8,7 @@ float	TExperiment::GetReliability() const
 
 void	TExperiment::Describe(Array<std::pair<const char*,int*> >&rs)
 {
-	rs.SetSize(7);
+	rs.SetSize(8);
 	index_t at=0;
 	rs[at++] = std::make_pair("reliabilityLevel",&reliabilityLevel);
 	rs[at++] = std::make_pair("recoveryIterations",&recoveryIterations);
@@ -17,13 +17,14 @@ void	TExperiment::Describe(Array<std::pair<const char*,int*> >&rs)
 	rs[at++] = std::make_pair("siblingSyncDelay",&siblingSyncDelay);
 	rs[at++] = std::make_pair("numEntities",&numEntities);
 	rs[at++] = std::make_pair("selectionStrategy",&selectionStrategy);
+	rs[at++] = std::make_pair("compareToControl",&compareToControl);
 
 	ASSERT__(at==rs.Count());
 }
 
 void	TExperiment::Describe(Array<std::pair<const char*,int> >&rs) const
 {
-	rs.SetSize(7);
+	rs.SetSize(8);
 	index_t at=0;
 	rs[at++] = std::make_pair("reliabilityLevel",reliabilityLevel);
 	rs[at++] = std::make_pair("recoveryIterations",recoveryIterations);
@@ -32,6 +33,7 @@ void	TExperiment::Describe(Array<std::pair<const char*,int> >&rs) const
 	rs[at++] = std::make_pair("siblingSyncDelay",siblingSyncDelay);
 	rs[at++] = std::make_pair("numEntities",numEntities);
 	rs[at++] = std::make_pair("selectionStrategy",selectionStrategy);
+	rs[at++] = std::make_pair("compareToControl",compareToControl);
 
 	ASSERT__(at==rs.Count());
 }

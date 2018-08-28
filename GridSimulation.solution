@@ -1,4 +1,6 @@
 <solution language="C++">
 	<project name="Grid Simulation" primary="true" />
-	<project name="Console Grid Simulation" />
+	<project name="Free Console Grid Simulation" />
+	<project name="Position Clamped Console Grid Simulation" />
+	<project name="Fully Clamped Console Grid Simulation" />
 </solution>

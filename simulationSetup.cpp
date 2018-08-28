@@ -875,7 +875,7 @@ void	SetupScene()
 				size = GridSize(5);
 			#endif
 		#endif
-		testSimulation.Reset(size,Statistics::DoCompareEntityConsistency(),seed,currentSetup.numLayers,entities);
+		testSimulation.Reset(size,currentSetup.compareToControl != 0,seed,currentSetup.numLayers,entities);
 	}
 	//testSimulation.Reset(2,2,true,2);
 

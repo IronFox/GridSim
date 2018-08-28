@@ -44,13 +44,18 @@ Replaces MessageData with a custom class to accumulate contained data
 	#define RECOVERY_TEST
 #endif
 
+#define SIMULATION_FAILED_AT_DD	20
+
 
 #define NO_SENSORY	//completely disables all entity sensory functionality
 #define DISPLACED_MESSAGES //uses sensory logic on messages (radiated from future location, reduced range of motion and communication)
 #define INT_MESSAGES // causes messages to be simple uint64 values as opposed to arbitrary byte sequences. massively reduces memory consumption
 
-#define CLAMP_ENTITIES	//disallow entity losses. disallows motion
-#define CLAMP_MESSAGES	//if entities are clamped (CLAMP_ENTITIES), their messages are relocated alongside. this can have negative impact on IC expansion
+/*
+CLAMP_ENTITIES and CLAMP_MESSAGES are now defined in the respective project settings. DO NOT uncomment them here.
+*/
+//#define CLAMP_ENTITIES	//disallow entity losses. disallows motion. DO NOT UNCOMMENT
+//#define CLAMP_MESSAGES	//if entities are clamped (CLAMP_ENTITIES), their messages are relocated alongside. this can have negative impact on IC expansion. DO NOT UNCOMMENT
 
 
 
@@ -242,3 +247,4 @@ inline hash_t Hash(const GUID&g)
 
 struct TSDSCheckResult;
 
+struct TMergeConfig;

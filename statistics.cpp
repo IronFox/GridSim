@@ -16,7 +16,15 @@
 #ifdef D3
 	#define FILENAME "result.xml"
 #else
-	#define FILENAME "result2d.xml"
+	#ifdef	CLAMP_ENTITIES
+		#ifdef CLAMP_MESSAGES
+			#define FILENAME "result2d_survival_full_clamped.xml"
+		#else
+			#define FILENAME "result2d_survival_position_clamped.xml"
+		#endif
+	#else
+		#define FILENAME "result2d_survival_free.xml"
+	#endif
 #endif
 
 void LogMessage(const String&msg);
@@ -25,17 +33,6 @@ void LogMessage(const String&msg);
 
 namespace Statistics
 {
-	bool		DoCompareEntityConsistency()
-	{
-		#ifdef D3
-			return false;
-		#else
-			return true;
-			//return false;
-		#endif
-	}
-
-
 	namespace Details
 	{
 		struct TMetric
@@ -148,8 +145,9 @@ namespace Statistics
 			r.setup.selectionStrategy = (int)strategy;
 
 			#ifndef D3
+				r.setup.compareToControl = 1;
 				#ifndef _DEBUG	
-					r.setup.numEntities = 16*16*4*2*2*8*8;	//16x16 grid, 8x8 R per SD, 4x4 to get to sensor range, x4 => each entity sees 16 others on average. Largest feasible on 32gb RAM in 2D
+					r.setup.numEntities = 16*16*8*8*2*2*4;	//16x16 grid, 8x8 R per SD, 2x2 in R, x4 => each entity sees 4 others on average (if message displacement is active). Largest feasible on 32gb RAM in 2D: 262000
 					//r.setup.numEntities = 16*4*256;
 					//r.setup.numEntities = 16*16*1*1*1*8*8;		//each sees on average 1 other - 16384 entities
 					//r.setup.numEntities = 16*16*1*1*2*8*8;		//each sees on average 2 others
@@ -158,6 +156,8 @@ namespace Statistics
 				#else
 					r.setup.numEntities = 256*16;
 				#endif
+			#else
+				r.setup.compareToControl = 0;
 			#endif
 			return r;
 		}
@@ -535,7 +535,7 @@ namespace Statistics
 						if (r.survived.sampleCount < 30)
 							return NAN;
 						if (r.endlessRuns == 0)	//never seen any variation, only computation expenses in the below
-							return r.survived.sum / r.survived.sampleCount -20;	//-20 because that's the terminal dd, which cannot be reached in less than 20 generations
+							return r.survived.sum / r.survived.sampleCount;
 						static const count_t t = 10000;
 						const double L = (double)(r.survived.sum) / (r.survived.sampleCount);
 
@@ -550,7 +550,7 @@ namespace Statistics
 								maxT = middle;
 						}
 						double error = ExtrapolateMeanLifetimeZeroFunction(L,t,minT);
-						return minT - 20;
+						return minT;
 					});
 
 			ExportTexMeasurement("Total_Merges", [](const TRun&r)
@@ -770,7 +770,7 @@ void	Statistics::ImportMean(const PathString&file)
 TExperiment	Statistics::SignalRecoveryFailed(const Simulation&sim)
 {
 	using namespace Details;
-	runs[currentRun].survived.Add(sim.GetTopGeneration());
+	runs[currentRun].survived.Add(sim.GetTopGeneration() - SIMULATION_FAILED_AT_DD);
 	runs[currentRun].deadNodes.Add(sim.GetRelativeNodeMortality());
 	runs[currentRun].recoveringNodes.Add(sim.GetRelativeNodeRecovery());
 	runs[currentRun].revivalDepth.Add(sim.GetAverageRevivalDepth());
@@ -901,6 +901,8 @@ TExperiment Statistics::Begin( )
 
 	//16 = 0.99, 20=0.9968, 24=0.999
 
+
+
 	#ifdef D3
 		for (int i = 16; i <= 30; i++)	//7=0.999
 			for (int l = 1; l <= 2; l++)
@@ -918,22 +920,27 @@ TExperiment Statistics::Begin( )
 				}
 			}
 	#else
-			//for (int l = 1; l <= 2; l++)
-			int l = 2;
-			{
-				//count_t maxSync = l > 1 ? 1:0;
-				index_t s = 1;
-				//for (index_t s = 0; s <= maxSync; s++)
-				{
-					AddRun(20,2,l,s,1,TExperiment::OracleDoubleStrategy);
-					//AddRun(i,3,l,s);
-					//AddRun(i,4,l,s);
-					//AddRun(i,6,l,s);
-					//AddRun(i,8,l,s);
-					//AddRun(i,10,l,s);
-					//AddRun(i,12,l,s);
-				}
-			}
+		/*
+		The following run can be used to determine general survivability.
+		Reliability 24 (99.9%) is sufficient to reach ~2000 generation survival without clamped entities, and ~50 with any clamping.
+		Single layer, no merge, but needs entities due to (potential) clamping. No control layer
+		*/
+		/*
+		{
+			auto&run = AddRun(24,2,1,0,1,TExperiment::OracleDoubleStrategy);
+			run.setup.compareToControl = 0;
+			#ifndef CLAMP_ENTITIES
+				run.setup.numEntities = 0;
+			#endif
+		}
+		*/
+
+		/*
+		The following run represents the regular simulation to evaluate merge effectiveness.
+		Reliability 20 (99.68%) is sufficient to reach ~2000 generation survivial without clamped entities (should be disabled).
+		Double layer, delayed merge. Entities and control layer needed.
+		*/
+		AddRun(20,2,2,1,1,TExperiment::OracleDoubleStrategy);
 	#endif
 
 	#endif
@@ -1103,20 +1110,18 @@ namespace Statistics
 		mergeLock.unlock();
 	}
 
-	String ToExt(MergeStrategy strategy, ConfidenceThreshold confidenceThreshold)
+	String ToExt(const TMergeConfig&cfg)
 	{
-		switch (strategy)
-		{
-			case MergeStrategy::EntitySelective:
-				if (confidenceThreshold != ConfidenceThreshold::Half)
-					return "_CT"+String(confidenceThreshold.ToString());
-			break;
-			case MergeStrategy::Exclusive:
-				return "_Ex";
-			case MergeStrategy::ExclusiveWithPositionCorrection:
-				return "_ExPC";
-		};
-		return "";
+		if (cfg.strategy == MergeStrategy::EntitySelective)
+			return "_CT"+String(cfg.confidenceThreshold.ToString());
+
+		String rs;
+		if (cfg.icBadness != nullptr)
+			rs = "_ICBA";
+
+		if (cfg.strategy == MergeStrategy::Exclusive)
+			return rs + "_Ex";
+		return rs + "_ExPC";
 	}
 
 	void	CaptureICTest(const TProbabilisticICReduction&rs)
@@ -1196,14 +1201,14 @@ namespace Statistics
 
 
 
-	void CaptureMergeResult(const IC::Comparator&comp, MergeStrategy strategy,ConfidenceThreshold confidenceThreshold,const TStateDifference&postMerge)
+	void CaptureMergeResult(const TMergeConfig&cfg,const TStateDifference&postMerge)
 	{
 		using namespace Details::MergeMeasurement;
 	
-		String ext = ToExt(strategy, confidenceThreshold);
+		String ext = ToExt(cfg);
 	
 		mergeLock.lock();
-			auto&entry = mergeCaptures.Set(String(comp.GetName())+ext);
+			auto&entry = mergeCaptures.Set(String(cfg.icComp->GetName())+ext);
 			entry.postMerge += postMerge;
 		mergeLock.unlock();
 	}
@@ -2032,14 +2037,33 @@ namespace Statistics
 			{
 				if (i != (int)MergeStrategy::EntitySelective)
 				{
-					ExportTexFile("Binary"+ToExt((MergeStrategy)i,ConfidenceThreshold::Half));
-					ExportTexFile("Depth"+ToExt((MergeStrategy)i,ConfidenceThreshold::Half));
+					TMergeConfig cfg;
+					cfg.strategy = (MergeStrategy)i;
+					ExportTexFile("Binary"+ToExt(cfg));
+					ExportTexFile("Orthographic (depth>extent)"+ToExt(cfg));
+					ExportTexFile("Orthographic (extent>depth)"+ToExt(cfg));
+					ExportTexFile("Extent"+ToExt(cfg));
+					ExportTexFile("Depth"+ToExt(cfg));
+					IC::BinaryBadness dummy;
+					cfg.icBadness = &dummy;
+					ExportTexFile("Binary"+ToExt(cfg));
+					ExportTexFile("Orthographic (depth>extent)"+ToExt(cfg));
+					ExportTexFile("Orthographic (extent>depth)"+ToExt(cfg));
+					ExportTexFile("Extent"+ToExt(cfg));
+					ExportTexFile("Depth"+ToExt(cfg));
 				}
 				else
-					for (index_t i = 0; i < ConfidenceThreshold::N; i++)
+					for (index_t k = 0; k < ConfidenceThreshold::N; k++)
 					{
-						ExportTexFile("Binary"+ToExt((MergeStrategy)i,ConfidenceThreshold::Reinterpret(i)));
-						ExportTexFile("Depth"+ToExt((MergeStrategy)i,ConfidenceThreshold::Reinterpret(i)));
+						TMergeConfig cfg;
+						cfg.confidenceThreshold = ConfidenceThreshold::Reinterpret(k);
+						cfg.strategy = (MergeStrategy)i;
+						
+						ExportTexFile("Binary"+ToExt(cfg));
+						ExportTexFile("Orthographic (depth>extent)"+ToExt(cfg));
+						ExportTexFile("Orthographic (extent>depth)"+ToExt(cfg));
+						ExportTexFile("Extent"+ToExt(cfg));
+						ExportTexFile("Depth"+ToExt(cfg));
 					}
 			}
 		}

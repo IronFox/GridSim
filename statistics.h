@@ -23,8 +23,6 @@ namespace Statistics
 	void	ExportToFile(const PathString&);
 	void	ImportMean(const PathString&);
 
-	bool		DoCompareEntityConsistency();
-
 	TExperiment	SignalRecoveryFailed(const Simulation&sim);
 	TExperiment	SignalSimulationEnd(const Simulation&sim);
 
@@ -417,8 +415,25 @@ namespace Statistics
 	void	CaptureInconsistency(const IC&, const EntityStorage&inconsistent, const EntityStorage&consistent, const TGridCoords&shardOffset);
 	void	CaptureICTest(const TProbabilisticICReduction&);
 	void	CapturePreMerge(const TStateDifference&preMergeA, const TStateDifference&preMergeB, const TStateDifference&general);
-	void	CaptureMergeResult(const IC::Comparator&comp, MergeStrategy,ConfidenceThreshold,const TStateDifference&postMerge);
+	void	CaptureMergeResult(const TMergeConfig&,const TStateDifference&postMerge);
 	void	ExportMergeResults(const TExperiment&);
 	void	ImportMergeResults(const TExperiment&);
 	void	ExportMergeResults();
 }
+
+
+struct TBaseMergeConfig
+{
+	Statistics::MergeStrategy	strategy;
+	Statistics::ConfidenceThreshold confidenceThreshold;
+};
+
+struct TMergeConfig : public TBaseMergeConfig
+{
+	const IC::Comparator		*icComp = nullptr;		//!< Must not be null
+	const IC::BadnessEstimator	*icBadness = nullptr;	//!< If not null, overrides icComp during exclusive selection
+
+	/**/						TMergeConfig(){}
+	/**/						TMergeConfig(const TBaseMergeConfig&cfg) :  TBaseMergeConfig(cfg) {}
+};
+

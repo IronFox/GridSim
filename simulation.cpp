@@ -567,7 +567,7 @@ bool Simulation::RunIteration(const TExperiment&exp, bool correctionIterationsAf
 
 	Database::AdvanceTimestep(simulated.topGeneration);
 //	#ifdef D3
-	bool cont = (simulated.topGeneration - simulated.oldestLivingGeneration < 20);
+	bool cont = (simulated.topGeneration - simulated.oldestLivingGeneration < SIMULATION_FAILED_AT_DD);
 	//#else
 	//	bool cont = (simulated.topGeneration - simulated.oldestLivingGeneration < 50);
 	//#endif

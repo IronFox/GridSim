@@ -20,7 +20,8 @@ struct TExperiment
 			maxSiblingSyncOperations=1,
 			siblingSyncDelay=0,
 			numEntities = 0,
-			selectionStrategy=OriginalStrategy;
+			selectionStrategy=OriginalStrategy,
+			compareToControl = 1;
 
 	float	GetReliability() const;
 	bool	operator==(const TExperiment&other) const
@@ -32,6 +33,7 @@ struct TExperiment
 			&&	siblingSyncDelay == other.siblingSyncDelay
 			&&	numEntities == other.numEntities
 			&&	selectionStrategy == other.selectionStrategy
+			&&	compareToControl == other.compareToControl
 			;
 	}
 

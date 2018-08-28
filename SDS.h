@@ -45,6 +45,7 @@ public:
 	void				MakeGrownSuccessorIC(const Shard&shard, IC&target,const FullShardDomainState&targetState) const;
 	bool				IsFullyConsistent() const {return this && ic.IsFullyConsistent();}
 	bool				operator==(const CoreShardDomainState&other) const {return generation == other.generation && entities == other.entities && ic == other.ic;}
+	int					CompareTo(const CoreShardDomainState&other) const;
 };
 
 struct TPermanence

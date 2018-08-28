@@ -1,0 +1,6 @@
+<project type="Application:Console">
+	<clone name="Grid Simulation" />
+	<macro name="NO_WINDOW" />
+	<macro name="CLAMP_ENTITIES" />
+	<macro name="CLAMP_MESSAGES" />
+</project>

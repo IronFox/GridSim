@@ -24,6 +24,19 @@ void	CoreShardDomainState::Hash(Hasher&inputHash)	const
 	inputHash.AppendPOD(generation);
 }
 
+int		CoreShardDomainState::CompareTo(const CoreShardDomainState&other) const
+{
+	Hasher a,b;
+	Hash(a);
+	other.Hash(b);
+	Hasher::HashContainer ha,hb;
+
+	a.Finish(ha);
+	b.Finish(hb);
+	return ha.CompareTo(hb);
+}
+
+
 void				CoreShardDomainState::MakeGrownSuccessorIC(const Shard&shard, IC&target,const FullShardDomainState&targetState) const
 {
 	#ifdef CLAMP_ENTITIES
@@ -1035,7 +1048,20 @@ const int SelectExclusiveSource(const CoreShardDomainState&a, const CoreShardDom
 		const auto&bs = b.ic.GetGrid()[i];
 		balance += comp(as,bs);
 	}
-	return balance < 0 ? -1 : 1;
+	return M::Sign(balance);
+}
+
+const int SelectExclusiveSource(const CoreShardDomainState&a, const CoreShardDomainState&b, 
+				const IC::BadnessEstimator&badness)
+{
+	double balance = 0;
+	for (index_t i = 0; i < a.ic.GetGrid().Count(); i++)
+	{
+		const auto&as = a.ic.GetGrid()[i];
+		const auto&bs = b.ic.GetGrid()[i];
+		balance += badness(as) - badness(bs);
+	}
+	return M::Sign(balance);
 }
 
 
@@ -1212,11 +1238,11 @@ void MergeInconsistentEntitiesComp(CoreShardDomainState&merged, const CoreShardD
 
 }
 
+
+
 static PCoreShardDomainState		Merge(
-	const CoreShardDomainState&a, const CoreShardDomainState&b, const IC::Comparator&comp, index_t currentGen
+	const CoreShardDomainState&a, const CoreShardDomainState&b, const TMergeConfig&cfg, index_t currentGen
 	, const Shard&myShard
-	, Statistics::MergeStrategy strategy
-	, Statistics::ConfidenceThreshold confidenceThreshold
 	, const Grid::Layer*consistentComparison
 	//, Statistics::TSDSample<double>*outInconsistentEntitiesOutsideIC
 //,const PCoreShardDomainState&consistentMatch
@@ -1231,9 +1257,25 @@ static PCoreShardDomainState		Merge(
 	const CoreShardDomainState*exclusiveSource = nullptr;
 	int exclusiveChoice = 0;
 
-	if (strategy == Statistics::MergeStrategy::Exclusive || strategy == Statistics::MergeStrategy::ExclusiveWithPositionCorrection)
+	if (cfg.strategy == Statistics::MergeStrategy::Exclusive || cfg.strategy == Statistics::MergeStrategy::ExclusiveWithPositionCorrection)
 	{
-		exclusiveChoice = SelectExclusiveSource(a,b,comp);;
+		if (cfg.icBadness)
+			exclusiveChoice = SelectExclusiveSource(a,b,*cfg.icBadness);
+		else
+			exclusiveChoice = SelectExclusiveSource(a,b,*cfg.icComp);
+		if (exclusiveChoice == 0)
+		{
+			exclusiveChoice = a.CompareTo(b);
+			if (exclusiveChoice == 0)
+			{
+				ASSERT__(a == b);
+				//rs->entities = a.entities;
+				//rs->ic = a.ic;
+				//rs->mergeCounter = std::max(a.mergeCounter,b.mergeCounter);	//not a merge
+				//return rs;
+				FATAL__("Bad merge");
+			}
+		}
 		exclusiveSource = &(exclusiveChoice == -1 ? a : b);
 	}
 
@@ -1280,7 +1322,7 @@ static PCoreShardDomainState		Merge(
 				if (exclusiveChoice)
 					choice = exclusiveChoice;
 				else
-					choice = comp(s0,s1);
+					choice = (*cfg.icComp)(s0,s1);
 
 				sm = choice <= 0 ? s0 : s1;
 //				sm.SetWorst(s0,s1);
@@ -1318,7 +1360,7 @@ static PCoreShardDomainState		Merge(
 				if (exclusiveChoice)
 					choice = s0.IsConsistent() ? -1 : (s1.IsConsistent()  ? 1 : exclusiveChoice);
 				else
-					choice = comp(s0,s1);
+					choice = (*cfg.icComp)(s0,s1);
 				bool set = false;
 				if (choice < 0 || (choice == 0 && e1.IsEmpty()))
 				{
@@ -1402,10 +1444,10 @@ static PCoreShardDomainState		Merge(
 				}
 		}
 		#endif /*0*/
-		if (strategy == Statistics::MergeStrategy::EntitySelective)
-			MergeInconsistentEntitiesComp(merged,a,b,comp,myShard.gridCoords, confidenceThreshold, consistentComparison);
+		if (cfg.strategy == Statistics::MergeStrategy::EntitySelective)
+			MergeInconsistentEntitiesComp(merged,a,b,*cfg.icComp,myShard.gridCoords, cfg.confidenceThreshold, consistentComparison);
 		else
-			MergeInconsistentEntitiesEx(merged,*exclusiveSource,myShard.gridCoords,strategy == Statistics::MergeStrategy::ExclusiveWithPositionCorrection,consistentComparison);
+			MergeInconsistentEntitiesEx(merged,*exclusiveSource,myShard.gridCoords,cfg.strategy == Statistics::MergeStrategy::ExclusiveWithPositionCorrection,consistentComparison);
 
 		merged.mergeCounter = std::max(a.mergeCounter,b.mergeCounter)+1;
 
@@ -1524,10 +1566,10 @@ Statistics::TStateDifference	CompareStates(const CoreShardDomainState&approx, co
 
 
 static void		CompareMerge(const CoreShardDomainState&a, const CoreShardDomainState&b, 
-							const IC::Comparator&comp, Statistics::MergeStrategy strategy, Statistics::ConfidenceThreshold confidenceThreshold, index_t currentGen, const Grid::Layer&consistentLayer, const PCoreShardDomainState&consistent, const IC&mask, const Shard&shard)
+							const TMergeConfig&cfg, index_t currentGen, const Grid::Layer&consistentLayer, const PCoreShardDomainState&consistent, const IC&mask, const Shard&shard)
 {
 	//Statistics::TSDSample<double> incSample;
-	auto merged = Merge(a,b,comp,currentGen,shard,strategy,confidenceThreshold,&consistentLayer/*,&incSample*/);
+	auto merged = Merge(a,b,cfg,currentGen,shard,&consistentLayer/*,&incSample*/);
 
 
 	for (index_t i = 0; i < merged->ic.GetGrid().Count(); i++)
@@ -1538,7 +1580,7 @@ static void		CompareMerge(const CoreShardDomainState&a, const CoreShardDomainSta
 	Statistics::TStateDifference diffM = CompareStates(*merged,*consistent,merged->ic,shard.gridCoords);
 	//diffM.inconsistentEntitiesOutsideIC = incSample;
 
-	Statistics::CaptureMergeResult(comp, strategy,confidenceThreshold, diffM);
+	Statistics::CaptureMergeResult(cfg, diffM);
 
 
 
@@ -1722,18 +1764,31 @@ void				TestProbabilisticICReduction(const CoreShardDomainState&a,const CoreShar
 }
 
 
-void	CompareMergeComp(const CoreShardDomainState&a, const CoreShardDomainState&b, const Statistics::MergeStrategy&s, Statistics::ConfidenceThreshold confidenceThreshold, index_t currentTimestep,const Grid::Layer&layer, const PCoreShardDomainState&consistentOutput, const IC&mergedIC, const Shard&shard)
+template <typename Comparator, typename Badness>
+	void CompareMergeCompT(const CoreShardDomainState&a, const CoreShardDomainState&b, const TBaseMergeConfig&baseConfig, index_t currentTimestep,const Grid::Layer&layer, const PCoreShardDomainState&consistentOutput, const IC&mergedIC, const Shard&shard)
+	{
+		TMergeConfig cfg = baseConfig;
+		Comparator comp;
+		cfg.icComp = &comp;
+		CompareMerge(a,b,cfg,currentTimestep,layer,consistentOutput,mergedIC,shard);
+		if (cfg.strategy != Statistics::MergeStrategy::EntitySelective)
+		{
+			Badness bad;
+			cfg.icBadness = &bad;
+			CompareMerge(a,b,cfg,currentTimestep,layer,consistentOutput,mergedIC,shard);
+		}
+	}
+
+void	CompareMergeComp(const CoreShardDomainState&a, const CoreShardDomainState&b, const TBaseMergeConfig&baseConfig, index_t currentTimestep,const Grid::Layer&layer, const PCoreShardDomainState&consistentOutput, const IC&mergedIC, const Shard&shard)
 {
-	CompareMerge(a,b,IC::BinaryComparator(),s,confidenceThreshold,currentTimestep,layer,consistentOutput,mergedIC,shard);
-	CompareMerge(a,b,IC::OrthographicComparator(),s,confidenceThreshold,currentTimestep,layer,consistentOutput,mergedIC,shard);
-	CompareMerge(a,b,IC::ReverseOrthographicComparator(),s,confidenceThreshold,currentTimestep,layer,consistentOutput,mergedIC,shard);
-	CompareMerge(a,b,IC::DepthComparator(),s,confidenceThreshold,currentTimestep,layer,consistentOutput,mergedIC,shard);
-	CompareMerge(a,b,IC::ExtentComparator(),s,confidenceThreshold,currentTimestep,layer,consistentOutput,mergedIC,shard);
-	//CompareMerge(a,b,IC::PlaneComparator(float3(-0.00575048150,0.00748061994,0.0350000001)),s,confidenceThreshold,currentTimestep,layer,consistentOutput,mergedIC,shard);
+	CompareMergeCompT<IC::BinaryComparator,IC::BinaryBadness>(a,b,baseConfig,currentTimestep,layer,consistentOutput,mergedIC,shard);
+	CompareMergeCompT<IC::OrthographicComparator,IC::OrthographicBadness>(a,b,baseConfig,currentTimestep,layer,consistentOutput,mergedIC,shard);
+	CompareMergeCompT<IC::ReverseOrthographicComparator,IC::ReverseOrthographicBadness>(a,b,baseConfig,currentTimestep,layer,consistentOutput,mergedIC,shard);
+	CompareMergeCompT<IC::DepthComparator,IC::DepthBadness>(a,b,baseConfig,currentTimestep,layer,consistentOutput,mergedIC,shard);
+	CompareMergeCompT<IC::ExtentComparator,IC::ExtentBadness>(a,b,baseConfig,currentTimestep,layer,consistentOutput,mergedIC,shard);
 	#ifdef IC_PROFILE_IS_MERGE_COMPARATOR_SOURCE
 		CompareMerge(a,b,Statistics::ProfileComparator(),s,confidenceThreshold,currentTimestep,layer,consistentOutput,mergedIC,shard);
 	#endif
-
 }
 
 void				FullShardDomainState::SynchronizeWithSibling(Shard&myShard,  Shard&siblingShard, SDS&sibling, const IC::Comparator&comp, index_t currentTimestep)
@@ -1780,7 +1835,21 @@ void				FullShardDomainState::SynchronizeWithSibling(Shard&myShard,  Shard&sibli
 
 	const auto&a = *GetOutput();
 	const auto&b = *sibling.GetOutput();
-	PCoreShardDomainState merged  = Merge(a,b,comp,currentTimestep,myShard,Statistics::MergeStrategy::Exclusive,Statistics::ConfidenceThreshold::One, layer);
+
+	if (a == b)
+	{
+		OverrideSetOutput(myShard,sibling.GetOutput(),CLOCATION);
+		myShard.VerifyIntegrity();
+		return;
+	}
+
+	PCoreShardDomainState merged;
+	{
+		TMergeConfig cfg;
+		cfg.icComp = &comp;
+		cfg.strategy = Statistics::MergeStrategy::Exclusive;
+		merged  = Merge(a,b,cfg,currentTimestep,myShard,layer);
+	}
 
 
 
@@ -1860,15 +1929,19 @@ void				FullShardDomainState::SynchronizeWithSibling(Shard&myShard,  Shard&sibli
 
 		for (int i = 0; i < (int)Statistics::MergeStrategy::Count; i++)
 		{
-			const Statistics::MergeStrategy s = (Statistics::MergeStrategy)i;
-			if (s == Statistics::MergeStrategy::EntitySelective)
+			TBaseMergeConfig cfg;
+			cfg.strategy = (Statistics::MergeStrategy)i;
+			if (cfg.strategy == Statistics::MergeStrategy::EntitySelective)
 			{
 				for (index_t c = 0; c < Statistics::ConfidenceThreshold::N; c++)
-					CompareMergeComp(a,b,s,Statistics::ConfidenceThreshold::Reinterpret(c),currentTimestep,*layer,consistentOutput,merged->ic,myShard);
+				{
+					cfg.confidenceThreshold = Statistics::ConfidenceThreshold::Reinterpret(c);
+					CompareMergeComp(a,b,cfg,currentTimestep,*layer,consistentOutput,merged->ic,myShard);
+				}
 			}
 			else
 			{
-				CompareMergeComp(a,b,s,Statistics::ConfidenceThreshold::One,currentTimestep,*layer,consistentOutput,merged->ic,myShard);
+				CompareMergeComp(a,b,cfg,currentTimestep,*layer,consistentOutput,merged->ic,myShard);
 			}
 		}
 	}
