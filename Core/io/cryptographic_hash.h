@@ -253,14 +253,36 @@ namespace DeltaWorks
 				UINT32	ints[int32_count];
 			};
 		
-			bool	operator==(const THash<int32_count>&other)	const
-					{
-						return !memcmp(bytes,other.bytes,sizeof(bytes));
-					}
-			bool	operator!=(const THash<int32_count>&other)	const
-					{
-						return memcmp(bytes,other.bytes,sizeof(bytes)) != 0;
-					}
+			bool	operator==(const Self&other)	const
+			{
+				return CompareTo(other) == 0;
+			}
+			bool	operator!=(const Self&other)	const
+			{
+				return CompareTo(other) != 0;
+			}
+
+			bool	operator<(const Self&other) const
+			{
+				return CompareTo(other) < 0;
+			}
+			bool	operator>(const Self&other) const
+			{
+				return CompareTo(other) > 0;
+			}
+			bool	operator<=(const Self&other) const
+			{
+				return CompareTo(other) <= 0;
+			}
+			bool	operator>=(const Self&other) const
+			{
+				return CompareTo(other) >= 0;
+			}
+
+			int		CompareTo(const Self&other) const
+			{
+				return memcmp(bytes,other.bytes,sizeof(bytes));
+			}
 
 
 			friend hash_t	Hash(const Self&h)
