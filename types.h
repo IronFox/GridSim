@@ -10,6 +10,8 @@
 #include <general/thread_system.h>
 #include <math/vclasses.h>
 #include <Rpc.h>
+#include <general/random.h>
+#include <random>
 
 using namespace DeltaWorks;
 
@@ -57,6 +59,8 @@ CLAMP_ENTITIES and CLAMP_MESSAGES are now defined in the respective project sett
 //#define CLAMP_ENTITIES	//disallow entity losses. disallows motion. DO NOT UNCOMMENT
 //#define CLAMP_MESSAGES	//if entities are clamped (CLAMP_ENTITIES), their messages are relocated alongside. this can have negative impact on IC expansion. DO NOT UNCOMMENT
 
+
+typedef DeltaWorks::RNG<std::mt19937_64>	GlobalRandom;
 
 
 #ifdef INT_MESSAGES

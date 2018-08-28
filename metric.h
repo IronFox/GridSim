@@ -106,7 +106,8 @@ namespace Metric
 		float		value;
 
 		/**/		Direction2D():value(0)	{}
-		explicit	Direction2D(Random&random):value(Mod(random.NextFloat(MaxValue))){};
+		template <typename Engine>
+		explicit	Direction2D(RNG<Engine>&random):value(Mod(random.NextFloat(MaxValue))){};
 		explicit	Direction2D(const M::TVec2<>&);
 		explicit	Direction2D(float linear01):value(Mod(linear01 * MaxValue))	{}
 
@@ -165,7 +166,8 @@ namespace Metric
 		Angle		value;
 
 		/**/		Direction3D():value(0)	{}
-		explicit	Direction3D(Random&random):value(random.NextFloat(MaxValueX),random.NextFloat(MaxValueY)){};
+		template <typename Engine>
+		explicit	Direction3D(RNG<Engine>&random):value(random.NextFloat(MaxValueX),random.NextFloat(MaxValueY)){};
 		explicit	Direction3D(const M::TVec3<>&);
 		explicit	Direction3D(float linear01X, float linear01Y):value(linear01X * MaxValueX,linear01Y*MaxValueY)	{}
 

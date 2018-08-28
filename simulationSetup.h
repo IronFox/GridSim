@@ -32,3 +32,5 @@ void	RecoverOnly();
 void	StartSimulation();
 void	StopSimulation();
 bool	SimulationActive();
+
+void	InitRandom();

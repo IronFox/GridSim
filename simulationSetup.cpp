@@ -13,7 +13,7 @@ bool		hasAvatar=false;
 TExperiment	currentSetup;
 count_t		connectionSamples=0,connectedSamples=0;
 
-Random		random;
+GlobalRandom		globalRandom;
 
 count_t		numResets = 0;	//!< Number of times SetupScene() has been called
 bool		simulate = false;
@@ -848,15 +848,15 @@ void	SetupScene()
 			{
 				Entity&e = entities[i];
 				#ifdef D3
-					e.coordinates = float3(random.NextFloat(0, size.width), random.NextFloat(0, size.height), random.NextFloat(0, size.depth));
+					e.coordinates = float3(globalRandom.NextFloat(0, size.width), globalRandom.NextFloat(0, size.height), globalRandom.NextFloat(0, size.depth));
 				#else
-					e.coordinates = float2(random.NextFloat(0, size.width), random.NextFloat(0, size.height));
+					e.coordinates = float2(globalRandom.NextFloat(0, size.width), globalRandom.NextFloat(0, size.height));
 				#endif
 				//e.coordinates = float2(random.NextFloat(0,testSimulation.GetGridWidth()),0.5f);//don't care about rest
 				e.shape = Entity::Shape::Sphere;
-				e.scale.x = 0.05f *random.NextFloat(0.25f,1);
-				e.scale.y = 0.05f *random.NextFloat(0.25f,1);
-				e.orientation = Metric::Direction(random);
+				e.scale.x = 0.05f *globalRandom.NextFloat(0.25f,1);
+				e.scale.y = 0.05f *globalRandom.NextFloat(0.25f,1);
+				e.orientation = Metric::Direction(globalRandom);
 				//e.GenerateID();
 				memset(&e.guid,0,sizeof(e.guid));
 				e.guid.Data1 = (unsigned long)i;	//sufficient, more meaningful
@@ -868,7 +868,7 @@ void	SetupScene()
 		}
 
 
-		UINT32 seed = random.NextSeed();
+		const auto seed = globalRandom.NextT<int64_t>(std::numeric_limits<int64_t>::max());
 		#ifdef RECOVERY_TEST
 			seed = 0;
 			#ifdef _DEBUG
@@ -1065,5 +1065,10 @@ void	StartNext(bool failed)
 	SetupScene();
 	//dataRanges.Append().name = String(s.ToString())+"["+String(overload)+"]";
 
+}
+
+void	InitRandom()
+{
+	globalRandom = GlobalRandom(timer.Now());
 }
 

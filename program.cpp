@@ -702,7 +702,7 @@ int main( int argc, const char* argv[])
 
 	try
 	{
-	
+		InitRandom();
 
 		#ifndef NO_WINDOW
 			display.config.fsaa_samples = 4;
