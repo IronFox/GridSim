@@ -80,6 +80,7 @@ namespace DeltaWorks
 		template <typename T0, typename T1>
 			inline void	__fastcall Cast(const T0*from, T1*to, count_t numChars);
 	}
+	namespace StringFunctions = CharFunctions;
 	#include "charFunctions.tpl.h"
 
 }
