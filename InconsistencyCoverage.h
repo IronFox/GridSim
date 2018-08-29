@@ -204,7 +204,7 @@ public:
 	public:
 		virtual float	operator()(const TSample&s0) const override
 		{
-			return s0.spatialDistance;
+			return -(float)s0.spatialDistance;
 		}
 		virtual String GetName() const override {return "Extent";}
 	};
