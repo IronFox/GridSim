@@ -1518,7 +1518,9 @@ namespace Statistics
 			using namespace Details::MergeMeasurement;
 
 			StringFile texFile;
-			texFile.Create(PathString("tex/"+name+".tex"));
+			String fileName = name;
+			fileName.FindAndReplace([](char c){return !CharFunctions::isalnum(c);},'_');
+			texFile.Create(PathString("tex/"+fileName+".tex"));
 			float h = 0.35f;
 			//areas:
 			texFile << "\\begin{axis}["<<nl
