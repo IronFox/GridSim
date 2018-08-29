@@ -26,3 +26,8 @@ config/
 *.7z
 *.pdf
 /NormFinder/
+/MeasurementMerger/.vs/
+bin/
+/MeasurementMerger/input/
+/MeasurementMerger/MeasurementMerger.csproj.user
+obj/
