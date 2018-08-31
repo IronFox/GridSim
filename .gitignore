@@ -31,3 +31,5 @@ bin/
 /MeasurementMerger/input/
 /MeasurementMerger/MeasurementMerger.csproj.user
 obj/
+*.xml
+/MeasurementMerger/out/

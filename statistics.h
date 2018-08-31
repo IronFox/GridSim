@@ -187,13 +187,13 @@ namespace Statistics
 		FixedArray<TSDSample<double>,Metric::N>	value;
 
 		/**/				TStateDifference()	{};
+
 		static TStateDifference Minimum(const TStateDifference&a, const TStateDifference&b)
 		{
 			TStateDifference rs;
 			using std::min;
 			for (index_t i = 0; i < Metric::N; i++)
 				rs.value[i] = a.value[i].Get() >= b.value[i].Get() ? b.value[i] : a.value[i];
-				//rs.value[i] = min(a.value[i].Get(),b.value[i].Get());
 			return rs;
 		}
 		static TStateDifference Maximum(const TStateDifference&a, const TStateDifference&b)
@@ -202,9 +202,9 @@ namespace Statistics
 			using std::max;
 			for (index_t i = 0; i < Metric::N; i++)
 				rs.value[i] = a.value[i].Get() < b.value[i].Get() ? b.value[i] : a.value[i];
-				//rs.value[i] = max(a.value[i].Get(),b.value[i].Get());
 			return rs;
 		}
+
 		static double Avg(double a, double b)
 		{
 			return (a+b)*0.5;
@@ -219,7 +219,8 @@ namespace Statistics
 		void				AddMean(const TStateDifference&other)
 		{
 			for (index_t i = 0; i < Metric::N; i++)
-				value[i] += other.value[i].Get();
+				if (other.value[i].numSamples > 0)
+					value[i] += other.value[i].Get();
 		}
 
 		TStateDifference	operator+(const TStateDifference&other) const
@@ -260,17 +261,17 @@ namespace Statistics
 	enum class MergeStrategy
 	{
 		EntitySelective,
-		Exclusive,
+		//Exclusive,	//barely a difference, meaningless. code removed, do not reenable
 		ExclusiveWithPositionCorrection,
 
 		Count
 	};
 
-	CONSTRUCT_ENUMERATION4(ConfidenceThreshold,
+	CONSTRUCT_ENUMERATION3(ConfidenceThreshold,
 		Zero,
-		Half,
-		HalfPlusWI,
-		One
+		GreaterZero,
+		GreaterHalfWI
+		//one makes no sense
 	);
 
 
@@ -431,7 +432,7 @@ struct TBaseMergeConfig
 struct TMergeConfig : public TBaseMergeConfig
 {
 	const IC::Comparator		*icComp = nullptr;		//!< Must not be null
-	const IC::BadnessEstimator	*icBadness = nullptr;	//!< If not null, overrides icComp during exclusive selection
+	const IC::InconsistencyEstimator	*icBadness = nullptr;	//!< If not null, overrides icComp during exclusive selection
 
 	/**/						TMergeConfig(){}
 	/**/						TMergeConfig(const TBaseMergeConfig&cfg) :  TBaseMergeConfig(cfg) {}

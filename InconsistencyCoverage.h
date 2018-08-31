@@ -164,80 +164,114 @@ public:
 
 	TGridCoords		offset;	//!< Offset to the bottom left corner of the local shard space in pixels (can be negative)
 
-	class BadnessEstimator
+	class InconsistencyEstimator
 	{
 	public:
 		/**
 		Evaluates a linear badness value.
-		@return -1 if s0 is less bad than s1, +1 if s0 is worse than s1, and 0 if both are equal
+		Arbitrary but less must imply better and greater means worse
 		*/
 		virtual float	operator()(const TSample&s0) const = 0;
+		/**
+		Estimates the assumed inconsistency from 0 (consistent) to 1 (worst)
+		*/
+		virtual float	Estimate01(const TSample&s0) const = 0;
 		virtual String	GetName() const = 0;
 	};
 
-	class OrthographicBadness : public BadnessEstimator
+	#if 0	//orthographic has not resulted in comparable results, worse yet than just depth
+	class OrthographicBadness : public InconsistencyEstimator
 	{
 	public:
 		virtual float	operator()(const TSample&s0) const override;
-		virtual String GetName() const override {return "Orthographic (depth>extent)";}
+		virtual float	Estimate01(const TSample&s0) const override;
+		virtual String	GetName() const override {return "Orthographic (depth>extent)";}
 	};
 
-	class ReverseOrthographicBadness : public BadnessEstimator
+	class ReverseOrthographicBadness : public InconsistencyEstimator
 	{
 	public:
 		virtual float	operator()(const TSample&s0) const override;
-		virtual String GetName() const override {return "Orthographic (extent>depth)";}
+		virtual float	Estimate01(const TSample&s0) const override;
+		virtual String	GetName() const override {return "Orthographic (extent>depth)";}
 	};
+	#endif /*0*/
 
-	class DepthBadness : public BadnessEstimator
+	class DepthBadness : public InconsistencyEstimator
 	{
 	public:
 		virtual float	operator()(const TSample&s0) const override
 		{
 			return s0.depth;
 		}
+		virtual float	Estimate01(const TSample&s0) const override
+		{
+			return StaticEstimate(s0);
+		}
+
+		static float	StaticEstimate(const TSample&s0)
+		{
+			return 1.f - 1.f / (1.f + s0.depth);
+		}
 		virtual String GetName() const override {return "Depth";}
 	};
 
-	class ExtentBadness : public BadnessEstimator
+
+	class DepthByExtentEstimator : public InconsistencyEstimator
+	{
+	public:
+		virtual float	operator()(const TSample&s0) const override
+		{
+			return s0.depth / (0.5f + s0.spatialDistance);
+		}
+		virtual float	Estimate01(const TSample&s0) const override
+		{
+			return StaticEstimate(s0);
+		}
+
+		static float	StaticEstimate(const TSample&s0)
+		{
+			FATAL__("Not correct");
+			return 1.f - 1.f / (1.f + s0.depth);
+		}
+		virtual String GetName() const override {return "DepthByExtent";}
+	};
+
+
+
+	class ExtentBadness : public InconsistencyEstimator
 	{
 	public:
 		virtual float	operator()(const TSample&s0) const override
 		{
 			return -(float)s0.spatialDistance;
 		}
+		virtual float	Estimate01(const TSample&s0) const override
+		{
+			return StaticEstimate(s0);
+		}
+		static float	StaticEstimate(const TSample&s0)
+		{
+			if (s0.IsConsistent())
+				return 0.f;
+			return 1.f / (1.f + s0.spatialDistance);
+		}
 		virtual String GetName() const override {return "Extent";}
 	};
 
 
-	class BinaryBadness : public BadnessEstimator
+	class BinaryBadness : public InconsistencyEstimator
 	{
 	public:
 		virtual float	operator()(const TSample&s0) const override
 		{
 			return s0.IsConsistent() ? 0 : 1;
 		}
+		virtual float	Estimate01(const TSample&s0) const override
+		{
+			return operator()(s0);
+		}
 		virtual String GetName() const override {return "Binary";}
-	};
-
-	class PlaneBadness : public BadnessEstimator
-	{
-		float3	plane;
-
-		float	GetScore(const TSample&s) const
-		{
-			float spatialDistance = s.spatialDistance;
-			float temporalDistance = float(s.depth) + s.spatialDistance;
-			spatialDistance *= 2;
-			return M::Max(0.f, (plane.z + plane.x * spatialDistance + plane.y * temporalDistance));
-		}
-	public:
-		/**/		PlaneBadness(const float3&plane) : plane(plane)	{}
-		virtual float operator()(const TSample&s0) const override
-		{
-			return GetScore(s0);
-		}
-		virtual String GetName() const override {return "Plane "+ToString(plane);}
 	};
 
 
@@ -263,6 +297,8 @@ public:
 		}
 	};
 
+
+	#if 0
 	class OrthographicComparator : public Comparator
 	{
 	public:
@@ -276,6 +312,20 @@ public:
 		virtual int	operator()(const TSample&s0, const TSample&s1) const override;
 		virtual String GetName() const override {return "Orthographic (extent>depth)";}
 	};
+	#endif /*0*/
+
+
+	template <typename T>
+		class TemplateComparator : public Comparator
+		{
+			T	estimator;
+		public:
+			virtual int	operator()(const TSample&s0, const TSample&s1) const override
+			{
+				return Compare(estimator(s0),estimator(s1));
+			}
+			virtual String GetName() const override {return estimator.GetName();}
+		};
 
 	class DepthComparator : public Comparator
 	{
@@ -450,6 +500,7 @@ public:
 	bool		IsInconsistent(const TEntityCoords&coords) const;
 	content_t	GetInconsistency(const TEntityCoords&coords) const;
 	content_t	GetPixelInconsistency(const TGridCoords&) const;
+	const Sample& GetSample(const TEntityCoords&coords) const	{return GetSample(ToPixels(coords));}
 	const Sample& GetSample(TGridCoords coords) const;
 	const index_t GetSampleLinearIndex(TGridCoords coords) const;
 	void		VerifyIsInconsistent(const TEntityCoords&coords, const TVerificationContext&context) const;

@@ -197,6 +197,22 @@ const HGrid::TCell&		HGrid::GetCellOfL(const TGridCoords&localCoords) const
 	#endif
 }
 
+#if 0
+
+/*virtual overide*/ float	InconsistencyCoverage::OrthographicBadness::Estimate01(const TSample&s0) const
+{
+	if (s0.IsConsistent())
+		return 0;
+	return DepthBadness::StaticEstimate(s0) * float(IC::MaxDistance - 1) / IC::MaxDistance + ExtentBadness::StaticEstimate(s0) / IC::MaxDistance;
+}
+
+
+/*virtual overide*/ float	InconsistencyCoverage::ReverseOrthographicBadness::Estimate01(const TSample&s0) const
+{
+	if (s0.IsConsistent())
+		return 0;
+	return ExtentBadness::StaticEstimate(s0) * float(IC::MaxDepth - 1) / IC::MaxDepth + DepthBadness::StaticEstimate(s0) / IC::MaxDepth;
+}
 
 
 /*virtual override*/ float	InconsistencyCoverage::OrthographicBadness::operator()(const TSample&s) const
@@ -248,6 +264,7 @@ const HGrid::TCell&		HGrid::GetCellOfL(const TGridCoords&localCoords) const
 		return 1;
 	return 0;
 }
+#endif /*0*/
 
 
 void		InconsistencyCoverage::TSample::IncreaseDepth()

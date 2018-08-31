@@ -188,7 +188,8 @@ Grid::TCStat Grid::LockstepCorrectSome(const TExperiment&exp, const std::functio
 		ASSERT_EQUAL__(grid0.GetWidth() , grid1.GetWidth());
 
 
-		IC::OrthographicComparator comp;
+		//IC::OrthographicComparator comp;
+		IC::DepthComparator comp;
 
 
 
@@ -838,7 +839,7 @@ void Grid::FinalizeAll(index_t gen)
 
 void	Grid::SynchronizeLayers()
 {
-	IC::OrthographicComparator comp;
+	IC::DepthComparator comp;
 	for (index_t i = 0; i+1 < layers.Count(); i++)
 	{
 		Layer	&layer0 = layers[i],

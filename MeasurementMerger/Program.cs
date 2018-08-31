@@ -69,24 +69,14 @@ namespace MeasurementMerger
 
 			Dictionary<string, FileGroup> groups = new Dictionary<string, FileGroup>();
 			{
-				var files = subs[0].GetFiles("mergeMeasurements*.xml");
-				foreach (var f in files)
-					groups.Add(f.Name, new FileGroup(f));
+				MapGroups(groups, subs[0],false, subs[0]);
 			}
 			for (int i = 1; i < subs.Length; i++)
 			{
-				var files = subs[i].GetFiles("mergeMeasurements*.xml");
-				foreach (var f in files)
-				{
-					FileGroup group;
-					bool success = groups.TryGetValue(f.Name, out group);
-					if (!success)
-						throw new ArgumentException("File " + f.FullName + " does not also exist in first sub directory " + subs[0].FullName);
-					group.sources.Add(f);
-				}
+				MapGroups(groups, subs[i], true, subs[0]);
 				foreach (var g in groups.Values)
 					if (g.sources.Count != i + 1)
-						throw new ArgumentException("File " + g.sources[0].Name+" not found in directory " +subs[i]);
+						throw new ArgumentException("File " + g.sources[0].Name + " not found in directory " + subs[i]);
 			}
 
 
@@ -98,6 +88,27 @@ namespace MeasurementMerger
 
 
 			Console.WriteLine("All done");
+		}
+
+		private static void MapGroups(Dictionary<string, FileGroup> groups, DirectoryInfo parent, bool existingOnly, DirectoryInfo firstSub)
+		{
+
+			var files = parent.GetFiles("*.xml");
+			foreach (var f in files)
+			{
+				if (existingOnly)
+				{
+					FileGroup group;
+					bool success = groups.TryGetValue(f.Name, out group);
+					if (!success)
+						throw new ArgumentException("File " + f.FullName + " does not also exist in first sub directory " + firstSub.FullName);
+					group.sources.Add(f);
+				}
+				else
+					groups.Add(f.Name, new FileGroup(f));
+			}
+			foreach (var dir in parent.EnumerateDirectories())
+				MapGroups(groups, dir, existingOnly, firstSub);
 		}
 	}
 }

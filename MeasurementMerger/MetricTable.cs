@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
@@ -9,6 +10,7 @@ namespace MeasurementMerger
 {
 	internal class MetricTable
 	{
+		private static HashSet<string> excludeFromID =  new HashSet<string>(new string[]{ "endlessRuns","numRuns"});
 
 		public Dictionary<string, SubTable> chunks = new Dictionary<string, SubTable>();
 
@@ -76,16 +78,27 @@ namespace MeasurementMerger
 			public readonly double Sum,
 								SquareSum;
 			public readonly ulong NumSamples;
+			public readonly bool IsSampleCount;
 
 			public Measurement(Func<string,string> attributes)
 			{
 				Sum = double.Parse(attributes("sum"));
 				SquareSum = double.Parse(attributes("squareSum"));
-				NumSamples = ulong.Parse(attributes("numSamples"));
+				try
+				{
+					NumSamples = ulong.Parse(attributes("numSamples"));
+					IsSampleCount = false;
+				}
+				catch (Exception ex)
+				{
+					NumSamples = ulong.Parse(attributes("sampleCount"));
+					IsSampleCount = true;
+				}
 			}
 
 			public Measurement(double sum, double squareSum, ulong numSamples)
 			{
+				IsSampleCount = false;
 				Sum = sum;
 				SquareSum = squareSum;
 				NumSamples = numSamples;
@@ -117,7 +130,10 @@ namespace MeasurementMerger
 				xm.SetAttribute("deviation", dev.ToString());
 				xm.SetAttribute("sum", Sum.ToString("R"));
 				xm.SetAttribute("squareSum", SquareSum.ToString("R"));
-				xm.SetAttribute("numSamples", NumSamples.ToString());
+				if (IsSampleCount)
+					xm.SetAttribute("sampleCount", NumSamples.ToString());
+				else
+					xm.SetAttribute("numSamples", NumSamples.ToString());
 
 				Measurement back = new Measurement(name => xm.GetAttribute(name));
 				if (back != this)
@@ -133,6 +149,7 @@ namespace MeasurementMerger
 			public readonly Dictionary<string, Measurement> Measurements = new Dictionary<string, Measurement>();
 			public readonly string Name, ID;
 			public readonly KeyValuePair<string, string>[] Attributes;
+			public readonly XElement ConfigElement;
 
 			internal void Include(SubTable other)
 			{
@@ -147,22 +164,31 @@ namespace MeasurementMerger
 			public SubTable(XElement node)
 			{
 				ID = node.Name.LocalName;
-				int cnt = 0;
-				foreach (var attrib in node.Attributes())
-				{
-					ID += "_" + attrib.Name + "_" + attrib.Value;
-					cnt++;
-				}
+
+				XElement idSource = node;
+				ConfigElement = FindNode(node.Nodes(), "config");
+				if (ConfigElement != null)
+					idSource = ConfigElement;
+
+
+				foreach (var attrib in idSource.Attributes())
+					if (!excludeFromID.Contains(attrib.Name.LocalName))
+						ID += "_" + attrib.Name + "_" + attrib.Value;
+				if (!string.IsNullOrWhiteSpace( idSource.Value))
+					ID += "_" + idSource.Value;
 				Name = node.Name.LocalName;
 
-				Attributes = new KeyValuePair<string, string>[cnt];
-				cnt = 0;
-				foreach (var attrib in node.Attributes())
-				{
-					Attributes[cnt] = new KeyValuePair<string, string>(attrib.Name.LocalName , attrib.Value);
-					cnt++;
-				}
+
+				Attributes = node.Attributes().Select(xattrib => new KeyValuePair<string, string>(xattrib.Name.LocalName, xattrib.Value)).ToArray();
 				Parse(node.Nodes());
+			}
+
+			private static XElement FindNode(IEnumerable<XNode> enumerable, string v)
+			{
+				foreach (XElement el in enumerable)
+					if (el.Name.LocalName == v)
+						return el;
+				return null;
 			}
 
 			public void AppendTo(XmlDocument doc, XmlElement parent)
@@ -180,12 +206,23 @@ namespace MeasurementMerger
 					m.Value.WriteTo(xm);
 					xlocal.AppendChild(xm);
 				}
+				if (ConfigElement != null)
+				{
+					XmlElement xcfg = doc.CreateElement(ConfigElement.Name.LocalName);
+					xlocal.AppendChild(xcfg);
+					foreach (var attrib in ConfigElement.Attributes())
+						xcfg.SetAttribute(attrib.Name.LocalName, attrib.Value);
+					if (!string.IsNullOrWhiteSpace(ConfigElement.Value))
+						xcfg.InnerText = ConfigElement.Value;
+				}
 			}
 
 			internal void Parse(IEnumerable<XNode> table)
 			{
 				foreach (XElement xm in table)
 				{
+					if (xm == ConfigElement)
+						continue;
 					Measurements.Add(xm.Name.LocalName, new Measurement(name => xm.Attribute(name).Value));
 				}
 			}

@@ -1052,7 +1052,7 @@ const int SelectExclusiveSource(const CoreShardDomainState&a, const CoreShardDom
 }
 
 const int SelectExclusiveSource(const CoreShardDomainState&a, const CoreShardDomainState&b, 
-				const IC::BadnessEstimator&badness)
+				const IC::InconsistencyEstimator&badness)
 {
 	double balance = 0;
 	for (index_t i = 0; i < a.ic.GetGrid().Count(); i++)
@@ -1114,28 +1114,67 @@ static void MergeInconsistentEntitiesEx(CoreShardDomainState&merged, const CoreS
 }
 
 
+static const float wI = 1, wE = 2;
+
+float GetConfidence( const IC&thisIC, const TEntityCoords&thisCoords, const IC&otherIC, const Entity*otherEntity, const IC::InconsistencyEstimator*badness )
+{
+	if (!badness)
+	{
+		FATAL__("Should not be here in this configuration");
+		return 
+		(
+			wI * thisIC.IsInconsistent(thisCoords) + wE
+			+ wI * otherIC.IsInconsistent(thisCoords) + wE * (otherEntity != nullptr)
+		) / ((wI + wE) * 2.f);
+				//const float confidenceOther = ((C0 * a.ic.IsInconsistent(c1) + C1) + (C0 * b.ic.IsInconsistent(c1) +  C1)) / (2 * (C0 + C1));
+	}
+	
+
+//	FATAL__("Should not be here");
+	
+	const auto px = IC::ToPixels(thisCoords);
+	const auto bThis = (*badness)(thisIC.GetSample(px));
+	const auto bOther = (*badness)(otherIC.GetSample(px));
+	float iConfidence;
+	if (bThis > bOther)
+		iConfidence = 0.f;
+	elif (bThis == bOther)
+		iConfidence = 0.5f;
+	else
+		iConfidence = 1.f;
+
+	#if 0
+	const M::TFloatRange<> range = M::FloatRange(std::min(bThis,bOther), std::max(bThis,bOther));
+	if (range.min != range.max)
+	{
+		const auto relAvg = range.Relativate((bThis + bOther) /2);
+		const float c = (relAvg - 0.5f) / (M::Sqr(relAvg) - relAvg);
+		const float b = -1.f - c;
+		const float rel = range.Relativate(bThis);
+		iConfidence = 1.f + b * bThis + c * bThis * bThis;
+	}
+	#endif /*0*/
+	return iConfidence * wI / (wI + wE) + ((otherEntity != nullptr)) * wE / ((wI + wE));
+}
+
 void MergeInconsistentEntitiesComp(CoreShardDomainState&merged, const CoreShardDomainState&a, const CoreShardDomainState&b, 
-				const IC::Comparator&comp, const TGridCoords&shardOffset, 
-				Statistics::ConfidenceThreshold confidenceThreshold0,
+				const TMergeConfig&cfg,
+				const TGridCoords&shardOffset, 
 				const Grid::Layer*consistentComparison
 )
 {
 	static const float searchScope = 0.5f;
-	static const float C0 = 1,C1 = 2;
 	float confidenceThreshold = 1;
-	switch (confidenceThreshold0)
+	switch (cfg.confidenceThreshold)
 	{
 		case Statistics::ConfidenceThreshold::Zero:
 			confidenceThreshold = 0;
 		break;
-		case Statistics::ConfidenceThreshold::Half:
-			confidenceThreshold = 0.5001f;
+		case Statistics::ConfidenceThreshold::GreaterZero:
+			confidenceThreshold = 0.00001f;
 		break;
-		case Statistics::ConfidenceThreshold::HalfPlusWI:
-			confidenceThreshold = 0.5f + (float)C0 / (C0 + C1) * 0.5f + 0.0001f;
-		break;
-		case Statistics::ConfidenceThreshold::One:
-			confidenceThreshold = 1.f;
+		case Statistics::ConfidenceThreshold::GreaterHalfWI:
+			confidenceThreshold = (float)wI / (2*(wI + wE)) + 0.00001f;
 		break;
 		default:
 			FATAL__("Unsupported confidence threshold");
@@ -1146,20 +1185,21 @@ void MergeInconsistentEntitiesComp(CoreShardDomainState&merged, const CoreShardD
 		if (merged.entities.FindEntity(e0->guid))
 			continue;	//already good
 		//entity is inconsistent and not in merged state yet
-		const auto c0 = e0->coordinates - shardOffset;
+		const TEntityCoords c0 = e0->coordinates - shardOffset;
 		auto e1 = b.entities.FindEntity(e0->guid);
-		const auto c1 = e1 ? (e1->coordinates - shardOffset) : TEntityCoords();
+		const TEntityCoords c1 = e1 ? (e1->coordinates - shardOffset) : TEntityCoords();
 
 
 		DBG_ASSERT__(a.ic.IsInconsistent(c0));
-		const float confidence = ((C0 + C1) + (C0 * b.ic.IsInconsistent(c0) +  C1 * (e1 != nullptr))) / (2 * (C0 + C1));
+		const float confidence = GetConfidence(a.ic,c0, b.ic,e1, cfg.icBadness);
 		if (confidence < confidenceThreshold)
 			continue;
 
 		const Entity*candidate = nullptr;
 		if (e1)
 		{
-			const float confidenceOther = ((C0 * a.ic.IsInconsistent(c1) + C1) + (C0 * b.ic.IsInconsistent(c1) +  C1)) / (2 * (C0 + C1));
+			const float confidenceOther = GetConfidence(b.ic,c1, a.ic,e0, cfg.icBadness);
+			//const float confidenceOther = ((C0 * a.ic.IsInconsistent(c1) + C1) + (C0 * b.ic.IsInconsistent(c1) +  C1)) / (2 * (C0 + C1));
 			if (confidence >= confidenceOther)
 			{
 				if (confidence > confidenceOther)
@@ -1170,7 +1210,9 @@ void MergeInconsistentEntitiesComp(CoreShardDomainState&merged, const CoreShardD
 						candidate = e0;
 					else
 					{
-						int sc = comp(a.ic.GetSample(c0), b.ic.GetSample(c1));
+						const auto&s0 = a.ic.GetSample(c0);
+						const auto&s1 = b.ic.GetSample(c1);
+						int sc = (*cfg.icComp)(s0, s1);
 						if (sc < 0)
 							candidate = e0;
 						elif (sc > 0)
@@ -1211,9 +1253,9 @@ void MergeInconsistentEntitiesComp(CoreShardDomainState&merged, const CoreShardD
 		auto e1 = a.entities.FindEntity(e0->guid);
 		if (!e1)
 		{
-			const auto c0 = e0->coordinates - shardOffset;
+			const TEntityCoords c0 = e0->coordinates - shardOffset;
 			DBG_ASSERT__(b.ic.IsInconsistent(c0));
-			const float confidence = ((C0 + C1) + (C0 * a.ic.IsInconsistent(c0) )) / (2 * (C0 + C1));
+			const float confidence = GetConfidence(b.ic,c0, a.ic,e1, cfg.icBadness);
 			if (confidence < confidenceThreshold)
 				continue;
 			if (!merged.ic.IsInconsistent(c0))
@@ -1257,7 +1299,7 @@ static PCoreShardDomainState		Merge(
 	const CoreShardDomainState*exclusiveSource = nullptr;
 	int exclusiveChoice = 0;
 
-	if (cfg.strategy == Statistics::MergeStrategy::Exclusive || cfg.strategy == Statistics::MergeStrategy::ExclusiveWithPositionCorrection)
+	if (cfg.strategy == Statistics::MergeStrategy::ExclusiveWithPositionCorrection)
 	{
 		if (cfg.icBadness)
 			exclusiveChoice = SelectExclusiveSource(a,b,*cfg.icBadness);
@@ -1445,7 +1487,7 @@ static PCoreShardDomainState		Merge(
 		}
 		#endif /*0*/
 		if (cfg.strategy == Statistics::MergeStrategy::EntitySelective)
-			MergeInconsistentEntitiesComp(merged,a,b,*cfg.icComp,myShard.gridCoords, cfg.confidenceThreshold, consistentComparison);
+			MergeInconsistentEntitiesComp(merged,a,b,cfg,myShard.gridCoords, consistentComparison);
 		else
 			MergeInconsistentEntitiesEx(merged,*exclusiveSource,myShard.gridCoords,cfg.strategy == Statistics::MergeStrategy::ExclusiveWithPositionCorrection,consistentComparison);
 
@@ -1770,22 +1812,28 @@ template <typename Comparator, typename Badness>
 		TMergeConfig cfg = baseConfig;
 		Comparator comp;
 		cfg.icComp = &comp;
-		CompareMerge(a,b,cfg,currentTimestep,layer,consistentOutput,mergedIC,shard);
-		if (cfg.strategy != Statistics::MergeStrategy::EntitySelective)
+		if (cfg.strategy == Statistics::MergeStrategy::EntitySelective)
 		{
 			Badness bad;
 			cfg.icBadness = &bad;
 			CompareMerge(a,b,cfg,currentTimestep,layer,consistentOutput,mergedIC,shard);
+			return;
 		}
+
+		//CompareMerge(a,b,cfg,currentTimestep,layer,consistentOutput,mergedIC,shard);	//using ICBA always (has better mathematical properties)
+		Badness bad;
+		cfg.icBadness = &bad;
+		CompareMerge(a,b,cfg,currentTimestep,layer,consistentOutput,mergedIC,shard);
 	}
 
 void	CompareMergeComp(const CoreShardDomainState&a, const CoreShardDomainState&b, const TBaseMergeConfig&baseConfig, index_t currentTimestep,const Grid::Layer&layer, const PCoreShardDomainState&consistentOutput, const IC&mergedIC, const Shard&shard)
 {
 	CompareMergeCompT<IC::BinaryComparator,IC::BinaryBadness>(a,b,baseConfig,currentTimestep,layer,consistentOutput,mergedIC,shard);
-	CompareMergeCompT<IC::OrthographicComparator,IC::OrthographicBadness>(a,b,baseConfig,currentTimestep,layer,consistentOutput,mergedIC,shard);
-	CompareMergeCompT<IC::ReverseOrthographicComparator,IC::ReverseOrthographicBadness>(a,b,baseConfig,currentTimestep,layer,consistentOutput,mergedIC,shard);
+	//CompareMergeCompT<IC::OrthographicComparator,IC::OrthographicBadness>(a,b,baseConfig,currentTimestep,layer,consistentOutput,mergedIC,shard);
+	//CompareMergeCompT<IC::ReverseOrthographicComparator,IC::ReverseOrthographicBadness>(a,b,baseConfig,currentTimestep,layer,consistentOutput,mergedIC,shard);
 	CompareMergeCompT<IC::DepthComparator,IC::DepthBadness>(a,b,baseConfig,currentTimestep,layer,consistentOutput,mergedIC,shard);
 	CompareMergeCompT<IC::ExtentComparator,IC::ExtentBadness>(a,b,baseConfig,currentTimestep,layer,consistentOutput,mergedIC,shard);
+	CompareMergeCompT<IC::TemplateComparator<IC::DepthByExtentEstimator>,IC::DepthByExtentEstimator>(a,b,baseConfig,currentTimestep,layer,consistentOutput,mergedIC,shard);
 	#ifdef IC_PROFILE_IS_MERGE_COMPARATOR_SOURCE
 		CompareMerge(a,b,Statistics::ProfileComparator(),s,confidenceThreshold,currentTimestep,layer,consistentOutput,mergedIC,shard);
 	#endif
@@ -1847,7 +1895,7 @@ void				FullShardDomainState::SynchronizeWithSibling(Shard&myShard,  Shard&sibli
 	{
 		TMergeConfig cfg;
 		cfg.icComp = &comp;
-		cfg.strategy = Statistics::MergeStrategy::Exclusive;
+		cfg.strategy = Statistics::MergeStrategy::ExclusiveWithPositionCorrection;
 		merged  = Merge(a,b,cfg,currentTimestep,myShard,layer);
 	}
 
