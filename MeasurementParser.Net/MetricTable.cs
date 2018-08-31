@@ -8,11 +8,12 @@ using System.Xml.Linq;
 
 namespace MeasurementMerger
 {
-	internal class MetricTable
+
+	public class MetricTable
 	{
 		private static HashSet<string> excludeFromID =  new HashSet<string>(new string[]{ "endlessRuns","numRuns"});
 
-		public Dictionary<string, SubTable> chunks = new Dictionary<string, SubTable>();
+		public Dictionary<string, Capture> chunks = new Dictionary<string, Capture>();
 
 		public MetricTable(FileInfo fileInfo)
 		{
@@ -20,12 +21,12 @@ namespace MeasurementMerger
 
 			foreach (XElement node in source.Nodes())
 			{
-				var sub = new SubTable(node);
+				var sub = new Capture(node);
 				chunks.Add(sub.ID, sub);
 			}
 		}
 
-		internal void Include(MetricTable other)
+		public void Include(MetricTable other)
 		{
 			if (chunks.Count != other.chunks.Count)
 				throw new ArgumentException("Chunk count mismatch: "+chunks.Count+" != "+other.chunks.Count);
@@ -37,7 +38,7 @@ namespace MeasurementMerger
 		}
 
 		//https://stackoverflow.com/a/43461833
-		public static string Beautify(XmlDocument doc)
+		private static string Beautify(XmlDocument doc)
 		{
 			string xmlString = null;
 			using (MemoryStream ms = new MemoryStream())
@@ -59,7 +60,7 @@ namespace MeasurementMerger
 			return xmlString;
 		}
 
-		internal void ExportTo(FileInfo targetFile)
+		public void ExportTo(FileInfo targetFile)
 		{
 			XmlDocument doc = new XmlDocument();
 
@@ -73,12 +74,58 @@ namespace MeasurementMerger
 			File.WriteAllText(targetFile.FullName, Beautify(doc));
 		}
 
-		public struct Measurement
+		public CapturePair ExtractPair(string name)
+		{
+			return new CapturePair(FindByName(name + "Mean"), FindByName(name));
+		}
+
+		public Capture FindByName(string name)
+		{
+			foreach (var c in chunks.Values)
+				if (c.Name == name)
+					return c;
+			return null;
+		}
+
+		public Capture FindByID(string id)
+		{
+			return chunks[id];
+		}
+
+		public CapturePair[] ExtractCapturePairs()
+		{
+			var pairs = new List<CapturePair>();
+			foreach (var c in chunks.Values)
+			{
+				if (c.Name == "capture")
+				{
+					var siblingID = Capture.MakeID("captureMean", c.IDSource);
+					pairs.Add(new CapturePair(FindByID(siblingID), c));
+				}
+			}
+			return pairs.ToArray();
+		}
+
+		public struct MeasurementProperties
+		{
+			public readonly double	Mean,
+									Deviation,
+									Error;
+
+			public MeasurementProperties(double mean, double deviation, double error)
+			{
+				Mean = mean;
+				Deviation = deviation;
+				Error = error;
+			}
+		};
+
+		public struct Measurement : IEquatable<Measurement>
 		{
 			public readonly double Sum,
 								SquareSum;
 			public readonly ulong NumSamples;
-			public readonly bool IsSampleCount;
+			public readonly bool IONumSamplesIsSampleCount;
 
 			public Measurement(Func<string,string> attributes)
 			{
@@ -87,18 +134,18 @@ namespace MeasurementMerger
 				try
 				{
 					NumSamples = ulong.Parse(attributes("numSamples"));
-					IsSampleCount = false;
+					IONumSamplesIsSampleCount = false;
 				}
 				catch (Exception ex)
 				{
 					NumSamples = ulong.Parse(attributes("sampleCount"));
-					IsSampleCount = true;
+					IONumSamplesIsSampleCount = true;
 				}
 			}
 
 			public Measurement(double sum, double squareSum, ulong numSamples)
 			{
-				IsSampleCount = false;
+				IONumSamplesIsSampleCount = false;
 				Sum = sum;
 				SquareSum = squareSum;
 				NumSamples = numSamples;
@@ -117,20 +164,28 @@ namespace MeasurementMerger
 				return !(a == b);
 			}
 
+			public MeasurementProperties Properties
+			{
+				get
+				{
+					double mean = Sum / NumSamples;
+					double sqr = SquareSum / NumSamples;
+					double dev = Math.Sqrt(sqr - mean * mean);
+					double confInterval = 1.96 * dev / Math.Sqrt(NumSamples);
+					return new MeasurementProperties(mean, dev, confInterval);
+				}
 
-
+			}
+			
 
 			internal void WriteTo(XmlElement xm)
 			{
-				double mean = Sum / NumSamples;
-				double sqr = SquareSum / NumSamples;
-				double dev = Math.Sqrt(sqr - mean * mean);
-				double confInterval = 1.96 * dev / Math.Sqrt(NumSamples);
-				xm.SetAttribute("mean", mean.ToString()+" (+/- "+ confInterval.ToString()+")");
-				xm.SetAttribute("deviation", dev.ToString());
+				var prop = Properties;
+				xm.SetAttribute("mean", prop.Mean.ToString()+" (+/- "+ prop.Error.ToString()+")");
+				xm.SetAttribute("deviation", prop.Deviation.ToString());
 				xm.SetAttribute("sum", Sum.ToString("R"));
 				xm.SetAttribute("squareSum", SquareSum.ToString("R"));
-				if (IsSampleCount)
+				if (IONumSamplesIsSampleCount)
 					xm.SetAttribute("sampleCount", NumSamples.ToString());
 				else
 					xm.SetAttribute("numSamples", NumSamples.ToString());
@@ -140,18 +195,48 @@ namespace MeasurementMerger
 					throw new InvalidCastException("Export != import");
 			}
 
+			public override bool Equals(object obj)
+			{
+				return obj is Measurement && Equals((Measurement)obj);
+			}
+
+			public bool Equals(Measurement other)
+			{
+				return this == other;
+			}
+
+			public override int GetHashCode()
+			{
+				var hashCode = 70319223;
+				hashCode = hashCode * -1521134295 + Sum.GetHashCode();
+				hashCode = hashCode * -1521134295 + SquareSum.GetHashCode();
+				hashCode = hashCode * -1521134295 + NumSamples.GetHashCode();
+				return hashCode;
+			}
 		}
 
-		public class SubTable
+
+		public class CapturePair
+		{
+			public readonly Capture Mean, Full;
+
+			public CapturePair(Capture mean, Capture full)
+			{
+				Mean = mean ?? throw new ArgumentNullException("mean");
+				Full = full ?? throw new ArgumentNullException("full");
+			}
+		}
+
+		public class Capture
 		{
 			//<C_SpatialDelta mean="0.03935376" deviation="0.07151365" sum="126910.57005142" squareSum="21487.01963334" numSamples="3224865" />
 
 			public readonly Dictionary<string, Measurement> Measurements = new Dictionary<string, Measurement>();
 			public readonly string Name, ID;
 			public readonly KeyValuePair<string, string>[] Attributes;
-			public readonly XElement ConfigElement;
+			public readonly XElement ConfigElement, IDSource;
 
-			internal void Include(SubTable other)
+			internal void Include(Capture other)
 			{
 				var keys = new string[Measurements.Keys.Count];
 				Measurements.Keys.CopyTo(keys, 0);
@@ -161,21 +246,26 @@ namespace MeasurementMerger
 				}
 			}
 
-			public SubTable(XElement node)
+			public static string MakeID(string baseName, XElement idSource)
 			{
-				ID = node.Name.LocalName;
-
-				XElement idSource = node;
-				ConfigElement = FindNode(node.Nodes(), "config");
-				if (ConfigElement != null)
-					idSource = ConfigElement;
-
-
+				var id = new StringBuilder(baseName);
 				foreach (var attrib in idSource.Attributes())
 					if (!excludeFromID.Contains(attrib.Name.LocalName))
-						ID += "_" + attrib.Name + "_" + attrib.Value;
-				if (!string.IsNullOrWhiteSpace( idSource.Value))
-					ID += "_" + idSource.Value;
+						id.Append("_").Append(attrib.Name).Append("_").Append(attrib.Value);
+				if (!string.IsNullOrWhiteSpace(idSource.Value))
+					id.Append(":" + idSource.Value);
+				return id.ToString();
+			}
+
+			public Capture(XElement node)
+			{
+
+				IDSource = node;
+				ConfigElement = FindNode(node.Nodes(), "config");
+				if (ConfigElement != null)
+					IDSource = ConfigElement;
+
+				ID = MakeID(node.Name.LocalName, IDSource);
 				Name = node.Name.LocalName;
 
 

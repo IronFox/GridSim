@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{960BAB13-F999-453E-9920-7D2BD470B483}</ProjectGuid>
+    <ProjectGuid>{9BC70BD8-6967-43DD-8472-7F7D991AF61A}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>MeasurementMerger</RootNamespace>
-    <AssemblyName>MeasurementMerger</AssemblyName>
+    <RootNamespace>TexUpdater</RootNamespace>
+    <AssemblyName>TexUpdater</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

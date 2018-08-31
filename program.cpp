@@ -782,6 +782,9 @@ int main( int argc, const char* argv[])
 			display.Destroy();
 			application_shutting_down = true;
 		#else
+
+			SetPriorityClass(GetCurrentProcess(), IDLE_PRIORITY_CLASS);
+
 			#ifndef RECOVERY_TEST
 				currentSetup = Statistics::Begin();
 			#else

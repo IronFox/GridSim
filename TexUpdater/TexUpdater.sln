@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.28010.2003
+VisualStudioVersion = 15.0.28010.2016
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeasurementMerger", "MeasurementMerger.csproj", "{960BAB13-F999-453E-9920-7D2BD470B483}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TexUpdater", "TexUpdater.csproj", "{9BC70BD8-6967-43DD-8472-7F7D991AF61A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeasurementParser.Net", "..\MeasurementParser.Net\MeasurementParser.Net.csproj", "{1D9D587F-C018-417D-A211-F51215D2C53F}"
 EndProject
@@ -13,10 +13,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{960BAB13-F999-453E-9920-7D2BD470B483}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{960BAB13-F999-453E-9920-7D2BD470B483}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{960BAB13-F999-453E-9920-7D2BD470B483}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{960BAB13-F999-453E-9920-7D2BD470B483}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BC70BD8-6967-43DD-8472-7F7D991AF61A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BC70BD8-6967-43DD-8472-7F7D991AF61A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BC70BD8-6967-43DD-8472-7F7D991AF61A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BC70BD8-6967-43DD-8472-7F7D991AF61A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1D9D587F-C018-417D-A211-F51215D2C53F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1D9D587F-C018-417D-A211-F51215D2C53F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D9D587F-C018-417D-A211-F51215D2C53F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -26,6 +26,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {A35E1464-5787-4A33-8C0E-C9DE9959EC0A}
+		SolutionGuid = {4B2F69FF-9DC6-4C24-A6F1-ED30AD01BA4C}
 	EndGlobalSection
 EndGlobal
