@@ -629,6 +629,7 @@ namespace DeltaWorks
 	#define ASSERT2__(_EXPRESSION_,_PARAMETER0_,_PARAMETER1_)	{using ::DeltaWorks::StringConversion::ToString; if (!(_EXPRESSION_)) FATAL__(#_EXPRESSION_ " (with "#_PARAMETER0_"='"+ToString(_PARAMETER0_)+"' and "#_PARAMETER1_"='"+ToString(_PARAMETER1_)+"') evaluates to false");}
 	#define ASSERT3__(_EXPRESSION_,_PARAMETER0_,_PARAMETER1_,_PARAMETER2_)	{using ::DeltaWorks::StringConversion::ToString; if (!(_EXPRESSION_)) FATAL__( #_EXPRESSION_ " (with "#_PARAMETER0_"='"+ToString(_PARAMETER0_)+"', "#_PARAMETER1_"='"+ToString(_PARAMETER1_)+"', and "#_PARAMETER2_"='"+ToString(_PARAMETER2_)+"') evaluates to false");}
 	#define ASSERT4__(_EXPRESSION_,_PARAMETER0_,_PARAMETER1_,_PARAMETER2_,_PARAMETER3_)	{using ::DeltaWorks::StringConversion::ToString; if (!(_EXPRESSION_)) FATAL__( #_EXPRESSION_ " (with "#_PARAMETER0_"='"+ToString(_PARAMETER0_)+"', "#_PARAMETER1_"='"+ToString(_PARAMETER1_)+"', "#_PARAMETER2_"='"+ToString(_PARAMETER2_)+"', and "#_PARAMETER3_"='"+ToString(_PARAMETER3_)+"') evaluates to false");}
+	#define ASSERT5__(_EXPRESSION_,_PARAMETER0_,_PARAMETER1_,_PARAMETER2_,_PARAMETER3_,_PARAMETER4_)	{using ::DeltaWorks::StringConversion::ToString; if (!(_EXPRESSION_)) FATAL__( #_EXPRESSION_ " (with "#_PARAMETER0_"='"+ToString(_PARAMETER0_)+"', "#_PARAMETER1_"='"+ToString(_PARAMETER1_)+"', "#_PARAMETER2_"='"+ToString(_PARAMETER2_)+"', "#_PARAMETER3_"='"+ToString(_PARAMETER3_)+"', and "#_PARAMETER4_"='"+ToString(_PARAMETER4_)+"') evaluates to false");}
 
 	#define CONSTRAINT_VIOLATION3__(component,vector,lower_bounds,upper_bounds)	{using ::DeltaWorks::StringConversion::ToString;  FATAL__("Constraint violation of component "#component" of vector "#vector" ("+ToString((vector)[0])+", "+ToString((vector)[1])+", "+ToString((vector)[2])+") against constraint ["+ToString(lower_bounds)+", "+ToString(upper_bounds)+"]");}
 	#define ASSERT_COMPONENT_IS_CONSTRAINED3__(component,vector,lower_bounds,upper_bounds)	{using ::DeltaWorks::StringConversion::ToString; if ((vector)[component]<(lower_bounds) || (vector)[component]>(upper_bounds)) CONSTRAINT_VIOLATION3__(component,vector,lower_bounds,upper_bounds);}
@@ -638,6 +639,7 @@ namespace DeltaWorks
 	#define	ASSERT_EQUAL__(exp0,exp1)						ASSERT2__((exp0)==(exp1),exp0,exp1)
 	#define	ASSERT_EQUAL1__(exp0,exp1,exp2)					ASSERT3__((exp0)==(exp1),exp0,exp1,exp2)
 	#define	ASSERT_EQUAL2__(exp0,exp1,exp2,exp3)			ASSERT4__((exp0)==(exp1),exp0,exp1,exp2,exp3)
+	#define	ASSERT_EQUAL3__(exp0,exp1,exp2,exp3,exp4)		ASSERT5__((exp0)==(exp1),exp0,exp1,exp2,exp3,exp4)
 
 	#define	ASSERT_NOT_EQUAL__(exp0,exp1)					ASSERT2__((exp0)!=(exp1),exp0,exp1)
 	#define	ASSERT_NOT_EQUAL1__(exp0,exp1,exp2)				ASSERT3__((exp0)!=(exp1),exp0,exp1,exp2)
