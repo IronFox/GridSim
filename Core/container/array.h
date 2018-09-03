@@ -439,23 +439,31 @@ namespace DeltaWorks
 									{
 										return element-data;
 									}				
-				inline index_t		findFirst(const T&entry) const	//!< Finds the index of the first occurance of the specified entry. Entries are compared via the == operator. @param entry Entry to look for @return Index of the found match plus one or 0 if no match was found
+				/**
+				Finds the first matching entry and returns its index
+				@param entry Element to look for (compared via ==)
+				@return Index of the found entry of InvalidIndex if no match was found
+				*/
+				inline index_t		GetIndexOf(const T&entry) const
 									{
-										for (count_t i = 0; i < elements; i++)
-											if (data[i] == entry)
-												return i+1;
-										return 0;
+										return GetNextIndexOf(entry,0);
 									}
-				inline index_t		FindFirst(const T&entry) const	/**@copydoc findFirst()*/ {return findFirst(entry);}
+				inline index_t		GetNextIndexOf(const T&entry, index_t offset) const
+									{
+										for (count_t i = offset; i < elements; i++)
+											if (data[i] == entry)
+												return i;
+										return InvalidIndex;
+									}
 
 				inline bool			Contains(const T&entry) const	{	return FindFirst(entry) != 0;	}
 
 				template <class T1>
-					inline index_t	FindFirst(const T1*field, count_t length) const
+					inline index_t	GetNextIndexOfSegment(const T1*field, count_t length, index_t offset) const
 									{
 										if (length > elements)
-											return 0;
-										for (count_t i = 0; i+length <= elements; i++)
+											return InvalidIndex;
+										for (count_t i = offset; i+length <= elements; i++)
 										{
 											bool match(true);
 											for (count_t j = 0; j < length; j++)
@@ -465,24 +473,29 @@ namespace DeltaWorks
 													break;
 												}
 												if (match)
-													return i+1;
+													return i;
 										}
-										return 0;
+										return InvalidIndex;
+									}
+				template <class T1>
+					inline index_t	GetIndexOfSegment(const T1*field, count_t length) const
+									{
+										return GetNextIndexOfSegment(field,length,0);
 									}
 
-				inline index_t		FindLast(const T&entry) const
+				inline index_t		GetLastIndexOf(const T&entry) const
 									{
 										for (count_t i = elements-1; i < elements; i--)
 											if (data[i] == entry)
-												return i+1;
-										return 0;
+												return i;
+										return InvalidIndex;
 									}
 
 				template <class T1>
-					inline index_t	FindLast(const T1*field, count_t length) const
+					inline index_t	GetLastIndexOfSegment(const T1*field, count_t length) const
 									{
 										if (length > elements)
-											return 0;
+											return InvalidIndex;
 										for (count_t i = elements-length; i<elements; i--)
 										{
 											bool match(true);
@@ -493,19 +506,14 @@ namespace DeltaWorks
 													break;
 												}
 												if (match)
-													return i+1;
+													return i;
 										}
-										return 0;
+										return InvalidIndex;
 									}
 
-				inline index_t		FindFirst(const ArrayRef<T>&other) const
+				inline index_t		GetIndexOf(const ArrayRef<T>&other) const
 									{
-										return FindFirst(other.data,other.elements);
-									}
-
-				inline index_t		FindLast(const ArrayRef<T>&other) const
-									{
-										return FindLast(other.data,other.elements);
+										return GetIndexOfSegment(other.data,other.elements);
 									}
 
 				inline const_iterator begin() const	{return data;}
