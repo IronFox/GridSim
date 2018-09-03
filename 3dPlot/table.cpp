@@ -1581,6 +1581,7 @@ bool Table::LoadSamples(const FileSystem::File&f, const std::function<bool(const
 	bool hasMissingEntites = false;
 	bool hasInconsistencyAge = false;
 
+
 	while (file >> line)
 	{
 		if (isCSV)
@@ -1589,6 +1590,7 @@ bool Table::LoadSamples(const FileSystem::File&f, const std::function<bool(const
 
 			ASSERT__((parts.Count() % 6) == 0);
 			const count_t numSamples = parts.Count() / 6;
+
 
 			Buffer0<TSample>&myLine = samples.Append();
 			for (index_t i = 0; i < numSamples; i++)
@@ -1686,7 +1688,7 @@ bool Table::LoadSamples(const FileSystem::File&f, const std::function<bool(const
 					hasLocationErrorSum = true;
 				elif (part->CompareToIgnoreCase("MissingEntities")==0)
 					hasMissingEntites = true;
-				elif (part->CompareToIgnoreCase("DivergenceDepth")==0 || part->CompareToIgnoreCase("InconsistencyAgeSum")==0)
+				elif (part->CompareToIgnoreCase("DivergenceDepth")==0 || part->CompareToIgnoreCase("InconsistencyAgeSum")==0 || part->CompareToIgnoreCase("InconsistencyAge") == 0)
 					hasInconsistencyAge = true;
 				elif (part->CompareToIgnoreCase("NumEntities")==0 || part->CompareToIgnoreCase("InconsistentEntities")==0 || part->CompareToIgnoreCase("NewlyInconsistentEntities")==0)
 				{}
@@ -1695,7 +1697,12 @@ bool Table::LoadSamples(const FileSystem::File&f, const std::function<bool(const
 			}
 			continue;
 		}
+
 		explode(tab,line,parts);
+
+
+
+
 		Buffer0<TSample>&myLine = samples.Append();
 
 		count_t numParts = 3 + hasLocationErrorSum + hasMissingEntites + hasInconsistencyAge;
@@ -1753,6 +1760,15 @@ Table::THeight	Table::GetSmoothed(float spatialDistance, float temporalDistance,
 {
 	if (heightFunction)
 		return heightFunction(spatialDistance,temporalDistance,t);
+
+
+	/*
+	This line tries to compensate for the incorrect recording mechanism of temporal distance
+	*/
+	//temporalDistance += spatialDistance*1.5f ;
+	temporalDistance += spatialDistance / metrics.spatialSupersampling;
+
+
 
 	float atX = range.y.Derelativate( spatialDistance );
 	float atY = range.x.Derelativate( temporalDistance );
@@ -1812,6 +1828,7 @@ float Relative2TextureHeight(float h)
 TSurfacePoint	Table::GetGeometryPointF(SampleType t, float spatialDistance, float temporalDistance) const
 {
 	TSurfacePoint rs;
+
 	THeight h = SmoothGeometryHeightFunctionF(t,spatialDistance,temporalDistance);
 
 	rs.height =  h.height;
@@ -2206,10 +2223,15 @@ void	Table::UpdatePlotGeometry(SampleType t, bool window)
 					return float3(-1);
 				return float3(x,y,p.height);
 			},400);
-			//TraceLine(IntRange<UINT>(0,Resolution),[this,t](UINT x)
-			//{
-			//	return float3(x,Resolution,GetGeometryPoint(t,x,Resolution-1).height);
-			//});
+			TraceLineF(M::FloatRange(0.f,1.f),[this,t](float x)
+			{
+				float y = 1.f;
+				auto p = GetGeometryPointF(t,y,x);
+				if (p.color.a < 0)
+					return float3(-1);
+				return float3(x,y,p.height);
+			},400);
+
 			TraceLineF(M::FloatRange(0.f,1.f),[this,t](float y)
 			{
 				float x = 1.f;

@@ -299,7 +299,15 @@ public:
 
 
 	//THypothesisData			hypothesis;
+
+	/**
+	Matrix of data points.
+	Eeach entry in the list is a temporal row, sorted from low temporal distance to high temporal distance.
+	By convention, the first row (T = 0) is empty.
+	Each entry per row is sorted by spatial distance from low (0) to high
+	*/
 	Buffer0<SampleRow>	samples;
+
 	std::function<THeight(float spatialDistance, float temporalDistance, SampleType)>		heightFunction;
 
 	std::function<M::TVec4<>(float spatialDistance, float temporalDistance, SampleType t)> colorFunction;
@@ -311,7 +319,7 @@ public:
 	index_t					solidPlotGeometryHandle = InvalidIndex,
 							plotHoleGeometryHandle = InvalidIndex,
 							transparentGeometryHandle = InvalidIndex;
-	float4				color = float4(1);
+	float4					color = float4(1);
 	Mesh					mesh;
 
 	const bool				IsRangeTable;

@@ -503,7 +503,7 @@ void SetupRenderer()
 			//"gl_Position = ftransform();\n"
 			//"float md = fmod(gl_Color.a,0.2);\n"
 			//"md *= 5.0;\n"
-			"float my_intensity = 0.2+0.5*max(0.0,dot(normalize(normal),light0))*intensity(shadow0,shadow_coord0)+0.5*max(0.0,dot(normalize(normal),light1))*intensity(shadow1,shadow_coord1);\n"
+			"float my_intensity = 0.2+0.3*max(0.0,dot(normalize(normal),light0))*intensity(shadow0,shadow_coord0)+0.6*max(0.0,dot(normalize(normal),light1))*intensity(shadow1,shadow_coord1);\n"
 			"gl_FragColor.rgb = color.rgb * my_intensity;\n"
 			"gl_FragColor.a = color.a;\n"
 			"if (h > 0.1 && h < 0.9){\n"

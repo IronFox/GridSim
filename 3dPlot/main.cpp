@@ -11,6 +11,7 @@
 #include "table.h"
 #include <io/delta_crc32.h>
 #include <string/converter.h>
+#include <string/encoding.h>
 
 using namespace DeltaWorks;
 
@@ -813,7 +814,7 @@ float GetMotionProportion(const String&filename)
 }
 
 
-void GetFilesIn(FileSystem::Folder sources, BasicBuffer<FileSystem::File>&rsOut, const std::function<bool(const PathString&)>&filter = std::function<bool(const PathString&)>())
+void GetFilesIn(FileSystem::FolderScan sources, BasicBuffer<FileSystem::File>&rsOut, const std::function<bool(const PathString&)>&filter = std::function<bool(const PathString&)>())
 {
 	sources.Rewind();
 	FileSystem::File file;
@@ -869,42 +870,42 @@ int main()	//main entry point
 
 
 		Buffer0<FileSystem::File>	files;
-		//GetFilesIn(FileSystem::Folder("../SimpleSimulation/results/compare"),files);
+		GetFilesIn(FileSystem::Folder("../SimpleSimulation/results/compare"),files);
 
-		files << *FileSystem::Folder("./data").FindFile("icProfile262144.NoHistoryState.csv");
+		//files << *FileSystem::Folder("./data").FindFile("icProfile262144.NoHistoryState.csv");
 
 		#if 0
 		GetFilesIn(FileSystem::Folder("./data"),files,[](const PathString&path)->bool
 		{
-			const index_t dDat = path.GetIndexOf("data");
-			index_t dD = path.FindFrom(dDat,"D" FOLDER_SLASH_STR);
-			if (!dD)
+			const index_t dDat = path.Find(PathString("data"));
+			index_t dD = path.Find(PathString("D" FOLDER_SLASH_STR),dDat+4);
+			if (dD == InvalidIndex)
 				return false;
 			dD-=3;
-			const index_t dI = path.FindFrom(dD,FOLDER_SLASH_STR"d");
-			if (!dI)
+			const index_t dI = path.Find(PathString(FOLDER_SLASH_STR"d"),dD+1);
+			if (dI == InvalidIndex)
 				return false;
-			const index_t sI = path.FindFrom(dI,FOLDER_SLASH);
-			if (!sI)
+			const index_t sI = path.Find(FOLDER_SLASH, dI+1);
+			if (sI == InvalidIndex)
 				return false;
 
 			count_t dimensions;
-			const String sdim = String(path.subStringRef(dD+1,dI-dD-3));
+			const String sdim =  String(path.SubStringRef(dD+2,dI-dD-3));
 			if (!Convert(sdim,dimensions))
 				return false;
 			if (dimensions != 2)
 				return false;
 
 			float density;
-			const String sdensity = String(path.subStringRef(dI+1,sI-dI-2));
-			if (!convert(sdensity.c_str(),sdensity.length(),density))
+			const String sdensity = String(path.SubStringRef(dI+2,sI-dI-2));
+			if (!Convert(sdensity,density))
 				return false;
 			const int idensity = (int) density;
 			if (density != idensity)
 				return false;
 			//if (idensity%5)
 			//	return false;
-			return path.contains("m0.5_");	//half motion/sensor
+			return path.Contains(PathString("m0.5_"));	//half motion/sensor
 		});
 		#endif /*0*/
 
@@ -1166,7 +1167,7 @@ int main()	//main entry point
 		Engine::mouse.BindWheel(wheelAction);		//bind the mouse wheel to the wheelAction event handler
 		Engine::input.Bind(Key::M,IterateSampleMode);
 		Engine::input.Bind(Key::S,MakeScreenshot);
-		Engine::input.Bind(Key::P,ExportExtremePlot);
+		//Engine::input.Bind(Key::P,ExportExtremePlot);
 
 		
 		SetupRenderer();
