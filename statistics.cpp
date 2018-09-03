@@ -146,16 +146,16 @@ namespace Statistics
 
 			#ifndef D3
 				r.setup.compareToControl = 1;
-				#ifndef _DEBUG	
+//				#ifndef _DEBUG	
 					r.setup.numEntities = 16*16*8*8*2*2*4;	//16x16 grid, 8x8 R per SD, 2x2 in R, x4 => each entity sees 4 others on average (if message displacement is active). Largest feasible on 32gb RAM in 2D: 262000
 					//r.setup.numEntities = 16*4*256;
 					//r.setup.numEntities = 16*16*1*1*1*8*8;		//each sees on average 1 other - 16384 entities
 					//r.setup.numEntities = 16*16*1*1*2*8*8;		//each sees on average 2 others
 					//r.setup.numEntities = 16*16*1*2*2*8*8;		//each sees on average 4 others
 					//r.setup.numEntities = 16*16*2*2*2*8*8;		//each sees on average _8_ others
-				#else
-					r.setup.numEntities = 256*16;
-				#endif
+				//#else
+				//	r.setup.numEntities = 256*16;
+				//#endif
 			#else
 				r.setup.compareToControl = 0;
 			#endif
@@ -1363,14 +1363,23 @@ namespace Statistics
 			file.Open(Filename(ex,"icProfile","csv"));
 			String line;
 			Array<StringRef> parts;
+
+			bool failed = false;
 			//vertical: depth
 			foreach (icProfile.Vertical(),v)
 			{
-				ASSERT__(file >> line);
+				if (!(file >> line))
+				{
+					LogMessage("ICProfile: Premature file end");
+					failed = true;
+					break;
+				}
 				explode(',',line,parts);
 				if (parts.Count() != icProfile.GetWidth()*6)
 				{
 					//FATAL__(String(*v));
+					LogMessage("ICProfile: Part mismatch in line '"+line+"'");
+					failed = true;
 					break;
 				}
 				//horizontal: distance
@@ -1386,6 +1395,11 @@ namespace Statistics
 					ASSERT_LESS_OR_EQUAL__(cell.inconsistentEntities,cell.totalEntities);
 					ASSERT_LESS_OR_EQUAL__(cell.inconsistentSamples,cell.totalSamples);
 				}
+			}
+			if (failed)
+			{
+				LogMessage("ICProfile: Errors detected. Flushing");
+				icProfile.Fill(ICCell{});
 			}
 		}
 		catch (...)
@@ -1534,17 +1548,32 @@ namespace Statistics
 		}
 	}
 
+	static void ExportTexFile(const String&name, const PathString&fName, const Details::MergeMeasurement::TMergeCapture&source, bool useMean);
 
 	static void ExportTexFile(const String&name, const Details::MergeMeasurement::TMergeCapture&source)
 	{
+		using namespace Details::MergeMeasurement;
+
+		String fileName = name;
+		fileName.FindAndReplace([](char c){return !CharFunctions::isalnum(c);},'_');
+
+		ExportTexFile(name,PathString(fileName),source,false);
+		ExportTexFile(name,PathString(fileName),source,true);
+	}
+
+	static void ExportTexFile(const String&name, const PathString&fName, const Details::MergeMeasurement::TMergeCapture&source, bool useMean)
+	{
+		using namespace Details::MergeMeasurement;
 		try
 		{
-			using namespace Details::MergeMeasurement;
-
 			StringFile texFile;
-			String fileName = name;
-			fileName.FindAndReplace([](char c){return !CharFunctions::isalnum(c);},'_');
-			texFile.Create(PathString("tex/"+fileName+".tex"));
+			PathString folder = "tex" FOLDER_SLASH_STR;
+			if (useMean)
+				folder += "mean" FOLDER_SLASH_STR;
+			else
+				folder += "full" FOLDER_SLASH_STR;
+			FileSystem::CreateDirectory(folder);
+			texFile.Create(folder+fName+".tex");
 			float h = 0.35f;
 			//areas:
 			texFile << "\\begin{axis}["<<nl
@@ -1560,21 +1589,21 @@ namespace Statistics
 				//{
 				//	return diff.icSize;
 				//}),
-				ExportChannel("$P_M$","\\%",[](const auto&diff, const auto&avgReference)
+				ExportChannel("$P_M$","\\%",[useMean](const auto&diff, const auto&avgReference)
 				{
-					return diff.full.value[TStateDifference::Metric::C_MissingProbability].Get() * 100;
+					return (useMean?diff.mean:diff.full).value[TStateDifference::Metric::C_MissingProbability].Get() * 100;
 				}),
-				ExportChannel("$P_U$","\\%",[](const auto&diff, const auto&avgReference)
+				ExportChannel("$P_U$","\\%",[useMean](const auto&diff, const auto&avgReference)
 				{
-					return diff.full.value[TStateDifference::Metric::I_UnwantedProbability].Get() * 100;
+					return (useMean?diff.mean:diff.full).value[TStateDifference::Metric::I_UnwantedProbability].Get() * 100;
 				}),
-				ExportChannel("$P_I$","\\%", [](const auto&diff, const auto&avgReference)
+				ExportChannel("$P_I$","\\%", [useMean](const auto&diff, const auto&avgReference)
 				{
-					return diff.full.value[TStateDifference::Metric::C_InconsistencyProbability].Get() * 100;
+					return (useMean?diff.mean:diff.full).value[TStateDifference::Metric::C_InconsistencyProbability].Get() * 100;
 				}),
-				ExportChannel("$\\Omega$","R",[](const auto&diff, const auto&avgReference)
+				ExportChannel("$\\Omega$","R",[useMean](const auto&diff, const auto&avgReference)
 				{
-					return diff.full.value[TStateDifference::Metric::I_Omega].Get() * (1.0/ Entity::MaxInfluenceRadius);
+					return (useMean?diff.mean:diff.full).value[TStateDifference::Metric::I_Omega].Get() * (1.0/ Entity::MaxInfluenceRadius);
 				}),
 			};
 
