@@ -456,7 +456,7 @@ namespace DeltaWorks
 										return InvalidIndex;
 									}
 
-				inline bool			Contains(const T&entry) const	{	return FindFirst(entry) != 0;	}
+				inline bool			Contains(const T&entry) const	{	return GetIndexOf(entry) != InvalidIndex;	}
 
 				template <class T1>
 					inline index_t	GetNextIndexOfSegment(const T1*field, count_t length, index_t offset) const
