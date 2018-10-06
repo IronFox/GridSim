@@ -19,14 +19,13 @@ namespace DeltaWorks
 	*/
 	class MonitoredProcess : private Sys::ThreadObject
 	{
-	private:
-
+	public:
 		struct Paths
 		{
 			PathString	executablePath,
 						workingDirectory;
 		};
-
+	private:
 		PROCESS_INFORMATION	infoOut;
 		Timer::Time		lastCheck = timer.Now();
 
@@ -136,6 +135,12 @@ namespace DeltaWorks
 		DWORD			GetLastExitCode() const {return lastExitCode;}
 
 		Sys::ThreadObject::AwaitCompletion;
+
+
+		/**
+		Adjusts paths if the target is found to point to a managed application and the path contains UNC markers
+		*/
+		static void		Sanitize(Paths&paths);
 	};
 }
 

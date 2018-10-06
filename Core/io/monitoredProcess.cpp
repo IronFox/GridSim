@@ -413,38 +413,41 @@ namespace DeltaWorks
 		}
 	}
 
+	/*static*/ void		MonitoredProcess::Sanitize(Paths&local)
+	{
+		if (MonitorDetails::IsManaged(local.executablePath))
+		{
+			/*
+			There is some ongoing issue with .NET programs and UNC paths.
+			
+			Setting the executable working directory to an UNC path will correctly start the application,
+			but any retrieval of the active working directory by that application will throw an exception.
+			Unfortunately, many IO constructors will do so implicitly even if unnecessary.
+			See https://blogs.msdn.microsoft.com/bclteam/2007/02/13/long-paths-in-net-part-1-of-3-kim-hamilton/ for reference.
+			Apparently, this is never going to be 'fixed'.
+
+			Therefor, at the risk of paths ending up too long, we strip any found UNC markers before executing
+			if the application is detected to be managed.
+			We could test string length and potentially throw an exception, but recent changes in Windows 10
+			imply that the 260 character limitation could be entirely removed eventually.
+			E.g. https://blogs.msdn.microsoft.com/jeremykuhne/2016/07/30/net-4-6-2-and-long-paths-on-windows-10/
+			*/
+			const PathString uncMarker = "\\\\?\\";
+			if (local.executablePath.BeginsWith(uncMarker))
+				local.executablePath.EraseLeft(uncMarker.GetLength());
+			if (local.workingDirectory.BeginsWith(uncMarker))
+				local.workingDirectory.EraseLeft(uncMarker.GetLength());
+		}
+	}
+
+
+
 	/*virtual override*/ void	MonitoredProcess::ThreadMain()
 	{
 		try
 		{
 			Paths local = paths;
-			
-			if (MonitorDetails::IsManaged(local.executablePath))
-			{
-				/*
-				There is some ongoing issue with .NET programs and UNC paths.
-			
-				Setting the executable working directory to an UNC path will correctly start the application,
-				but any retrieval of the active working directory by that application will throw an exception.
-				Unfortunately, many IO constructors will do so implicitly even if unnecessary.
-				See https://blogs.msdn.microsoft.com/bclteam/2007/02/13/long-paths-in-net-part-1-of-3-kim-hamilton/ for reference.
-				Apparently, this is never going to be 'fixed'.
-
-				Therefor, at the risk of paths ending up too long, we strip any found UNC markers before executing
-				if the application is detected to be managed.
-				We could test string length, and potentially throw an exception, but recent changes in Windows 10
-				imply that the 260 character limitation could be entirely removed eventually.
-				E.g. https://blogs.msdn.microsoft.com/jeremykuhne/2016/07/30/net-4-6-2-and-long-paths-on-windows-10/
-				*/
-				const PathString uncMarker = "\\\\?\\";
-				if (local.executablePath.BeginsWith(uncMarker))
-					local.executablePath.EraseLeft(uncMarker.GetLength());
-				if (local.workingDirectory.BeginsWith(uncMarker))
-					local.workingDirectory.EraseLeft(uncMarker.GetLength());
-			}
-
-
-
+			Sanitize(local);
 
 
 			ThreadedStartProcess(local);
