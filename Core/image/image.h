@@ -209,11 +209,10 @@ namespace DeltaWorks
 			template <typename Float>
 				void					sample(Float x0, Float y0, Float x1, Float y1, T*target)		const;
 
-				bool					columnIsOpaque(dimension_t x)	const;
-				bool					rowIsOpaque(dimension_t y)		const;
-
-
-
+			bool						ColumnIsOpaque(dimension_t x, bool IsOpaque(const T*))	const;
+			bool						RowIsOpaque(dimension_t y, bool IsOpaque(const T*))		const;
+			static bool					RGBAIsOpaque(const T*);
+			static bool					GrayAIsOpaque(const T*);
 		public:
 			typedef Iterator<true>		X;
 			typedef Iterator<false>		Y;
@@ -374,6 +373,7 @@ namespace DeltaWorks
 			bool						ImportRectangle(dimension_t x, dimension_t y, dimension_t width, dimension_t height, const T*target);	//!< Overwrites a section in the local pixel data. \param x Pixel offset (x) \param y Pixel offset (y) \param width Pixels in x-direction to overwrite \param height Pixels in y-direction to overwrite. \param target Ctr::Array to read from. Must be at least (\b width * \b height * GetChannels()) elements long.
 			void						ExtractChannels(BYTE channel, BYTE c_num, Self&target);								//!< Extracts the specified channel range into the specified target image
 
+			bool						TruncateToOpaque(bool IsOpaque(const T*));										//!< Reduces the image to the minimum necessary rectangle covering all opaque pixels. @return True if the local image has been changed, false otherwise
 			bool						TruncateToOpaque();																	//!< Reduces the image to the minimum necessary rectangle covering all opaque pixels. This method has no effect if the image does not have 2 (intensity+opacity) or 4 (rgb+opacity) channels @return True if the local image has been changed, false otherwise
 
 			bool						operator==(const Self&other) const;

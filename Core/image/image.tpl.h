@@ -1744,25 +1744,25 @@ template <typename T>
 	}
 
 template <typename T>
-	bool	ImageTemplate<T>::columnIsOpaque(dimension_t x)	const
+	bool	ImageTemplate<T>::ColumnIsOpaque( dimension_t x, bool IsOpaque(const T*) )	const
 	{
 		for (dimension_t y = 0; y < image_height; y++)
-			if (GetPixel(x,y)[image_channels-1] != 0)
+			if (IsOpaque(GetPixel(x,y)))
 				return true;
 		return false;
 	}
 
 template <typename T>
-	bool	ImageTemplate<T>::rowIsOpaque(dimension_t y)	const
+	bool	ImageTemplate<T>::RowIsOpaque( dimension_t y, bool IsOpaque(const T*) )	const
 	{
 		for (dimension_t x = 0; x < image_width; x++)
-			if (GetPixel(x,y)[image_channels-1] != 0)
+			if (IsOpaque(GetPixel(x,y)))
 				return true;
 		return false;
 	}
 
 template <typename T>
-	bool	ImageTemplate<T>::TruncateToOpaque()
+	bool	ImageTemplate<T>::TruncateToOpaque( bool IsOpaque(const T*) )
 	{
 		if (image_channels != 4 && image_channels != 2)
 			return false;
@@ -1770,13 +1770,13 @@ template <typename T>
 			return false;
 		dimension_t	left = 0,right=image_width,
 				bottom = 0,top=image_height;
-		while (left < right && !columnIsOpaque(left))
+		while (left < right && !ColumnIsOpaque(left,IsOpaque))
 			left++;
-		while (right > left && !columnIsOpaque(right-1))
+		while (right > left && !ColumnIsOpaque(right-1,IsOpaque))
 			right--;
-		while (bottom < top && !rowIsOpaque(bottom))
+		while (bottom < top && !RowIsOpaque(bottom,IsOpaque))
 			bottom++;
-		while (bottom < top && !rowIsOpaque(top-1))
+		while (bottom < top && !RowIsOpaque(top-1,IsOpaque))
 			top--;
 		if (bottom == top || left == right)
 		{
@@ -1805,6 +1805,33 @@ template <typename T>
 		return true;
 	}
 
+template <typename T>
+	/*static*/ bool		ImageTemplate<T>::RGBAIsOpaque( const T*pixel )
+	{
+		return pixel[3] != 0;
+	}
+	
+template <typename T>
+	/*static*/ bool		ImageTemplate<T>::GrayAIsOpaque( const T*pixel )
+	{
+		return pixel[1] != 0;
+	}
+
+
+
+template <typename T>
+	bool	ImageTemplate<T>::TruncateToOpaque( )
+	{
+		switch (image_channels)
+		{
+			case 2:
+				return TruncateToOpaque(GrayAIsOpaque);
+			case 4:
+				return TruncateToOpaque(RGBAIsOpaque);
+			default:
+				return false;
+		}
+	}
 
 
 template <typename T>
