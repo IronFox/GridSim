@@ -163,6 +163,7 @@ namespace DeltaWorks
 		Axis<false>			Vertical() const {return Axis<false>(GetHeight());}
 		dimension_t			GetWidth()															const;	//!< Queries current image width \return Image width in pixels
 		dimension_t			GetHeight()															const;	//!< Queries current image height \return Image height in pixels
+		count_t				CountPixels()														const;	//!< Queries the number of pixelsd
 		float				GetPixelAspect()													const;	//!< Queries the pixel aspect (width/height) of the local image
 		dimension_t			dimension(BYTE axis)												const; 	//!< Queries current image width/height \param axis Coordinate axis to retrieve (0=width, 1=height) \return Image width or height in pixels
 		dimension_t			GetDimension(BYTE axis)												const; 	//!< Queries current image width/height \param axis Coordinate axis to retrieve (0=width, 1=height) \return Image width or height in pixels
@@ -351,7 +352,8 @@ namespace DeltaWorks
 			inline	const T*			GetPixel(const X&x, const Y&y) const /**@copydoc get()*/	{return get(*x,*y);}
 			inline	T*					Get(const X&x, const Y&y)/**@copydoc get()*/	{return get(*x,*y);}
 			inline	const T*			Get(const X&x, const Y&y) const /**@copydoc get()*/	{return get(*x,*y);}
-
+			inline	T*					GetLinear(index_t idx)	{return image_data + idx * image_channels;}
+			inline	const T*			GetLinear(index_t idx)const {return image_data + idx * image_channels;}
 			void						SwapChannels(BYTE c0, BYTE c1);													//!< Exchanges the content of two channels for all pixels. \param c0 First channel index (0 = first(red) channel) \param c1 Second channel index (0 = first(red) channel).
 			void						AppendAlpha(const Self*other);												//!< Creates/overwrites the local 4th channel with the first channel of the specified other image for all pixels. \param other Pointer to another Image object. \b other is required to be of the exact same dimensions as the local image.
 			void						AppendAlphaAndDelete(Self*other);												//!< Performs AppendAlpha(), then deletes \b other. \param other Pointer to another Image object. \b other is required to be of the exact same dimensions as the local image but will be deleted even if that should not be the case.

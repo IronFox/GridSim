@@ -82,6 +82,12 @@ namespace DeltaWorks
 		return image_height;
 	}
 
+	count_t					BaseImage::CountPixels()														const
+	{
+		return count_t(image_height) * count_t(image_width);
+	}
+
+
 	float					BaseImage::GetPixelAspect()															const
 	{
 		return float(image_width)/float(image_height);
